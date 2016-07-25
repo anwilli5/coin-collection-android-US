@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Coin Collection</string>
+
+    <string-array name="types_of_coins">
+        <item>Pennies</item>
+        <item>Nickels</item>
+        <item>Dimes</item>
+        <item>Quarters</item>
+        <item>State Quarters</item>
+        <item>National Park Quarters</item>
+        <item>Half-Dollars</item>
+        <item>Eisenhower Dollars</item>
+        <item>Susan B. Anthony Dollars</item>
+        <item>Sacagawea/Native American Dollars</item> <!-- Was: Sacagawea Dollars -->
+        <item>Presidential Dollars</item>
+        <item>Indian Head Cents</item>
+        <item>Liberty Head Nickels</item>
+        <item>Buffalo Nickels</item>
+        <item>Mercury Dimes</item>
+        <item>Barber Dimes</item>
+        <item>Barber Quarters</item>
+        <item>Standing Liberty Quarters</item>
+        <item>Barber Half Dollars</item>
+        <item>Walking Liberty Half Dollars</item>
+        <item>Franklin Half Dollars</item>
+        <item>Morgan Dollars</item>
+        <item>Peace Dollars</item>
+        <item>American Eagle Silver Dollars</item>
+        <item>First Spouse Gold Coins</item>
+    </string-array>
+    <!-- The following string array stores the obverse images associated with the ones above -->
+    <string-array name="obverse_of_coins">
+        <item>penny_front_92px</item>
+        <item>nickel_front_92px</item>
+        <item>dime_front_92px</item>
+        <item>quarter_front_92px</item>
+        <item>not_used</item>
+        <item>not_used</item>
+        <item>half_front_92px</item>
+        <item>eisenhower_front_92px</item>
+        <item>anthony_front_92px</item>
+        <item>not_used</item>
+        <item>not_used</item>
+        <item>indian_head_front</item>
+        <item>liberty_head_nickel_obverse</item>
+        <item>buffalo_nickel_front</item>
+        <item>mercury_front_92px</item>
+        <item>barber_dime_front</item>
+        <item>barber_quarter_front</item>
+        <item>standing_liberty_t1_obverse</item>
+        <item>barber_half_front</item>
+        <item>walking_liberty_obverse</item>
+        <item>franklin_front</item>
+        <item>morgan_front</item>
+        <item>peace_dollar_obverse</item>
+        <item>american_eagle_silver_front</item>
+        <item>not_used</item>
+    </string-array>
+
+    <!-- The following string array stores the reverse images associated with the ones above -->
+    <string-array name="reverse_of_coins">
+        <item>penny_back_92px</item>
+        <item>nickel_back_92px</item>
+        <item>dime_back_92px</item>
+        <item>quarter_back_92px</item>
+        <item>state_quarter_back_92px</item>
+        <item>grand_canyon</item>
+        <item>half_back_92px</item>
+        <item>eisenhower_back_92px</item>
+        <item>anthony_back_92px</item>
+        <item>sacagawea_back</item>
+        <item>presidential_coin_obverse</item>
+        <item>indian_head_back</item>
+        <item>liberty_head_nickel_reverse</item>
+        <item>buffalo_nickel_back</item>
+        <item>mercury_back_92px</item>
+        <item>barber_dime_back</item>
+        <item>barber_quarter_back</item>
+        <item>standing_liberty_t2_reverse</item>
+        <item>barber_half_back</item>
+        <item>walking_liberty_reverse</item>
+        <item>franklin_back</item>
+        <item>morgan_reverse</item>
+        <item>peace_dollar_reverse</item>
+        <item>american_eagle_silver_back</item>
+        <item>first_spouse_obverse</item>
+    </string-array>
+    <!-- The following string array stores the year each coin began to be produced, associated with the ones above -->
+    <integer-array name="year_of_first_production">
+        <item>1909</item>
+        <item>1938</item>
+        <item>1946</item>
+        <item>1932</item>
+        <item>1337</item>
+        <item>1337</item>
+        <item>1964</item>
+        <item>1971</item>
+        <item>1979</item>
+        <item>2000</item>
+        <item>1337</item>
+        <item>1859</item>
+        <item>1883</item>
+        <item>1913</item>
+        <item>1916</item>
+        <item>1892</item>
+        <item>1892</item>
+        <item>1916</item>
+        <item>1892</item>
+        <item>1916</item>
+        <item>1948</item>
+        <item>1878</item>
+        <item>1921</item>
+        <item>1986</item>
+        <item>1337</item>
+    </integer-array>
+    <!--
+     The following string array stores the year each coin stopped being produced
+     (or the current year), associated with the ones above
+    -->
+    <integer-array name="year_of_most_recent_production">
+        <item>2016</item> <!-- Pennies -->
+        <item>2016</item> <!-- Nickels -->
+        <item>2016</item> <!-- Dimes -->
+        <item>1998</item>
+        <item>1337</item>
+        <item>1337</item>
+        <item>2016</item> <!-- Half-Dollars -->
+        <item>1978</item>
+        <item>1999</item>
+        <item>2016</item> <!-- Sacagawea/Native American Dollars -->
+        <item>1337</item>
+        <item>1909</item>
+        <item>1912</item>
+        <item>1938</item>
+        <item>1945</item>
+        <item>1916</item>
+        <item>1916</item>
+        <item>1930</item>
+        <item>1915</item>
+        <item>1947</item>
+        <item>1963</item>
+        <item>1921</item>
+        <item>1935</item>
+        <item>2016</item> <!-- American Eagle Silver Dollars -->
+        <item>1337</item>
+    </integer-array>
+
+    <!--
+          NOTE - For each coin we store the index of this array as the
+          quantity, so if we ever change this list we will need to update
+          every index (that falls after the places we added) to account
+          for this.
+    -->
+    <string-array name="coin_grades">
+        <item>Grade:</item>
+        <item>P-1</item>
+        <item>FR-2</item>
+        <item>AG-3</item>
+        <item>G-4</item>
+        <item>G-6</item>
+        <item>VG-8</item>
+        <item>VG-10</item>
+        <item>F-12</item>
+        <item>F-15</item>
+        <item>VF-20</item>
+        <item>VF-25</item>
+        <item>VF-30</item>
+        <item>VF-35</item>
+        <item>EF-40</item>
+        <item>EF-45</item>
+        <item>AU-50</item>
+        <item>AU-53</item>
+        <item>AU-55</item>
+        <item>AU-58</item>
+        <item>MS-60</item>
+        <item>MS-61</item>
+        <item>MS-62</item>
+        <item>MS-63</item>
+        <item>MS-64</item>
+        <item>MS-65</item>
+        <item>MS-66</item>
+        <item>MS-67</item>
+        <item>MS-68</item>
+        <item>MS-69</item>
+        <item>MS-70</item>
+        <item>PF-60</item>
+        <item>PF-61</item>
+        <item>PF-62</item>
+        <item>PF-63</item>
+        <item>PF-64</item>
+        <item>PF-65</item>
+        <item>PF-66</item>
+        <item>PF-67</item>
+        <item>PF-68</item>
+        <item>PF-69</item>
+        <item>PF-70</item>
+    </string-array>
+
+    <!--
+          NOTE - For each coin we store the index of this array as the
+          quantity, so if we ever change this list we will need to update
+          every index (that falls after the places we added) to account
+          for this.
+    -->
+    <string-array name="coin_quantities">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>25+</item>
+    </string-array>
+
+    <string name="create_new_collection">New Collection</string>
+    <string name="delete_collection">Delete Collection</string>
+    <string name="app_info">Info</string>
+    <string name="lock_collection">Lock</string>
+    <string name="lock_collection_adv">Save</string>
+    <string name="unlock_collection">Edit</string>
+    <string name="coin_slot_description">Not Used</string>
+    <string name="enter_collection_name">Enter Collection Name</string>
+    <string name="show_mint_mark">Show the mint mark on the collection page</string>
+    <string name="edit_date_range">Change the collection beginning and ending year</string>
+    <string name="show_territories">Include the quarters for D.C. and the U.S. Territories</string>
+    <string name="check_show_burnished_eagles">Include the special burnished coins</string>
+    <string name="include_p">Allow space for coins from the Philadelphia mint</string>
+    <string name="include_d">Allow space for coins from the Denver mint</string>
+    <string name="include_s">Allow space for coins from the San Francisco mint (circulation only)</string>
+    <string name="include_o">Allow space for coins from the New Orleans mint</string>
+    <string name="include_cc">Allow space for coins from the Carson City mint</string>
+    <string name="create_page">Create New Collection!</string>
+    <string name="select_collection_type">Collection Type: </string>
+    <string name="enter_start_year">Starting Year: </string>
+    <string name="enter_stop_year">Ending Year: </string>
+    <string name="select_coin_type">Select Coin Type</string>
+    <string name="select_grade">Grade</string>
+    <string name="select_quantity">Quantity</string>
+    <string name="unsaved_message">Unsaved Changes</string>
+    <string name="notes">Notes</string>
+    <string name="change_view_string">Change Views</string>
+    <string name="save_string">Save</string>
+    <string name="simple_view_string">Basic View</string>
+    <string name="advanced_view_string">Advanced View</string>
+    <string name="info">This App is meant to help you keep track of which coins you have already come across and saved in your collection. To help keep your collection organized, we recommend purchasing a coin album specific to each type of coin.\n\nThe mint marking on most coins can be found near the date that appears on the face of the coin. If no mint mark is present, it typically symbolizes that this coin was produced at the Philadelphia (P) mint. Other possible mint marks include that of the Denver mint (D) and the San Francisco mint (S), although the San Francisco mint has not produced coins for circulation for some time now. Also, for some older coins, the mint marks of the Carson City mint (CC) and the New Orleans mint (O) can be found, and special coins like the American Eagle Silver Dollars may carry the West Point mint mark (W). For more information, feel free to check out the website of the U.S. Mint.\n\nIf you have any suggestions or questions about the app, feel free to send an email to andrew27379091@gmail.com .\n\nUnited States coin images from the United States Mint. Quarter-dollar coin images from the United States Mint. Mercury Dime images, Buffalo Nickel reverse image, and Peace Dollar images courtesy of CCF Numismatics. Indian Head Cent images, Walking Liberty Half Dollar images, Morgan Dollar images, Buffalo Nickel obverse image, Liberty Head Nickel images, Barber Quarter images, and Barber Half Dollar images courtesy of Brandon Grossardt.  Standing Liberty Quarter images and Franklin Half Dollar images courtesy of John Baumgart.\n\nThis App is not endorsed by the United States Mint</string>
+    <string name="title_activity_reorder_collections">ReorderCollections</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

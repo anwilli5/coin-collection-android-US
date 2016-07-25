@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="Bicentennial_Pennies_types">
+        <item>Early Childhood</item>
+        <item>Formative Years</item>
+        <item>Professional Life</item>
+        <item>Presidency</item>
+    </string-array>
+    
+    <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
+    <string-array name="Bicentennial_Pennies_Regular_Images">
+        <item>early_childhood_r1</item>
+        <item>formative_years_r2</item>
+        <item>professional_life_r3</item>
+        <item>presidency_r4</item>
+    </string-array>
+</resources>

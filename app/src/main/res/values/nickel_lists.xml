@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="Westward_Journey_2004_Nickels_types">
+        <item>Peace Medal</item>
+        <item>Keelboat</item>
+    </string-array>
+    
+    <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
+    <string-array name="Westward_Journey_2004_Nickels_Regular_Images">
+        <item>peace_medal_r1</item>
+        <item>keelboat_r2</item>
+    </string-array>
+    
+    <string-array name="Westward_Journey_2005_Nickels_types">
+        <item>American Bison</item>
+        <item>Ocean in View!</item>
+    </string-array>
+    
+    <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
+    <string-array name="Westward_Journey_2005_Nickels_Regular_Images">
+        <item>american_bison_r3</item>
+        <item>ocean_in_view_r4</item>
+    </string-array>
+    
+    <!--  For convenience -->
+    <string-array name="Westward_Journey_All_Nickels_types">
+        <item>Peace Medal</item>
+        <item>Keelboat</item>
+        <item>American Bison</item>
+        <item>Ocean in View!</item>
+    </string-array>
+    
+</resources>

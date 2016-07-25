@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/create_new_collection"
+          android:icon="@android:drawable/ic_menu_add"
+          android:title="@string/create_new_collection" />
+    <item android:id="@+id/delete_collection"
+          android:icon="@android:drawable/ic_menu_delete"
+          android:title="@string/delete_collection" />
+    <item android:id="@+id/app_info"
+          android:icon="@android:drawable/ic_menu_info_details"
+          android:title="@string/app_info" />
+</menu>

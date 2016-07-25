@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="Presidential_Coins_type">
+    	<item>George Washington</item>
+	    <item>John Adams</item>
+	    <item>Thomas Jefferson</item>
+	    <item>James Madison</item>
+	    <item>James Monroe</item>
+    	<item>John Quincy Adams</item>
+    	<item>Andrew Jackson</item>
+    	<item>Martin Van Buren</item>
+    	<item>William Henry Harrison</item>
+    	<item>John Tyler</item>
+    	<item>James K. Polk</item>
+    	<item>Zachary Taylor</item>
+    	<item>Millard Fillmore</item>
+    	<item>Franklin Pierce</item>
+    	<item>James Buchanan</item>
+    	<item>Abraham Lincoln</item>
+    	<item>Andrew Johnson</item>
+    	<item>Ulysses S. Grant</item>
+    	<item>Rutherford B. Hayes</item>
+    	<item>James Garfield</item>
+    	<item>Chester Arthur</item>
+    	<item>Grover Cleveland 1</item>
+    	<item>Benjamin Harrison</item>
+    	<item>Grover Cleveland 2</item>
+    	<item>William McKinley</item>
+    	<item>Theodore Roosevelt</item>
+    	<item>William Howard Taft</item>
+    	<item>Woodrow Wilson</item>
+    	<item>Warren G. Harding</item>
+		<item>Calvin Coolidge</item>
+		<item>Herbert Hoover</item>
+		<item>Franklin D. Roosevelt</item>
+        <item>Harry Truman</item>
+        <item>Dwight D. Eisenhower</item>
+        <item>John F. Kennedy</item>
+        <item>Lyndon B. Johnson</item>
+		<item>Richard M. Nixon</item>
+		<item>Gerald R. Ford</item>
+	</string-array>
+	
+	<!-- This list contains the images used for the coins above -->
+	<string-array name="Presidential_Coins_Regular_Images">
+    	<item>george_washington</item>
+	    <item>john_adams</item>
+	    <item>thomas_jefferson</item>
+	    <item>james_madison</item>
+	    <item>james_monroe</item>
+    	<item>john_quincy_adams</item>
+    	<item>andrew_jackson</item>
+    	<item>martin_van_buren</item>
+    	<item>william_henry_harrison</item>
+    	<item>john_tyler</item>
+    	<item>james_k_polk</item>
+    	<item>zachary_taylor</item>
+    	<item>millard_fillmore</item>
+    	<item>franklin_pierce</item>
+    	<item>james_buchanan</item>
+    	<item>abraham_lincoln</item>
+    	<item>andrew_johnson</item>
+    	<item>ulysses_s_grant</item>
+    	<item>rutherford_b_hayes</item>
+    	<item>james_garfield</item>
+    	<item>chester_arthur</item>
+    	<item>grover_cleveland_1</item>
+    	<item>benjamin_harrison</item>
+    	<item>grover_cleveland_2</item>
+    	<item>william_mckinley</item>
+    	<item>theodore_roosevelt</item>
+    	<item>william_howard_taft</item>
+    	<item>woodrow_wilson</item>
+    	<item>warren_harding</item>
+		<item>calvin_coolidge</item>
+		<item>herbert_hoover</item>
+		<item>franklin_roosevelt</item>
+        <item>harry_truman</item>
+        <item>dwight_d_eisenhower</item>
+        <item>john_f_kennedy</item>
+        <item>lyndon_b_johnson</item>
+		<item>richard_m_nixon</item>
+		<item>gerald_r_ford</item>
+	</string-array>
+</resources>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string-array name="First_Spouse_types">
+        <item>Martha Washington</item>
+        <item>Abigail Adams</item>
+        <item>Thomas Jefferson’s Liberty</item>
+        <item>Dolley Madison</item>
+        <item>Elizabeth Monroe</item>
+        <item>Louisa Adams</item>
+        <item>Andrew Jackson’s Liberty</item>
+        <item>Martin Van Buren’s Liberty</item>
+        <item>Anna Harrison</item>
+        <item>Letitia Tyler</item>
+        <item>Julia Tyler</item>
+        <item>Sarah Polk</item>
+        <item>Margaret Taylor</item>
+        <item>Abigail Fillmore</item>
+        <item>Jane Pierce</item>
+        <item>James Buchanan’s Liberty</item>
+        <item>Mary Todd Lincoln</item>
+        <item>Eliza Johnson</item>
+        <item>Julia Grant</item>
+        <item>Lucy Hayes</item>
+        <item>Lucretia Garfield</item>
+        <item>Alice Paul</item>
+        <item>Frances Cleveland 1</item>
+        <item>Caroline Harrison</item>
+        <item>Frances Cleveland 2</item>
+        <item>Ida McKinley</item>
+        <item>Edith Roosevelt</item>
+        <item>Helen Taft</item>
+        <item>Ellen Wilson</item>
+        <item>Edith Wilson</item>
+        <item>Florence Harding</item>
+        <item>Grace Coolidge</item>
+        <item>Lou Hoover</item>
+        <item>Eleanor Roosevelt</item>
+        <item>Bess Truman</item>
+        <item>Mamie Eisenhower</item>
+        <item>Jacqueline Kennedy</item>
+        <item>Lady Bird Johnson</item>
+        <!--<item>Pat Nixon</item>
+        <item>Elizabeth Ford</item>
+        <item>Rosalynn Carter</item>
+        <item>Nancy Reagan</item>
+        <item>Barbara Bush</item>
+        <item>Hillary Clinton</item>
+        <item>Laura Bush</item>
+        <item>Michelle Obama</item>-->
+    </string-array>
+    
+    <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
+    <string-array name="First_Spouse_images">
+        <item>fs_washington</item>
+        <item>fs_adamsa</item>
+        <item>fs_jefferson</item>
+        <item>fs_madison</item>
+        <item>fs_monroe</item>
+        <item>fs_adams</item>
+        <item>fs_jacksons</item>
+        <item>fs_vanburens</item>
+        <item>fs_harrisona</item>
+        <item>fs_tyler</item>
+        <item>fs_tylerj2</item>
+        <item>fs_polk</item>
+        <item>fs_taylor</item>
+        <item>fs_fillmore</item>
+        <item>fs_pierce</item>
+        <item>fs_buchanans</item>
+        <item>fs_lincoln</item>
+        <item>fs_johnson</item>
+        <item>fs_grant</item>
+        <item>fs_hayes</item>
+        <item>fs_garfield</item>
+        <item>fs_paul</item>
+        <item>fs_cleveland1</item>
+        <item>fs_harrisonc</item>
+        <item>fs_cleveland2</item>
+        <item>fs_mckinley</item>
+        <item>fs_roosevelt1</item>
+        <item>fs_taft</item>
+        <item>fs_wilson1</item>
+        <item>fs_wilson2</item>
+        <item>fs_harding</item>
+        <item>fs_coolidge</item>
+        <item>fs_hoover</item>
+        <item>fs_roosevelt2</item>
+        <item>fs_truman</item>
+        <item>fs_eisenhower</item>
+        <item>fs_kennedy</item>
+        <item>fs_johnson2</item>
+        <!--<item>Pat Nixon</item>
+        <item>Elizabeth Ford</item>
+        <item>Rosalynn Carter</item>
+        <item>Nancy Reagan</item>
+        <item>Barbara Bush</item>
+        <item>Hillary Clinton</item>
+        <item>Laura Bush</item>
+        <item>Michelle Obama</item>-->
+    </string-array>
+    
+</resources>
