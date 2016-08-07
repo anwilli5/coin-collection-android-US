@@ -62,6 +62,11 @@ public class CollectionPage extends AppCompatActivity {
 	private ArrayList<Boolean> mInCollectionList = new ArrayList<>();
 	private CoinSlotAdapter mCoinSlotAdapter;
 	private Bundle mSavedInstanceState = null;
+
+	public final static String COLLECTION_NAME  = "Collection_Name";
+    public final static String COIN_TYPE        = "Coin_Type";
+    public final static String IMAGE_IDENTIFIER = "Image_Identifier";
+    public final static String COIN_TYPE_IMG    = "Coin_Type_Img";
 	
 	private int mDisplayType = MainApplication.SIMPLE_DISPLAY;
 	
@@ -103,10 +108,10 @@ public class CollectionPage extends AppCompatActivity {
 	            
         // Need to get the coin type from the intent that started this process
         Intent callingIntent = getIntent();
-        mCollectionName = callingIntent.getStringExtra("Collection_Name");
-        mCoinType = callingIntent.getStringExtra("Coin_Type");
-        mImageIdentifier = callingIntent.getIntExtra("Image_Identifier", 0);
-        mActionBarImage = callingIntent.getIntExtra("Coin_Type_Image", 0);
+        mCollectionName = callingIntent.getStringExtra(COLLECTION_NAME);
+        mCoinType = callingIntent.getStringExtra(COIN_TYPE);
+        mImageIdentifier = callingIntent.getIntExtra(IMAGE_IDENTIFIER, 0);
+        mActionBarImage = callingIntent.getIntExtra(COIN_TYPE_IMG, 0);
         
         if(callingIntent.hasExtra("view_index")){
         	mViewIndex = callingIntent.getIntExtra("view_index", 0);
