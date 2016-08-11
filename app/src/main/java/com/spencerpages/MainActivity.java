@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 	private final Context mContext = this;
 	private FrontAdapter mListAdapter;
     private DatabaseAdapter mDbAdapter;
+	private Resources mRes;
 
     // As a hack to get the static strings at the bottom of the list, we add spacers into
     // mCollectionListEntries.  This tracks the number of those spacers, which we use in several
@@ -125,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String[]> mCollectionInfo = null;
 	private ArrayList<String[][]> mCollectionContents = null;
     private int mDatabaseVersion = -1;
+
+    // Export directory path
+    private final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
     	}
     	
     	mBuilder = new AlertDialog.Builder(this);
+    	mRes = getResources();
     	
     	// Check whether it is the users first time using the app
         final SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
@@ -160,12 +166,12 @@ public class MainActivity extends AppCompatActivity {
         // isn't set
     	if(mainPreferences.getBoolean("first_Time_screen1", true) && mainPreferences.getBoolean("first_Time_screen2", true)){
     		// Show the user how to do everything
-    		String text = "Thanks for downloading Coin Collection!\nTo get started, select 'New Collection'";
+    		String text = mRes.getString(R.string.intro_message);
     		
         	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     		builder.setMessage(text)
     		       .setCancelable(false)
-    		       .setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
+    		       .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
     		           public void onClick(DialogInterface dialog, int id) {
     		               dialog.cancel();
     		       		   SharedPreferences.Editor editor = mainPreferences.edit();
@@ -284,9 +290,9 @@ public class MainActivity extends AppCompatActivity {
             Log.v("mainActivity", "finishViewSetup");
         }
 
-        mTypesOfCoins = getResources().getStringArray(R.array.types_of_coins);
-        mReverseCoinImages = getResources().getStringArray(R.array.reverse_of_coins);
-        mObverseCoinImages = getResources().getStringArray(R.array.obverse_of_coins);
+        mTypesOfCoins = mRes.getStringArray(R.array.types_of_coins);
+        mReverseCoinImages = mRes.getStringArray(R.array.reverse_of_coins);
+        mObverseCoinImages = mRes.getStringArray(R.array.obverse_of_coins);
 
   	    // Instantiate the DatabaseAdapter
 		mDbAdapter = new DatabaseAdapter(this);
@@ -314,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
                         if(0 == getSupportFragmentManager().getBackStackEntryCount()){
 
                             // We are back at this activity, so restore the ActionBar
-                            getSupportActionBar().setTitle("Coin Collection");
+                            getSupportActionBar().setTitle(mRes.getString(R.string.app_name));
                             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                             getSupportActionBar().setHomeButtonEnabled(false);
 
@@ -348,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 	    case 1: // Remove Collection
                 	    	
                             if(mNumberOfCollections == 0){
-                        		Toast.makeText(mContext, "No Collections Found", Toast.LENGTH_SHORT).show();
+                        		Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                         		break;
                             }
                         	// Thanks!
@@ -359,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
                         	}
                         	
                         	AlertDialog.Builder delete_builder = new AlertDialog.Builder(mContext);
-                        	delete_builder.setTitle("Select a collection to delete");
+                        	delete_builder.setTitle(mRes.getString(R.string.select_collection_delete));
                         	delete_builder.setItems(names, new DialogInterface.OnClickListener() {
                         	    public void onClick(DialogInterface dialog, int item) {
                         	    	showDeleteConfirmation(mCollectionListEntries.get(item).getName());
@@ -377,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
                         case 4: // Re-order Collections
 
                             if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, "No Collections Found", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                                 break;
                             }
 
@@ -397,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
 
 							// Setup the actionbar for the reorder page
 							// TODO Check for NULL
-							getSupportActionBar().setTitle("Reorder Collections");
+							getSupportActionBar().setTitle(mRes.getString(R.string.reorder_collection));
 							getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 							getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -423,10 +429,10 @@ public class MainActivity extends AppCompatActivity {
 
                 CollectionListInfo listEntry = mCollectionListEntries.get(position);
 
-        		intent.putExtra("Collection_Name", listEntry.getName());
-        		intent.putExtra("Coin_Type", listEntry.getType());
-        		intent.putExtra("Image_Identifier", listEntry.getCoinObverseImageIdentifier());
-        		intent.putExtra("Coin_Type_Image", listEntry.getCoinReverseImageIdentifier());
+        		intent.putExtra(CollectionPage.COLLECTION_NAME, listEntry.getName());
+        		intent.putExtra(CollectionPage.COIN_TYPE, listEntry.getType());
+        		intent.putExtra(CollectionPage.IMAGE_IDENTIFIER, listEntry.getCoinObverseImageIdentifier());
+        		intent.putExtra(CollectionPage.COIN_TYPE_IMG, listEntry.getCoinReverseImageIdentifier());
 
         		startActivity(intent);
         	}
@@ -445,23 +451,23 @@ public class MainActivity extends AppCompatActivity {
 			// Should be able to read from it without issue
 		} else if (Environment.MEDIA_SHARED.equals(state)) {
 			// Shared with PC so can't write to it
-    		showCancelableAlert("External media cannot be read from.  If plugged in to a computer, try unplugging it.");
+    		showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_shared));
         	return;		
 		} else {
 			// Doesn't exist, so notify user
-			showCancelableAlert("External media cannot be read from (state: " + state + ".)  Try again later.");
+			showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_state, state));
         	return;
 		}
 		
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-    	String exportFolderName = "/coin-collection-app-files";
-    	String path = sdCard.getAbsolutePath() + exportFolderName;
+
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(!dir.isDirectory()){
     		// The directory doesn't exist, notify the user
-    		showCancelableAlert("Failed to find existing export directory at " + path);
+    		showCancelableAlert(mRes.getString(R.string.cannot_find_export_dir, path));
         	return;
     	}
     	
@@ -481,19 +487,19 @@ public class MainActivity extends AppCompatActivity {
             this.mDatabaseVersion = Integer.parseInt(in.readLine());
 
         } catch (Exception e) {
-            showCancelableAlert("Error when opening input file for reading at " + file.getAbsolutePath());
+            showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
             return;
         }
 
         if(-1 == this.mDatabaseVersion){
-            showCancelableAlert("Invalid database version");
+            showCancelableAlert(mRes.getString(R.string.error_db_version));
             return;
         }
 
         try {
             in.close();
         } catch (IOException e) {
-            showCancelableAlert("Error when closing input file at " + file.getAbsolutePath());
+            showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
             return;
         }
 
@@ -505,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
 			in_ = new InputStreamReader(f, "UTF8");
 			in = new BufferedReader(in_);
 		} catch (Exception e) {
-			showCancelableAlert("Error when opening input file for reading at " + file.getAbsolutePath());
+			showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
 			return;
 		}
     	
@@ -527,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
 
     	    	if(items.length != numberOfColumns){
     	    		errorOccurred = true;
-    	    		showCancelableAlert("Invalid backup file detected (Error 1)");
+    	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 1));
     	    		break;
     	    	}
     	    	
@@ -538,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
     	    			break;
     	    		} else if(mTypesOfCoins.length == i + 1){
     	    			errorOccurred = true;
-        	    		showCancelableAlert("Invalid backup file detected (Error 2)");
+        	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 2));
     	    			break;
     	    		}
     	    		
@@ -553,7 +559,7 @@ public class MainActivity extends AppCompatActivity {
     	    	if(Integer.valueOf(items[2]) < 0 ||
     	    	   Integer.valueOf(items[3]) < 0){
     	    		errorOccurred = true;
-    	    		showCancelableAlert("Invalid backup file detected (Error 3)");
+    	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 3));
 	    			break;
     	    	}
     	    	
@@ -563,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
     	    		String[] previousCollectionInfo = collectionInfo.get(i);
     	    		if(items[0].equals(previousCollectionInfo[0])){
     	    			errorOccurred = true;
-        	    		showCancelableAlert("Invalid backup file detected (Error 4)");
+        	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 4));
     	    			break;
     	    		}
     	    	}
@@ -579,13 +585,13 @@ public class MainActivity extends AppCompatActivity {
     	    }
     	} catch(Exception e){
     		errorOccurred = true;
-    		showCancelableAlert("An unknown error occurred when trying to read in collection at " + file.getAbsolutePath());
+    		showCancelableAlert(mRes.getString(R.string.error_unknown_read, file.getAbsolutePath()));
     	}
     	
     	try {
 			in.close();
 		} catch (IOException e) {
-			showCancelableAlert("Error when closing input file at " + file.getAbsolutePath());
+			showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
 			return;
 		}
     	
@@ -610,7 +616,7 @@ public class MainActivity extends AppCompatActivity {
     		file = new File(dir, collectionFileName + ".csv");
 
     		if(!file.isFile()){
-    			showCancelableAlert("Couldn't find collection input file at " + file.getAbsolutePath());	
+    			showCancelableAlert(mRes.getString(R.string.cannot_find_input_file, file.getAbsolutePath()));
     			return;
     		}
 
@@ -619,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
     			in_ = new InputStreamReader(f, "UTF8");
     			in = new BufferedReader(in_);
     		} catch (Exception e) {
-    			showCancelableAlert("Error when opening input file for reading at " + file.getAbsolutePath());	
+    			showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
     			return;
     		}
 
@@ -641,7 +647,7 @@ public class MainActivity extends AppCompatActivity {
 
     				if(items.length != numberOfColumns){
     					errorOccurred = true;
-    					showCancelableAlert("Invalid backup file detected (Error 11) " + String.valueOf(items.length));
+    					showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + String.valueOf(items.length));
     					break;
     				}
 
@@ -653,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
 
     		} catch(Exception e){
     			errorOccurred = true;
-    			showCancelableAlert("An unknown error occurred when trying to read in collection at " + file.getAbsolutePath());
+    			showCancelableAlert(mRes.getString(R.string.error_unknown_read, file.getAbsolutePath()));
     		}
     		
         	if(errorOccurred){
@@ -669,7 +675,7 @@ public class MainActivity extends AppCompatActivity {
     		// Verify that we read in the correct number of records
     		if(collectionContent.size() != Integer.valueOf(collectionData[3])){
     			errorOccurred = true;
-    			showCancelableAlert("Invalid backup file detected (Error 12)");
+    			showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
     		}
     		
     		// TODO Can this happen? ClassCastException Object[] cannot be cast to String[][]
@@ -678,7 +684,7 @@ public class MainActivity extends AppCompatActivity {
     		try {
     			in.close();
     		} catch (IOException e) {
-    			showCancelableAlert("Error when closing input file at " + file.getAbsolutePath());
+    			showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
     			return;
     		}
         	
@@ -782,22 +788,21 @@ public class MainActivity extends AppCompatActivity {
 			// Should be able to write to it without issue
 		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
 			// Can't write to it, so notify user
-			showCancelableAlert("External media cannot be written to (mounted read-only.)  If plugged in to a computer, try unplugging it.");
+			showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_ro));
         	return;
 		} else if (Environment.MEDIA_SHARED.equals(state)) {
 			// Shared with PC so can't write to it
-			showCancelableAlert("External media cannot be written to.  If plugged in to a computer, try unplugging it.");
+			showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_shared));
         	return;			
 		} else {
 			// Doesn't exist, so notify user
-			showCancelableAlert("External media cannot be written to (state: " + state + ".)  Try again later.");
+			showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_state, state));
         	return;
 		}
     	
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-    	String exportFolderName = "/coin-collection-app-files";
-    	String path = sdCard.getAbsolutePath() + exportFolderName;
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(dir.isDirectory() || dir.exists()){
@@ -822,13 +827,12 @@ public class MainActivity extends AppCompatActivity {
     	
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-    	String exportFolderName = "/coin-collection-app-files";
-    	String path = sdCard.getAbsolutePath() + exportFolderName;
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(!dir.isDirectory() && !dir.mkdir()){
     		// The directory doesn't exist, notify the user
-    		showCancelableAlert("Failed to make/find directory at " + path);
+    		showCancelableAlert(mRes.getString(R.string.failed_mk_dir, path));
         	return;
     	}
     	
@@ -845,7 +849,7 @@ public class MainActivity extends AppCompatActivity {
 			out = new OutputStreamWriter(f, "UTF8");
 		} catch (Exception e) {
 			// This shouldn't happen since we just created it
-			showCancelableAlert("Error when opening output file for writing at " + file.getAbsolutePath());
+			showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
 			return;
 		}
     	
@@ -876,7 +880,7 @@ public class MainActivity extends AppCompatActivity {
 	    		    out.append("\n");
 	    		}
     		} catch(Exception e) {
-    			showCancelableAlert("Error when writing to output file at " + file.getAbsolutePath());
+    			showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
                 errorOccurred = true;
     			break;
     		}
@@ -885,7 +889,7 @@ public class MainActivity extends AppCompatActivity {
     	try {
 			out.close();
 		} catch (IOException e) {
-			showCancelableAlert("Error when closing output file at " + file.getAbsolutePath());
+			showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
 			return;
 		}
     	
@@ -905,7 +909,7 @@ public class MainActivity extends AppCompatActivity {
 			out.close();
 		} catch (Exception e) {
 			// This shouldn't happen since we just created it
-			showCancelableAlert("Error when working with output file at " + file.getAbsolutePath());
+			showCancelableAlert(mRes.getString(R.string.error_misc_output_file, file.getAbsolutePath()));
 			return;
 		}
     	
@@ -928,7 +932,7 @@ public class MainActivity extends AppCompatActivity {
     			out = new OutputStreamWriter(f, "UTF8");
     		} catch (Exception e) {
     			// This shouldn't happen since we just created it
-    			showCancelableAlert("Error when opening output file for writing at " + file.getAbsolutePath());
+    			showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
     			return;
     		}
         	
@@ -953,7 +957,7 @@ public class MainActivity extends AppCompatActivity {
         				try {
         				    out.write("\n");
         				} catch(Exception e) {
-        					showCancelableAlert("Error when writing to output file at " + file.getAbsolutePath());
+        					showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
         					errorOccurred = true;
         					break;
         				}  
@@ -970,7 +974,7 @@ public class MainActivity extends AppCompatActivity {
         					}
 
         				} catch(Exception e) {
-        					showCancelableAlert("Error when writing to output file at " + file.getAbsolutePath());
+        					showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
         					errorOccurred = true;
         					break;
         				}
@@ -987,7 +991,7 @@ public class MainActivity extends AppCompatActivity {
         	try {
     			out.close();
     		} catch (IOException e) {
-    			showCancelableAlert("Error when closing output file at " + file.getAbsolutePath());
+    			showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
     			return;
     		}
         	
@@ -998,7 +1002,7 @@ public class MainActivity extends AppCompatActivity {
     	
     	mDbAdapter.close();
     	
-		showCancelableAlert("Successfully exported collection to '" + exportFolderName + "' on the external storage device!");
+		showCancelableAlert(mRes.getString(R.string.success_export, EXPORT_FOLDER_NAME));
     }
     
     private void showCancelableAlert(String text) {
@@ -1014,11 +1018,13 @@ public class MainActivity extends AppCompatActivity {
 
         public ArrayList<CollectionListInfo> items;
         public int numberOfCollections;
+        private Resources mRes;
 
         public FrontAdapter(Context context, ArrayList<CollectionListInfo> items, int numberOfCollections) {
-            super(context, R.id.textView1, items);
+            super(context, R.layout.list_element, R.id.textView1, items);
             this.items = items;
             this.numberOfCollections = numberOfCollections;
+            mRes = context.getResources();
         }
         
         @Override
@@ -1059,30 +1065,30 @@ public class MainActivity extends AppCompatActivity {
                 	switch(newPosition){
                 	    case 0: // Add Collection
                 	    	image.setBackgroundResource(R.drawable.icon_circle_add);
-                	    	text.setText("New Collection");
+                	    	text.setText(mRes.getString(R.string.create_new_collection));
                 	    	break;
                 	    case 1: // Remove Collection
                 	    	image.setBackgroundResource(R.drawable.icon_minus);
-                	    	text.setText("Delete Collection");
+                	    	text.setText(mRes.getString(R.string.delete_collection));
                 	    	break;
                 	    case 2: // Import Collections
                 	    	image.setBackgroundResource(R.drawable.icon_cloud_upload);
-                	    	text.setText("Import Collections");
+                	    	text.setText(mRes.getString(R.string.import_collection));
 
                 	    	break;
                 	    case 3: // Export Collections
                 	    	image.setBackgroundResource(R.drawable.icon_cloud_download);
-                	    	text.setText("Export Collections");
+                	    	text.setText(mRes.getString(R.string.export_collection));
 
                 	        break;
 						case 4: // Reorder Collections
 							image.setBackgroundResource(R.drawable.icon_sort);
-							text.setText("Reorder Collections");
+							text.setText(mRes.getString(R.string.reorder_collection));
 
 							break;
                 	    case 5: // Info
                 	    	image.setBackgroundResource(R.drawable.icon_info);
-                	    	text.setText("App Info");
+                	    	text.setText(mRes.getString(R.string.app_info));
 
                 	    	break;
                 	}
@@ -1118,7 +1124,7 @@ public class MainActivity extends AppCompatActivity {
                     if(total >= item.getMax()){
                     	// The collection is complete
                     	if(bt != null){
-                    		bt.setText("Collection Complete!");
+                    		bt.setText(mRes.getString(R.string.collection_complete));
                     	}
                     } else {
                     	bt.setText("");
@@ -1193,10 +1199,10 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Consider adding error check in case we didn't find the name in typeOfCoins... This is pretty unlikely, though
 
                 // Thanks! http://steven.bitsetters.com/2007/11/27/accessing-android-resources-by-name-at-runtime/
-                int reverseIdentifier = getResources().getIdentifier(mReverseCoinImages[index], "drawable", getPackageName());
+                int reverseIdentifier = mRes.getIdentifier(mReverseCoinImages[index], "drawable", getPackageName());
                 listEntry.setCoinReverseImageIdentifier(reverseIdentifier);
 
-                int obverseIdentifier = getResources().getIdentifier(mObverseCoinImages[index], "drawable", getPackageName());
+                int obverseIdentifier = mRes.getIdentifier(mObverseCoinImages[index], "drawable", getPackageName());
                 listEntry.setCoinObverseImageIdentifier(obverseIdentifier);
 
                 // Add it to the list of collections
@@ -1222,15 +1228,15 @@ public class MainActivity extends AppCompatActivity {
     private void showExportConfirmation(){
     	
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage("Existing collections found on the external storage.  Exporting again will overwrite these.  Are you sure you want to do this?")
+    	builder.setMessage(mRes.getString(R.string.export_warning))
     	       .setCancelable(false)
-    	       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	       .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	        	   // TODO Maybe use AsyncTask, if necessary
                         handleExportCollectionsPart2();
     	           }
     	       })
-    	       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	       .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	                dialog.cancel();
     	           }
@@ -1242,9 +1248,9 @@ public class MainActivity extends AppCompatActivity {
     private void showImportConfirmation(){
     	
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage("Importing new collections will delete all existing collections in the App.  Are you sure you want to do this?")
+    	builder.setMessage(mRes.getString(R.string.import_warning))
     	       .setCancelable(false)
-    	       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	       .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	               // Finish the import by kicking off an AsyncTask to do the heavy lifting
     	    		   mTask = new InitTask();
@@ -1257,7 +1263,7 @@ public class MainActivity extends AppCompatActivity {
     	    		   mTask.execute();
     	           }
     	       })
-    	       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	       .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	                dialog.cancel();
     	                handleImportCollectionsCancel();
@@ -1274,9 +1280,9 @@ public class MainActivity extends AppCompatActivity {
     	final String name2 = name;
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setMessage("Are you sure you want to delete collection named '" + name2 + "'?")
+    	builder.setMessage(mRes.getString(R.string.delete_warning, name2))
     	       .setCancelable(false)
-    	       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	       .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	               //Do the deleting
     	    		   mDbAdapter.open();
@@ -1298,7 +1304,7 @@ public class MainActivity extends AppCompatActivity {
     	        	   mDbAdapter.close();
     	           }
     	       })
-    	       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	       .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
     	                dialog.cancel();
     	           }
@@ -1357,6 +1363,7 @@ public class MainActivity extends AppCompatActivity {
     class InitTask extends AsyncTask<Void, Void, Void>
 	{
 		// Use these to know whether we are opening the database or importing new ones
+        // TODO Make these strings come from the strings resource file
 		boolean doImport = false;
 		final String importMessage = "Importing Collections...";
 

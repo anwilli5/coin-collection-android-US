@@ -25,6 +25,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -84,6 +85,7 @@ public class CoinPageCreator extends AppCompatActivity {
 	private boolean mShowCC;
     private int mStartYear;
     private int mStopYear;
+    private Resources mRes;
 
     /** mIdentifierList Upon selecting to create a collection, gets populated with a list of the
      *                  individual coin identifiers (years, states, people, etc.) created after
@@ -123,6 +125,23 @@ public class CoinPageCreator extends AppCompatActivity {
      */
     private Context mContext = this;
 
+    // Saved instance variable names
+    private final static String COIN_TYPE = "CoinType";
+    private final static String COIN_TYPE_INDEX = "CoinTypeIndex";
+    private final static String SHOW_MINT_MARKS = "ShowMintMarks";
+    private final static String SHOW_TERRITORIES = "ShowTerritories";
+    private final static String SHOW_BURNISHED = "ShowBurnished";
+    private final static String EDIT_DATE_RANGE = "EditDateRange";
+    private final static String SHOW_P = "ShowP";
+    private final static String SHOW_D = "ShowD";
+    private final static String SHOW_S = "ShowS";
+    private final static String SHOW_O = "ShowO";
+    private final static String SHOW_CC = "ShowCC";
+    private final static String START_YEAR = "StartYear";
+    private final static String STOP_YEAR = "StopYear";
+    private final static String START_YEARS = "StartYears";
+    private final static String STOP_YEARS = "StopYears";
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -132,32 +151,33 @@ public class CoinPageCreator extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         setContentView(R.layout.collection_creation_page);
+        mRes = getResources();
 
         // Initialize our instance variables
         if(savedInstanceState != null)
         {
             // Pull in enough of the saved state to initialize the UI
-            mCoinType = savedInstanceState.getString("mCoinType");
-            mCoinTypeIndex = savedInstanceState.getInt("mCoinTypeIndex");
-            mStartYears = savedInstanceState.getIntArray("mStartYears");
-            mStopYears = savedInstanceState.getIntArray("mStopYears");
+            mCoinType = savedInstanceState.getString(COIN_TYPE);
+            mCoinTypeIndex = savedInstanceState.getInt(COIN_TYPE_INDEX);
+            mStartYears = savedInstanceState.getIntArray(START_YEARS);
+            mStopYears = savedInstanceState.getIntArray(STOP_YEARS);
 
             // Reset the UI so that it matches what we expect. The values of the various UI elements
             // get set to their previous values for us, but which
             resetView(mCoinType);
 
             // Finish pulling in the rest of the data
-            mShowMintMark = savedInstanceState.getBoolean("mShowMintMark");
-            mShowTerritories = savedInstanceState.getBoolean("mShowTerritories");
-            mShowBurnished = savedInstanceState.getBoolean("mShowBurnished");
-            mEditDateRange = savedInstanceState.getBoolean("mEditDateRange");
-            mShowP = savedInstanceState.getBoolean("mShowP");
-            mShowD = savedInstanceState.getBoolean("mShowD");
-            mShowS = savedInstanceState.getBoolean("mShowS");
-            mShowO = savedInstanceState.getBoolean("mShowO");
-            mShowCC = savedInstanceState.getBoolean("mShowCC");
-            mStartYear = savedInstanceState.getInt("mStartYear");
-            mStopYear = savedInstanceState.getInt("mStopYear");
+            mShowMintMark = savedInstanceState.getBoolean(SHOW_MINT_MARKS);
+            mShowTerritories = savedInstanceState.getBoolean(SHOW_TERRITORIES);
+            mShowBurnished = savedInstanceState.getBoolean(SHOW_BURNISHED);
+            mEditDateRange = savedInstanceState.getBoolean(EDIT_DATE_RANGE);
+            mShowP = savedInstanceState.getBoolean(SHOW_P);
+            mShowD = savedInstanceState.getBoolean(SHOW_D);
+            mShowS = savedInstanceState.getBoolean(SHOW_S);
+            mShowO = savedInstanceState.getBoolean(SHOW_O);
+            mShowCC = savedInstanceState.getBoolean(SHOW_CC);
+            mStartYear = savedInstanceState.getInt(START_YEAR);
+            mStopYear = savedInstanceState.getInt(STOP_YEAR);
 
             // And update the UI with the rest of the data
             updateViewFromState();
@@ -165,11 +185,11 @@ public class CoinPageCreator extends AppCompatActivity {
         } else {
 
             // Need to get the array of the first/last years
-            mStartYears = getResources().getIntArray(R.array.year_of_first_production);
-            mStopYears = getResources().getIntArray(R.array.year_of_most_recent_production);
+            mStartYears = mRes.getIntArray(R.array.year_of_first_production);
+            mStopYears = mRes.getIntArray(R.array.year_of_most_recent_production);
 
             // Initialize mCoinType and mCoinTypeIndex
-            String[] coinTypes = getResources().getStringArray(R.array.types_of_coins);
+            String[] coinTypes = mRes.getStringArray(R.array.types_of_coins);
             mCoinTypeIndex = 0;
             mCoinType = coinTypes[mCoinTypeIndex];
 
@@ -549,12 +569,10 @@ public class CoinPageCreator extends AppCompatActivity {
 		SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 		if(mainPreferences.getBoolean("first_Time_screen2", true)){
 			// Show the user how to do everything
-			CharSequence text = "Select a coin type, choose a name and hit 'Create New Collection!'";
-
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(text)
+			builder.setMessage(mRes.getString(R.string.tutorial_select_coin_and_create))
 			.setCancelable(false)
-			.setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
+			.setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
 					SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
@@ -574,21 +592,21 @@ public class CoinPageCreator extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
 
-        savedInstanceState.putString("mCoinType", mCoinType);
-        savedInstanceState.putInt("mCoinTypeIndex", mCoinTypeIndex);
-        savedInstanceState.putBoolean("mShowMintMark", mShowMintMark);
-        savedInstanceState.putBoolean("mShowTerritories", mShowTerritories);
-        savedInstanceState.putBoolean("mShowBurnished", mShowBurnished);
-        savedInstanceState.putBoolean("mEditDateRange", mEditDateRange);
-        savedInstanceState.putBoolean("mShowP", mShowP);
-        savedInstanceState.putBoolean("mShowD", mShowD);
-        savedInstanceState.putBoolean("mShowS", mShowS);
-        savedInstanceState.putBoolean("mShowO", mShowO);
-        savedInstanceState.putBoolean("mShowCC", mShowCC);
-        savedInstanceState.putInt("mStartYear", mStartYear);
-        savedInstanceState.putInt("mStopYear", mStopYear);
-        savedInstanceState.putIntArray("mStartYears", mStartYears);
-        savedInstanceState.putIntArray("mStopYears", mStopYears);
+        savedInstanceState.putString(COIN_TYPE, mCoinType);
+        savedInstanceState.putInt(COIN_TYPE_INDEX, mCoinTypeIndex);
+        savedInstanceState.putBoolean(SHOW_MINT_MARKS, mShowMintMark);
+        savedInstanceState.putBoolean(SHOW_TERRITORIES, mShowTerritories);
+        savedInstanceState.putBoolean(SHOW_BURNISHED, mShowBurnished);
+        savedInstanceState.putBoolean(EDIT_DATE_RANGE, mEditDateRange);
+        savedInstanceState.putBoolean(SHOW_P, mShowP);
+        savedInstanceState.putBoolean(SHOW_D, mShowD);
+        savedInstanceState.putBoolean(SHOW_S, mShowS);
+        savedInstanceState.putBoolean(SHOW_O, mShowO);
+        savedInstanceState.putBoolean(SHOW_CC, mShowCC);
+        savedInstanceState.putInt(START_YEAR, mStartYear);
+        savedInstanceState.putInt(STOP_YEAR, mStopYear);
+        savedInstanceState.putIntArray(START_YEARS, mStartYears);
+        savedInstanceState.putIntArray(STOP_YEARS, mStopYears);
 
         super.onSaveInstanceState(savedInstanceState);
     }

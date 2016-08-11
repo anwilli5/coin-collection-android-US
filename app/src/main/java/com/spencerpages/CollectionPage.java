@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -62,6 +63,15 @@ public class CollectionPage extends AppCompatActivity {
 	private ArrayList<Boolean> mInCollectionList = new ArrayList<>();
 	private CoinSlotAdapter mCoinSlotAdapter;
 	private Bundle mSavedInstanceState = null;
+    private Resources mRes;
+
+    // Intent Argument Keywords
+	public final static String COLLECTION_NAME  = "Collection_Name";
+    public final static String COIN_TYPE        = "Coin_Type";
+    public final static String IMAGE_IDENTIFIER = "Image_Identifier";
+    public final static String COIN_TYPE_IMG    = "Coin_Type_Img";
+    public final static String VIEW_INDEX       = "view_index";
+    public final static String VIEW_POSITION    = "view_position";
 	
 	private int mDisplayType = MainApplication.SIMPLE_DISPLAY;
 	
@@ -96,21 +106,22 @@ public class CollectionPage extends AppCompatActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    
+        mRes = getResources();
+
 	    // Save off this bundle so that after the database is open we can use it
 	    // to get the previous CoinSlotAdapter, if present
 	    mSavedInstanceState = savedInstanceState;
 	            
         // Need to get the coin type from the intent that started this process
         Intent callingIntent = getIntent();
-        mCollectionName = callingIntent.getStringExtra("Collection_Name");
-        mCoinType = callingIntent.getStringExtra("Coin_Type");
-        mImageIdentifier = callingIntent.getIntExtra("Image_Identifier", 0);
-        mActionBarImage = callingIntent.getIntExtra("Coin_Type_Image", 0);
+        mCollectionName = callingIntent.getStringExtra(COLLECTION_NAME);
+        mCoinType = callingIntent.getStringExtra(COIN_TYPE);
+        mImageIdentifier = callingIntent.getIntExtra(IMAGE_IDENTIFIER, 0);
+        mActionBarImage = callingIntent.getIntExtra(COIN_TYPE_IMG, 0);
         
-        if(callingIntent.hasExtra("view_index")){
-        	mViewIndex = callingIntent.getIntExtra("view_index", 0);
-        	mViewPosition = callingIntent.getIntExtra("view_position", 0);
+        if(callingIntent.hasExtra(VIEW_INDEX)){
+        	mViewIndex = callingIntent.getIntExtra(VIEW_INDEX, 0);
+        	mViewPosition = callingIntent.getIntExtra(VIEW_POSITION, 0);
         }
 	    
         // Update the title
@@ -122,12 +133,10 @@ public class CollectionPage extends AppCompatActivity {
     	SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
     	if(mainPreferences.getBoolean("first_Time_screen3", true)){
     		// Show the user how to do everything
-    		CharSequence text = "Add a coin to your collection by clicking the space above it's year or name.  Also, you can prevent accidental changes using the 'Lock' action";
-    		
     		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage(text)
+    		builder.setMessage(mRes.getString(R.string.tutorial_add_to_and_lock_collection))
     		       .setCancelable(false)
-    		       .setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
+    		       .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
     		           public void onClick(DialogInterface dialog, int id) {
     		               dialog.cancel();
     		               SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
@@ -334,8 +343,8 @@ public class CollectionPage extends AppCompatActivity {
     	        ArrayList<Integer> quantities = mSavedInstanceState.getIntegerArrayList("coin_quantities");
     	        ArrayList<String> notes = mSavedInstanceState.getStringArrayList("coin_notes");
     	        boolean[] hasChanged = mSavedInstanceState.getBooleanArray("change_list");
-    	        mViewIndex = mSavedInstanceState.getInt("view_index");
-    	        mViewPosition = mSavedInstanceState.getInt("view_position");
+    	        mViewIndex = mSavedInstanceState.getInt(VIEW_INDEX);
+    	        mViewPosition = mSavedInstanceState.getInt(VIEW_POSITION);
 
 				if(BuildConfig.DEBUG) {
 
@@ -362,8 +371,8 @@ public class CollectionPage extends AppCompatActivity {
     	} else {
     		// Simple view, get the gridview location
     		if(mSavedInstanceState != null){
-    	        mViewIndex = mSavedInstanceState.getInt("view_index");
-    	        mViewPosition = mSavedInstanceState.getInt("view_position");
+    	        mViewIndex = mSavedInstanceState.getInt(VIEW_INDEX);
+    	        mViewPosition = mSavedInstanceState.getInt(VIEW_POSITION);
     		}
     	}
 
@@ -634,8 +643,8 @@ public class CollectionPage extends AppCompatActivity {
             	int top = (v == null) ? 0 : v.getTop();
             	
         		Intent callingIntent = getIntent();
-        		callingIntent.putExtra("view_index", index);
-        		callingIntent.putExtra("view_position", top);
+        		callingIntent.putExtra(VIEW_INDEX, index);
+        		callingIntent.putExtra(VIEW_POSITION, top);
 
         		finish();
         		startActivity(callingIntent);
@@ -663,8 +672,8 @@ public class CollectionPage extends AppCompatActivity {
                	int top = (v == null) ? 0 : v.getTop();
                 	
             	Intent callingIntent = getIntent();
-            	callingIntent.putExtra("view_index", index);
-            	callingIntent.putExtra("view_position", top);
+            	callingIntent.putExtra(VIEW_INDEX, index);
+            	callingIntent.putExtra(VIEW_POSITION, top);
             		
             	// Restart the activity
             	finish();
@@ -703,8 +712,8 @@ public class CollectionPage extends AppCompatActivity {
                	int top = (v == null) ? 0 : v.getTop();
                 	
             	Intent callingIntent = getIntent();
-            	callingIntent.putExtra("view_index", index);
-            	callingIntent.putExtra("view_position", top);
+            	callingIntent.putExtra(VIEW_INDEX, index);
+            	callingIntent.putExtra(VIEW_POSITION, top);
 
             	// Restart the activity
             	finish();
@@ -851,7 +860,7 @@ public class CollectionPage extends AppCompatActivity {
         	top = (v == null) ? 0 : v.getTop();
         }
         
-    	outState.putInt("view_index", index);
-    	outState.putInt("view_position", top);
+    	outState.putInt(VIEW_INDEX, index);
+    	outState.putInt(VIEW_POSITION, top);
     }
 }
