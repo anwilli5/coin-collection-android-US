@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     private int mDatabaseVersion = -1;
 
     // Export directory path
-    private final static String mExportFolderName = "/coin-collection-app-files";
+    private final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -462,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
 
-    	String path = sdCard.getAbsolutePath() + mExportFolderName;
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(!dir.isDirectory()){
@@ -802,7 +802,7 @@ public class MainActivity extends AppCompatActivity {
     	
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-    	String path = sdCard.getAbsolutePath() + mExportFolderName;
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(dir.isDirectory() || dir.exists()){
@@ -827,7 +827,7 @@ public class MainActivity extends AppCompatActivity {
     	
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-    	String path = sdCard.getAbsolutePath() + mExportFolderName;
+    	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(!dir.isDirectory() && !dir.mkdir()){
@@ -1002,7 +1002,7 @@ public class MainActivity extends AppCompatActivity {
     	
     	mDbAdapter.close();
     	
-		showCancelableAlert(mRes.getString(R.string.success_export, mExportFolderName));
+		showCancelableAlert(mRes.getString(R.string.success_export, EXPORT_FOLDER_NAME));
     }
     
     private void showCancelableAlert(String text) {

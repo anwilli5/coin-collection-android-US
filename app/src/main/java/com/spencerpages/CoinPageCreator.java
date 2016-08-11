@@ -606,7 +606,7 @@ public class CoinPageCreator extends AppCompatActivity {
         savedInstanceState.putInt(START_YEAR, mStartYear);
         savedInstanceState.putInt(STOP_YEAR, mStopYear);
         savedInstanceState.putIntArray(START_YEARS, mStartYears);
-        savedInstanceState.putIntArray(START_YEARS, mStopYears);
+        savedInstanceState.putIntArray(STOP_YEARS, mStopYears);
 
         super.onSaveInstanceState(savedInstanceState);
     }
