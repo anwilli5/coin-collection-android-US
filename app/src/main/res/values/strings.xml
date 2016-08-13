@@ -233,7 +233,7 @@
 
     <string name="app_name">Coin Collection</string>
     <string name="create_new_collection">New Collection</string>
-    <string name="intro_message">Thanks for downloading Coin Collection!\nTo get started, select 'New Collection'</string>
+    <string name="intro_message">Thanks for downloading Coin Collection!\nTo get started, select \'New Collection\'</string>
     <string name="delete_collection">Delete Collection</string>
     <string name="import_collection">Import Collection</string>
     <string name="export_collection">Export Collection</string>
@@ -277,10 +277,10 @@
     <string name="collection_complete">Collection Complete!</string>
 
     <!-- Coin Page Creator -->
-    <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit 'Create New Collection!'</string>
+    <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit \'Create New Collection!\'</string>
 
     <!-- Collection Page -->
-    <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above it's year or name.  Also, you can prevent accidental changes using the 'Lock' action</string>
+    <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above it\'s year or name.  Also, you can prevent accidental changes using the \'Lock\' action</string>
 
     <!-- Error and Status Messages -->
     <string name="failed_mk_dir">Failed to make/find directory at %1$s</string>
@@ -289,7 +289,7 @@
     <string name="cannot_rd_ext_media_state">External media cannot be read from (state: %1$s). Try again later</string>
     <string name="cannot_wr_ext_media_ro">External media cannot be written to (mounted read-only). If plugged into a computer, try unplugging it</string>
     <string name="cannot_wr_ext_media_shared">External media cannot be written to. If plugged into a computer, try unplugging it</string>
-    <string name="cannot_wr_ext_media_state">External media cannot be written to (state: %1$s). Try again later"</string>
+    <string name="cannot_wr_ext_media_state">External media cannot be written to (state: %1$s). Try again later</string>
     <string name="cannot_find_export_dir">Failed to find existing export directory at %1$s</string>
     <string name="error_open_file_reading">Error when opening input file for reading at %1$s</string>
     <string name="error_open_file_writing">Error when opening output file for writing at %1$s</string>
@@ -298,12 +298,14 @@
     <string name="error_closing_output_file">Error when closing output file at %1$s</string>
     <string name="error_invalid_backup_file">Invalid backup file detected (Error %1$d)</string>
     <string name="error_unknown_read">An unknown error occurred when trying to read in collection at %1$s</string>
-    <string name="cannot_find_input_file">Couldn't find collection input file at %1$s</string>
+    <string name="cannot_find_input_file">Couldn\'t find collection input file at %1$s</string>
     <string name="error_writing_file">Error when writing to output file at %1$s</string>
-    <string name="error_misc_output_file">Error when working with output file at %1$s</string>
-    <string name="success_export">Successfully exported collection to '%1$s' on the external storage device!</string>
+    <string name="error_reading_file">Error when reading input file at %1$s</string>
+    <string name="success_export">Successfully exported collection to \'%1$s\' on the external storage device!</string>
     <string name="export_warning">Existing collections found on the external storage. Exporting again will overwrite these. Are you sure you want to do this?</string>
     <string name="import_warning">Importing new collections will delete all existing collections in the App. Are you sure you want to do this?</string>
-    <string name="delete_warning">Are you sure you want to delete collection named '%1$s'?</string>
+    <string name="delete_warning">Are you sure you want to delete collection named \'%1$s\'?</string>
+    <string name="import_canceled">Import canceled - storage read permission request denied</string>
+    <string name="export_canceled">Export canceled - storage write permission request denied</string>
 
 </resources>

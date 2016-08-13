@@ -39,19 +39,24 @@
 
 package com.spencerpages;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -80,7 +85,7 @@ import java.util.List;
  * created collection or add/delete/reorder/export/import collections
  */
 public class MainActivity extends AppCompatActivity {
-    
+
 	private final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
 	private final Context mContext = this;
 	private FrontAdapter mListAdapter;
@@ -100,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
     // The number of actual collections in mCollectionListEntries
     private int mNumberOfCollections;
-	
+
 	// To be used with a simple cancel-able alert.  For more complicated alerts use a different one
 	private AlertDialog.Builder mBuilder = null;
 
@@ -112,14 +117,14 @@ public class MainActivity extends AppCompatActivity {
 	// Used for the Update Database functionality
     private ProgressDialog mProgressDialog = null;
 	private InitTask mTask = null;
-	
+
 	private boolean mDatabaseHasBeenOpened = false;
 	private boolean mIsImportingCollection = false;
-	
+
 	// See notes in onCreate below.  Used to handle the case where we are importing collections and
     // the screen orientation changes
     private boolean mShouldFinishViewSetupToo = false;
-	
+
 	// These are used to support importing the collection data.  After we have read everything in,
     // we save the info here while we ask the user whether they really want to delete all of their
     // existing collections.
@@ -130,19 +135,35 @@ public class MainActivity extends AppCompatActivity {
 
     // Export directory path
     private final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
-	
+
+    // Default list item view positions
+    // Note: Using constants instead of an enum based on this:
+    // https://developer.android.com/training/articles/memory.html#Overhead
+    // - Enums often require more than twice as much memory as static constants.
+    public final static int ADD_COLLECTION = 0;
+    public final static int REMOVE_COLLECTION = 1;
+    public final static int IMPORT_COLLECTIONS = 2;
+    public final static int EXPORT_COLLECTIONS = 3;
+    public final static int REORDER_COLLECTIONS = 4;
+    public final static int ABOUT = 5;
+
+    // App permission requests
+    private final static int IMPORT_PERMISSIONS_REQUEST = 0;
+    private final static int EXPORT_PERMISSIONS_REQUEST = 1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-    	
+        Log.d(MainApplication.APP_NAME, "onCreate");
+
     	setContentView(R.layout.main_activity_layout);
 
 		if(BuildConfig.DEBUG) {
-    		
+
     		// Run unit test
     		UnitTests test = new UnitTests();
     		boolean result = test.runTests(this);
-    		
+
     		if(!result){
     			// return, so that we will see something went wrong
     			Log.e(MainApplication.APP_NAME, "Failed Unit Tests");
@@ -151,12 +172,11 @@ public class MainActivity extends AppCompatActivity {
     		} else {
     			Log.e(MainApplication.APP_NAME, "Unit Tests finished successfully");
     		}
-    		
     	}
-    	
+
     	mBuilder = new AlertDialog.Builder(this);
     	mRes = getResources();
-    	
+
     	// Check whether it is the users first time using the app
         final SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 
@@ -166,10 +186,8 @@ public class MainActivity extends AppCompatActivity {
         // isn't set
     	if(mainPreferences.getBoolean("first_Time_screen1", true) && mainPreferences.getBoolean("first_Time_screen2", true)){
     		// Show the user how to do everything
-    		String text = mRes.getString(R.string.intro_message);
-    		
         	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage(text)
+    		builder.setMessage(mRes.getString(R.string.intro_message))
     		       .setCancelable(false)
     		       .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
     		           public void onClick(DialogInterface dialog, int id) {
@@ -182,9 +200,9 @@ public class MainActivity extends AppCompatActivity {
     		AlertDialog alert = builder.create();
     		alert.show();
     	}
-    	
+
     	InitTask check = (InitTask) getLastCustomNonConfigurationInstance();
-    	
+
 		// TODO If there is a screen orientation change, it looks like a ProgressDialog gets leaked. :(
 		if(check == null){
 
@@ -202,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             mTask.activity = this;
 
 		    mTask.execute();
-		    
+
 		    // The InitTask will call finishViewSetup once the database has been opened
 		    // for the first time
 
@@ -211,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             if(BuildConfig.DEBUG) {
                 Log.d(MainApplication.APP_NAME, "Taking over existing mTask");
             }
-						
+
 			// an InitTask is running, make a new dialog to show it
 			mTask = check;
             mTask.activity = this;
@@ -223,29 +241,29 @@ public class MainActivity extends AppCompatActivity {
             // screen.  For the latter case, we still need something to call finishViewSetup, and
             // we don't want to call it here bc it will try to use the database too early.  Instead,
             // set a flag that will have that InitTask call finishViewSetup for us as well.
-			
+
 			if(mProgressDialog != null && mProgressDialog.isShowing()){
 				mProgressDialog.dismiss();
 			}
-			
+
 			String message = mTask.openMessage;
-			
+
 			if(mTask.doImport){
 				message = mTask.importMessage;
 
-				this.mDatabaseHasBeenOpened = true; // This has to have happened at this point
-				this.mIsImportingCollection = true;
-				this.mShouldFinishViewSetupToo = true;
+				mDatabaseHasBeenOpened = true; // This has to have happened at this point
+				mIsImportingCollection = true;
+				mShouldFinishViewSetupToo = true;
 			}
 			// Make a new dialog
-			
+
 			mProgressDialog = new ProgressDialog(mContext);
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.setMessage(message);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			mProgressDialog.setProgress(0);
 			mProgressDialog.show();
-			
+
 		}
 
         // HISTORIC - no longer the case:
@@ -259,13 +277,13 @@ public class MainActivity extends AppCompatActivity {
     	//    + This will be around for the lifetime of the application
     	// - Once the service has been created, open up the database in an async mTask
     	// - Once the database is open, finish setting up the UI from the data pulled
-    	
+
     	// After we open it, it must have at least one activity bound to it at all times
-    	// for it to stay alive.  So, each activity must bind to it on onCreate and 
+    	// for it to stay alive.  So, each activity must bind to it on onCreate and
     	// unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
-    	// will have been called and the service's onDestroy will then get called, where 
+    	// will have been called and the service's onDestroy will then get called, where
     	// we close the databse
-    	
+
     	// Actually instantiate the database service
         //Intent mServiceIntent = new Intent(this, DatabaseService.class);
         // and bind to it
@@ -338,21 +356,21 @@ public class MainActivity extends AppCompatActivity {
         // Now set the onItemClickListener to perform a certain action based on what's clicked
         lv.setOnItemClickListener(new OnItemClickListener() {
         	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        		
+
         		// See whether it was one of the special list entries (Add collection, delete
                 // collection, etc.)
                 if(position >= mNumberOfCollections){
-                	
+
                 	int newPosition = position - mNumberOfCollections;
                     Intent intent;
-                	
+
                 	switch(newPosition){
-                	    case 0: // Add Collection
+                	    case ADD_COLLECTION:
                     		intent = new Intent(mContext, CoinPageCreator.class);
                     		startActivity(intent);
                 	    	break;
-                	    case 1: // Remove Collection
-                	    	
+                	    case REMOVE_COLLECTION:
+
                             if(mNumberOfCollections == 0){
                         		Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                         		break;
@@ -363,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
                         	for(int i = 0; i < mNumberOfCollections; i++){
                         		names[i] = mCollectionListEntries.get(i).getName();
                         	}
-                        	
+
                         	AlertDialog.Builder delete_builder = new AlertDialog.Builder(mContext);
                         	delete_builder.setTitle(mRes.getString(R.string.select_collection_delete));
                         	delete_builder.setItems(names, new DialogInterface.OnClickListener() {
@@ -374,13 +392,13 @@ public class MainActivity extends AppCompatActivity {
                         	AlertDialog alert = delete_builder.create();
                         	alert.show();
                 	    	break;
-                	    case 2: // Import Collections
+                	    case IMPORT_COLLECTIONS:
                 	    	handleImportCollectionsPart1();
                 	    	break;
-                	    case 3: // Export Collections
+                	    case EXPORT_COLLECTIONS:
                 	    	handleExportCollectionsPart1();
                 	    	break;
-                        case 4: // Re-order Collections
+                        case REORDER_COLLECTIONS:
 
                             if(mNumberOfCollections == 0){
                                 Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
@@ -408,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
 							getSupportActionBar().setHomeButtonEnabled(true);
 
 							break;
-                	    case 5: // About
+                	    case ABOUT:
                         	//Context mContext = getApplicationContext();
                         	LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
                         	View layout = inflater.inflate(R.layout.info_popup,
@@ -420,11 +438,11 @@ public class MainActivity extends AppCompatActivity {
                         	alertDialog.show();
                 	    	break;
                 	}
-                	
+
                 	return;
                 }
                 // If it gets here, the user has selected a collection
-            	
+
         		Intent intent = new Intent(mContext, CollectionPage.class);
 
                 CollectionListInfo listEntry = mCollectionListEntries.get(position);
@@ -444,7 +462,14 @@ public class MainActivity extends AppCompatActivity {
      * Once this is complete, it kicks off an AsyncTask to actually store the data in the database.
      */
     private void handleImportCollectionsPart1(){
-    	   	
+
+        // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
+        // hasPermissions() will kick off the permissions request and the handler will re-call
+        // this method after prompting the user.
+        if(!hasPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, IMPORT_PERMISSIONS_REQUEST)){
+            return;
+        }
+
     	// See whether we can read from the external storage
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -452,82 +477,65 @@ public class MainActivity extends AppCompatActivity {
 		} else if (Environment.MEDIA_SHARED.equals(state)) {
 			// Shared with PC so can't write to it
     		showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_shared));
-        	return;		
+        	return;
 		} else {
 			// Doesn't exist, so notify user
 			showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_state, state));
         	return;
 		}
-		
+
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
-
     	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     	File dir = new File(path);
 
     	if(!dir.isDirectory()){
-    		// The directory doesn't exist, notify the user
-    		showCancelableAlert(mRes.getString(R.string.cannot_find_export_dir, path));
-        	return;
-    	}
-    	
-    	File file;
-    	FileInputStream f;
-    	InputStreamReader in_;
-    	BufferedReader in;
-    	boolean errorOccurred = false;
-
-        // Read the database version
-        file = new File(dir, "database_version.txt");
-
-        try {
-            f = new FileInputStream(file);
-            in_ = new InputStreamReader(f, "UTF8");
-            in = new BufferedReader(in_);
-            this.mDatabaseVersion = Integer.parseInt(in.readLine());
-
-        } catch (Exception e) {
-            showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
+            // The directory doesn't exist, notify the user
+            showCancelableAlert(mRes.getString(R.string.cannot_find_export_dir, path));
             return;
         }
 
-        if(-1 == this.mDatabaseVersion){
+    	boolean errorOccurred = false;
+
+        // Read the database version
+        File inputFile = new File(dir, "database_version.txt");
+        BufferedReader in = openFileForReading(inputFile);
+        if(in == null) return;
+
+        try {
+            mDatabaseVersion = Integer.parseInt(in.readLine());
+        } catch (Exception e) {
+            showCancelableAlert(mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath()));
+            return;
+        }
+
+        if(-1 == mDatabaseVersion){
             showCancelableAlert(mRes.getString(R.string.error_db_version));
             return;
         }
 
-        try {
-            in.close();
-        } catch (IOException e) {
-            showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
+        if(closeInputFile(in, inputFile)){
             return;
         }
 
         // Read the collection_info table
-    	file = new File(dir, "list-of-collections.csv");
+        inputFile = new File(dir, "list-of-collections.csv");
+        in = openFileForReading(inputFile);
+        if(in == null) return;
 
-    	try {
-			f = new FileInputStream(file);
-			in_ = new InputStreamReader(f, "UTF8");
-			in = new BufferedReader(in_);
-		} catch (Exception e) {
-			showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
-			return;
-		}
-    	
 		ArrayList<String[]> collectionInfo = new ArrayList<>();
+        String line;
 
     	try {
-        	String line = in.readLine();
-    	    while(null != line){
-    	    	
+    	    while(null != (line = in.readLine())){
+
     	    	// Strip out all bad characters.  They shouldn't be there anyway ;)
     	    	line = line.replace('[', ' ');
     	    	line = line.replace(']', ' ');
 
         		// name, coinType, total, max. display
     	    	String[] items = line.split(",");
-    	    	
+
     	    	// Perform some sanity checks here
                 int numberOfColumns = 5;
 
@@ -536,10 +544,10 @@ public class MainActivity extends AppCompatActivity {
     	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 1));
     	    		break;
     	    	}
-    	    	
+
     	    	// Must be a valid coin type
     	    	for(int i = 0; i < mTypesOfCoins.length; i++){
-    	    		
+
     	    		if(mTypesOfCoins[i].equals(items[1])){
     	    			break;
     	    		} else if(mTypesOfCoins.length == i + 1){
@@ -547,13 +555,13 @@ public class MainActivity extends AppCompatActivity {
         	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 2));
     	    			break;
     	    		}
-    	    		
+
     	    	}
-    	    	
+
     	    	if(errorOccurred){
     	    		break;
     	    	}
-    	    	
+
     	    	// Must have a positive number collected and a positive
     	    	// max
     	    	if(Integer.valueOf(items[2]) < 0 ||
@@ -562,10 +570,10 @@ public class MainActivity extends AppCompatActivity {
     	    		showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 3));
 	    			break;
     	    	}
-    	    	
+
     	    	// Must not have a name that is the same as a previous one
     	    	for(int i = 0; i < collectionInfo.size(); i++){
-    	    		
+
     	    		String[] previousCollectionInfo = collectionInfo.get(i);
     	    		if(items[0].equals(previousCollectionInfo[0])){
     	    			errorOccurred = true;
@@ -573,37 +581,32 @@ public class MainActivity extends AppCompatActivity {
     	    			break;
     	    		}
     	    	}
-    	    	
+
     	    	if(errorOccurred){
     	    		break;
     	    	}
-    	    	
+
     	    	// Good to go, add it to the list
                 collectionInfo.add(items);
-    	    	
-    	    	line = in.readLine();
     	    }
     	} catch(Exception e){
     		errorOccurred = true;
-    		showCancelableAlert(mRes.getString(R.string.error_unknown_read, file.getAbsolutePath()));
+    		showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
     	}
-    	
-    	try {
-			in.close();
-		} catch (IOException e) {
-			showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
-			return;
-		}
-    	
+
+    	if(closeInputFile(in, inputFile)){
+    	    return;
+    	}
+
     	if(errorOccurred){
     		// Don't continue on
     		return;
     	}
-    	
+
     	// The ArrayList will be indexed by collection, the outer String[] will be indexed
     	// by line number, and the inner String[] will be each cell in the row
     	ArrayList<String[][]> collectionContents = new ArrayList<>();
-    	 
+
     	// We loaded in the collection "metadata" table, so now load in each collection
     	for(int i = 0; i < collectionInfo.size(); i++){
 
@@ -613,27 +616,20 @@ public class MainActivity extends AppCompatActivity {
             // characters in the export file names (which the OS interprets as directory delimiters)
             String collectionFileName = collectionData[0].replaceAll("/", "_SL_");
 
-    		file = new File(dir, collectionFileName + ".csv");
+    		inputFile = new File(dir, collectionFileName + ".csv");
 
-    		if(!file.isFile()){
-    			showCancelableAlert(mRes.getString(R.string.cannot_find_input_file, file.getAbsolutePath()));
-    			return;
+    		if(!inputFile.isFile()){
+            	showCancelableAlert(mRes.getString(R.string.cannot_find_input_file, inputFile.getAbsolutePath()));
+            	return;
     		}
 
-    		try {
-    			f = new FileInputStream(file);
-    			in_ = new InputStreamReader(f, "UTF8");
-    			in = new BufferedReader(in_);
-    		} catch (Exception e) {
-    			showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
-    			return;
-    		}
+    		in = openFileForReading(inputFile);
+    		if(in == null) return;
 
     		ArrayList<String[]> collectionContent = new ArrayList<>();
 
     		try {
-    			String line = in.readLine();
-    			while(null != line){
+    			while(null != (line = in.readLine())){
 
     				// Strip out all bad characters.  They shouldn't be there anyway ;)
     				line = line.replace('[', ' ');
@@ -653,53 +649,44 @@ public class MainActivity extends AppCompatActivity {
 
     				// TODO Maybe add more checks
     				collectionContent.add(items);
-
-    				line = in.readLine();
-    			}  
+    			}
 
     		} catch(Exception e){
     			errorOccurred = true;
-    			showCancelableAlert(mRes.getString(R.string.error_unknown_read, file.getAbsolutePath()));
+    			showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
     		}
-    		
+
         	if(errorOccurred){
         		// Don't continue on
-        		try {
-        			in.close();
-        		} catch (IOException e) {
-        			return;
-        		}
+        		closeInputFile(in, inputFile, true);
         		return;
         	}
-    		
+
     		// Verify that we read in the correct number of records
     		if(collectionContent.size() != Integer.valueOf(collectionData[3])){
     			errorOccurred = true;
     			showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
     		}
-    		
+
     		// TODO Can this happen? ClassCastException Object[] cannot be cast to String[][]
     		collectionContents.add(collectionContent.toArray(new String[0][]));
 
-    		try {
-    			in.close();
-    		} catch (IOException e) {
-    			showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
-    			return;
-    		}
-        	
+        	if(closeInputFile(in, inputFile)){
+        	    return;
+        	}
+
         	if(errorOccurred){
         		// Don't continue on
         		return;
         	}
     	}
-    	
+
     	// Cool, at this point we've read in the data successfully and we've passed all of
     	// the sanity checks.  We should put this data aside, show the user a message to
     	// have them confirm that they want to do this... Although if they don't have any
     	// collections we can optimize this step out
-    	this.mCollectionInfo = collectionInfo;
-    	this.mCollectionContents = collectionContents;
+    	mCollectionInfo = collectionInfo;
+    	mCollectionContents = collectionContents;
 
     	if(0 == mNumberOfCollections){
             // Finish the import by kicking off an AsyncTask to do the heavy lifting    		
@@ -709,12 +696,12 @@ public class MainActivity extends AppCompatActivity {
             mTask.activity = this;
 
 		    mTask.execute();
-		    
+
     	} else {
     	    showImportConfirmation();
     	}
     }
-    
+
     private void handleImportCollectionsCancel(){
     	// Release the memory associated with the collection info we read in
     	this.mCollectionInfo = null;
@@ -728,29 +715,29 @@ public class MainActivity extends AppCompatActivity {
      * thread!
      */
     private void handleImportCollectionsPart2(){
-    	
+
     	// Take the data we've stored and replace what's in the database with it
-    	
+
     	// NOTE We can't use the showCancelableAlert here because this doesn't get
     	// executed on the main thread.
-    	
+
 		mDbAdapter.open();
-    	
+
     	// TODO Consider how to make this more robust to failures
     	for(int i = 0; i < mNumberOfCollections; i++){
-    		
+
     		CollectionListInfo info = mCollectionListEntries.get(i);
     		mDbAdapter.dropTable(info.getName());
     	}
-    	
+
     	mDbAdapter.dropCollectionInfoTable();
-    	
+
     	mDbAdapter.createCollectionInfoTable();
 
     	for(int i = 0; i < mCollectionInfo.size(); i++){
     		String[] collectionInfo = mCollectionInfo.get(i);
     		String[][] collectionContents = mCollectionContents.get(i);
-    		
+
     		String name = collectionInfo[0];
     		String coinType = collectionInfo[1];
     		int total = Integer.valueOf(collectionInfo[3]);
@@ -758,7 +745,7 @@ public class MainActivity extends AppCompatActivity {
 
     		mDbAdapter.createNewTable(name, coinType, total, advView, i, collectionContents);
     	}
-    	
+
     	// Release the memory associated with the collection info we read in
     	mCollectionInfo = null;
     	mCollectionContents = null;
@@ -768,9 +755,9 @@ public class MainActivity extends AppCompatActivity {
             mDbAdapter.upgradeCollections(mDatabaseVersion);
         }
         mDatabaseVersion = -1;
-    	
+
     	mDbAdapter.close();
-    	
+
     	// Looks like the view gets reloaded automatically... Hooray!
     }
 
@@ -781,7 +768,14 @@ public class MainActivity extends AppCompatActivity {
     private void handleExportCollectionsPart1(){
     	// TODO Move this function to be more resistant to ANR, if reports show that it is a
         // problem
-    	
+
+        // Check for WRITE_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
+        // hasPermissions() will kick off the permissions request and the handler will re-call
+        // this method after prompting the user.
+        if(!hasPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, EXPORT_PERMISSIONS_REQUEST)){
+            return;
+        }
+
     	// See whether we can write to the external storage
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -793,13 +787,13 @@ public class MainActivity extends AppCompatActivity {
 		} else if (Environment.MEDIA_SHARED.equals(state)) {
 			// Shared with PC so can't write to it
 			showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_shared));
-        	return;			
+        	return;
 		} else {
 			// Doesn't exist, so notify user
 			showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_state, state));
         	return;
 		}
-    	
+
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
     	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
@@ -819,12 +813,12 @@ public class MainActivity extends AppCompatActivity {
      * cause an existing backup to be deleted.)
      */
     private void handleExportCollectionsPart2(){
-    	
+
     	// At this point we know we can write to storage and the user is ok
     	// if we blow away existing imported files
-    	
+
     	// TODO Move this function to be more resistant to ANR, if necessary
-    	
+
     	//http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
     	File sdCard = Environment.getExternalStorageDirectory();
     	String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
@@ -835,24 +829,14 @@ public class MainActivity extends AppCompatActivity {
     		showCancelableAlert(mRes.getString(R.string.failed_mk_dir, path));
         	return;
     	}
-    	
-    	File file;
-    	FileOutputStream f;
-    	OutputStreamWriter out;
+
     	boolean errorOccurred = false;
 
     	// Write out the collection_info table
-    	file = new File(dir, "list-of-collections.csv");
+    	File outputFile = new File(dir, "list-of-collections.csv");
+    	OutputStreamWriter out = openFileForWriting(outputFile);
+    	if(out == null) return;
 
-    	try {
-			f = new FileOutputStream(file);
-			out = new OutputStreamWriter(f, "UTF8");
-		} catch (Exception e) {
-			// This shouldn't happen since we just created it
-			showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
-			return;
-		}
-    	
 		mDbAdapter.open();
 
     	// Iterate through the list of collections and write the files
@@ -863,16 +847,16 @@ public class MainActivity extends AppCompatActivity {
     		String type = item.getType();
     		int totalCollected = item.getCollected();
     		int total = item.getMax();
-    		    		
+
     		// Strip comma's from the name
     		String cleanName = name.replace(',', ' ');
-    		
+
     		try {
 	    		out.append(cleanName + "," +
 	    		          type + "," +
 	    		          String.valueOf(totalCollected) + "," +
 	    		          String.valueOf(total));
-	    		
+
 				int display = mDbAdapter.fetchTableDisplay(name);
 				out.append("," + String.valueOf(display));
 
@@ -880,44 +864,42 @@ public class MainActivity extends AppCompatActivity {
 	    		    out.append("\n");
 	    		}
     		} catch(Exception e) {
-    			showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
+    			showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
                 errorOccurred = true;
     			break;
     		}
     	}
-    	
-    	try {
-			out.close();
-		} catch (IOException e) {
-			showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
-			return;
-		}
-    	
+
+    	if(closeOutputFile(out, outputFile)){
+        	return;
+    	}
+
     	if(errorOccurred){
     		return;
     	}
-    	
+
     	// Write out the database version
-    	file = new File(dir, "database_version.txt");
+    	outputFile = new File(dir, "database_version.txt");
+    	out = openFileForWriting(outputFile);
+    	if(out == null) return;
 
     	try {
-			f = new FileOutputStream(file);
-			out = new OutputStreamWriter(f, "UTF8");
-			
 			out.write(String.valueOf(DatabaseAdapter.DATABASE_VERSION));
-			
-			out.close();
-		} catch (Exception e) {
+    	} catch (Exception e) {
 			// This shouldn't happen since we just created it
-			showCancelableAlert(mRes.getString(R.string.error_misc_output_file, file.getAbsolutePath()));
+			showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
 			return;
-		}
-    	
+    	}
+
+    	if(closeOutputFile(out, outputFile)){
+    	    return;
+    	}
+
     	// Write out all of the other tables
     	for(int i = 0; i < mNumberOfCollections; i++){
     		CollectionListInfo item = mCollectionListEntries.get(i);
     		String name = item.getName();
-    		
+
     		// Strip comma's from the name
     		String cleanName = name.replace(',', ' ');
 
@@ -925,17 +907,10 @@ public class MainActivity extends AppCompatActivity {
             // think the '/' characters are folder delimiters.)  This will be undone when we import.
             cleanName = cleanName.replaceAll("/", "_SL_");
 
-            file = new File(dir, cleanName + ".csv");
+        	outputFile = new File(dir, cleanName + ".csv");
+        	out = openFileForWriting(outputFile);
+        	if(out == null) return;
 
-        	try {
-    			f = new FileOutputStream(file);
-    			out = new OutputStreamWriter(f, "UTF8");
-    		} catch (Exception e) {
-    			// This shouldn't happen since we just created it
-    			showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
-    			return;
-    		}
-        	
         	// coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
         	Cursor resultCursor = mDbAdapter.getAllCollectionInfo(name);
         	boolean isFirstLine = true;
@@ -957,10 +932,10 @@ public class MainActivity extends AppCompatActivity {
         				try {
         				    out.write("\n");
         				} catch(Exception e) {
-        					showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
+        					showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
         					errorOccurred = true;
         					break;
-        				}  
+        				}
         			}
 
         			for(int k = 0; k < info.size(); k++){
@@ -974,7 +949,7 @@ public class MainActivity extends AppCompatActivity {
         					}
 
         				} catch(Exception e) {
-        					showCancelableAlert(mRes.getString(R.string.error_writing_file, file.getAbsolutePath()));
+        					showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
         					errorOccurred = true;
         					break;
         				}
@@ -984,32 +959,144 @@ public class MainActivity extends AppCompatActivity {
         				break;
         			}
 
-        		}while(resultCursor.moveToNext());
+        		} while(resultCursor.moveToNext());
         	}
         	resultCursor.close();
-        	
-        	try {
-    			out.close();
-    		} catch (IOException e) {
-    			showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
-    			return;
-    		}
-        	
+
+        	if(closeOutputFile(out, outputFile)){
+        	    return;
+        	}
+
         	if(errorOccurred){
         		return;
         	}
     	}
-    	
+
     	mDbAdapter.close();
-    	
+
 		showCancelableAlert(mRes.getString(R.string.success_export, EXPORT_FOLDER_NAME));
     }
-    
+
     private void showCancelableAlert(String text) {
 		mBuilder.setMessage(text).setCancelable(true);
 		AlertDialog alert = mBuilder.create();
 		alert.show();
 	}
+
+    private BufferedReader openFileForReading(File file){
+
+        FileInputStream fileInputStream;
+        InputStreamReader inputStreamReader;
+        BufferedReader bufferedReader;
+
+        try {
+            fileInputStream = new FileInputStream(file);
+            inputStreamReader = new InputStreamReader(fileInputStream, "UTF8");
+            bufferedReader = new BufferedReader(inputStreamReader);
+        } catch (Exception e) {
+            if(BuildConfig.DEBUG) {
+                Log.e(MainApplication.APP_NAME, e.toString());
+            }
+            showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
+            return null;
+        }
+        return bufferedReader;
+    }
+
+    private boolean closeInputFile(BufferedReader in, File file){
+        return closeInputFile(in, file, false);
+    }
+
+    private boolean closeInputFile(BufferedReader in, File file, boolean silent){
+        try {
+            in.close();
+        } catch (IOException e) {
+            if(!silent){
+                showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private OutputStreamWriter openFileForWriting(File file){
+
+        FileOutputStream fileOutputStream;
+        OutputStreamWriter outputStreamWriter;
+
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF8");
+        } catch (Exception e) {
+            if(BuildConfig.DEBUG) {
+                Log.e(MainApplication.APP_NAME, e.toString());
+            }
+            showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
+            return null;
+        }
+        return outputStreamWriter;
+    }
+
+    private boolean closeOutputFile(OutputStreamWriter out, File file){
+        try {
+            out.close();
+        } catch (IOException e) {
+            showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
+            return true;
+        }
+        return false;
+    }
+
+    // https://developer.android.com/training/permissions/requesting.html
+    // Expected: Manifest.permission.{READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}
+    private boolean hasPermissions(String permission, int callbackTag){
+
+        int permissionState = ContextCompat.checkSelfPermission(this, permission);
+        if (permissionState != PackageManager.PERMISSION_GRANTED) {
+
+            // Not providing an explanation but the user should know what this is for
+            // This will prompt the user to grant/deny permissions, and the result will
+            // be delivered via a callback.
+            ActivityCompat.requestPermissions(this, new String[]{permission}, callbackTag);
+
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        if(  (grantResults.length > 0)
+          && (grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+            // Request Granted!
+            switch (requestCode) {
+                case IMPORT_PERMISSIONS_REQUEST: {
+                    // Retry import, now with permissions granted
+                    handleImportCollectionsPart1();
+                    break;
+                }
+                case EXPORT_PERMISSIONS_REQUEST: {
+                    // Retry export, now with permissions granted
+                    handleExportCollectionsPart1();
+                    break;
+                }
+            }
+        } else {
+            // Request Denied!
+            switch (requestCode) {
+                case IMPORT_PERMISSIONS_REQUEST: {
+                    showCancelableAlert(mRes.getString(R.string.import_canceled));
+                    break;
+                }
+                case EXPORT_PERMISSIONS_REQUEST: {
+                    showCancelableAlert(mRes.getString(R.string.export_canceled));
+                    break;
+                }
+            }
+        }
+    }
 
 	// Need to make our own Array Adapter to handle the special list (list of collections + entries
     // for 'Create Collections', 'Reorder Collections', etc.)
@@ -1026,7 +1113,7 @@ public class MainActivity extends AppCompatActivity {
             this.numberOfCollections = numberOfCollections;
             mRes = context.getResources();
         }
-        
+
         @Override
         public int getViewTypeCount(){
         	return 2;
@@ -1040,7 +1127,7 @@ public class MainActivity extends AppCompatActivity {
             	return 0;
             }
         }
-        
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
                 View v = convertView;
@@ -1054,54 +1141,54 @@ public class MainActivity extends AppCompatActivity {
                 		v = vi.inflate(R.layout.list_element_navigation, parent, false);
                 	}
                 }
-                
+
                 if(1 == viewType){
                 	// Set up the non-collection views
                     ImageView image = (ImageView) v.findViewById(R.id.navImageView);
                     TextView text = (TextView) v.findViewById(R.id.navTextView);
-                    
+
                 	int newPosition = position - this.numberOfCollections;
-                	
+
                 	switch(newPosition){
-                	    case 0: // Add Collection
+                	    case ADD_COLLECTION:
                 	    	image.setBackgroundResource(R.drawable.icon_circle_add);
                 	    	text.setText(mRes.getString(R.string.create_new_collection));
                 	    	break;
-                	    case 1: // Remove Collection
+                	    case REMOVE_COLLECTION:
                 	    	image.setBackgroundResource(R.drawable.icon_minus);
                 	    	text.setText(mRes.getString(R.string.delete_collection));
                 	    	break;
-                	    case 2: // Import Collections
+                	    case IMPORT_COLLECTIONS:
                 	    	image.setBackgroundResource(R.drawable.icon_cloud_upload);
                 	    	text.setText(mRes.getString(R.string.import_collection));
 
                 	    	break;
-                	    case 3: // Export Collections
+                	    case EXPORT_COLLECTIONS:
                 	    	image.setBackgroundResource(R.drawable.icon_cloud_download);
                 	    	text.setText(mRes.getString(R.string.export_collection));
 
                 	        break;
-						case 4: // Reorder Collections
+						case REORDER_COLLECTIONS:
 							image.setBackgroundResource(R.drawable.icon_sort);
 							text.setText(mRes.getString(R.string.reorder_collection));
 
 							break;
-                	    case 5: // Info
+                	    case ABOUT:
                 	    	image.setBackgroundResource(R.drawable.icon_info);
                 	    	text.setText(mRes.getString(R.string.app_info));
 
                 	    	break;
                 	}
-                	
+
                 	return v;
                 }
-                
+
                 // If it gets here, we need to set up a view for a collection
-                
+
                 CollectionListInfo item = items.get(position);
-                
+
                 String tableName = item.getName();
-                
+
                 int total = item.getCollected();
                 if (tableName != null) {
 
@@ -1109,17 +1196,17 @@ public class MainActivity extends AppCompatActivity {
                     if (image != null) {
                         image.setBackgroundResource(item.getCoinReverseImageIdentifier());
                     }
-                    
+
                     TextView tt = (TextView) v.findViewById(R.id.textView1);
                     if (tt != null) {
                         tt.setText(tableName);
                     }
-                    
+
                     TextView mt = (TextView) v.findViewById(R.id.textView2);
                     if(mt != null){
                         mt.setText(total + "/" + item.getMax());
                     }
-                    
+
                     TextView bt = (TextView) v.findViewById(R.id.textView3);
                     if(total >= item.getMax()){
                     	// The collection is complete
@@ -1146,9 +1233,9 @@ public class MainActivity extends AppCompatActivity {
 
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
-        
+
         if(hasFocus && mDatabaseHasBeenOpened && !mIsImportingCollection){
-        	
+
         	// Only do this if the database has been opened with the AsyncTask first
         	// and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
@@ -1159,7 +1246,7 @@ public class MainActivity extends AppCompatActivity {
             mListAdapter.items = mCollectionListEntries;
             mListAdapter.numberOfCollections = mNumberOfCollections;
             mListAdapter.notifyDataSetChanged();
-            
+
         }
     }
 
@@ -1224,9 +1311,9 @@ public class MainActivity extends AppCompatActivity {
             mCollectionListEntries.add(null);
         }
     }
-    
+
     private void showExportConfirmation(){
-    	
+
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setMessage(mRes.getString(R.string.export_warning))
     	       .setCancelable(false)
@@ -1246,7 +1333,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showImportConfirmation(){
-    	
+
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setMessage(mRes.getString(R.string.import_warning))
     	       .setCancelable(false)
@@ -1257,9 +1344,9 @@ public class MainActivity extends AppCompatActivity {
 
     	    		   mTask.doImport = true;
                        mTask.activity = MainActivity.this;
-    	    		    
+
     	    		   MainActivity.this.mIsImportingCollection = true;
-    	    		    
+
     	    		   mTask.execute();
     	           }
     	       })
@@ -1272,7 +1359,7 @@ public class MainActivity extends AppCompatActivity {
     	AlertDialog alert = builder.create();
     	alert.show();
     }
-    
+
     private void showDeleteConfirmation(String name){
 
         // TODO Not sure why we have to do this????  Take out and ensure no breakage.  Maybe when I
