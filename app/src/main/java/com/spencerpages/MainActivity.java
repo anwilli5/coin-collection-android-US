@@ -92,17 +92,6 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseAdapter mDbAdapter;
 	private Resources mRes;
 
-    // As a hack to get the static strings at the bottom of the list, we add spacers into
-    // mCollectionListEntries.  This tracks the number of those spacers, which we use in several
-    // places.
-    //  - Add Collection
-    //  - Remove Collection
-    //  - Import Collections
-    //  - Export Collections
-    //  - Re-order Collections
-    //  - Info
-    private final static int NUMBER_OF_COLLECTION_LIST_SPACERS = 6;
-
     // The number of actual collections in mCollectionListEntries
     private int mNumberOfCollections;
 
@@ -137,6 +126,12 @@ public class MainActivity extends AppCompatActivity {
     private final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
 
     // Default list item view positions
+	//  0. Add Collection
+	//  1. Remove Collection
+	//  2. Import Collections
+	//  3. Export Collections
+	//  4. Re-order Collections
+	//  5. About
     // Note: Using constants instead of an enum based on this:
     // https://developer.android.com/training/articles/memory.html#Overhead
     // - Enums often require more than twice as much memory as static constants.
@@ -146,6 +141,10 @@ public class MainActivity extends AppCompatActivity {
     public final static int EXPORT_COLLECTIONS = 3;
     public final static int REORDER_COLLECTIONS = 4;
     public final static int ABOUT = 5;
+	// As a hack to get the static strings at the bottom of the list, we add spacers into
+	// mCollectionListEntries.  This tracks the number of those spacers, which we use in several
+	// places.
+	private final static int NUMBER_OF_COLLECTION_LIST_SPACERS = 6;
 
     // App permission requests
     private final static int IMPORT_PERMISSIONS_REQUEST = 0;
@@ -154,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-        Log.d(MainApplication.APP_NAME, "onCreate");
 
     	setContentView(R.layout.main_activity_layout);
 
@@ -514,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if(closeInputFile(in, inputFile)){
+        if(!closeInputFile(in, inputFile)){
             return;
         }
 
@@ -524,9 +522,9 @@ public class MainActivity extends AppCompatActivity {
         if(in == null) return;
 
 		ArrayList<String[]> collectionInfo = new ArrayList<>();
-        String line;
 
     	try {
+    	    String line;
     	    while(null != (line = in.readLine())){
 
     	    	// Strip out all bad characters.  They shouldn't be there anyway ;)
@@ -594,7 +592,7 @@ public class MainActivity extends AppCompatActivity {
     		showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
     	}
 
-    	if(closeInputFile(in, inputFile)){
+    	if(!closeInputFile(in, inputFile)){
     	    return;
     	}
 
@@ -629,6 +627,7 @@ public class MainActivity extends AppCompatActivity {
     		ArrayList<String[]> collectionContent = new ArrayList<>();
 
     		try {
+    			String line;
     			while(null != (line = in.readLine())){
 
     				// Strip out all bad characters.  They shouldn't be there anyway ;)
@@ -671,7 +670,7 @@ public class MainActivity extends AppCompatActivity {
     		// TODO Can this happen? ClassCastException Object[] cannot be cast to String[][]
     		collectionContents.add(collectionContent.toArray(new String[0][]));
 
-        	if(closeInputFile(in, inputFile)){
+        	if(!closeInputFile(in, inputFile)){
         	    return;
         	}
 
@@ -870,7 +869,7 @@ public class MainActivity extends AppCompatActivity {
     		}
     	}
 
-    	if(closeOutputFile(out, outputFile)){
+    	if(!closeOutputFile(out, outputFile)){
         	return;
     	}
 
@@ -891,7 +890,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
     	}
 
-    	if(closeOutputFile(out, outputFile)){
+    	if(!closeOutputFile(out, outputFile)){
     	    return;
     	}
 
@@ -963,7 +962,7 @@ public class MainActivity extends AppCompatActivity {
         	}
         	resultCursor.close();
 
-        	if(closeOutputFile(out, outputFile)){
+        	if(!closeOutputFile(out, outputFile)){
         	    return;
         	}
 
@@ -985,22 +984,15 @@ public class MainActivity extends AppCompatActivity {
 
     private BufferedReader openFileForReading(File file){
 
-        FileInputStream fileInputStream;
-        InputStreamReader inputStreamReader;
-        BufferedReader bufferedReader;
-
         try {
-            fileInputStream = new FileInputStream(file);
-            inputStreamReader = new InputStreamReader(fileInputStream, "UTF8");
-            bufferedReader = new BufferedReader(inputStreamReader);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF8");
+            return new BufferedReader(inputStreamReader);
         } catch (Exception e) {
-            if(BuildConfig.DEBUG) {
-                Log.e(MainApplication.APP_NAME, e.toString());
-            }
+            Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
             return null;
         }
-        return bufferedReader;
     }
 
     private boolean closeInputFile(BufferedReader in, File file){
@@ -1014,27 +1006,21 @@ public class MainActivity extends AppCompatActivity {
             if(!silent){
                 showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     private OutputStreamWriter openFileForWriting(File file){
 
-        FileOutputStream fileOutputStream;
-        OutputStreamWriter outputStreamWriter;
-
         try {
-            fileOutputStream = new FileOutputStream(file);
-            outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF8");
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            return new OutputStreamWriter(fileOutputStream, "UTF8");
         } catch (Exception e) {
-            if(BuildConfig.DEBUG) {
-                Log.e(MainApplication.APP_NAME, e.toString());
-            }
+            Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
             return null;
         }
-        return outputStreamWriter;
     }
 
     private boolean closeOutputFile(OutputStreamWriter out, File file){
@@ -1042,9 +1028,9 @@ public class MainActivity extends AppCompatActivity {
             out.close();
         } catch (IOException e) {
             showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     // https://developer.android.com/training/permissions/requesting.html
