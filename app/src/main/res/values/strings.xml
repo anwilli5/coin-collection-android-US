@@ -16,8 +16,8 @@
         <item>Indian Head Cents</item>
         <item>Liberty Head Nickels</item>
         <item>Buffalo Nickels</item>
-        <item>Mercury Dimes</item>
         <item>Barber Dimes</item>
+        <item>Mercury Dimes</item>
         <item>Barber Quarters</item>
         <item>Standing Liberty Quarters</item>
         <item>Barber Half Dollars</item>
@@ -44,8 +44,8 @@
         <item>indian_head_front</item>
         <item>liberty_head_nickel_obverse</item>
         <item>buffalo_nickel_front</item>
-        <item>mercury_front_92px</item>
         <item>barber_dime_front</item>
+        <item>mercury_front_92px</item>
         <item>barber_quarter_front</item>
         <item>standing_liberty_t1_obverse</item>
         <item>barber_half_front</item>
@@ -73,8 +73,8 @@
         <item>indian_head_back</item>
         <item>liberty_head_nickel_reverse</item>
         <item>buffalo_nickel_back</item>
-        <item>mercury_back_92px</item>
         <item>barber_dime_back</item>
+        <item>mercury_back_92px</item>
         <item>barber_quarter_back</item>
         <item>standing_liberty_t2_reverse</item>
         <item>barber_half_back</item>
@@ -101,8 +101,8 @@
         <item>1859</item>
         <item>1883</item>
         <item>1913</item>
-        <item>1916</item>
         <item>1892</item>
+        <item>1916</item>
         <item>1892</item>
         <item>1916</item>
         <item>1892</item>
@@ -132,8 +132,8 @@
         <item>1909</item>
         <item>1912</item>
         <item>1938</item>
-        <item>1945</item>
         <item>1916</item>
+        <item>1945</item>
         <item>1916</item>
         <item>1930</item>
         <item>1915</item>
