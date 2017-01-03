@@ -637,13 +637,26 @@ public class MainActivity extends AppCompatActivity {
     				// coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
     				String[] items = line.split(",", -1); // -1 to not skip empty entries
 
-    				// Perform some sanity checks here
-        	    	int numberOfColumns = 6;
+    				// Perform some sanity checks and clean-up here
+    				int numberOfColumns = 6;
 
-    				if(items.length != numberOfColumns){
+    				if(items.length < numberOfColumns){
     					errorOccurred = true;
     					showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + String.valueOf(items.length));
     					break;
+    				} else if (items.length > numberOfColumns){
+    					// advNotes may contain commas, which can increase the comma count. Other fields
+    					// are numeric so cannot contain commas - restore advNotes by re-joining split
+    					// fields past advNotes (which is the last element).
+    					String[] newItems = new String[numberOfColumns];
+    					for (int j = 0; j < items.length; j++) {
+    						if(j >= numberOfColumns) {
+    							newItems[numberOfColumns-1] += ',' + items[j];
+    						} else {
+    							newItems[j] = items[j];
+    						}
+    					}
+    					items = newItems;
     				}
 
     				// TODO Maybe add more checks
