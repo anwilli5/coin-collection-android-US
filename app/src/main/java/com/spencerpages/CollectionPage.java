@@ -75,20 +75,6 @@ public class CollectionPage extends AppCompatActivity {
 	
 	private int mDisplayType = MainApplication.SIMPLE_DISPLAY;
 	
-	/* The EditText in the advanced view uses a TextWatcher to know when text has changed so that it
-	 * can update the list of notes to store back into the database later.  TextWatchers have
-	 * several problems, one of which is that there isn't an API defined way to remove all
-	 * TextWatchers from an EditText.  So, what you'd have to do is keep a list of each TextWatcher
-	 * that you allocated, get the tag associated with a recycled cell, remove the TextWatcher, and
-	 * then swap in the one for that cell.  This means if you have a collection with 500 items, you
-	 * would have 500 TextWatchers.  Instead, we only allocate new cells a TextWatcher, and in each
-	 * one we assume that if it fires, we can use the Activity.getCurrentFocused method to retrieve
-	 * the EditText holding the new text.  One weird thing that TextWatcher does, though is emit a
-	 * call to it's onTextChanged when the list is scrolling.  So, this flag is intended to keep
-	 * track of when the list is scrolling so we can ignore all text inputs during that time.
-	 */
-	public boolean isListScrolling = false;
-	
 	/* Used in conjunction with the ListView in the advance view case to scroll the view to the last
 	 * location.  Defaults to the first item, and will be set by:
 	 *     1 The index and position saved in the Intent that started us
@@ -390,13 +376,6 @@ public class CollectionPage extends AppCompatActivity {
 	          if(scrollState == OnScrollListener.SCROLL_STATE_IDLE){
 	        	  // Refresh the view, fixing any layout issues
 	        	  mCoinSlotAdapter.notifyDataSetChanged();
-	        	  
-	        	  //Indicate we are no longer scrolling
-	        	  CollectionPage.this.isListScrolling = false;
-	          } else {
-	        	  
-	        	  // We are scrolling
-	        	  CollectionPage.this.isListScrolling = true;
 	          }
 	          
 	          // If this is the advanced view, we want to hide the soft keyboard if it exists
@@ -432,7 +411,7 @@ public class CollectionPage extends AppCompatActivity {
     		
     		// Set the scroll listener so that the view re-adjusts to the new view
     		listview.setOnScrollListener(scrollListener);
-    		
+
     	}
     	
 	    // Set the onClick listener that will handle changing the coin state

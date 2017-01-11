@@ -103,7 +103,6 @@ class CoinSlotAdapter extends BaseAdapter {
 	private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
 	private OnItemSelectedListener mQuantityOnItemSelectedListener = null;
 	private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
-	private TextWatcher mNotesTextWatcher = null;
 	
 	// Keep track of whether we are showing the advanced view so we can do extra setup
 	private int displayType = MainApplication.SIMPLE_DISPLAY;
@@ -582,8 +581,8 @@ class CoinSlotAdapter extends BaseAdapter {
         // Put the spinner at the value we have stored for this coin
         quantitySelector.setSelection(advancedQuantities.get(position), false);
 
-        if(this.mQuantityOnItemSelectedListener == null) {
-            this.mQuantityOnItemSelectedListener = new OnItemSelectedListener() {
+        if(mQuantityOnItemSelectedListener == null) {
+            mQuantityOnItemSelectedListener = new OnItemSelectedListener() {
                 public void onItemSelected(AdapterView<?> parent,
                                            View view, int pos, long id) {
 
@@ -616,19 +615,26 @@ class CoinSlotAdapter extends BaseAdapter {
         Object previousTag = notesEditText.getTag();
 
         // Set the tag on this EditText
+        if(previousTag != null){
+            // If the user has their cursor in the EditText when the view is recycled, the
+            // TextWatcher may not be triggered. So force the TextWatcher to trigger by
+            // setting the EditText text to itself.
+            notesEditText.setText(notesEditText.getText());
+        }
         notesEditText.setTag(positionObj);
 
         // Set the EditText to the string previously entered by the user
+        // - This will trigger the TextWatcher if recycled but the new/old values should match
         String text = advancedNotes.get(position);
         notesEditText.setText(text);
-        //Log.e(MainApplication.APP_NAME, "Set text onScroll to " + text + " from position " + Integer.toString(position) + " (" + notesEditText.toString() + ")");
         // http://stackoverflow.com/questions/6217378/place-cursor-at-the-end-of-text-in-edittext
         notesEditText.setSelection(text.length());
 
         // If the display is not locked, we also need to set up a TextWatcher so that we can know
-        // when the user types into the notes field
-        if(mNotesTextWatcher == null) {
-            this.mNotesTextWatcher = new TextWatcher() {
+        // when the user types into the notes field. Create one for each unique EditText
+        if(previousTag == null) {
+            final EditText textWatcherEditText = notesEditText;
+            TextWatcher notesTextWatcher = new TextWatcher() {
                 @Override
                 public void afterTextChanged(Editable s) {}
                 @Override
@@ -636,73 +642,36 @@ class CoinSlotAdapter extends BaseAdapter {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                    // TODO Do we need to remove [ and ]
+                    // Note: This does not remove '[', ']', and ',' characters - bracket characters
+                    // will be replaced by spaces if exported/imported but commas will be preserved
 
-                    if (before == 0 && start == 0) {
-                        // We will assume this means the text hasn't changed, so returned
-                        // TODO Explain this more
+                    // If field was empty and remains empty, ignore
+                    if (before == 0 && count == 0) {
                         return;
                     }
 
-                    // There's not a great way to determine which EditText is
-                    // causing this callback, so the best approach I can think of
-                    // is to get the currently focused element (which should be the
-                    // EditText.)  Just to be safe, check getCurrentFocus for null
-                    // though and don't do anything that would crash in that case
-
-                    CollectionPage collectionPage = (CollectionPage) mContext;
-
-                    // Bad things happen when the list is scrolling.  See the note
-                    // above the isListScrolling variable
-                    if (collectionPage.isListScrolling) {
-                        // Don't do anything, keyboard should have been retracted anyway
-                        //Log.e(MainApplication.APP_NAME, "onTextChanged called while scrolling, ignoring");
-                        return;
-                    }
-
-                    View view = collectionPage.getCurrentFocus();
-
-                    if (view == null) {
-                        // Nothing focused, so don't do anything
-                        //Log.e(MainApplication.APP_NAME, "Nothing currently focused");
-                        return;
-                    }
-                    //Log.e(MainApplication.APP_NAME, "Focused - " + view.toString());
-
-                    // If it isn't an EditText, then likely this is getting called
-                    // because we are scrolling and the EditText is now holding
-                    // text from a different position in the list.  In this case,
-                    // no need to update the list, so just return
-                    if (!(view instanceof EditText)) {
-                        //Log.e(MainApplication.APP_NAME, "EditText isn't currently focused - returning");
-                        return;
-                    }
-
-                    EditText editText = (EditText) view;
-
-                    int posPrim = (Integer) editText.getTag();
-
-                    // Double check that the text isn't the same as what we think it is
+                    // Ignore if the text matches what's already temporarily saved
+                    int posPrim = (Integer) textWatcherEditText.getTag();
                     String newText = s.toString();
-
                     if (CoinSlotAdapter.this.advancedNotes.get(posPrim).equals(newText)) {
                         //Log.e(MainApplication.APP_NAME, "Text equals what is currently stored, not updating");
                         return;
                     }
 
+                    // Change detected - Temporarily store the modified text
                     CoinSlotAdapter.this.advancedNotes.set(posPrim, newText);
                     CoinSlotAdapter.this.indexHasChanged[posPrim] = true;
                     //Log.e("CoinCollection", "Text has changed: " + newText + " position: " + Integer.toString(posPrim));
 
+                    CollectionPage collectionPage = (CollectionPage) mContext;
                     collectionPage.showUnsavedTextView();
                 }
             };
+            // Add the TextWatcher for this EditText
+            notesEditText.addTextChangedListener(notesTextWatcher);
         }
 
-        // Only add the TextWatcher if this is a new view
-        if(previousTag == null) {
-            notesEditText.addTextChangedListener(this.mNotesTextWatcher);
-        }
+
         // Make the edittext scrollable
         // TODO Get scrolling working all the way
         // notesEditText.setMovementMethod(new ScrollingMovementMethod());
