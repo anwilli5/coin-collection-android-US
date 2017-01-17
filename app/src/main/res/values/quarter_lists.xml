@@ -55,56 +55,56 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="State_Quarters_Regular_Images">
-        <item>delaware</item>
-        <item>pennsylvania</item>
-        <item>new_jersey</item>
-        <item>georgia</item>
-        <item>connecticut</item>
-        <item>massachusetts</item>
-        <item>maryland</item>
-        <item>south_carolina</item>
-        <item>new_hampshire</item>
-        <item>virginia</item>
-        <item>new_york</item>
-        <item>north_carolina</item>
-        <item>rhode_island</item>
-        <item>vermont</item>
-        <item>kentucky</item>
-        <item>tennessee</item>
-        <item>ohio</item>
-        <item>louisiana</item>
-        <item>indiana</item>
-        <item>mississippi</item>
-        <item>illinois</item>
-        <item>alabama</item>
-        <item>maine</item>
-        <item>missouri</item>
-        <item>arkansas</item>
-        <item>michigan</item>
-        <item>florida</item>
-        <item>texas</item>
-        <item>iowa</item>
-        <item>wisconsin</item>
-        <item>california</item>
-        <item>minnesota</item>
-        <item>oregon</item>
-        <item>kansas</item>
-        <item>west_virginia</item>
-        <item>nevada</item>
-        <item>nebraska</item>
-        <item>colorado</item>
-        <item>north_dakota</item>
-        <item>south_dakota</item>
-        <item>montana</item>
-        <item>washington</item>
-        <item>idaho</item>
-        <item>wyoming</item>
-        <item>utah</item>
-        <item>oklahoma</item>
-        <item>new_mexico</item>
-        <item>arizona</item>
-        <item>alaska</item>
-        <item>hawaii</item>
+        <item>states_1999_delaware_unc</item>
+        <item>states_1999_pennsylvania_unc</item>
+        <item>states_1999_new_jersey_unc</item>
+        <item>states_1999_georgia_unc</item>
+        <item>states_1999_connecticut_unc</item>
+        <item>states_2000_massachusetts</item>
+        <item>states_2000_maryland_unc</item>
+        <item>states_2000_south_carolina_unc</item>
+        <item>states_2000_new_hampshire_unc</item>
+        <item>states_2000_virginia_unc</item>
+        <item>states_2001_new_york_unc</item>
+        <item>states_2001_north_carolina_unc</item>
+        <item>states_2001_rhode_island_unc</item>
+        <item>states_2001_vermont_unc</item>
+        <item>states_2001_kentucky_unc</item>
+        <item>states_2002_tennessee_unc</item>
+        <item>states_2002_ohio_unc</item>
+        <item>states_2002_louisiana_unc</item>
+        <item>states_2002_indiana_unc</item>
+        <item>states_2002_mississippi_unc</item>
+        <item>states_2003_illinois_unc</item>
+        <item>states_2003_alabama_unc</item>
+        <item>states_2003_maine_unc</item>
+        <item>states_2003_missouri_unc</item>
+        <item>states_2003_arkansas_unc</item>
+        <item>states_2004_michigan_unc</item>
+        <item>states_2004_florida_unc</item>
+        <item>states_2004_texas_unc</item>
+        <item>states_2004_iowa_unc</item>
+        <item>states_2004_wisconsin_unc</item>
+        <item>states_2005_california_unc</item>
+        <item>states_2005_minnesota_unc</item>
+        <item>states_2005_oregon_unc</item>
+        <item>states_2005_kansas_unc</item>
+        <item>states_2005_west_virginia_unc</item>
+        <item>states_2006_nevada_unc</item>
+        <item>states_2006_nebraska_unc</item>
+        <item>states_2006_colorado_unc</item>
+        <item>states_2006_north_dakota_unc</item>
+        <item>states_2006_south_dakota_unc</item>
+        <item>states_2007_montana_unc</item>
+        <item>states_2007_washington_unc</item>
+        <item>states_2007_idaho_unc</item>
+        <item>states_2007_wyoming_unc</item>
+        <item>states_2007_utah_unc</item>
+        <item>states_2008_oklahoma_unc</item>
+        <item>states_2008_new_mexico_unc</item>
+        <item>states_2008_arizona_unc</item>
+        <item>states_2008_alaska_unc</item>
+        <item>states_2008_hawaii_unc</item>
     </string-array>
     
     <string-array name="DC_and_US_Territories_types">
@@ -118,12 +118,12 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="DC_and_US_Territories_Regular_Images">
-        <item>district_of_columbia</item>
-        <item>puerto_rico</item>
-        <item>guam</item>
-        <item>american_samoa</item>
-        <item>virgin_islands</item>
-        <item>northern_mariana_islands</item>
+        <item>states_2009_dc_unc</item>
+        <item>states_2009_puerto_rico_unc</item>
+        <item>states_2009_guam_unc</item>
+        <item>states_2009_american_samoa_unc</item>
+        <item>states_2009_virgin_islands_unc</item>
+        <item>states_2009_northern_mariana_unc</item>
     </string-array>
     
     <string-array name="State_Parks_types">
@@ -162,54 +162,58 @@
         <item>Harper’s Ferry</item>
         <item>Theodore Roosevelt</item>
         <item>Fort Moultrie</item>
+        <item>Effigy Mounds</item>
+        <item>Frederick Douglass</item>
+        <item>Ozark Riverways</item>
+        <item>Ellis Island</item>
+        <item>George Rogers Clark</item>
     </string-array>
     
         <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="State_Parks_Regular_Images">
-        <item>hot_springs</item>
-        <item>yellowstone</item>
-        <item>yosemite</item>
-        <item>grand_canyon</item>
-        <item>mt_hood</item>
-        <item>gettysburg</item>
-        <item>glacier</item>
-        <item>olympic</item>
-        <item>vicksburg</item>
-        <item>chickasaw</item>
-        <item>el_yunque</item>
-        <item>chaco_culture</item>
-        <item>acadia</item>
-        <item>hawaii_volcanoes</item>
-        <item>denali</item>
-        <item>white_mountain</item>
-        <item>perrys_victory</item>
-        <item>great_basin</item>
-        <item>fort_mchenry</item>
-        <item>mount_rushmore</item>
-        <item>great_smoky_mountains</item>
-		<item>shenandoah</item>
-		<item>arches</item>
-		<item>great_sand_dunes</item>
-		<item>everglades</item>
-        <item>homestead</item>
-        <item>kisatchie</item>
-        <item>blue_ridge</item>
-        <item>bombay_hook</item>
-        <item>saratoga</item>
-        <item>shawnee</item>
-        <item>cumberland_gap</item>
-        <item>harpers_ferry</item>
-        <item>parks_theodore_roosevelt</item>
-        <item>fort_moultrie</item>
-
+        <item>parks_2010_hot_springs_unc</item>
+        <item>parks_2010_yellowstone_unc</item>
+        <item>parks_2010_yosemite_unc</item>
+        <item>parks_2010_grand_canyon_unc</item>
+        <item>parks_2010_mount_hood_unc</item>
+        <item>parks_2011_gettysburg_unc</item>
+        <item>parks_2011_glacier_unc</item>
+        <item>parks_2011_olympic_unc</item>
+        <item>parks_2011_vicksburg_unc</item>
+        <item>parks_2011_chickasaw_unc</item>
+        <item>parks_2012_el_yunque_unc</item>
+        <item>parks_2012_chaco_culture_unc</item>
+        <item>parks_2012_acadia_unc</item>
+        <item>parks_2012_hawaii_volcanoes_unc</item>
+        <item>parks_2012_denali_unc</item>
+        <item>parks_2013_white_mountain_unc</item>
+        <item>parks_2013_perrys_victory_unc</item>
+        <item>parks_2013_great_basin_unc</item>
+        <item>parks_2013_fort_mchenry_unc</item>
+        <item>parks_2013_mount_rushmore_unc</item>
+        <item>parks_2014_great_smoky_mountains_unc</item>
+		<item>parks_2014_shenandoah_unc</item>
+		<item>parks_2014_arches_unc</item>
+		<item>parks_2014_great_sand_dunes_unc</item>
+		<item>parks_2014_everglades_unc</item>
+        <item>parks_2015_homestead_unc</item>
+        <item>parks_2015_kisatchie_unc</item>
+        <item>parks_2015_blue_ridge_unc</item>
+        <item>parks_2015_bombay_hook_unc</item>
+        <item>parks_2015_saratoga_unc</item>
+        <item>parks_2016_shawnee_unc</item>
+        <item>parks_2016_cumberland_gap_unc</item>
+        <item>parks_2016_harpers_ferry_unc</item>
+        <item>parks_2016_theodore_roosevelt_unc</item>
+        <item>parks_2016_fort_moultrie_unc</item>
+        <item>parks_2017_effigy_mounds_proof</item>
+        <item>parks_2017_frederick_douglass_proof</item>
+        <item>parks_2017_ozark_riverways_proof</item>
+        <item>parks_2017_ellis_island_proof</item>
+        <item>parks_2017_george_rogers_clark_proof</item>
     </string-array>
     <!--
     <string-array name="State_Parks_Unreleased_types">
-        <item>Effigy Mounds</item>
-        <item>Frederick Douglas</item>
-        <item>Ozark</item>
-        <item>Ellis Island</item>
-        <item>George Rogers Clark</item>
         <item>Pictured Rocks</item>
         <item>Apostle Islands</item>
         <item>Voyageurs</item>
@@ -229,11 +233,6 @@
     </string-array>
     
     <string-array name="State_Parks_Unreleased_Regular_Images">
-        <item>Effigy Mounds</item>
-        <item>Frederick Douglas</item>
-        <item>Ozark</item>
-        <item>Ellis Island</item>
-        <item>George Rogers Clark</item>
         <item>Pictured Rocks</item>
         <item>Apostle Islands</item>
         <item>Voyageurs</item>

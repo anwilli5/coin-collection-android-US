@@ -243,40 +243,53 @@ public class CollectionPage extends AppCompatActivity {
 
 				break;
 			}
-			case "Presidential Dollars":
-				// Need to get the array of the correct images
-				String[] presidentialDollarIdentifierList = getResources().getStringArray(R.array.Presidential_Coins_Regular_Images);
-				mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, presidentialDollarIdentifierList);
+			case "Presidential Dollars": {
+                // Need to get the array of the correct images
+                String[] presidentialDollarIdentifierList = getResources().getStringArray(R.array.Presidential_Coins_Regular_Images);
+                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, presidentialDollarIdentifierList);
 
-				break;
-			case "Pennies":
-				// Need to get the array of additional images
-				String[] bicentennialPennyIdentifierList = getResources().getStringArray(R.array.Bicentennial_Pennies_Regular_Images);
-				mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, bicentennialPennyIdentifierList);
+                break;
+            }
+			case "Pennies": {
+                // Need to get the array of additional images
+                String[] bicentennialPennyIdentifierList = getResources().getStringArray(R.array.Bicentennial_Pennies_Regular_Images);
+                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, bicentennialPennyIdentifierList);
 
-				break;
-			case "Nickels":
-				// Need to get the arrays of additional images
-				String[] westwardNickelIdentifierList1 = getResources().getStringArray(R.array.Westward_Journey_2004_Nickels_Regular_Images);
-				ArrayList<String> tempArrayList = new ArrayList<>();
-				Collections.addAll(tempArrayList, westwardNickelIdentifierList1);
+                break;
+            }
+			case "Nickels": {
+                // Need to get the arrays of additional images
+                String[] westwardNickelIdentifierList1 = getResources().getStringArray(R.array.Westward_Journey_2004_Nickels_Regular_Images);
+                ArrayList<String> tempArrayList = new ArrayList<>();
+                Collections.addAll(tempArrayList, westwardNickelIdentifierList1);
 
-				String[] tempStringArray = getResources().getStringArray(R.array.Westward_Journey_2005_Nickels_Regular_Images);
-				Collections.addAll(tempArrayList, tempStringArray);
+                String[] tempStringArray = getResources().getStringArray(R.array.Westward_Journey_2005_Nickels_Regular_Images);
+                Collections.addAll(tempArrayList, tempStringArray);
 
                 // Note: unlike for other coin types, it isn't expected
                 // that tempArrayList.size() == mIdentifierList.size()
 
-				mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, tempArrayList.toArray
+                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, tempArrayList.toArray
                         (new String[tempArrayList.size()]));
 
-				break;
-			case "First Spouse Gold Coins":
-				// Need to get the array of the correct images
-				String[] firstSpouseDollarIdentifierList = getResources().getStringArray(R.array.First_Spouse_images);
-				mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, firstSpouseDollarIdentifierList);
+                break;
+            }
+			case "First Spouse Gold Coins": {
+                // Need to get the array of the correct images
+                String[] firstSpouseDollarIdentifierList = getResources().getStringArray(R.array.First_Spouse_images);
+                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, firstSpouseDollarIdentifierList);
 
-				break;
+                break;
+            }
+			case "Sacagawea/Native American Dollars":
+            case "Sacagawea Dollars": {
+
+                // Need to get the array of the correct images
+                String[] nativeAmericanSpecialCoinIdentifierList = getResources().getStringArray(R.array.Native_American_Special_Coin_Images);
+                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, nativeAmericanSpecialCoinIdentifierList);
+
+                break;
+            }
 			default:
 				// No special images required
 				mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList);

@@ -30,15 +30,15 @@
     </string-array>
     <!-- The following string array stores the obverse images associated with the ones above -->
     <string-array name="obverse_of_coins">
-        <item>penny_front_92px</item>
-        <item>nickel_front_92px</item>
-        <item>dime_front_92px</item>
+        <item>obv_lincoln_cent_unc</item>
+        <item>obv_jefferson_nickel_unc</item>
+        <item>obv_roosevelt_dime_unc</item>
         <item>quarter_front_92px</item>
         <item>not_used</item>
         <item>not_used</item>
-        <item>half_front_92px</item>
+        <item>obv_kennedy_half_dollar_unc</item>
         <item>eisenhower_front_92px</item>
-        <item>anthony_front_92px</item>
+        <item>obv_susan_b_anthony_unc</item>
         <item>not_used</item>
         <item>not_used</item>
         <item>indian_head_front</item>
@@ -53,22 +53,22 @@
         <item>franklin_front</item>
         <item>morgan_front</item>
         <item>peace_dollar_obverse</item>
-        <item>american_eagle_silver_front</item>
+        <item>obv_american_eagle_unc</item>
         <item>not_used</item>
     </string-array>
 
     <!-- The following string array stores the reverse images associated with the ones above -->
     <string-array name="reverse_of_coins">
-        <item>penny_back_92px</item>
-        <item>nickel_back_92px</item>
-        <item>dime_back_92px</item>
-        <item>quarter_back_92px</item>
-        <item>state_quarter_back_92px</item>
-        <item>grand_canyon</item>
-        <item>half_back_92px</item>
+        <item>rev_lincoln_cent_unc</item>
+        <item>rev_jefferson_nickel_unc</item>
+        <item>rev_roosevelt_dime_unc</item>
+        <item>rev_1976_washington_quarter_unc</item> <!-- TODO Replace with standard back when good image becomes available -->
+        <item>states_2001_north_carolina_unc</item>
+        <item>parks_2010_grand_canyon_unc</item>
+        <item>rev_kennedy_half_dollar_unc</item>
         <item>eisenhower_back_92px</item>
-        <item>anthony_back_92px</item>
-        <item>sacagawea_back</item>
+        <item>rev_susan_b_anthony_unc</item>
+        <item>rev_sacagawea_unc</item>
         <item>presidential_coin_obverse</item>
         <item>indian_head_back</item>
         <item>liberty_head_nickel_reverse</item>
@@ -82,7 +82,7 @@
         <item>franklin_back</item>
         <item>morgan_reverse</item>
         <item>peace_dollar_reverse</item>
-        <item>american_eagle_silver_back</item>
+        <item>rev_american_eagle_unc</item>
         <item>first_spouse_obverse</item>
     </string-array>
     <!-- The following string array stores the year each coin began to be produced, associated with the ones above -->
@@ -118,16 +118,16 @@
      (or the current year), associated with the ones above
     -->
     <integer-array name="year_of_most_recent_production">
-        <item>2016</item> <!-- Pennies -->
-        <item>2016</item> <!-- Nickels -->
-        <item>2016</item> <!-- Dimes -->
+        <item>2017</item> <!-- Pennies -->
+        <item>2017</item> <!-- Nickels -->
+        <item>2017</item> <!-- Dimes -->
         <item>1998</item>
         <item>1337</item>
         <item>1337</item>
-        <item>2016</item> <!-- Half-Dollars -->
+        <item>2017</item> <!-- Half-Dollars -->
         <item>1978</item>
         <item>1999</item>
-        <item>2016</item> <!-- Sacagawea/Native American Dollars -->
+        <item>2017</item> <!-- Sacagawea/Native American Dollars -->
         <item>1337</item>
         <item>1909</item>
         <item>1912</item>
@@ -141,7 +141,7 @@
         <item>1963</item>
         <item>1921</item>
         <item>1935</item>
-        <item>2016</item> <!-- American Eagle Silver Dollars -->
+        <item>2017</item> <!-- American Eagle Silver Dollars -->
         <item>1337</item>
     </integer-array>
 

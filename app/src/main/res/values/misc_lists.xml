@@ -40,11 +40,11 @@
         <item>Mamie Eisenhower</item>
         <item>Jacqueline Kennedy</item>
         <item>Lady Bird Johnson</item>
-        <!--<item>Pat Nixon</item>
-        <item>Elizabeth Ford</item>
-        <item>Rosalynn Carter</item>
+        <item>Patricia Nixon</item>
+        <item>Betty Ford</item>
+        <!--<item>Rosalynn Carter</item>-->
         <item>Nancy Reagan</item>
-        <item>Barbara Bush</item>
+        <!--<item>Barbara Bush</item>
         <item>Hillary Clinton</item>
         <item>Laura Bush</item>
         <item>Michelle Obama</item>-->
@@ -52,49 +52,49 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="First_Spouse_images">
-        <item>fs_washington</item>
-        <item>fs_adamsa</item>
-        <item>fs_jefferson</item>
-        <item>fs_madison</item>
-        <item>fs_monroe</item>
-        <item>fs_adams</item>
-        <item>fs_jacksons</item>
-        <item>fs_vanburens</item>
-        <item>fs_harrisona</item>
-        <item>fs_tyler</item>
-        <item>fs_tylerj2</item>
-        <item>fs_polk</item>
-        <item>fs_taylor</item>
-        <item>fs_fillmore</item>
-        <item>fs_pierce</item>
-        <item>fs_buchanans</item>
-        <item>fs_lincoln</item>
-        <item>fs_johnson</item>
-        <item>fs_grant</item>
-        <item>fs_hayes</item>
-        <item>fs_garfield</item>
-        <item>fs_paul</item>
-        <item>fs_cleveland1</item>
-        <item>fs_harrisonc</item>
-        <item>fs_cleveland2</item>
-        <item>fs_mckinley</item>
-        <item>fs_roosevelt1</item>
-        <item>fs_taft</item>
-        <item>fs_wilson1</item>
-        <item>fs_wilson2</item>
-        <item>fs_harding</item>
-        <item>fs_coolidge</item>
-        <item>fs_hoover</item>
-        <item>fs_roosevelt2</item>
-        <item>fs_truman</item>
-        <item>fs_eisenhower</item>
-        <item>fs_kennedy</item>
-        <item>fs_johnson2</item>
-        <!--<item>Pat Nixon</item>
-        <item>Elizabeth Ford</item>
-        <item>Rosalynn Carter</item>
-        <item>Nancy Reagan</item>
-        <item>Barbara Bush</item>
+        <item>fs_2007_martha_washington_unc</item>
+        <item>fs_2007_abigail_adams_unc</item>
+        <item>fs_2007_jeffersons_liberty_unc</item>
+        <item>fs_2007_dolley_madison_unc</item>
+        <item>fs_2008_elizabeth_monroe_unc</item>
+        <item>fs_2008_louisa_adams_unc</item>
+        <item>fs_2008_jacksons_liberty_unc</item>
+        <item>fs_2008_van_burens_liberty_unc</item>
+        <item>fs_2009_anna_harrison_unc</item>
+        <item>fs_2009_letitia_tyler_unc</item>
+        <item>fs_2009_julia_tyler_unc</item>
+        <item>fs_2009_sarah_polk_unc</item>
+        <item>fs_2009_margaret_taylor_unc</item>
+        <item>fs_2010_abigail_fillmore_unc</item>
+        <item>fs_2010_jane_pierce_unc</item>
+        <item>fs_2010_buchanans_liberty_unc</item>
+        <item>fs_2010_mary_todd_lincoln_unc</item>
+        <item>fs_2011_eliza_johnson_unc</item>
+        <item>fs_2011_julia_grant_unc</item>
+        <item>fs_2011_lucy_hayes_unc</item>
+        <item>fs_2011_lucretia_garfield_unc</item>
+        <item>fs_2012_alice_paul_unc</item>
+        <item>fs_2012_frances_cleveland_1_unc</item>
+        <item>fs_2012_caroline_harrison_unc</item>
+        <item>fs_2012_frances_cleveland_2_unc</item>
+        <item>fs_2013_ida_mckinley_unc</item>
+        <item>fs_2013_edith_roosevelt_unc</item>
+        <item>fs_2013_helen_taft_unc</item>
+        <item>fs_2013_ellen_wilson_unc</item>
+        <item>fs_2013_edith_wilson_unc</item>
+        <item>fs_2014_florence_harding_unc</item>
+        <item>fs_2014_grace_coolidge_unc</item>
+        <item>fs_2014_lou_hoover_unc</item>
+        <item>fs_2014_eleanor_roosevelt_unc</item>
+        <item>fs_2015_bess_truman_unc</item>
+        <item>fs_2015_mamie_eisenhower_unc</item>
+        <item>fs_2015_jacqueline_kennedy_unc</item>
+        <item>fs_2015_lady_bird_johnson_unc</item>
+        <item>fs_2016_patricia_nixon_unc</item>
+        <item>fs_2016_betty_ford_unc</item>
+        <!--<item>Rosalynn Carter</item>-->
+        <item>fs_2016_nancy_reagan_unc</item>
+        <!--<item>Barbara Bush</item>
         <item>Hillary Clinton</item>
         <item>Laura Bush</item>
         <item>Michelle Obama</item>-->

@@ -346,7 +346,7 @@ class CoinSlotAdapter extends BaseAdapter {
                 break;
             }
             case "Pennies":
-            case "Nickels":
+            case "Nickels": {
                 // Have to check if it is a special image
                 // More expensive since we check the list each time, but hopefully it is ok since the lists are small
                 boolean foundImage = false;
@@ -374,65 +374,22 @@ class CoinSlotAdapter extends BaseAdapter {
                 }
 
                 break;
+            }
             case "Sacagawea/Native American Dollars":
             case "Sacagawea Dollars": {
-                // TODO Not very scalable, but a quick fix :O
                 int regularImageIdentifier;
-                if (identifier.equals(Integer.toString(2009))) {
+                if (Integer.parseInt(identifier) >= 2009) {
+                    int listIndex = Integer.parseInt(identifier) - 2009;
                     if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2009;
+                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[listIndex], "drawable", mContext.getPackageName());
                     } else {
-                        regularImageIdentifier = R.drawable.native_2009_25;
+                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[listIndex] + "_25", "drawable", mContext.getPackageName());
                     }
-                } else if (identifier.equals(Integer.toString(2010))) {
+                } else {
                     if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2010;
+                        regularImageIdentifier = R.drawable.rev_sacagawea_unc;
                     } else {
-                        regularImageIdentifier = R.drawable.native_2010_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2011))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2011;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2011_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2012))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2012;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2012_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2013))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2013;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2013_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2014))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2014;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2014_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2015))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2015;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2015_25;
-                    }
-                } else if (identifier.equals(Integer.toString(2016))) {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.native_2016;
-                    } else {
-                        regularImageIdentifier = R.drawable.native_2016_25;
-                    }
-                }
-                // If it gets here, no special image needed
-                else {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.sacagawea_back;
-                    } else {
-                        regularImageIdentifier = R.drawable.sacagawea_back_25;
+                        regularImageIdentifier = R.drawable.rev_sacagawea_unc_25;
                     }
                 }
 

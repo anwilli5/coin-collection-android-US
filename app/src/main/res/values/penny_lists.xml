@@ -9,9 +9,9 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="Bicentennial_Pennies_Regular_Images">
-        <item>early_childhood_r1</item>
-        <item>formative_years_r2</item>
-        <item>professional_life_r3</item>
-        <item>presidency_r4</item>
+        <item>bicent_2009_early_childhood_unc</item>
+        <item>bicent_2009_formative_years_unc</item>
+        <item>bicent_2009_professional_life_unc</item>
+        <item>bicent_2009_presidency_unc</item>
     </string-array>
 </resources>

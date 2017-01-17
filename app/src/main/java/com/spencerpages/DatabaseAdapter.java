@@ -52,8 +52,10 @@ public class DatabaseAdapter {
      *                   Version 6 - Used in Version 2.0, 2.0.1 of the app
      *                   Version 7 - Used in Version 2.1, 2.1.1 of the app
      *                   Version 8 - Used in Version 2.2.1 of the app
-     */
-    public static final int DATABASE_VERSION = 8;
+	 *                   Version 9 - Used in Version 2.3 of the app
+
+	 */
+    public static final int DATABASE_VERSION = 9;
 
     private final Context mContext;
 
@@ -587,7 +589,12 @@ public class DatabaseAdapter {
                 updateToVersion8(db);
             }
 
-		}
+            // Updates in version 2.3
+            if(oldVersion >= 2 && oldVersion <= 8){
+                updateToVersion9(db);
+            }
+
+        }
 
         public void updateToVersion7(SQLiteDatabase db){
 
@@ -914,6 +921,155 @@ public class DatabaseAdapter {
             resultCursor.close();
 
 		}
+
+        public void updateToVersion9(SQLiteDatabase db){
+
+            // TODO Update copy and pasted code
+            // Get all of the created tables
+            Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
+                    "total"}, null, null, null, null, "_id");
+            if (resultCursor.moveToFirst()){
+                do{
+
+                    String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+                    String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
+                    int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
+
+                    // If we add coins, keep track so we can update the total only if necessary
+                    int originalTotal = total;
+
+                    switch (coinType) {
+                        case "Presidential Dollars": {
+                            // Add in missing 2016 Presidential Dollars
+
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Ronald Reagan");
+
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "National Park Quarters": {
+                            // Add in 2017 National Park Quarters
+
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Effigy Mounds");
+                            newCoinIdentifiers.add("Frederick Douglass");
+                            newCoinIdentifiers.add("Ozark Riverways");
+                            newCoinIdentifiers.add("Ellis Island");
+                            newCoinIdentifiers.add("George Rogers Clark");
+
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "First Spouse Gold Coins": {
+                            // Add in remaining First Spouse Gold Coins
+
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Patricia Nixon");
+                            newCoinIdentifiers.add("Betty Ford");
+                            newCoinIdentifiers.add("Nancy Reagan");
+
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                    }
+
+                    // For each collection, add in 2017 coins if necessary
+
+                    if(coinType.equals("Pennies")           || coinType.equals("Nickels")           ||
+                            coinType.equals("Dimes")             || coinType.equals("Half-Dollars")      ||
+                            coinType.equals("Sacagawea Dollars") || coinType.equals("Sacagawea/Native American Dollars") ||
+                            coinType.equals("American Eagle Silver Dollars")){
+
+                        // First, we need to determine whether we should add 2017 to this album
+                        Cursor lastYearCursor = db.query("[" + name + "]", new String[] {"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
+                        boolean shouldAdd2017 = false;
+                        if(lastYearCursor.moveToFirst()){
+                            String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
+                            if(lastYear.equals("2016")){
+                                // If the collection included 2016 coins, it's likely they want 2017 in there too
+                                // Also, in earlier versions it was possible to make a collection end after 2012...
+                                // If they already have 2017 in their collection, don't add
+                                shouldAdd2017 = true;
+                            }
+                        }
+                        lastYearCursor.close();
+
+                        if(shouldAdd2017){
+                            // For each collection, we need to know which mint marks are present
+                            // Get the distinct columns from the coinMint field
+                            Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
+
+                            // We need to determine which mint marks to add
+                            boolean hasAddedP = false;
+                            if(coinMintCursor.moveToFirst()){
+                                do{
+                                    String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
+
+                                    ContentValues new2017CoinValues = new ContentValues();
+                                    switch (coinMint) {
+                                        case "":
+                                            if (!hasAddedP) {
+                                                new2017CoinValues.put("coinIdentifier", "2017");
+                                                new2017CoinValues.put("coinMint", "");
+                                                // Fall through to insert coin info
+                                            } else {
+                                                // Do nothing... This collection has mint marks displayed, so the only
+                                                // values we want to add are " P" and " D"
+                                                continue;
+                                            }
+                                            break;
+                                        case " P":
+                                            new2017CoinValues.put("coinIdentifier", "2017");
+                                            new2017CoinValues.put("coinMint", " P");
+                                            hasAddedP = true;
+                                            // Fall through to insert coin info
+
+                                            // We may have mistakenly added the "" mint mark, since earlier
+                                            // Philly minted coins didn't have the mint mark.  In this case,
+                                            // delete it
+                                            if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2017", ""})) {
+                                                total--;
+                                            }
+                                            break;
+                                        case " D":
+                                            new2017CoinValues.put("coinIdentifier", "2017");
+                                            new2017CoinValues.put("coinMint", " D");
+                                            // Fall through to insert coin info
+                                            break;
+                                        default:
+
+                                            // Don't want to add in any " S"s
+                                            continue;
+                                    }
+
+                                    if(db.insert("[" + name + "]", null, new2017CoinValues) != -1){
+                                        total++;
+                                    }
+
+                                }while(coinMintCursor.moveToNext());
+                            }
+
+                            // All done with the coin mint information
+                            coinMintCursor.close();
+                        }
+                    }
+
+                    // Last thing is to update the total for each collection
+                    if(originalTotal != total){
+                        ContentValues values = new ContentValues();
+                        values.put("total", total);
+                        db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
+                    }
+
+                    // Move to the next collection
+                } while(resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
 
         /**
 		 * @param db The SQLiteDatabase object to use

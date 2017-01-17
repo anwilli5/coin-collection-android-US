@@ -97,17 +97,17 @@ class UnitTests {
 		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
 		
 		HashMap<String,Integer> info = new HashMap<>();
-		info.put("Pennies", 267); // Typically increases by 2
-		info.put("Nickels", 175); // Typically increases by 2
-		info.put("Dimes", 149); // Typically increases by 2
+		info.put("Pennies", 269); // Typically increases by 2
+		info.put("Nickels", 177); // Typically increases by 2
+		info.put("Dimes", 151); // Typically increases by 2
 		info.put("Quarters", 146);
 		info.put("State Quarters", 112);
-		info.put("National Park Quarters", 70); // Typically increases by 10
-		info.put("Half-Dollars", 98); // Typically increases by 2
+		info.put("National Park Quarters", 80); // Typically increases by 10
+		info.put("Half-Dollars", 100); // Typically increases by 2
 		info.put("Eisenhower Dollars", 14);
 		info.put("Susan B. Anthony Dollars", 11);
-		info.put("Sacagawea/Native American Dollars", 34); // Typically increases by 2
-		info.put("Presidential Dollars", 76); // Typically increases by 4
+		info.put("Sacagawea/Native American Dollars", 36); // Typically increases by 2
+		info.put("Presidential Dollars", 78); // Typically increases by 4
 		info.put("Indian Head Cents", 55);
 		info.put("Liberty Head Nickels", 33);
 		info.put("Buffalo Nickels", 64);
@@ -120,8 +120,8 @@ class UnitTests {
 		info.put("Franklin Half Dollars", 35);
 		info.put("Morgan Dollars", 96);
 		info.put("Peace Dollars", 24);
-		info.put("American Eagle Silver Dollars", 31); // Typically increases by 1
-		info.put("First Spouse Gold Coins", 38); // Typically increases by 4
+		info.put("American Eagle Silver Dollars", 32); // Typically increases by 1
+		info.put("First Spouse Gold Coins", 41); // Typically increases by 4
 		
 		Object[] keys = info.keySet().toArray();
 		

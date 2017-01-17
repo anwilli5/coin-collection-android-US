@@ -7,8 +7,8 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="Westward_Journey_2004_Nickels_Regular_Images">
-        <item>peace_medal_r1</item>
-        <item>keelboat_r2</item>
+        <item>westward_2004_louisiana_purchase_unc</item>
+        <item>westward_2004_keelboat_unc</item>
     </string-array>
     
     <string-array name="Westward_Journey_2005_Nickels_types">
@@ -18,8 +18,8 @@
     
     <!--  This corresponds to the list above, so we can match the correct pictures to the coin -->
     <string-array name="Westward_Journey_2005_Nickels_Regular_Images">
-        <item>american_bison_r3</item>
-        <item>ocean_in_view_r4</item>
+        <item>westward_2005_american_bison_unc</item>
+        <item>westward_2005_ocean_in_view_unc</item>
     </string-array>
     
     <!--  For convenience -->
