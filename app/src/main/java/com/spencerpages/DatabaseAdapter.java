@@ -1003,58 +1003,79 @@ public class DatabaseAdapter {
                             // Get the distinct columns from the coinMint field
                             Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
 
-                            // We need to determine which mint marks to add
-                            boolean hasAddedP = false;
+                            // We need to determine which mint marks to add.  The way we do this is
+                            // a bit complicated, but is as follows:
+                            // - If we see P's, we should add another P
+                            // - If we see D's, we should add another D
+                            // - If we see a blank mint mark, there are three cases that could be
+                            //   be occurring:
+                            //       - The collection has no mint marks displayed
+                            //       - It's a collection type where coins from the P mint don't
+                            //         have a mint mark (Ex: Lincoln Cents)
+                            //       - It's a collection type where coins from the P mint mark
+                            //         used to not have a mint mark but now do.
+                            //
+                            //   We only want to include a blank mark in the first two cases
+                            //   above, so, if we see a blank mint mark and not a P mint mark.
+                            //
+                            //   A final note - we want to add the P mint mark before the D mint
+                            //   mark (our convention.)
+
+                            boolean shouldAddP = false;
+                            boolean shouldAddD = false;
+                            boolean foundBlank = false;
+
                             if(coinMintCursor.moveToFirst()){
                                 do{
                                     String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
 
-                                    ContentValues new2017CoinValues = new ContentValues();
                                     switch (coinMint) {
                                         case "":
-                                            if (!hasAddedP) {
-                                                new2017CoinValues.put("coinIdentifier", "2017");
-                                                new2017CoinValues.put("coinMint", "");
-                                                // Fall through to insert coin info
-                                            } else {
-                                                // Do nothing... This collection has mint marks displayed, so the only
-                                                // values we want to add are " P" and " D"
-                                                continue;
-                                            }
+                                            foundBlank = true;
                                             break;
                                         case " P":
-                                            new2017CoinValues.put("coinIdentifier", "2017");
-                                            new2017CoinValues.put("coinMint", " P");
-                                            hasAddedP = true;
-                                            // Fall through to insert coin info
-
-                                            // We may have mistakenly added the "" mint mark, since earlier
-                                            // Philly minted coins didn't have the mint mark.  In this case,
-                                            // delete it
-                                            if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2017", ""})) {
-                                                total--;
-                                            }
+                                            shouldAddP = true;
                                             break;
                                         case " D":
-                                            new2017CoinValues.put("coinIdentifier", "2017");
-                                            new2017CoinValues.put("coinMint", " D");
-                                            // Fall through to insert coin info
+                                            shouldAddD = true;
                                             break;
                                         default:
-
                                             // Don't want to add in any " S"s
-                                            continue;
+                                            break;
                                     }
-
-                                    if(db.insert("[" + name + "]", null, new2017CoinValues) != -1){
-                                        total++;
-                                    }
-
-                                }while(coinMintCursor.moveToNext());
+                                } while(coinMintCursor.moveToNext());
                             }
 
                             // All done with the coin mint information
                             coinMintCursor.close();
+
+                            if (shouldAddP) {
+                                ContentValues new2017PCoinValues = new ContentValues();
+                                new2017PCoinValues.put("coinIdentifier", "2017");
+                                new2017PCoinValues.put("coinMint", " P");
+                                if(db.insert("[" + name + "]", null, new2017PCoinValues) != -1){
+                                    total++;
+                                }
+                            } else {
+
+                                if (foundBlank) {
+                                    ContentValues new2017BlankCoinValues = new ContentValues();
+                                    new2017BlankCoinValues.put("coinIdentifier", "2017");
+                                    new2017BlankCoinValues.put("coinMint", "");
+                                    if (db.insert("[" + name + "]", null, new2017BlankCoinValues) != -1) {
+                                        total++;
+                                    }
+                                }
+                            }
+
+                            if (shouldAddD) {
+                                ContentValues new2017DCoinValues = new ContentValues();
+                                new2017DCoinValues.put("coinIdentifier", "2017");
+                                new2017DCoinValues.put("coinMint", " D");
+                                if(db.insert("[" + name + "]", null, new2017DCoinValues) != -1){
+                                    total++;
+                                }
+                            }
                         }
                     }
 
