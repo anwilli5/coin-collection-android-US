@@ -23,6 +23,10 @@ package com.spencerpages;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Collection;
+
+import com.spencerpages.collections.CollectionInfo;
+
 /**
  * Object used to represent each collection in the various list of collections
  * (the main page and the reorder page)
@@ -31,9 +35,7 @@ public class CollectionListInfo implements Parcelable{
 	private String mCollectionName;
     private int mTotalCoinsInCollection;
     private int mTotalCoinsCollected;
-    private String mCoinType;
-    private int mCoinReverseImageIdentifier;
-    private int mCoinObverseImageIdentifier;
+    private int mCollectionTypeIndex;
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case
      * where a screen orientation change occurs.
@@ -52,18 +54,16 @@ public class CollectionListInfo implements Parcelable{
 
     /** Constructor required for Parcelability */
     private CollectionListInfo(Parcel in){
-        String[] strings = new String[2];
-        int[] ints = new int[4];
+        String[] strings = new String[1];
+        int[] ints = new int[3];
 
         in.readStringArray(strings);
         mCollectionName = strings[0];
-        mCoinType = strings[1];
 
         in.readIntArray(ints);
         mTotalCoinsInCollection = ints[0];
         mTotalCoinsCollected = ints[1];
-        mCoinReverseImageIdentifier = ints[2];
-        mCoinObverseImageIdentifier = ints[3];
+        mCollectionTypeIndex = ints[2];
     }
 
     @Override
@@ -77,14 +77,12 @@ public class CollectionListInfo implements Parcelable{
 
         String[] strings = new String[] {
             mCollectionName,
-            mCoinType,
         };
 
         int[] ints = new int[] {
             mTotalCoinsInCollection,
             mTotalCoinsCollected,
-            mCoinReverseImageIdentifier,
-            mCoinObverseImageIdentifier,
+            mCollectionTypeIndex
         };
 
         dest.writeStringArray(strings);
@@ -98,15 +96,7 @@ public class CollectionListInfo implements Parcelable{
     public void setName(String name){
     	mCollectionName = name;
     }
-    
-    public String getType(){
-    	return mCoinType;
-    }
-    
-    public void setType(String type){
-    	mCoinType = type;
-    }
-    
+
     public int getMax(){
     	return mTotalCoinsInCollection;
     }
@@ -116,26 +106,31 @@ public class CollectionListInfo implements Parcelable{
     }
     
     public int getCollected(){
-    	return mTotalCoinsCollected;
+        return mTotalCoinsCollected;
     }
     
     public void setCollected(int total){
-    	mTotalCoinsCollected = total;
+        mTotalCoinsCollected = total;
     }
 
-    public int getCoinReverseImageIdentifier() {
-        return mCoinReverseImageIdentifier;
+    public int getCollectionTypeIndex(){
+        return mCollectionTypeIndex;
     }
 
-    public void setCoinReverseImageIdentifier(int identifier) {
-        mCoinReverseImageIdentifier = identifier;
+    public void setCollectionTypeIndex(int index){
+        mCollectionTypeIndex = index;
     }
 
-    public int getCoinObverseImageIdentifier() {
-        return mCoinObverseImageIdentifier;
+    public String getType(){
+        return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex].getCoinType();
     }
 
-    public void setCoinObverseImageIdentifier(int identifier){
-        mCoinObverseImageIdentifier = identifier;
+    public int getCoinImageIdentifier() {
+        return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex].getCoinImageIdentifier();
     }
+
+    public CollectionInfo getCollectionObj() {
+        return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+    }
+
 }

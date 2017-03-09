@@ -22,18 +22,81 @@ package com.spencerpages;
 
 import android.app.Application;
 
+import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.BarberDimes;
+import com.spencerpages.collections.BarberHalfDollars;
+import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.CollectionInfo;
+import com.spencerpages.collections.EisenhowerDollar;
+import com.spencerpages.collections.FirstSpouseGoldCoins;
+import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.IndianHeadCents;
+import com.spencerpages.collections.JeffersonNickels;
+import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LibertyHeadNickels;
+import com.spencerpages.collections.LincolnCents;
+import com.spencerpages.collections.MercuryDimes;
+import com.spencerpages.collections.MorganDollars;
+import com.spencerpages.collections.NationalParkQuarters;
+import com.spencerpages.collections.NativeAmericanDollars;
+import com.spencerpages.collections.PeaceDollars;
+import com.spencerpages.collections.PresidentialDollars;
+import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.StandingLibertyQuarters;
+import com.spencerpages.collections.StateQuarters;
+import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.WalkingLibertyHalfDollars;
+import com.spencerpages.collections.WashingtonQuarters;
+
+import java.util.HashMap;
+
 public class MainApplication extends Application {
 
     // App name string, used when printing log messages
-	public static final String APP_NAME = "CoinCollection";
+    public static final String APP_NAME = "CoinCollection";
 
     // String used to indicate the SharedPreference store to use.
     // SharedPreferences are used to store information like whether the help
     // dialogs have been seen before.
-	public static final String PREFS = "mainPreferences";
+    public static final String PREFS = "mainPreferences";
 
-	// Global "enum" values
-	public static final int SIMPLE_DISPLAY = 0;
-	public static final int ADVANCED_DISPLAY = 1;
+    // Global "enum" values
+    public static final int SIMPLE_DISPLAY = 0;
+    public static final int ADVANCED_DISPLAY = 1;
+
+    public static final CollectionInfo[] COLLECTION_TYPES =
+            {
+                    new LincolnCents(),
+                    new JeffersonNickels(),
+                    new RooseveltDimes(),
+                    new WashingtonQuarters(),
+                    new StateQuarters(),
+                    new NationalParkQuarters(),
+                    new KennedyHalfDollars(),
+                    new EisenhowerDollar(),
+                    new SusanBAnthonyDollars(),
+                    new NativeAmericanDollars(),
+                    new PresidentialDollars(),
+                    new IndianHeadCents(),
+                    new LibertyHeadNickels(),
+                    new BuffaloNickels(),
+                    new BarberDimes(),
+                    new MercuryDimes(),
+                    new BarberQuarters(),
+                    new StandingLibertyQuarters(),
+                    new BarberHalfDollars(),
+                    new WalkingLibertyHalfDollars(),
+                    new FranklinHalfDollars(),
+                    new MorganDollars(),
+                    new PeaceDollars(),
+                    new AmericanEagleSilverDollars(),
+                    new FirstSpouseGoldCoins(),
+            };
+
+    @Override
+    public void onCreate(){
+
+    }
 
 }

@@ -72,7 +72,7 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
             //Get the image
             ImageView image = (ImageView) holder.view.findViewById(R.id.imageView1);
             if (image != null) {
-                image.setBackgroundResource(item.getCoinReverseImageIdentifier());
+                image.setBackgroundResource(item.getCoinImageIdentifier());
             }
 
             TextView tt = (TextView) holder.view.findViewById(R.id.textView1);

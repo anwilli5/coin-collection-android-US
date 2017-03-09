@@ -53,9 +53,10 @@ public class DatabaseAdapter {
      *                   Version 7 - Used in Version 2.1, 2.1.1 of the app
      *                   Version 8 - Used in Version 2.2.1 of the app
 	 *                   Version 9 - Used in Version 2.3 of the app
+     *                   Version 10 - Used in Version 2.3.1 of the app
 
 	 */
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 10;
 
     private final Context mContext;
 
@@ -594,6 +595,10 @@ public class DatabaseAdapter {
                 updateToVersion9(db);
             }
 
+            // Updates in version 2.3.1
+            if(oldVersion >= 2 && oldVersion <= 9){
+                updateToVersion10(db);
+            }
         }
 
         public void updateToVersion7(SQLiteDatabase db){
@@ -1090,6 +1095,17 @@ public class DatabaseAdapter {
                 } while(resultCursor.moveToNext());
             }
             resultCursor.close();
+        }
+
+        public void updateToVersion10(SQLiteDatabase db) {
+
+            // We changed the name that we use for Sacagawea gold coin collections a while back,
+            // but since we now use this name to determine the backing CollectionInfo obj, we
+            // need to change it in the database (we should have done this to begin with!)
+            ContentValues values = new ContentValues();
+            values.put("coinType", "Sacagawea/Native American Dollars");
+            db.update("collection_info", values, "coinType=?", new String[] { "Sacagawea Dollars" });
+
         }
 
         /**
