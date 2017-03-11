@@ -55,7 +55,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Objects;
 
 import com.spencerpages.collections.CollectionInfo;
 
@@ -64,38 +63,21 @@ import com.spencerpages.collections.CollectionInfo;
  */
 public class CoinPageCreator extends AppCompatActivity {
 
-    // These instance variables are initialized in onCreate and/or resetViews(String coinType), and
-    // then updated via the various UI options presented in the collection creation view (or from
-    // the previous activity state in the case of a screen orientation change.)
-    //
-    // Having this data in instance variables makes accessing this data cleaner (so we don't have to
-    // constantly reach into the UI elements themselves to obtain the values) but comes at the cost
-    // of requiring a lot of code to maintain this state when the UI is updated.  It also allows us
-    // to do testing easier (without requiring the UI.)
-    //
-    // TODO Are the benefits worth the cost?  This code is (overly?) complicated! lol
-
-
-    //private boolean mShowMintMark;
-    //private boolean mEditDateRange;
-    //private boolean mShowTerritories;
-    //private boolean mShowBurnished;
-    //private boolean mShowP;
-    //private boolean mShowD;
-    //private boolean mShowS;
-    //private boolean mShowO;
-    //private boolean mShowCC;
-    //private int mStartYear;
-    //private int mStopYear;
-
+    /** mCoinTypeIndex The index of the currently selected coin type in the
+     *                 MainApplication.COLLECTION_TYPES list. */
     private int mCoinTypeIndex;
-    HashMap<String, Object> mParameters;
-    HashMap<String, Object> mDefaults;
 
-    // Convenience method for getting the coin type
-    private String mCoinType;
+    /** mCollectionObj The CollectionInfo object associated with this index. */
     private CollectionInfo mCollectionObj;
 
+    /** mParameters The HashMap that is used to keep track of the changes that
+     *              the user has requested (via the UI) to the detault
+     *              collection settings. */
+    private HashMap<String, Object> mParameters;
+
+    /** mDefaults The default parameters provided from a call to the current
+     *             mCollectionObj getCreationParameters method. */
+    private HashMap<String, Object> mDefaults;
 
     /** mIdentifierList Upon selecting to create a collection, gets populated with a list of the
      *                  individual coin identifiers (years, states, people, etc.) created after
@@ -127,30 +109,82 @@ public class CoinPageCreator extends AppCompatActivity {
      */
     private Context mContext = this;
 
-    // Saved instance variable names
-    // TODO delete public final static String COIN_TYPE = "CoinType";
-    public final static String _COIN_TYPE_INDEX = "CoinTypeIndex";
-    public final static String _PARAMETERS = "Parameters";
+    /* Internal keys to use for passing data via saved instance state */
+    private final static String _COIN_TYPE_INDEX = "CoinTypeIndex";
+    private final static String _PARAMETERS = "Parameters";
 
-    public final static String SHOW_MINT_MARKS = "ShowMintMarks";
-    public final static String SHOW_TERRITORIES = "ShowTerritories";
-    public final static String SHOW_BURNISHED = "ShowBurnished";
-    public final static String EDIT_DATE_RANGE = "EditDateRange";
-    public final static String SHOW_P = "ShowP";
-    public final static String SHOW_D = "ShowD";
-    public final static String SHOW_S = "ShowS";
-    public final static String SHOW_O = "ShowO";
-    public final static String SHOW_CC = "ShowCC";
-    public final static String START_YEAR = "StartYear";
-    public final static String STOP_YEAR = "StopYear";
+    /** These are the options supported in the parameter HashMaps.  In general,
+     *  this is how they work:
+     *  - If an option is present in the parameters HashMap after the call to
+     *    getCreationParameters, the associated UI element will be displayed to
+     *    the user
+     *  - The UI element's default value will be set to the value specified in
+     *    the HashMap after a call to getCreationParameters, and the associated
+     *    value in the HashMap passed to populateCollectionLists will change
+     *    based on changes made to the UI element.
+     *  The specifics for the various options are as follows:
+     *
+     *  OPT_SHOW_MINT_MARKS
+     *  - Associated UI Element: 'Show Mint Marks' checkbox
+     *  - Associated Value Type: Boolean
+     *  - This option MUST be used in conjunction with at least one of the
+     *    specific show mint mark options. (Ex: OPT_SHOW_P)
+     *
+     *  OPT_SHOW_P, OPT_SHOW_D, OPT_SHOW_S, OPT_SHOW_O, OPT_SHOW_CC
+     *  - Associated UI Element: respective 'Show Mint' checkbox
+     *  - Associated Value Type: Boolean
+     *  - These options MUST be used in conjunction with OPT_SHOW_MINT_MARKS
+     *
+     *  OPT_EDIT_DATE_RANGE
+     *  - Associated UI Element: 'Edit Date Range' checkbox
+     *  - Associated Value Type: Boolean
+     *  - This option MUST be used in conjunction with OPT_START_YEAR and
+     *    OPT_STOP_YEAR
+     *
+     *  OPT_START_YEAR
+     *  - Associated UI Element: 'Edit Start Year' EditText
+     *  - Associated Value Type: Integer
+     *  - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
+     *
+     *  OPT_STOP_YEAR
+     *  - Associated UI Element: 'Edit Stop Year' EditText
+     *  - Associated Value Type: Integer
+     *  - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
+     *
+     *  OPT_SHOW_TERRITORIES
+     *  - Associated UI Element: 'Show DC / Territories' checkbox
+     *  - Associated Value Type: Boolean
+     *  - Likely only useful for the 'State Quarters' collection type
+     *
+     *  OPT_SHOW_BURNISHED
+     *  - Associated UI Element: 'Show Burnished Coins' checkbox
+     *  - Associated Value Type: Boolean
+     *  - Likely only useful for the 'American Eagle Silver Dollar' collection
+     *    type.
+     */
+    public final static String OPT_SHOW_MINT_MARKS = "ShowMintMarks";
+    public final static String OPT_SHOW_P = "ShowP";
+    public final static String OPT_SHOW_D = "ShowD";
+    public final static String OPT_SHOW_S = "ShowS";
+    public final static String OPT_SHOW_O = "ShowO";
+    public final static String OPT_SHOW_CC = "ShowCC";
+    public final static String OPT_EDIT_DATE_RANGE = "EditDateRange";
+    public final static String OPT_START_YEAR = "StartYear";
+    public final static String OPT_STOP_YEAR = "StopYear";
+    public final static String OPT_SHOW_TERRITORIES = "ShowTerritories";
+    public final static String OPT_SHOW_BURNISHED = "ShowBurnished";
+    /* TODO Replace OPT_SHOW_TERRITORIES and OPT_SHOW_BURNISHED with generic
+     * checkbox options and extend the CollectionInfo API to let each
+     * collection populate the associated checkbox text, etc.
+     * TODO Replace OPT_SHOW_* with generics too
+     */
 
-    // This flag is used by collections whose year of most recent production should
-    // track the current year.  It's value should be the most recent year supported
-    // by the app.
+    /** This flag should be used by collections whose year of most recent
+     *  production should track the current year. */
     //
     // TODO Make this easier to maintain, but make sure it doesn't break database
     //      upgrade functionality
-    public final static Integer STILL_IN_PRODUCTION = 2017;
+    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2017;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -169,19 +203,6 @@ public class CoinPageCreator extends AppCompatActivity {
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
                     (HashMap<String, Object>) savedInstanceState.getSerializable(_PARAMETERS));
-
-            // Finish pulling in the rest of the data
-            //mShowMintMark = savedInstanceState.getBoolean(SHOW_MINT_MARKS);
-            //mShowTerritories = savedInstanceState.getBoolean(SHOW_TERRITORIES);
-            //mShowBurnished = savedInstanceState.getBoolean(SHOW_BURNISHED);
-            //mEditDateRange = savedInstanceState.getBoolean(EDIT_DATE_RANGE);
-            //mShowP = savedInstanceState.getBoolean(SHOW_P);
-            //mShowD = savedInstanceState.getBoolean(SHOW_D);
-            //mShowS = savedInstanceState.getBoolean(SHOW_S);
-            //mShowO = savedInstanceState.getBoolean(SHOW_O);
-            //mShowCC = savedInstanceState.getBoolean(SHOW_CC);
-            //mStartYear = savedInstanceState.getInt(START_YEAR);
-            //mStopYear = savedInstanceState.getInt(STOP_YEAR);
 
         } else {
 
@@ -250,7 +271,7 @@ public class CoinPageCreator extends AppCompatActivity {
         // Create an OnKeyListener that can be used to hide the soft keyboard when the enter key
         // (or a few others) are pressed.
         //
-        // TODO OnKeyListeners aren't guaranteed to work software keyboards... find a better way
+        // TODO OnKeyListeners aren't guaranteed to work with software keyboards... find a better way
         // From https://developer.android.com/reference/android/view/View.OnKeyListener.html:
         // Interface definition for a callback to be invoked when a hardware key event is dispatched
         // to this view. The callback will be invoked before the key event is given to the view.
@@ -305,15 +326,15 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // Don't take any action if the value isn't changing - needed to prevent
                 // loops that would get created by the call to updateViewFromState()
-                if(mParameters.get(SHOW_MINT_MARKS) == Boolean.valueOf(isChecked)){
+                if(mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.valueOf(isChecked)){
                     return;
                 }
 
-                mParameters.put(SHOW_MINT_MARKS, Boolean.valueOf(isChecked));
+                mParameters.put(OPT_SHOW_MINT_MARKS, Boolean.valueOf(isChecked));
 
                 // Restore defaults for all of the mint mark checkboxes when this is unchecked
                 if(!isChecked) {
-                    String[] keys = {SHOW_P, SHOW_D, SHOW_S, SHOW_CC, SHOW_O};
+                    String[] keys = {OPT_SHOW_P, OPT_SHOW_D, OPT_SHOW_S, OPT_SHOW_CC, OPT_SHOW_O};
                     for (String key : keys) {
                         if (mParameters.containsKey(key)) {
                             mParameters.put(key, mDefaults.get(key));
@@ -335,16 +356,16 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // Don't take any action if the value isn't changing - needed to prevent
                 // loops that would get created by the call to updateViewFromState()
-                if(mParameters.get(EDIT_DATE_RANGE) == Boolean.valueOf(isChecked)){
+                if(mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.valueOf(isChecked)){
                     return;
                 }
 
-                mParameters.put(EDIT_DATE_RANGE, Boolean.valueOf(isChecked));
+                mParameters.put(OPT_EDIT_DATE_RANGE, Boolean.valueOf(isChecked));
 
                 // Reset the start/stop year when the field is unchecked
                 if(!isChecked) {
-                    mParameters.put(START_YEAR, mDefaults.get(START_YEAR));
-                    mParameters.put(STOP_YEAR, mDefaults.get(STOP_YEAR));
+                    mParameters.put(OPT_START_YEAR, mDefaults.get(OPT_START_YEAR));
+                    mParameters.put(OPT_STOP_YEAR, mDefaults.get(OPT_STOP_YEAR));
                 }
 
                 // Refresh the UI so that the start/stop year EditTexts are hidden or displayed
@@ -359,7 +380,7 @@ public class CoinPageCreator extends AppCompatActivity {
         showTerritoriesCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_TERRITORIES, isChecked);
+                mParameters.put(OPT_SHOW_TERRITORIES, isChecked);
             }
         });
 
@@ -368,7 +389,7 @@ public class CoinPageCreator extends AppCompatActivity {
         showBurnishedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_BURNISHED, isChecked);
+                mParameters.put(OPT_SHOW_BURNISHED, isChecked);
             }
         });
 
@@ -377,7 +398,7 @@ public class CoinPageCreator extends AppCompatActivity {
         includePCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_P, isChecked);
+                mParameters.put(OPT_SHOW_P, isChecked);
             }
         });
 
@@ -386,7 +407,7 @@ public class CoinPageCreator extends AppCompatActivity {
         includeDCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_D, isChecked);
+                mParameters.put(OPT_SHOW_D, isChecked);
             }
         });
 
@@ -395,7 +416,7 @@ public class CoinPageCreator extends AppCompatActivity {
         includeSCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_S, isChecked);
+                mParameters.put(OPT_SHOW_S, isChecked);
             }
         });
 
@@ -404,7 +425,7 @@ public class CoinPageCreator extends AppCompatActivity {
         includeOCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_O, isChecked);
+                mParameters.put(OPT_SHOW_O, isChecked);
             }
         });
 
@@ -413,7 +434,7 @@ public class CoinPageCreator extends AppCompatActivity {
         includeCCCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(SHOW_CC, isChecked);
+                mParameters.put(OPT_SHOW_CC, isChecked);
             }
         });
 
@@ -448,11 +469,11 @@ public class CoinPageCreator extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    mParameters.put(START_YEAR, Integer.valueOf(s.toString()));
+                    mParameters.put(OPT_START_YEAR, Integer.valueOf(s.toString()));
                 } catch (NumberFormatException e) {
                     // The only case that should trigger this is the empty string case, so set
                     // mStartYear to the default
-                    mParameters.put(START_YEAR, mDefaults.get(START_YEAR));
+                    mParameters.put(OPT_START_YEAR, mDefaults.get(OPT_START_YEAR));
                 }
             }
         });
@@ -470,11 +491,11 @@ public class CoinPageCreator extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    mParameters.put(STOP_YEAR, Integer.valueOf(s.toString()));
+                    mParameters.put(OPT_STOP_YEAR, Integer.valueOf(s.toString()));
                 } catch (NumberFormatException e) {
                     // The only case that should trigger this is the empty string case, so set
                     // mStopYear to the default
-                    mParameters.put(STOP_YEAR, mDefaults.get(STOP_YEAR));
+                    mParameters.put(OPT_STOP_YEAR, mDefaults.get(OPT_STOP_YEAR));
                 }
             }
         });
@@ -492,8 +513,8 @@ public class CoinPageCreator extends AppCompatActivity {
                 }
 
                 // Validate the last year in the collection, if necessary
-                if(mParameters.containsKey(EDIT_DATE_RANGE) &&
-                        mParameters.get(EDIT_DATE_RANGE) == Boolean.TRUE){
+                if(mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
+                        mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE){
 
                     boolean result = validateStartAndStopYears();
                     if(!result){
@@ -503,14 +524,14 @@ public class CoinPageCreator extends AppCompatActivity {
                 }
 
                 // Ensure that at least one mint mark is selected
-                if(mParameters.containsKey(SHOW_MINT_MARKS) &&
-                        mParameters.get(SHOW_MINT_MARKS) == Boolean.TRUE){
+                if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
+                        mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
 
-                    if((mParameters.containsKey(SHOW_P) && mParameters.get(SHOW_P) == Boolean.FALSE) &&
-                            (mParameters.containsKey(SHOW_D) && mParameters.get(SHOW_D) == Boolean.FALSE) &&
-                            (mParameters.containsKey(SHOW_S) && mParameters.get(SHOW_S) == Boolean.FALSE) &&
-                            (mParameters.containsKey(SHOW_O) && mParameters.get(SHOW_O) == Boolean.FALSE) &&
-                            (mParameters.containsKey(SHOW_CC) && mParameters.get(SHOW_CC) == Boolean.FALSE)){
+                    if((mParameters.containsKey(OPT_SHOW_P) && mParameters.get(OPT_SHOW_P) == Boolean.FALSE) &&
+                            (mParameters.containsKey(OPT_SHOW_D) && mParameters.get(OPT_SHOW_D) == Boolean.FALSE) &&
+                            (mParameters.containsKey(OPT_SHOW_S) && mParameters.get(OPT_SHOW_S) == Boolean.FALSE) &&
+                            (mParameters.containsKey(OPT_SHOW_O) && mParameters.get(OPT_SHOW_O) == Boolean.FALSE) &&
+                            (mParameters.containsKey(OPT_SHOW_CC) && mParameters.get(OPT_SHOW_CC) == Boolean.FALSE)){
 
                         Toast.makeText(CoinPageCreator.this, "Please select at least one mint to collect coins from", Toast.LENGTH_SHORT).show();
                         return;
@@ -560,7 +581,7 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // TODO Probably a more elegant way to pass these arguments
                 mTask.tableName = collectionName;
-                mTask.coinType = mCoinType;
+                mTask.coinType = mCollectionObj.getCoinType();
                 mTask.coinIdentifiers = mIdentifierList;
                 mTask.coinMints = mMintList;
                 mTask.displayOrder = numberOfCollections;
@@ -610,7 +631,6 @@ public class CoinPageCreator extends AppCompatActivity {
         mCoinTypeIndex = index;
 
         mCollectionObj = MainApplication.COLLECTION_TYPES[mCoinTypeIndex];
-        mCoinType = mCollectionObj.getCoinType();
 
         // Get the defaults for the parameters that this new collection type cares about
         mDefaults = new HashMap<>();
@@ -621,6 +641,7 @@ public class CoinPageCreator extends AppCompatActivity {
             mCollectionObj.getCreationParameters(mParameters);
 
         } else {
+            // Allow the parameters to be passed in for things like testing and on screen rotation
             mParameters = parameters;
         }
     }
@@ -655,9 +676,9 @@ public class CoinPageCreator extends AppCompatActivity {
         CheckBox showTerritoriesCheckBox = (CheckBox) findViewById(R.id.check_show_territories);
         CheckBox showBurnishedCheckBox = (CheckBox) findViewById(R.id.check_show_burnished_eagles);
 
-        if(mParameters.containsKey(SHOW_MINT_MARKS)){
+        if(mParameters.containsKey(OPT_SHOW_MINT_MARKS)){
 
-            Boolean showMintMarks = (Boolean) mParameters.get(SHOW_MINT_MARKS);
+            Boolean showMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
 
             showMintMarkCheckBox.setChecked(showMintMarks);
             showMintMarkCheckBox.setVisibility(View.VISIBLE);
@@ -665,11 +686,11 @@ public class CoinPageCreator extends AppCompatActivity {
             if(showMintMarks){
                 // Set mint marks based on their state
                 Object[][] mintMarkObjs = {
-                        {SHOW_P, showPCheckBox},
-                        {SHOW_D, showDCheckBox},
-                        {SHOW_S, showSCheckBox},
-                        {SHOW_CC, showCCCheckBox},
-                        {SHOW_O, showOCheckBox}};
+                        {OPT_SHOW_P, showPCheckBox},
+                        {OPT_SHOW_D, showDCheckBox},
+                        {OPT_SHOW_S, showSCheckBox},
+                        {OPT_SHOW_CC, showCCCheckBox},
+                        {OPT_SHOW_O, showOCheckBox}};
 
                 for(Object[] mintMarkObj : mintMarkObjs){
                     String paramKey = (String) mintMarkObj[0];
@@ -700,10 +721,10 @@ public class CoinPageCreator extends AppCompatActivity {
             showCCCheckBox.setVisibility(View.GONE);
         }
 
-        if(mParameters.containsKey(EDIT_DATE_RANGE)){
-            Boolean editDateRange = (Boolean) mParameters.get(EDIT_DATE_RANGE);
-            Integer startYear = (Integer) mParameters.get(START_YEAR);
-            Integer stopYear = (Integer) mParameters.get(STOP_YEAR);
+        if(mParameters.containsKey(OPT_EDIT_DATE_RANGE)){
+            Boolean editDateRange = (Boolean) mParameters.get(OPT_EDIT_DATE_RANGE);
+            Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
+            Integer stopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
 
             editDateRangeCheckBox.setChecked(editDateRange);
             editDateRangeCheckBox.setVisibility(View.VISIBLE);
@@ -725,16 +746,16 @@ public class CoinPageCreator extends AppCompatActivity {
             editStopYearLayout.setVisibility(View.GONE);
         }
 
-        if(mParameters.containsKey(SHOW_TERRITORIES)){
-            Boolean showTerritories = (Boolean) mParameters.get(SHOW_TERRITORIES);
+        if(mParameters.containsKey(OPT_SHOW_TERRITORIES)){
+            Boolean showTerritories = (Boolean) mParameters.get(OPT_SHOW_TERRITORIES);
             showTerritoriesCheckBox.setChecked(showTerritories);
             showTerritoriesCheckBox.setVisibility(View.VISIBLE);
         } else {
             showTerritoriesCheckBox.setVisibility(View.GONE);
         }
 
-        if(mParameters.containsKey(SHOW_BURNISHED)){
-            Boolean showBurnished = (Boolean) mParameters.get(SHOW_BURNISHED);
+        if(mParameters.containsKey(OPT_SHOW_BURNISHED)){
+            Boolean showBurnished = (Boolean) mParameters.get(OPT_SHOW_BURNISHED);
             showBurnishedCheckBox.setChecked(showBurnished);
             showBurnishedCheckBox.setVisibility(View.VISIBLE);
         } else {
@@ -754,11 +775,11 @@ public class CoinPageCreator extends AppCompatActivity {
         EditText editStartYear = (EditText) findViewById(R.id.edit_start_year);
         EditText editStopYear = (EditText) findViewById(R.id.edit_stop_year);
 
-        Integer startYear = (Integer) mParameters.get(START_YEAR);
-        Integer stopYear = (Integer) mParameters.get(STOP_YEAR);
+        Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
+        Integer stopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
 
-        Integer minStartYear = (Integer) mDefaults.get(START_YEAR);
-        Integer maxStartYear = (Integer) mDefaults.get(STOP_YEAR);
+        Integer minStartYear = (Integer) mDefaults.get(OPT_START_YEAR);
+        Integer maxStartYear = (Integer) mDefaults.get(OPT_STOP_YEAR);
 
         if(stopYear > maxStartYear){
 
@@ -767,7 +788,7 @@ public class CoinPageCreator extends AppCompatActivity {
                         ".  Note, new years will automatically be added as they come.",
                 Toast.LENGTH_LONG).show();
 
-            mParameters.put(STOP_YEAR, maxStartYear);
+            mParameters.put(OPT_STOP_YEAR, maxStartYear);
             editStopYear.setText(Integer.toString(maxStartYear));
             return false;
         }
@@ -778,7 +799,7 @@ public class CoinPageCreator extends AppCompatActivity {
                         ")",
                 Toast.LENGTH_SHORT).show();
 
-            mParameters.put(STOP_YEAR, maxStartYear);
+            mParameters.put(OPT_STOP_YEAR, maxStartYear);
             editStopYear.setText(Integer.toString(maxStartYear));
             return false;
         }
@@ -789,7 +810,7 @@ public class CoinPageCreator extends AppCompatActivity {
                 "Lowest possible starting year is " + String.valueOf(minStartYear),
                 Toast.LENGTH_LONG).show();
 
-            mParameters.put(START_YEAR, minStartYear);
+            mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(Integer.toString(minStartYear));
             return false;
 
@@ -800,7 +821,7 @@ public class CoinPageCreator extends AppCompatActivity {
                         ")",
                 Toast.LENGTH_SHORT).show();
 
-            mParameters.put(START_YEAR, minStartYear);
+            mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(Integer.toString(minStartYear));
             return false;
         }
@@ -809,9 +830,9 @@ public class CoinPageCreator extends AppCompatActivity {
         if(startYear > stopYear){
             Toast.makeText(CoinPageCreator.this, "Starting year can't be greater than the ending year", Toast.LENGTH_SHORT).show();
 
-            mParameters.put(START_YEAR, minStartYear);
+            mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(Integer.toString(minStartYear));
-            mParameters.put(STOP_YEAR, maxStartYear);
+            mParameters.put(OPT_STOP_YEAR, maxStartYear);
             editStopYear.setText(Integer.toString(maxStartYear));
             return false;
         }
@@ -827,7 +848,7 @@ public class CoinPageCreator extends AppCompatActivity {
      */
     public void populateCollectionArrays(){
 
-        mCollectionObj.populateCollectionArrays(mParameters, mIdentifierList, mMintList);
+        mCollectionObj.populateCollectionLists(mParameters, mIdentifierList, mMintList);
     }
 
     @Override

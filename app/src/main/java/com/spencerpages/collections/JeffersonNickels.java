@@ -63,7 +63,7 @@ public class JeffersonNickels extends CollectionInfo {
     }
 
     private static final Integer START_YEAR = 1938;
-    private static final Integer STOP_YEAR = CoinPageCreator.STILL_IN_PRODUCTION;
+    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_jefferson_nickel_unc;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
@@ -84,26 +84,26 @@ public class JeffersonNickels extends CollectionInfo {
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.EDIT_DATE_RANGE, Boolean.FALSE);
-        parameters.put(CoinPageCreator.START_YEAR, START_YEAR);
-        parameters.put(CoinPageCreator.STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_S, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
+        parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.SHOW_S);
+        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -116,11 +116,11 @@ public class JeffersonNickels extends CollectionInfo {
                     if(showMintMarks){
                         if(showP){
                             identifierList.add(identifier);
-                            mintList.add(" P");
+                            mintList.add("P");
                         }
                         if(showD){
                             identifierList.add(identifier);
-                            mintList.add(" D");
+                            mintList.add("D");
                         }
                     } else {
                         identifierList.add(identifier);
@@ -139,11 +139,11 @@ public class JeffersonNickels extends CollectionInfo {
                     if(showMintMarks){
                         if(showP){
                             identifierList.add(identifier);
-                            mintList.add(" P");
+                            mintList.add("P");
                         }
                         if(showD){
                             identifierList.add(identifier);
-                            mintList.add(" D");
+                            mintList.add("D");
                         }
                     } else {
                         identifierList.add(identifier);
@@ -157,7 +157,7 @@ public class JeffersonNickels extends CollectionInfo {
                 if(i != 1968 && i != 1969 && i != 1970){
                     if(showP && i >= 1980){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" P");
+                        mintList.add("P");
                     } else if(showP){
                         identifierList.add(Integer.toString(i));
                         mintList.add("");
@@ -171,13 +171,13 @@ public class JeffersonNickels extends CollectionInfo {
             if(i != 1965 && i != 1966 && i != 1967){
                 if(showMintMarks && showD){
                     identifierList.add(Integer.toString(i));
-                    mintList.add(" D");
+                    mintList.add("D");
                 }
             }
             if(i <= 1970 && i != 1950 && (i < 1955 || i > 1967)){
                 if(showMintMarks && showS){
                     identifierList.add(Integer.toString(i));
-                    mintList.add(" S");
+                    mintList.add("S");
                 }
             }
         }

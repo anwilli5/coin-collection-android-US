@@ -48,28 +48,28 @@ public class BarberHalfDollars extends CollectionInfo {
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.EDIT_DATE_RANGE, Boolean.FALSE);
-        parameters.put(CoinPageCreator.START_YEAR, START_YEAR);
-        parameters.put(CoinPageCreator.STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_S, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_O, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
+        parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_O, Boolean.FALSE);
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.SHOW_S);
-        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.SHOW_O);
+        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
+        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_O);
 
         for(int i =startYear; i <= stopYear; i++){
             if(showMintMarks){
@@ -80,17 +80,17 @@ public class BarberHalfDollars extends CollectionInfo {
                 if(showD){
                     if( i >= 1906 && i != 1909 && i != 1910 && i != 1914){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" D");
+                        mintList.add("D");
                     }
                 }
                 if(showS){
                     identifierList.add(Integer.toString(i));
-                    mintList.add(" S");
+                    mintList.add("S");
                 }
                 if(showO){
                     if( i <= 1909 ){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" O");
+                        mintList.add("O");
                     }
                 }
             } else {

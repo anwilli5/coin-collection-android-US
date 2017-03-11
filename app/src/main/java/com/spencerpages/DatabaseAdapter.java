@@ -36,10 +36,10 @@ import java.util.ArrayList;
  */
 public class DatabaseAdapter {
 
-	private DatabaseHelper mDbHelper;
-	private SQLiteDatabase mDb;
+    private DatabaseHelper mDbHelper;
+    private SQLiteDatabase mDb;
 
-	private static final String DATABASE_NAME = "CoinCollection";
+    private static final String DATABASE_NAME = "CoinCollection";
 
     /** DATABASE_VERSION Tracks the current database version, and is essential for periodic
      *                   database updating.  It should be raised anytime we need to insert new
@@ -52,533 +52,533 @@ public class DatabaseAdapter {
      *                   Version 6 - Used in Version 2.0, 2.0.1 of the app
      *                   Version 7 - Used in Version 2.1, 2.1.1 of the app
      *                   Version 8 - Used in Version 2.2.1 of the app
-	 *                   Version 9 - Used in Version 2.3 of the app
+     *                   Version 9 - Used in Version 2.3 of the app
      *                   Version 10 - Used in Version 2.3.1 of the app
 
-	 */
+     */
     public static final int DATABASE_VERSION = 10;
 
     private final Context mContext;
 
-	private static class DatabaseHelper extends SQLiteOpenHelper {
+    private static class DatabaseHelper extends SQLiteOpenHelper {
 
-		DatabaseHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
+        DatabaseHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
 
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			// This is called if the DB doesn't exist (A fresh installation)
-			createCollectionInfoTable(db);
-		}
-		
-		public void createCollectionInfoTable(SQLiteDatabase db){
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            // This is called if the DB doesn't exist (A fresh installation)
+            createCollectionInfoTable(db);
+        }
+
+        public void createCollectionInfoTable(SQLiteDatabase db){
 
             // v2.2.1 - Until this version all fields had '_id' created with 'autoincrement'
             // which is unnecessary for our purposes.  Removing to improve performance.
-			String makeCollectionInfoTable = "CREATE TABLE collection_info (_id integer primary key,"
-					+ " name text not null,"
-					+ " coinType text not null,"
-					+ " total integer,"
-					+ " display integer default " + Integer.toString(MainApplication.SIMPLE_DISPLAY) + ","
-				    + " displayOrder integer"
+            String makeCollectionInfoTable = "CREATE TABLE collection_info (_id integer primary key,"
+                    + " name text not null,"
+                    + " coinType text not null,"
+                    + " total integer,"
+                    + " display integer default " + Integer.toString(MainApplication.SIMPLE_DISPLAY) + ","
+                    + " displayOrder integer"
                     + ");";
-				
-				db.execSQL(makeCollectionInfoTable);
-		}
 
-		// We could implement this now that our targeted API level is >= 11, but not necessary
-		//@Override
-		//public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion){
-		//}
+                db.execSQL(makeCollectionInfoTable);
+        }
 
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.i(MainApplication.APP_NAME, "Upgrading database from version " + oldVersion + " to "
-			        + newVersion);
+        // We could implement this now that our targeted API level is >= 11, but not necessary
+        //@Override
+        //public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion){
+        //}
 
-			// NOTE There is no good way to add values to the table other than adding them to the
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            Log.i(MainApplication.APP_NAME, "Upgrading database from version " + oldVersion + " to "
+                    + newVersion);
+
+            // NOTE There is no good way to add values to the table other than adding them to the
             // end. Doing otherwise would likely be intensive. For now it doesn't seem to be an
             // issue.
 
             // TODO Make this cleaner by moving each update code into its own function.
 
-			if(oldVersion == 2){
+            if(oldVersion == 2){
 
-				// Get all of the created tables
-				Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
-				"total"}, null, null, null, null, "_id");
-				// THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
-				if (resultCursor.moveToFirst()){
-					do{
+                // Get all of the created tables
+                Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
+                "total"}, null, null, null, null, "_id");
+                // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
+                if (resultCursor.moveToFirst()){
+                    do{
 
-						String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-						String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
-						int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
-						
-						int originalTotal = total;
+                        String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
+                        int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
 
-						// Need to fix many bugs
-						switch (coinType) {
-							case "Pennies": {
+                        int originalTotal = total;
 
-								// Remove 1921 D Penny
-								int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1921", " D"});
+                        // Need to fix many bugs
+                        switch (coinType) {
+                            case "Pennies": {
 
-								// TODO What should we do?
-								// We can't add the new identifiers, just delete the old ones
-								//value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2009" });
+                                // Remove 1921 D Penny
+                                int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1921", " D"});
 
-								total = total - value;
+                                // TODO What should we do?
+                                // We can't add the new identifiers, just delete the old ones
+                                //value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2009" });
 
-								break;
-							}
-							case "Nickels": {
-								// Remove 1955s nickel
-								int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1955", " S"});
-								// Remove 1965-1967 D Nickel
-								value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1965", " D"});
-								value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1966", " D"});
-								value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1967", " D"});
+                                total = total - value;
 
-								// We can't add the new identifiers, just delete the old ones
-								// TODO What should we do
-								//value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2004" });
-								//value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2005" });
+                                break;
+                            }
+                            case "Nickels": {
+                                // Remove 1955s nickel
+                                int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1955", " S"});
+                                // Remove 1965-1967 D Nickel
+                                value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1965", " D"});
+                                value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1966", " D"});
+                                value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1967", " D"});
 
-								total = total - value;
+                                // We can't add the new identifiers, just delete the old ones
+                                // TODO What should we do
+                                //value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2004" });
+                                //value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2005" });
 
-								break;
-							}
-							case "Quarters": {
-								// Remove 1965 - 1967 D quarters
-								int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1965", " D"});
-								value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1966", " D"});
-								value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1967", " D"});
-								total = total - value;
+                                total = total - value;
 
-								break;
-							}
-							case "National Park Quarters": {
-								// Add in 2012 National Park Quarters
+                                break;
+                            }
+                            case "Quarters": {
+                                // Remove 1965 - 1967 D quarters
+                                int value = db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1965", " D"});
+                                value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1966", " D"});
+                                value += db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"1967", " D"});
+                                total = total - value;
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("El Yunque");
-								newCoinIdentifiers.add("Chaco Culture");
-								newCoinIdentifiers.add("Acadia");
-								newCoinIdentifiers.add("Hawaii Volcanoes");
-								newCoinIdentifiers.add("Denali");
+                                break;
+                            }
+                            case "National Park Quarters": {
+                                // Add in 2012 National Park Quarters
 
-								// Add these coins, mimicing which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("El Yunque");
+                                newCoinIdentifiers.add("Chaco Culture");
+                                newCoinIdentifiers.add("Acadia");
+                                newCoinIdentifiers.add("Hawaii Volcanoes");
+                                newCoinIdentifiers.add("Denali");
 
-								break;
-							}
-							case "Half-Dollars":
-								// Need to add in 1968 - 1970 for Half Dollars unless it doesn't exist
-								// NOTE - We can't fix this, because adding will mess up the _id fields, which we use to do ordering
-								// We could make a new table and copy over all of the data, but that presents a lot of challenges
+                                // Add these coins, mimicing which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
 
-								break;
-							case "Eisenhower Dollars": {
-								// Take out Eisenhower dollars > 1978
-								int totalRemoved = 0;
-								for (int i = 1979; i <= 2012; i++) {
-									int value = db.delete("[" + name + "]", "coinIdentifier=?", new String[]{String.valueOf(i)});
-									totalRemoved += value;
-								}
+                                break;
+                            }
+                            case "Half-Dollars":
+                                // Need to add in 1968 - 1970 for Half Dollars unless it doesn't exist
+                                // NOTE - We can't fix this, because adding will mess up the _id fields, which we use to do ordering
+                                // We could make a new table and copy over all of the data, but that presents a lot of challenges
 
-								// Take out Eisenhower dollars with S marks
-								int value = db.delete("[" + name + "]", "coinMint=?", new String[]{" S"});
-								totalRemoved += value;
+                                break;
+                            case "Eisenhower Dollars": {
+                                // Take out Eisenhower dollars > 1978
+                                int totalRemoved = 0;
+                                for (int i = 1979; i <= 2012; i++) {
+                                    int value = db.delete("[" + name + "]", "coinIdentifier=?", new String[]{String.valueOf(i)});
+                                    totalRemoved += value;
+                                }
 
-								total = total - totalRemoved;
+                                // Take out Eisenhower dollars with S marks
+                                int value = db.delete("[" + name + "]", "coinMint=?", new String[]{" S"});
+                                totalRemoved += value;
 
-								break;
-							}
-							case "Susan B. Anthony Dollars": {
-								// Remove 1982 Susan B Anthony's
-								int value = db.delete("[" + name + "]", "coinIdentifier=?", new String[]{"1982"});
-								total = total - value;
+                                total = total - totalRemoved;
 
-								break;
-							}
-							case "Presidential Dollars": {
-								// Add in 2012 Presidential Dollars
+                                break;
+                            }
+                            case "Susan B. Anthony Dollars": {
+                                // Remove 1982 Susan B Anthony's
+                                int value = db.delete("[" + name + "]", "coinIdentifier=?", new String[]{"1982"});
+                                total = total - value;
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("Chester Arthur");
-								newCoinIdentifiers.add("Grover Cleveland 1");
-								newCoinIdentifiers.add("Benjamin Harrison");
-								newCoinIdentifiers.add("Grover Cleveland 2");
+                                break;
+                            }
+                            case "Presidential Dollars": {
+                                // Add in 2012 Presidential Dollars
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
-								break;
-							}
-						}
-						
-						// For each collection, if there were changes then update the total
-						if(originalTotal != total){
-							// Update the total
-							ContentValues values = new ContentValues();
-							values.put("total", total);
-							db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
-						}
-					}while(resultCursor.moveToNext());
-				}
-				resultCursor.close();
-			}
-			
-			// Updates in version 1.4
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("Chester Arthur");
+                                newCoinIdentifiers.add("Grover Cleveland 1");
+                                newCoinIdentifiers.add("Benjamin Harrison");
+                                newCoinIdentifiers.add("Grover Cleveland 2");
+
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
+                                break;
+                            }
+                        }
+
+                        // For each collection, if there were changes then update the total
+                        if(originalTotal != total){
+                            // Update the total
+                            ContentValues values = new ContentValues();
+                            values.put("total", total);
+                            db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
+                        }
+                    }while(resultCursor.moveToNext());
+                }
+                resultCursor.close();
+            }
+
+            // Updates in version 1.4
             if(oldVersion >= 2 && oldVersion <= 3){
 
-				// We need to add in columns to each table associated with a collection
-				// Get all of the created tables
-				Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
-				"total"}, null, null, null, null, "_id");
-				if (resultCursor.moveToFirst()){
-					do{
-						
-						String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-						String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
-						int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
-						
-						// If we add coins, keep track so we can update the total only if necessary
-						int originalTotal = total;
+                // We need to add in columns to each table associated with a collection
+                // Get all of the created tables
+                Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
+                "total"}, null, null, null, null, "_id");
+                if (resultCursor.moveToFirst()){
+                    do{
 
-						switch (coinType) {
-							case "Pennies":
+                        String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
+                        int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
 
-								// 1. Bug fix: The bicentennials should not display mint mark " P"
-								ContentValues values = new ContentValues();
-								values.put("coinMint", "");
-								// This shortcut works because pennies never carried the " P" mint mark
-								db.update("[" + name + "]", values, "coinMint=?", new String[]{" P"});
+                        // If we add coins, keep track so we can update the total only if necessary
+                        int originalTotal = total;
 
-								// 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
-								break;
-							case "Presidential Dollars": {
-								// Add in 2013 Presidential Dollars
+                        switch (coinType) {
+                            case "Pennies":
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("William McKinley");
-								newCoinIdentifiers.add("Theodore Roosevelt");
-								newCoinIdentifiers.add("William Howard Taft");
-								newCoinIdentifiers.add("Woodrow Wilson");
+                                // 1. Bug fix: The bicentennials should not display mint mark " P"
+                                ContentValues values = new ContentValues();
+                                values.put("coinMint", "");
+                                // This shortcut works because pennies never carried the " P" mint mark
+                                db.update("[" + name + "]", values, "coinMint=?", new String[]{" P"});
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
-								break;
-							}
-							case "National Park Quarters": {
-								// Add in 2013 National Park Quarters
+                                // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
+                                break;
+                            case "Presidential Dollars": {
+                                // Add in 2013 Presidential Dollars
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("White Mountain");
-								newCoinIdentifiers.add("Perry’s Victory");
-								newCoinIdentifiers.add("Great Basin");
-								newCoinIdentifiers.add("Fort McHenry");
-								newCoinIdentifiers.add("Mount Rushmore");
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("William McKinley");
+                                newCoinIdentifiers.add("Theodore Roosevelt");
+                                newCoinIdentifiers.add("William Howard Taft");
+                                newCoinIdentifiers.add("Woodrow Wilson");
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
-								break;
-							}
-							case "First Spouse Gold Coins": {
-								// Add in 2012 First Spouse Gold Coins
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
+                                break;
+                            }
+                            case "National Park Quarters": {
+                                // Add in 2013 National Park Quarters
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("Alice Paul");
-								newCoinIdentifiers.add("Frances Cleveland 1");
-								newCoinIdentifiers.add("Caroline Harrison");
-								newCoinIdentifiers.add("Frances Cleveland 2");
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("White Mountain");
+                                newCoinIdentifiers.add("Perry’s Victory");
+                                newCoinIdentifiers.add("Great Basin");
+                                newCoinIdentifiers.add("Fort McHenry");
+                                newCoinIdentifiers.add("Mount Rushmore");
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
+                                break;
+                            }
+                            case "First Spouse Gold Coins": {
+                                // Add in 2012 First Spouse Gold Coins
 
-								break;
-							}
-							case "Susan B. Anthony Dollars":
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("Alice Paul");
+                                newCoinIdentifiers.add("Frances Cleveland 1");
+                                newCoinIdentifiers.add("Caroline Harrison");
+                                newCoinIdentifiers.add("Frances Cleveland 2");
 
-								break;
-						}
-						
-						
-						// For each collection, add in 2013 coins if necessary
-						
-						if(coinType.equals("Pennies")           || coinType.equals("Nickels")      || 
-						   coinType.equals("Dimes")             || coinType.equals("Half-Dollars") ||
-						   coinType.equals("Sacagawea Dollars")){
-						
-							// First, we need to determine whether we should add 2013 to this album
-							Cursor lastYearCursor = db.query("[" + name + "]", new String[] {"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
-							boolean shouldAdd2013 = false;
-							if(lastYearCursor.moveToFirst()){
-								String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
-								if(lastYear.equals("2012")){
-								    // If the collection included 2012 coins, it's likely they want 2013 in there too
-									// Also, in earlier versions it was possible to make a collection end after 2012...
-									// If they already have 2013 in their collection, don't add
-									shouldAdd2013 = true;
-								}
-							}
-							lastYearCursor.close();
-							
-							if(shouldAdd2013){
-								// For each collection, we need to know which mint marks are present
-								// Get the distinct columns from the coinMint field
-								Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
-								
-							    // We need to determine which mint marks to add
-								boolean hasAddedP = false;
-							    if(coinMintCursor.moveToFirst()){
-							    	do{
-								        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
-								        
-							        	ContentValues new2013CoinValues = new ContentValues();
-										switch (coinMint) {
-											case "":
-												if (!hasAddedP) {
-													new2013CoinValues.put("coinIdentifier", "2013");
-													new2013CoinValues.put("coinMint", "");
-													// Fall through to insert coin info
-												} else {
-													// Do nothing... This collection has mint marks displayed, so the only
-													// values we want to add are " P" and " D"
-													continue;
-												}
-												break;
-											case " P":
-												new2013CoinValues.put("coinIdentifier", "2013");
-												new2013CoinValues.put("coinMint", " P");
-												hasAddedP = true;
-												// Fall through to insert coin info
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
 
-												// We may have mistakenly added the "" mint mark, since earlier
-												// Philly minted coins didn't have the mint mark.  In this case,
-												// delete it
-												if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2013", ""})) {
-													total--;
-												}
-												break;
-											case " D":
-												new2013CoinValues.put("coinIdentifier", "2013");
-												new2013CoinValues.put("coinMint", " D");
-												// Fall through to insert coin info
-												break;
-											default:
+                                break;
+                            }
+                            case "Susan B. Anthony Dollars":
 
-												// Don't want to add in any " S"s
-												continue;
-										}
-								        
-							        	if(db.insert("[" + name + "]", null, new2013CoinValues) != -1){
-							        	    total++;
-							        	}
-								        
-							    	}while(coinMintCursor.moveToNext());
-							    }
-							    
-								// All done with the coin mint information
-								coinMintCursor.close();
-							}
-						}
-						
-						// Last thing is to update the total for each collection
-						if(originalTotal != total){
-						    ContentValues values = new ContentValues();
-						    values.put("total", total);
-						    db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
-						}
-						
-						// Move to the next collection
-					} while(resultCursor.moveToNext());
-			    }
-			    resultCursor.close();
-			}
-			
-			// Updates in version 1.6
+                                break;
+                        }
+
+
+                        // For each collection, add in 2013 coins if necessary
+
+                        if(coinType.equals("Pennies")           || coinType.equals("Nickels")      ||
+                           coinType.equals("Dimes")             || coinType.equals("Half-Dollars") ||
+                           coinType.equals("Sacagawea Dollars")){
+
+                            // First, we need to determine whether we should add 2013 to this album
+                            Cursor lastYearCursor = db.query("[" + name + "]", new String[] {"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
+                            boolean shouldAdd2013 = false;
+                            if(lastYearCursor.moveToFirst()){
+                                String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
+                                if(lastYear.equals("2012")){
+                                    // If the collection included 2012 coins, it's likely they want 2013 in there too
+                                    // Also, in earlier versions it was possible to make a collection end after 2012...
+                                    // If they already have 2013 in their collection, don't add
+                                    shouldAdd2013 = true;
+                                }
+                            }
+                            lastYearCursor.close();
+
+                            if(shouldAdd2013){
+                                // For each collection, we need to know which mint marks are present
+                                // Get the distinct columns from the coinMint field
+                                Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
+
+                                // We need to determine which mint marks to add
+                                boolean hasAddedP = false;
+                                if(coinMintCursor.moveToFirst()){
+                                    do{
+                                        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
+
+                                        ContentValues new2013CoinValues = new ContentValues();
+                                        switch (coinMint) {
+                                            case "":
+                                                if (!hasAddedP) {
+                                                    new2013CoinValues.put("coinIdentifier", "2013");
+                                                    new2013CoinValues.put("coinMint", "");
+                                                    // Fall through to insert coin info
+                                                } else {
+                                                    // Do nothing... This collection has mint marks displayed, so the only
+                                                    // values we want to add are " P" and " D"
+                                                    continue;
+                                                }
+                                                break;
+                                            case " P":
+                                                new2013CoinValues.put("coinIdentifier", "2013");
+                                                new2013CoinValues.put("coinMint", " P");
+                                                hasAddedP = true;
+                                                // Fall through to insert coin info
+
+                                                // We may have mistakenly added the "" mint mark, since earlier
+                                                // Philly minted coins didn't have the mint mark.  In this case,
+                                                // delete it
+                                                if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2013", ""})) {
+                                                    total--;
+                                                }
+                                                break;
+                                            case " D":
+                                                new2013CoinValues.put("coinIdentifier", "2013");
+                                                new2013CoinValues.put("coinMint", " D");
+                                                // Fall through to insert coin info
+                                                break;
+                                            default:
+
+                                                // Don't want to add in any " S"s
+                                                continue;
+                                        }
+
+                                        if(db.insert("[" + name + "]", null, new2013CoinValues) != -1){
+                                            total++;
+                                        }
+
+                                    }while(coinMintCursor.moveToNext());
+                                }
+
+                                // All done with the coin mint information
+                                coinMintCursor.close();
+                            }
+                        }
+
+                        // Last thing is to update the total for each collection
+                        if(originalTotal != total){
+                            ContentValues values = new ContentValues();
+                            values.put("total", total);
+                            db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
+                        }
+
+                        // Move to the next collection
+                    } while(resultCursor.moveToNext());
+                }
+                resultCursor.close();
+            }
+
+            // Updates in version 1.6
             if(oldVersion >= 2 && oldVersion <= 4){
 
-				// Get all of the created tables
-				Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
-				"total"}, null, null, null, null, "_id");
-				if (resultCursor.moveToFirst()){
-					do{
-						
-						String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-						String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
-						int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
-						
-						// If we add coins, keep track so we can update the total only if necessary
-						int originalTotal = total;
+                // Get all of the created tables
+                Cursor resultCursor = db.query("collection_info", new String[] {"name", "coinType",
+                "total"}, null, null, null, null, "_id");
+                if (resultCursor.moveToFirst()){
+                    do{
 
-						switch (coinType) {
-							case "Pennies":
+                        String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
+                        int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
 
-								break;
-							case "Presidential Dollars": {
-								// Add in 2014 Presidential Dollars
+                        // If we add coins, keep track so we can update the total only if necessary
+                        int originalTotal = total;
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("Warren G. Harding");
-								newCoinIdentifiers.add("Calvin Coolidge");
-								newCoinIdentifiers.add("Herbert Hoover");
-								newCoinIdentifiers.add("Franklin D. Roosevelt");
+                        switch (coinType) {
+                            case "Pennies":
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
-								break;
-							}
-							case "National Park Quarters": {
-								// Add in 2014 National Park Quarters
+                                break;
+                            case "Presidential Dollars": {
+                                // Add in 2014 Presidential Dollars
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("Great Smoky Mountains");
-								newCoinIdentifiers.add("Shenandoah");
-								newCoinIdentifiers.add("Arches");
-								newCoinIdentifiers.add("Great Sand Dunes");
-								newCoinIdentifiers.add("Everglades");
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("Warren G. Harding");
+                                newCoinIdentifiers.add("Calvin Coolidge");
+                                newCoinIdentifiers.add("Herbert Hoover");
+                                newCoinIdentifiers.add("Franklin D. Roosevelt");
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
-								break;
-							}
-							case "First Spouse Gold Coins": {
-								// Add in 2013 First Spouse Gold Coins
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
+                                break;
+                            }
+                            case "National Park Quarters": {
+                                // Add in 2014 National Park Quarters
 
-								ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-								newCoinIdentifiers.add("Ida McKinley");
-								newCoinIdentifiers.add("Edith Roosevelt");
-								newCoinIdentifiers.add("Helen Taft");
-								newCoinIdentifiers.add("Ellen Wilson");
-								newCoinIdentifiers.add("Edith Wilson");
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("Great Smoky Mountains");
+                                newCoinIdentifiers.add("Shenandoah");
+                                newCoinIdentifiers.add("Arches");
+                                newCoinIdentifiers.add("Great Sand Dunes");
+                                newCoinIdentifiers.add("Everglades");
 
-								// Add these coins, mimicking which coinMints the user already has defined
-								total += addFromArrayList(db, name, newCoinIdentifiers);
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
+                                break;
+                            }
+                            case "First Spouse Gold Coins": {
+                                // Add in 2013 First Spouse Gold Coins
 
-								break;
-							}
-						}
-						
-						// For each collection, add in 2013 coins if necessary
-						
-						if(coinType.equals("Pennies")           || coinType.equals("Nickels")           || 
-						   coinType.equals("Dimes")             || coinType.equals("Half-Dollars")      ||
-						   coinType.equals("Sacagawea Dollars") || coinType.equals("Sacagawea/Native American Dollars") ||
-						   coinType.equals("American Eagle Silver Dollars")){
-						
-							// First, we need to determine whether we should add 2014 to this album
-							Cursor lastYearCursor = db.query("[" + name + "]", new String[] {"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
-							boolean shouldAdd2014 = false;
-							if(lastYearCursor.moveToFirst()){
-								String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
-								if(lastYear.equals("2013")){
-								    // If the collection included 2013 coins, it's likely they want 2014 in there too
-									// Also, in earlier versions it was possible to make a collection end after 2012...
-									// If they already have 2013 in their collection, don't add
-									shouldAdd2014 = true;
-								}
-							}
-							lastYearCursor.close();
-							
-							if(shouldAdd2014){
-								// For each collection, we need to know which mint marks are present
-								// Get the distinct columns from the coinMint field
-								Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
-								
-							    // We need to determine which mint marks to add
-								boolean hasAddedP = false;
-							    if(coinMintCursor.moveToFirst()){
-							    	do{
-								        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
-								        
-							        	ContentValues new2014CoinValues = new ContentValues();
-										switch (coinMint) {
-											case "":
-												if (!hasAddedP) {
-													new2014CoinValues.put("coinIdentifier", "2014");
-													new2014CoinValues.put("coinMint", "");
-													// Fall through to insert coin info
-												} else {
-													// Do nothing... This collection has mint marks displayed, so the only
-													// values we want to add are " P" and " D"
-													continue;
-												}
-												break;
-											case " P":
-												new2014CoinValues.put("coinIdentifier", "2014");
-												new2014CoinValues.put("coinMint", " P");
-												hasAddedP = true;
-												// Fall through to insert coin info
+                                ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                                newCoinIdentifiers.add("Ida McKinley");
+                                newCoinIdentifiers.add("Edith Roosevelt");
+                                newCoinIdentifiers.add("Helen Taft");
+                                newCoinIdentifiers.add("Ellen Wilson");
+                                newCoinIdentifiers.add("Edith Wilson");
 
-												// We may have mistakenly added the "" mint mark, since earlier
-												// Philly minted coins didn't have the mint mark.  In this case,
-												// delete it
-												if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2014", ""})) {
-													total--;
-												}
-												break;
-											case " D":
-												new2014CoinValues.put("coinIdentifier", "2014");
-												new2014CoinValues.put("coinMint", " D");
-												// Fall through to insert coin info
-												break;
-											default:
+                                // Add these coins, mimicking which coinMints the user already has defined
+                                total += addFromArrayList(db, name, newCoinIdentifiers);
 
-												// Don't want to add in any " S"s
-												continue;
-										}
-								        
-							        	if(db.insert("[" + name + "]", null, new2014CoinValues) != -1){
-							        	    total++;
-							        	}
-								        
-							    	}while(coinMintCursor.moveToNext());
-							    }
-							    
-								// All done with the coin mint information
-								coinMintCursor.close();
-							}
-						}
-						
-						// Last thing is to update the total for each collection
-						if(originalTotal != total){
-						    ContentValues values = new ContentValues();
-						    values.put("total", total);
-						    db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
-						}
-						
-						// Move to the next collection
-					} while(resultCursor.moveToNext());
-			    }
-			    resultCursor.close();
-				
-			}
-			
-			// Updates in version 2.0
+                                break;
+                            }
+                        }
+
+                        // For each collection, add in 2013 coins if necessary
+
+                        if(coinType.equals("Pennies")           || coinType.equals("Nickels")           ||
+                           coinType.equals("Dimes")             || coinType.equals("Half-Dollars")      ||
+                           coinType.equals("Sacagawea Dollars") || coinType.equals("Sacagawea/Native American Dollars") ||
+                           coinType.equals("American Eagle Silver Dollars")){
+
+                            // First, we need to determine whether we should add 2014 to this album
+                            Cursor lastYearCursor = db.query("[" + name + "]", new String[] {"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
+                            boolean shouldAdd2014 = false;
+                            if(lastYearCursor.moveToFirst()){
+                                String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
+                                if(lastYear.equals("2013")){
+                                    // If the collection included 2013 coins, it's likely they want 2014 in there too
+                                    // Also, in earlier versions it was possible to make a collection end after 2012...
+                                    // If they already have 2013 in their collection, don't add
+                                    shouldAdd2014 = true;
+                                }
+                            }
+                            lastYearCursor.close();
+
+                            if(shouldAdd2014){
+                                // For each collection, we need to know which mint marks are present
+                                // Get the distinct columns from the coinMint field
+                                Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
+
+                                // We need to determine which mint marks to add
+                                boolean hasAddedP = false;
+                                if(coinMintCursor.moveToFirst()){
+                                    do{
+                                        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
+
+                                        ContentValues new2014CoinValues = new ContentValues();
+                                        switch (coinMint) {
+                                            case "":
+                                                if (!hasAddedP) {
+                                                    new2014CoinValues.put("coinIdentifier", "2014");
+                                                    new2014CoinValues.put("coinMint", "");
+                                                    // Fall through to insert coin info
+                                                } else {
+                                                    // Do nothing... This collection has mint marks displayed, so the only
+                                                    // values we want to add are " P" and " D"
+                                                    continue;
+                                                }
+                                                break;
+                                            case " P":
+                                                new2014CoinValues.put("coinIdentifier", "2014");
+                                                new2014CoinValues.put("coinMint", " P");
+                                                hasAddedP = true;
+                                                // Fall through to insert coin info
+
+                                                // We may have mistakenly added the "" mint mark, since earlier
+                                                // Philly minted coins didn't have the mint mark.  In this case,
+                                                // delete it
+                                                if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2014", ""})) {
+                                                    total--;
+                                                }
+                                                break;
+                                            case " D":
+                                                new2014CoinValues.put("coinIdentifier", "2014");
+                                                new2014CoinValues.put("coinMint", " D");
+                                                // Fall through to insert coin info
+                                                break;
+                                            default:
+
+                                                // Don't want to add in any " S"s
+                                                continue;
+                                        }
+
+                                        if(db.insert("[" + name + "]", null, new2014CoinValues) != -1){
+                                            total++;
+                                        }
+
+                                    }while(coinMintCursor.moveToNext());
+                                }
+
+                                // All done with the coin mint information
+                                coinMintCursor.close();
+                            }
+                        }
+
+                        // Last thing is to update the total for each collection
+                        if(originalTotal != total){
+                            ContentValues values = new ContentValues();
+                            values.put("total", total);
+                            db.update("collection_info", values, "name=? AND coinType=?", new String[] { name, coinType });
+                        }
+
+                        // Move to the next collection
+                    } while(resultCursor.moveToNext());
+                }
+                resultCursor.close();
+
+            }
+
+            // Updates in version 2.0
             if(oldVersion >= 2 && oldVersion <= 5){
-								
-				// We need to add in columns to support the new advanced view
-				db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(MainApplication.SIMPLE_DISPLAY));
 
-				// Get all of the created tables
-				Cursor resultCursor = db.query("collection_info", new String[] {"name"}, null, null, null, null, "_id");
-				if (resultCursor.moveToFirst()){
-					do{
-							
-						String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-							
-						db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advGradeIndex INTEGER DEFAULT 0");
-						db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advQuantityIndex INTEGER DEFAULT 0");
-						db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advNotes TEXT DEFAULT \"\"");
+                // We need to add in columns to support the new advanced view
+                db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(MainApplication.SIMPLE_DISPLAY));
 
-						// Move to the next collection
-					} while(resultCursor.moveToNext());
-				}
-				resultCursor.close();
-			}
+                // Get all of the created tables
+                Cursor resultCursor = db.query("collection_info", new String[] {"name"}, null, null, null, null, "_id");
+                if (resultCursor.moveToFirst()){
+                    do{
+
+                        String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advGradeIndex INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advQuantityIndex INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advNotes TEXT DEFAULT \"\"");
+
+                        // Move to the next collection
+                    } while(resultCursor.moveToNext());
+                }
+                resultCursor.close();
+            }
 
             // Updates in version 2.1
             if(oldVersion >= 2 && oldVersion <= 6){
@@ -617,48 +617,48 @@ public class DatabaseAdapter {
                     // If we add coins, keep track so we can update the total only if necessary
                     int originalTotal = total;
 
-					switch (coinType) {
-						case "Presidential Dollars": {
-							// Add in 2015 Presidential Dollars
+                    switch (coinType) {
+                        case "Presidential Dollars": {
+                            // Add in 2015 Presidential Dollars
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Harry Truman");
-							newCoinIdentifiers.add("Dwight D. Eisenhower");
-							newCoinIdentifiers.add("John F. Kennedy");
-							newCoinIdentifiers.add("Lyndon B. Johnson");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Harry Truman");
+                            newCoinIdentifiers.add("Dwight D. Eisenhower");
+                            newCoinIdentifiers.add("John F. Kennedy");
+                            newCoinIdentifiers.add("Lyndon B. Johnson");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-						case "National Park Quarters": {
-							// Add in 2015 National Park Quarters
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "National Park Quarters": {
+                            // Add in 2015 National Park Quarters
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Homestead");
-							newCoinIdentifiers.add("Kisatchie");
-							newCoinIdentifiers.add("Blue Ridge");
-							newCoinIdentifiers.add("Bombay Hook");
-							newCoinIdentifiers.add("Saratoga");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Homestead");
+                            newCoinIdentifiers.add("Kisatchie");
+                            newCoinIdentifiers.add("Blue Ridge");
+                            newCoinIdentifiers.add("Bombay Hook");
+                            newCoinIdentifiers.add("Saratoga");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-						case "First Spouse Gold Coins": {
-							// Add in 2014 First Spouse Gold Coins
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "First Spouse Gold Coins": {
+                            // Add in 2014 First Spouse Gold Coins
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Florence Harding");
-							newCoinIdentifiers.add("Grace Coolidge");
-							newCoinIdentifiers.add("Lou Hoover");
-							newCoinIdentifiers.add("Eleanor Roosevelt");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Florence Harding");
+                            newCoinIdentifiers.add("Grace Coolidge");
+                            newCoinIdentifiers.add("Lou Hoover");
+                            newCoinIdentifiers.add("Eleanor Roosevelt");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-					}
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                    }
 
                     // For each collection, add in 2015 coins if necessary
 
@@ -693,41 +693,41 @@ public class DatabaseAdapter {
                                     String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
 
                                     ContentValues new2015CoinValues = new ContentValues();
-									switch (coinMint) {
-										case "":
-											if (!hasAddedP) {
-												new2015CoinValues.put("coinIdentifier", "2015");
-												new2015CoinValues.put("coinMint", "");
-												// Fall through to insert coin info
-											} else {
-												// Do nothing... This collection has mint marks displayed, so the only
-												// values we want to add are " P" and " D"
-												continue;
-											}
-											break;
-										case " P":
-											new2015CoinValues.put("coinIdentifier", "2015");
-											new2015CoinValues.put("coinMint", " P");
-											hasAddedP = true;
-											// Fall through to insert coin info
+                                    switch (coinMint) {
+                                        case "":
+                                            if (!hasAddedP) {
+                                                new2015CoinValues.put("coinIdentifier", "2015");
+                                                new2015CoinValues.put("coinMint", "");
+                                                // Fall through to insert coin info
+                                            } else {
+                                                // Do nothing... This collection has mint marks displayed, so the only
+                                                // values we want to add are " P" and " D"
+                                                continue;
+                                            }
+                                            break;
+                                        case " P":
+                                            new2015CoinValues.put("coinIdentifier", "2015");
+                                            new2015CoinValues.put("coinMint", " P");
+                                            hasAddedP = true;
+                                            // Fall through to insert coin info
 
-											// We may have mistakenly added the "" mint mark, since earlier
-											// Philly minted coins didn't have the mint mark.  In this case,
-											// delete it
-											if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2015", ""})) {
-												total--;
-											}
-											break;
-										case " D":
-											new2015CoinValues.put("coinIdentifier", "2015");
-											new2015CoinValues.put("coinMint", " D");
-											// Fall through to insert coin info
-											break;
-										default:
+                                            // We may have mistakenly added the "" mint mark, since earlier
+                                            // Philly minted coins didn't have the mint mark.  In this case,
+                                            // delete it
+                                            if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2015", ""})) {
+                                                total--;
+                                            }
+                                            break;
+                                        case " D":
+                                            new2015CoinValues.put("coinIdentifier", "2015");
+                                            new2015CoinValues.put("coinMint", " D");
+                                            // Fall through to insert coin info
+                                            break;
+                                        default:
 
-											// Don't want to add in any " S"s
-											continue;
-									}
+                                            // Don't want to add in any " S"s
+                                            continue;
+                                    }
 
                                     if(db.insert("[" + name + "]", null, new2015CoinValues) != -1){
                                         total++;
@@ -783,46 +783,46 @@ public class DatabaseAdapter {
                     // If we add coins, keep track so we can update the total only if necessary
                     int originalTotal = total;
 
-					switch (coinType) {
-						case "Presidential Dollars": {
-							// Add in 2016 Presidential Dollars
+                    switch (coinType) {
+                        case "Presidential Dollars": {
+                            // Add in 2016 Presidential Dollars
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Richard M. Nixon");
-							newCoinIdentifiers.add("Gerald R. Ford");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Richard M. Nixon");
+                            newCoinIdentifiers.add("Gerald R. Ford");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-						case "National Park Quarters": {
-							// Add in 2016 National Park Quarters
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "National Park Quarters": {
+                            // Add in 2016 National Park Quarters
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Shawnee");
-							newCoinIdentifiers.add("Cumberland Gap");
-							newCoinIdentifiers.add("Harper's Ferry");
-							newCoinIdentifiers.add("Theodore Roosevelt");
-							newCoinIdentifiers.add("Fort Moultrie");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Shawnee");
+                            newCoinIdentifiers.add("Cumberland Gap");
+                            newCoinIdentifiers.add("Harper's Ferry");
+                            newCoinIdentifiers.add("Theodore Roosevelt");
+                            newCoinIdentifiers.add("Fort Moultrie");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-						case "First Spouse Gold Coins": {
-							// Add in 2015 First Spouse Gold Coins
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                        case "First Spouse Gold Coins": {
+                            // Add in 2015 First Spouse Gold Coins
 
-							ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-							newCoinIdentifiers.add("Bess Truman");
-							newCoinIdentifiers.add("Mamie Eisenhower");
-							newCoinIdentifiers.add("Jacqueline Kennedy");
-							newCoinIdentifiers.add("Lady Bird Johnson");
+                            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+                            newCoinIdentifiers.add("Bess Truman");
+                            newCoinIdentifiers.add("Mamie Eisenhower");
+                            newCoinIdentifiers.add("Jacqueline Kennedy");
+                            newCoinIdentifiers.add("Lady Bird Johnson");
 
-							// Add these coins, mimicking which coinMints the user already has defined
-							total += addFromArrayList(db, name, newCoinIdentifiers);
-							break;
-						}
-					}
+                            // Add these coins, mimicking which coinMints the user already has defined
+                            total += addFromArrayList(db, name, newCoinIdentifiers);
+                            break;
+                        }
+                    }
 
                     // For each collection, add in 2016 coins if necessary
 
@@ -857,41 +857,41 @@ public class DatabaseAdapter {
                                     String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
 
                                     ContentValues new2016CoinValues = new ContentValues();
-									switch (coinMint) {
-										case "":
-											if (!hasAddedP) {
-												new2016CoinValues.put("coinIdentifier", "2016");
-												new2016CoinValues.put("coinMint", "");
-												// Fall through to insert coin info
-											} else {
-												// Do nothing... This collection has mint marks displayed, so the only
-												// values we want to add are " P" and " D"
-												continue;
-											}
-											break;
-										case " P":
-											new2016CoinValues.put("coinIdentifier", "2016");
-											new2016CoinValues.put("coinMint", " P");
-											hasAddedP = true;
-											// Fall through to insert coin info
+                                    switch (coinMint) {
+                                        case "":
+                                            if (!hasAddedP) {
+                                                new2016CoinValues.put("coinIdentifier", "2016");
+                                                new2016CoinValues.put("coinMint", "");
+                                                // Fall through to insert coin info
+                                            } else {
+                                                // Do nothing... This collection has mint marks displayed, so the only
+                                                // values we want to add are " P" and " D"
+                                                continue;
+                                            }
+                                            break;
+                                        case " P":
+                                            new2016CoinValues.put("coinIdentifier", "2016");
+                                            new2016CoinValues.put("coinMint", " P");
+                                            hasAddedP = true;
+                                            // Fall through to insert coin info
 
-											// We may have mistakenly added the "" mint mark, since earlier
-											// Philly minted coins didn't have the mint mark.  In this case,
-											// delete it
-											if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2016", ""})) {
-												total--;
-											}
-											break;
-										case " D":
-											new2016CoinValues.put("coinIdentifier", "2016");
-											new2016CoinValues.put("coinMint", " D");
-											// Fall through to insert coin info
-											break;
-										default:
+                                            // We may have mistakenly added the "" mint mark, since earlier
+                                            // Philly minted coins didn't have the mint mark.  In this case,
+                                            // delete it
+                                            if (1 == db.delete("[" + name + "]", "coinIdentifier=? AND coinMint=?", new String[]{"2016", ""})) {
+                                                total--;
+                                            }
+                                            break;
+                                        case " D":
+                                            new2016CoinValues.put("coinIdentifier", "2016");
+                                            new2016CoinValues.put("coinMint", " D");
+                                            // Fall through to insert coin info
+                                            break;
+                                        default:
 
-											// Don't want to add in any " S"s
-											continue;
-									}
+                                            // Don't want to add in any " S"s
+                                            continue;
+                                    }
 
                                     if(db.insert("[" + name + "]", null, new2016CoinValues) != -1){
                                         total++;
@@ -925,7 +925,7 @@ public class DatabaseAdapter {
             }
             resultCursor.close();
 
-		}
+        }
 
         public void updateToVersion9(SQLiteDatabase db){
 
@@ -1099,187 +1099,224 @@ public class DatabaseAdapter {
 
         public void updateToVersion10(SQLiteDatabase db) {
 
+            ContentValues values = new ContentValues();
+
             // We changed the name that we use for Sacagawea gold coin collections a while back,
             // but since we now use this name to determine the backing CollectionInfo obj, we
             // need to change it in the database (we should have done this to begin with!)
-            ContentValues values = new ContentValues();
             values.put("coinType", "Sacagawea/Native American Dollars");
             db.update("collection_info", values, "coinType=?", new String[] { "Sacagawea Dollars" });
+            values.clear();
 
+            // Remove the space from mint marks so that this field's value is less confusing
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query("collection_info", new String[] {"name"}, null, null, null, null, "_id");
+            if (resultCursor.moveToFirst()){
+                do{
+                    String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+
+                    values.put("coinMint", "P");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[] { " P" });
+                    values.clear();
+
+                    values.put("coinMint", "D");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[] { " D" });
+                    values.clear();
+
+                    values.put("coinMint", "S");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[] { " S" });
+                    values.clear();
+
+                    values.put("coinMint", "O");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[] { " O" });
+                    values.clear();
+
+                    values.put("coinMint", "CC");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[] { " CC" });
+                    values.clear();
+
+                }while(resultCursor.moveToNext());
+            }
+            resultCursor.close();
+
+            //TODO Change buffalo nickels mint marks to remove space
+            //TODO Change indian head cent mint marks to remove space
+            //TODO Change walking liberty half dollar mint marks to remove space
         }
 
         /**
-		 * @param db The SQLiteDatabase object to use
-		 * @param name the collection name
+         * @param db The SQLiteDatabase object to use
+         * @param name the collection name
          * @param values the ArrayList containing
-		 * @return number of rows added
-		 */
-		
-		private int addFromArrayList(SQLiteDatabase db, String name, ArrayList<String> values) {
-			
-			int total = 0;
-			// Get the distinct columns from the coinMint field
-			Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
-			
-			// Now add the new coins
-			for(int j = 0; j < values.size(); j++){
-				ContentValues initialValues = new ContentValues();
-				initialValues.put("coinIdentifier", values.get(j));
-				initialValues.put("inCollection", 0);
-			    // For each mint mark in the collection, add in a new Coin
-			    if(coinMintCursor.moveToFirst()){
-			    	do{
-				        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
-				        
-				        initialValues.remove("coinMint");
-				        initialValues.put("coinMint", coinMint);
-				        if(db.insert("[" + name + "]", null, initialValues) != -1){
-				            total++;
-				        }
-				        
-			    	}while(coinMintCursor.moveToNext());
-			    }
-			}
-		    
-			// All done with the coin mint information
-			coinMintCursor.close();
-			
-			return total;
-		}
-	}
+         * @return number of rows added
+         */
 
-	/**
-	 * Constructor - takes the context to allow the database to be
-	 * opened/created
-	 * 
-	 * @param ctx the Context within which to work
-	 */
-	public DatabaseAdapter(Context ctx) {
-		this.mContext = ctx;
-	}
+        private int addFromArrayList(SQLiteDatabase db, String name, ArrayList<String> values) {
 
-	/**
-	 * Open the database. If it cannot be opened, try to create a new
-	 * instance of the database. If it cannot be created, throw an exception to
-	 * signal the failure
-	 * 
-	 * @return this (self reference, allowing this to be chained in an
-	 *         initialization call)
-	 * @throws SQLException if the database could be neither opened or created
-	 */
-	public DatabaseAdapter open() throws SQLException {
-		mDbHelper = new DatabaseHelper(mContext);
-		mDb = mDbHelper.getWritableDatabase();
-		return this;
-	}
+            int total = 0;
+            // Get the distinct columns from the coinMint field
+            Cursor coinMintCursor = db.query(true, "[" + name + "]", new String[] {"coinMint"}, null, null, null, null, "_id", null);
 
-	// Clean up a bit if we no longer need this DatabaseAdapter
-	public void close() {
-		mDbHelper.close();
-	}
+            // Now add the new coins
+            for(int j = 0; j < values.size(); j++){
+                ContentValues initialValues = new ContentValues();
+                initialValues.put("coinIdentifier", values.get(j));
+                initialValues.put("inCollection", 0);
+                // For each mint mark in the collection, add in a new Coin
+                if(coinMintCursor.moveToFirst()){
+                    do{
+                        String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
 
-	/**
-	 * Get the total number of coins in the collection
-	 * 
-	 * @param name String that identifiers which table to query
-	 * @return int with the total number of coins in the collection
-	 */
-	public int fetchTotalCollected(String name) {
-		String select_sqlStatement = "SELECT COUNT(_id) FROM [" + name + "] WHERE inCollection=1 LIMIT 1";
-		SQLiteStatement compiledStatement;
+                        initialValues.remove("coinMint");
+                        initialValues.put("coinMint", coinMint);
+                        if(db.insert("[" + name + "]", null, initialValues) != -1){
+                            total++;
+                        }
 
-		compiledStatement = mDb.compileStatement(select_sqlStatement);
-		// TODO May generate a SQLITE_SCHEMA error (17) after just deleting a table, doesn't appear to break things though
+                    }while(coinMintCursor.moveToNext());
+                }
+            }
 
-		int result = (int) compiledStatement.simpleQueryForLong();
+            // All done with the coin mint information
+            coinMintCursor.close();
 
-		compiledStatement.clearBindings();
-		compiledStatement.close();
-		return result;
-	}
+            return total;
+        }
+    }
 
-	/**
-	 * Returns whether a coinIdentifier and coinMint has been marked as collected in a given
+    /**
+     * Constructor - takes the context to allow the database to be
+     * opened/created
+     *
+     * @param ctx the Context within which to work
+     */
+    public DatabaseAdapter(Context ctx) {
+        this.mContext = ctx;
+    }
+
+    /**
+     * Open the database. If it cannot be opened, try to create a new
+     * instance of the database. If it cannot be created, throw an exception to
+     * signal the failure
+     *
+     * @return this (self reference, allowing this to be chained in an
+     *         initialization call)
+     * @throws SQLException if the database could be neither opened or created
+     */
+    public DatabaseAdapter open() throws SQLException {
+        mDbHelper = new DatabaseHelper(mContext);
+        mDb = mDbHelper.getWritableDatabase();
+        return this;
+    }
+
+    // Clean up a bit if we no longer need this DatabaseAdapter
+    public void close() {
+        mDbHelper.close();
+    }
+
+    /**
+     * Get the total number of coins in the collection
+     *
+     * @param name String that identifiers which table to query
+     * @return int with the total number of coins in the collection
+     */
+    public int fetchTotalCollected(String name) {
+        String select_sqlStatement = "SELECT COUNT(_id) FROM [" + name + "] WHERE inCollection=1 LIMIT 1";
+        SQLiteStatement compiledStatement;
+
+        compiledStatement = mDb.compileStatement(select_sqlStatement);
+        // TODO May generate a SQLITE_SCHEMA error (17) after just deleting a table, doesn't appear to break things though
+
+        int result = (int) compiledStatement.simpleQueryForLong();
+
+        compiledStatement.clearBindings();
+        compiledStatement.close();
+        return result;
+    }
+
+    /**
+     * Returns whether a coinIdentifier and coinMint has been marked as collected in a given
      * collection.
-	 *
-	 * @param name The collection of interest
-	 * @param coinIdentifier The coinIdentifier of the coin we are to retrieve data for
-     * @param coinMint The coinMint of the coin we are to retrieve data for
-	 * @return 0 if item is in the collection, 1 otherwise
-	 * @throws SQLException if coin could not be found (Shouldn't happen???)
-	 */
-	// TODO Rename
-    // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
-    // instead have one query that returns all of the info.
-	private int fetchInfo(String name, String coinIdentifier, String coinMint) throws SQLException {
-		String select_sqlStatement = "SELECT inCollection FROM [" + name + "] WHERE coinIdentifier=? AND coinMint=? LIMIT 1";
-		SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
-
-		compiledStatement.bindString(1, coinIdentifier);
-		compiledStatement.bindString(2, coinMint);
-		int result = (int) compiledStatement.simpleQueryForLong();
-
-		compiledStatement.clearBindings();
-		compiledStatement.close();
-		return result;
-	}
-
-	/**
-	 * Updates a coins presence in the database.
-	 * 
-	 * @param name The name of the collection of interest
+     *
+     * @param name The collection of interest
      * @param coinIdentifier The coinIdentifier of the coin we are to retrieve data for
      * @param coinMint The coinMint of the coin we are to retrieve data for
-	 * @return true if the value was successfully updated, false otherwise
-	 */
-	
-	public boolean updateInfo(String name, String coinIdentifier, String coinMint) {
-		int result = fetchInfo(name, coinIdentifier, coinMint);
-		int newValue = (result + 1) % 2;
-		ContentValues args = new ContentValues();
-		args.put("inCollection", newValue);
+     * @return 0 if item is in the collection, 1 otherwise
+     * @throws SQLException if coin could not be found (Shouldn't happen???)
+     */
+    // TODO Rename
+    // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
+    // instead have one query that returns all of the info.
+    private int fetchInfo(String name, String coinIdentifier, String coinMint) throws SQLException {
+        String select_sqlStatement = "SELECT inCollection FROM [" + name + "] WHERE coinIdentifier=? AND coinMint=? LIMIT 1";
+        SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
 
-		// TODO Should we do something if update fails?
-		return mDb.update("[" + name + "]", args, "coinIdentifier=? AND coinMint =?", new String[] {coinIdentifier, coinMint}) > 0;
-	}
-	
-	/**
-	 * Returns the display configured for the table (advanced view, simple view, etc.)
-	 * 
-	 * @param tableName - Used to know which table to query
-	 * @return which display we should show.  See MainApplication for the types
-	 * @throws SQLException if an SQL-related error occurs
-	 */
-	public int fetchTableDisplay(String tableName) throws SQLException {
-		
-		// The database will only be set up this way in this case
-		String select_sqlStatement = "SELECT display FROM collection_info WHERE name=? LIMIT 1";
-		SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
+        compiledStatement.bindString(1, coinIdentifier);
+        compiledStatement.bindString(2, coinMint);
+        int result = (int) compiledStatement.simpleQueryForLong();
 
-		compiledStatement.bindString(1, tableName);
-		int result = (int) compiledStatement.simpleQueryForLong();
+        compiledStatement.clearBindings();
+        compiledStatement.close();
+        return result;
+    }
 
-		compiledStatement.clearBindings();
-		compiledStatement.close();
-		return result;
-	}
-	
-	/**
-	 * Updates the display type associated with a given collection
-	 * 
-	 * @param tableName - Used to know which table to update
-	 * @param displayType - New displaytype to store for this table
-	 * @return 0 on update success, 1 otherwise
+    /**
+     * Updates a coins presence in the database.
+     *
+     * @param name The name of the collection of interest
+     * @param coinIdentifier The coinIdentifier of the coin we are to retrieve data for
+     * @param coinMint The coinMint of the coin we are to retrieve data for
+     * @return true if the value was successfully updated, false otherwise
+     */
+
+    public boolean updateInfo(String name, String coinIdentifier, String coinMint) {
+        int result = fetchInfo(name, coinIdentifier, coinMint);
+        int newValue = (result + 1) % 2;
+        ContentValues args = new ContentValues();
+        args.put("inCollection", newValue);
+
+        // TODO Should we do something if update fails?
+        return mDb.update("[" + name + "]", args, "coinIdentifier=? AND coinMint =?", new String[] {coinIdentifier, coinMint}) > 0;
+    }
+
+    /**
+     * Returns the display configured for the table (advanced view, simple view, etc.)
+     *
+     * @param tableName - Used to know which table to query
+     * @return which display we should show.  See MainApplication for the types
      * @throws SQLException if an SQL-related error occurs
-	 */
-	public boolean updateTableDisplay(String tableName, int displayType) throws SQLException {
+     */
+    public int fetchTableDisplay(String tableName) throws SQLException {
 
-		ContentValues args = new ContentValues();
-		args.put("display", displayType);
+        // The database will only be set up this way in this case
+        String select_sqlStatement = "SELECT display FROM collection_info WHERE name=? LIMIT 1";
+        SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
+
+        compiledStatement.bindString(1, tableName);
+        int result = (int) compiledStatement.simpleQueryForLong();
+
+        compiledStatement.clearBindings();
+        compiledStatement.close();
+        return result;
+    }
+
+    /**
+     * Updates the display type associated with a given collection
+     *
+     * @param tableName - Used to know which table to update
+     * @param displayType - New displaytype to store for this table
+     * @return 0 on update success, 1 otherwise
+     * @throws SQLException if an SQL-related error occurs
+     */
+    public boolean updateTableDisplay(String tableName, int displayType) throws SQLException {
+
+        ContentValues args = new ContentValues();
+        args.put("display", displayType);
 
         // TODO Should we do something if update fails?
         return mDb.update("collection_info", args, "name=?", new String[] { tableName }) > 0;
-	}
+    }
 
     /**
      * Updates the order in which a collection should appear in the list of collections
@@ -1311,35 +1348,35 @@ public class DatabaseAdapter {
      * @param inCollection
      * @return 1 on success, 0 otherwise
      */
-	public int updateAdvInfo(String name, String coinIdentifier, String coinMint, int grade,
-			                 int quantity, String notes, int inCollection) {
+    public int updateAdvInfo(String name, String coinIdentifier, String coinMint, int grade,
+                             int quantity, String notes, int inCollection) {
 
-		ContentValues args = new ContentValues();
-		args.put("inCollection", inCollection);
-	    args.put("advGradeIndex", grade);
-	    args.put("advQuantityIndex", quantity);
-	    args.put("advNotes", notes);
-	    return mDb.update("[" + name + "]", args, "coinIdentifier=? AND coinMint =?", new String[] {coinIdentifier, coinMint});
-	}
+        ContentValues args = new ContentValues();
+        args.put("inCollection", inCollection);
+        args.put("advGradeIndex", grade);
+        args.put("advQuantityIndex", quantity);
+        args.put("advNotes", notes);
+        return mDb.update("[" + name + "]", args, "coinIdentifier=? AND coinMint =?", new String[] {coinIdentifier, coinMint});
+    }
 
     /**
      * Helper function to issue the SQL needed when creating a new database table for a collection
      * @param name The collection name
      */
-	private void createNewTable(String name){
+    private void createNewTable(String name){
         // v2.2.1 - Until this point all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-		String DATABASE_CREATE = "CREATE TABLE [" + name
-		+ "] (_id integer primary key,"
-		+ " coinIdentifier text not null,"
-		+ " coinMint text,"
-		+ " inCollection integer,"
-		+ " advGradeIndex integer default 0,"
+        String DATABASE_CREATE = "CREATE TABLE [" + name
+        + "] (_id integer primary key,"
+        + " coinIdentifier text not null,"
+        + " coinMint text,"
+        + " inCollection integer,"
+        + " advGradeIndex integer default 0,"
         + " advQuantityIndex integer default 0,"
         + " advNotes text default \"\");";
 
-		mDb.execSQL(DATABASE_CREATE);
-	}
+        mDb.execSQL(DATABASE_CREATE);
+    }
 
     /**
      * Handles adding everything needed for a collection to store it's data in the database.
@@ -1354,29 +1391,29 @@ public class DatabaseAdapter {
      * @return 1 TODO
      */
     // TODO Rename, since we aren't just creating a new table
-	public int createNewTable(String name, String coinType, ArrayList<String> coinIdentifiers,
+    public int createNewTable(String name, String coinType, ArrayList<String> coinIdentifiers,
                               ArrayList<String> coinMints, int displayOrder) {
 
-		// Actually make the table
-		createNewTable(name);
+        // Actually make the table
+        createNewTable(name);
 
-		// We have the list of identifiers, now set them correctly
-		for(int j = 0; j < coinIdentifiers.size(); j++){
-			ContentValues initialValues = new ContentValues();
-			initialValues.put("coinIdentifier", coinIdentifiers.get(j));
-			initialValues.put("coinMint", coinMints.get(j));
-			initialValues.put("inCollection", 0);
-			// Advanced info gets added automatically, if the columns are there
+        // We have the list of identifiers, now set them correctly
+        for(int j = 0; j < coinIdentifiers.size(); j++){
+            ContentValues initialValues = new ContentValues();
+            initialValues.put("coinIdentifier", coinIdentifiers.get(j));
+            initialValues.put("coinMint", coinMints.get(j));
+            initialValues.put("inCollection", 0);
+            // Advanced info gets added automatically, if the columns are there
 
-			long value = mDb.insert("[" + name + "]", null, initialValues);
-			// TODO Do something if insert fails?
-		}
+            long value = mDb.insert("[" + name + "]", null, initialValues);
+            // TODO Do something if insert fails?
+        }
 
-		// We also need to add the table to the list of tables
-		addEntryToCollectionInfoTable(name, coinType, coinIdentifiers.size(), MainApplication.SIMPLE_DISPLAY, displayOrder);
-		
-		return 1;
-	}
+        // We also need to add the table to the list of tables
+        addEntryToCollectionInfoTable(name, coinType, coinIdentifiers.size(), MainApplication.SIMPLE_DISPLAY, displayOrder);
+
+        return 1;
+    }
 
     /**
      * Helper function to add a collection into the global list of collections
@@ -1386,19 +1423,19 @@ public class DatabaseAdapter {
      * @param display
      * @param displayOrder
      */
-	private void addEntryToCollectionInfoTable(String name, String coinType, int total, int display, int displayOrder){
-		ContentValues values = new ContentValues();
-		values.put("name", name);
-		values.put("coinType", coinType);
-		values.put("total", total);
+    private void addEntryToCollectionInfoTable(String name, String coinType, int total, int display, int displayOrder){
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("coinType", coinType);
+        values.put("total", total);
         values.put("displayOrder", displayOrder);
         values.put("display", display);
-		
-		long value = mDb.insert("collection_info", null, values);
-		// TODO Do something if insert fails?
-		// TODO It'd be great if there was a way to clear the prepared SQL Statement cache so that
+
+        long value = mDb.insert("collection_info", null, values);
+        // TODO Do something if insert fails?
+        // TODO It'd be great if there was a way to clear the prepared SQL Statement cache so that
         // we don't get SQL 17 Errors
-	}
+    }
 
     /**
      * Handles adding everything needed for a collection to store it's data in the database.
@@ -1415,140 +1452,140 @@ public class DatabaseAdapter {
     // TODO Rename, since we aren't just creating a new table
     public int createNewTable(String name, String coinType, int total, int display, int displayOrder, String[][] rawData) {
 
-		// Actually make the table
-		createNewTable(name);
+        // Actually make the table
+        createNewTable(name);
 
-		// We have the list of identifiers, now set them correctly
-		for (String[] rawRowData : rawData) {
+        // We have the list of identifiers, now set them correctly
+        for (String[] rawRowData : rawData) {
 
-			// coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
-			ContentValues initialValues = new ContentValues();
-			initialValues.put("coinIdentifier", rawRowData[0]);
-			initialValues.put("coinMint", rawRowData[1]);
-			initialValues.put("inCollection", Integer.valueOf(rawRowData[2]));
+            // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
+            ContentValues initialValues = new ContentValues();
+            initialValues.put("coinIdentifier", rawRowData[0]);
+            initialValues.put("coinMint", rawRowData[1]);
+            initialValues.put("inCollection", Integer.valueOf(rawRowData[2]));
             initialValues.put("advGradeIndex", Integer.valueOf(rawRowData[3]));
-			initialValues.put("advQuantityIndex", Integer.valueOf(rawRowData[4]));
-			initialValues.put("advNotes", rawRowData[5]);
+            initialValues.put("advQuantityIndex", Integer.valueOf(rawRowData[4]));
+            initialValues.put("advNotes", rawRowData[5]);
 
-			long value = mDb.insert("[" + name + "]", null, initialValues);
-			// TODO Do something if insert fails?
-		}
+            long value = mDb.insert("[" + name + "]", null, initialValues);
+            // TODO Do something if insert fails?
+        }
 
-		// We also need to add the table to the list of tables
-		addEntryToCollectionInfoTable(name, coinType, total, display, displayOrder);
-		return 1;
-	}
+        // We also need to add the table to the list of tables
+        addEntryToCollectionInfoTable(name, coinType, total, display, displayOrder);
+        return 1;
+    }
 
-	/**
-	 * Handles removing a collection from the database
-	 * 
-	 * @param name The collection name
-	 */
+    /**
+     * Handles removing a collection from the database
+     *
+     * @param name The collection name
+     */
     // TODO Rename, since it does more than just drop a table
-	public void dropTable(String name){
-		String DATABASE_DROP = "DROP TABLE [" + name + "];";
-		mDb.execSQL(DATABASE_DROP);
+    public void dropTable(String name){
+        String DATABASE_DROP = "DROP TABLE [" + name + "];";
+        mDb.execSQL(DATABASE_DROP);
 
-		//long value = mDb.delete("collection_info", "name=\"" + name + "\"", null);
-		int value = mDb.delete("collection_info", "name=?", new String[] { name });
-		// TODO Do something if insert fails?
-		// TODO It be great if there was a way to clear the prepared SQL Statement cache so that
+        //long value = mDb.delete("collection_info", "name=\"" + name + "\"", null);
+        int value = mDb.delete("collection_info", "name=?", new String[] { name });
+        // TODO Do something if insert fails?
+        // TODO It be great if there was a way to clear the prepared SQL Statement cache so that
         // we don't get SQL 17 Errors
         // ^^^ Not sure if this is still an issue
-	}
+    }
 
     /**
      * Deletes the table of metadata about all the current collections
      */
-	public void dropCollectionInfoTable(){
-		
-		String DATABASE_DROP = "DROP TABLE [collection_info];";
-		mDb.execSQL(DATABASE_DROP);
-	}
+    public void dropCollectionInfoTable(){
+
+        String DATABASE_DROP = "DROP TABLE [collection_info];";
+        mDb.execSQL(DATABASE_DROP);
+    }
 
     /**
      * Creates the table of metadata for all the current collections
      */
-	public void createCollectionInfoTable(){
-		
-		// I would put the functionality here and call it from within the mDbHelper,
-		// but I couldn't figure out how to get this working.  :(
-	    mDbHelper.createCollectionInfoTable(mDb);
-	}
+    public void createCollectionInfoTable(){
 
-	/**
-	 * Return a Cursor that gives the names of all of the defined collections
-	 * 
-	 * @return Cursor
-	 */
-	public Cursor getAllCollectionNames() {
+        // I would put the functionality here and call it from within the mDbHelper,
+        // but I couldn't figure out how to get this working.  :(
+        mDbHelper.createCollectionInfoTable(mDb);
+    }
 
-		return mDb.query("collection_info", new String[] {"name"}, null, null, null, null, "displayOrder");
-	}
-
-	/**
-	 * Return a Cursor that gives information about each of the collections
-	 * 
-	 * @return Cursor
-	 */
-	public Cursor getAllTables() {
-
-		return mDb.query("collection_info", new String[] {"name", "coinType",
-		"total"}, null, null, null, null, "displayOrder");
-	}
-
-	/**
-	 * Get the list of identifiers for each collection
+    /**
+     * Return a Cursor that gives the names of all of the defined collections
      *
-	 * @param name The name of the collection
-	 * @return Cursor over all coins in the collection
-	 */
-	public Cursor getAllIdentifiers(String name) {
+     * @return Cursor
+     */
+    public Cursor getAllCollectionNames() {
 
-		return mDb.query("[" + name + "]", new String[] {"coinIdentifier", "coinMint"},
-				null, null, null, null, "_id");
-	}  
-	
-	/**
-	 * Get whether each coin is in the collection
-	 * 
-	 * @return Cursor over all coins in the collection
-	 */
-	public Cursor getInCollectionInfo(String tableName) {
-		return mDb.query("[" + tableName + "]", new String[] {"inCollection"},
-					null, null, null, null, "_id");
-	}
-	
-	
-	/**
-	 * Get the advanced info associated with each coin in the collection
+        return mDb.query("collection_info", new String[] {"name"}, null, null, null, null, "displayOrder");
+    }
+
+    /**
+     * Return a Cursor that gives information about each of the collections
      *
-	 * @param name The collection name
-	 * @return Cursor over all coins in the collection
-	 */
-	public Cursor getAdvInfo(String name) {
+     * @return Cursor
+     */
+    public Cursor getAllTables() {
 
-		return mDb.query("[" + name + "]", new String[] {"advGradeIndex", "advQuantityIndex", "advNotes"},
-				null, null, null, null, "_id");
-	}
-	
-	/**
-	 * Get all collection info (for exporting)
-	 *
+        return mDb.query("collection_info", new String[] {"name", "coinType",
+        "total"}, null, null, null, null, "displayOrder");
+    }
+
+    /**
+     * Get the list of identifiers for each collection
+     *
+     * @param name The name of the collection
+     * @return Cursor over all coins in the collection
+     */
+    public Cursor getAllIdentifiers(String name) {
+
+        return mDb.query("[" + name + "]", new String[] {"coinIdentifier", "coinMint"},
+                null, null, null, null, "_id");
+    }
+
+    /**
+     * Get whether each coin is in the collection
+     *
+     * @return Cursor over all coins in the collection
+     */
+    public Cursor getInCollectionInfo(String tableName) {
+        return mDb.query("[" + tableName + "]", new String[] {"inCollection"},
+                    null, null, null, null, "_id");
+    }
+
+
+    /**
+     * Get the advanced info associated with each coin in the collection
+     *
      * @param name The collection name
-	 * @return Cursor over all coins in the collection
-	 */
-	public Cursor getAllCollectionInfo(String name) {
+     * @return Cursor over all coins in the collection
+     */
+    public Cursor getAdvInfo(String name) {
+
+        return mDb.query("[" + name + "]", new String[] {"advGradeIndex", "advQuantityIndex", "advNotes"},
+                null, null, null, null, "_id");
+    }
+
+    /**
+     * Get all collection info (for exporting)
+     *
+     * @param name The collection name
+     * @return Cursor over all coins in the collection
+     */
+    public Cursor getAllCollectionInfo(String name) {
 
         return mDb.query("[" + name + "]", new String[] {"coinIdentifier", "coinMint", "inCollection", "advGradeIndex", "advQuantityIndex", "advNotes"},
-				null, null, null, null, "_id");
-	}
+                null, null, null, null, "_id");
+    }
 
     /**
      * Expose the dbHelper's onUpgrade method so we can call it manually when importing collections
      *
      * @param oldVersion the db version to upgrade from
-	 */
+     */
     public void upgradeCollections(int oldVersion) {
         mDbHelper.onUpgrade(mDb, oldVersion, DatabaseAdapter.DATABASE_VERSION);
     }

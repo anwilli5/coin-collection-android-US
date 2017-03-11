@@ -48,30 +48,30 @@ public class MorganDollars extends CollectionInfo{
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.EDIT_DATE_RANGE, Boolean.FALSE);
-        parameters.put(CoinPageCreator.START_YEAR, START_YEAR);
-        parameters.put(CoinPageCreator.STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_S, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_O, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_CC, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
+        parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_O, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_CC, Boolean.FALSE);
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.SHOW_S);
-        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.SHOW_O);
-        Boolean showCC           = (Boolean) parameters.get(CoinPageCreator.SHOW_CC);
+        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
+        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_O);
+        Boolean showCC           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_CC);
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -94,24 +94,24 @@ public class MorganDollars extends CollectionInfo{
                 if(showD){
                     if(i == 1921){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" D");
+                        mintList.add("D");
                     }
                 }
                 if(showO){
                     if(i != 1878 && i != 1921){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" O");
+                        mintList.add("O");
                     }
                 }
                 if(showCC){
                     if( i != 1886 && i != 1887 && i != 1888 && i <= 1893 ){
                         identifierList.add(Integer.toString(i));
-                        mintList.add(" CC");
+                        mintList.add("CC");
                     }
                 }
                 if(showS){
                     identifierList.add(Integer.toString(i));
-                    mintList.add(" S");
+                    mintList.add("S");
                 }
             } else {
                 identifierList.add(Integer.toString(i));

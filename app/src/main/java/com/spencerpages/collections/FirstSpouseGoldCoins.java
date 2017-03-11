@@ -148,9 +148,9 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
     public void getCreationParameters(HashMap<String, Object> parameters) {
     }
 
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
         for(int i = 0; i < FS_COIN_IDENTIFIERS.length; i++){
             String identifier = (String) FS_COIN_IDENTIFIERS[i];

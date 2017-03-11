@@ -65,6 +65,8 @@ public class MainApplication extends Application {
     public static final int SIMPLE_DISPLAY = 0;
     public static final int ADVANCED_DISPLAY = 1;
 
+    // List of all the supported collection types by the app.  New collections
+    // should be added here
     public static final CollectionInfo[] COLLECTION_TYPES =
             {
                     new LincolnCents(),
@@ -93,10 +95,4 @@ public class MainApplication extends Application {
                     new AmericanEagleSilverDollars(),
                     new FirstSpouseGoldCoins(),
             };
-
-    @Override
-    public void onCreate(){
-
-    }
-
 }

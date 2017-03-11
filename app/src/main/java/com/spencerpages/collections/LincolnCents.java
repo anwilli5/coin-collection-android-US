@@ -54,7 +54,7 @@ public class LincolnCents extends CollectionInfo {
     }
 
     private static final Integer START_YEAR = 1909;
-    private static final Integer STOP_YEAR = CoinPageCreator.STILL_IN_PRODUCTION;
+    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_lincoln_cent_unc;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
@@ -76,26 +76,26 @@ public class LincolnCents extends CollectionInfo {
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.EDIT_DATE_RANGE, Boolean.FALSE);
-        parameters.put(CoinPageCreator.START_YEAR, START_YEAR);
-        parameters.put(CoinPageCreator.STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_S, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
+        parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.SHOW_S);
+        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
 
         boolean addedVdb = false;
 
@@ -120,7 +120,7 @@ public class LincolnCents extends CollectionInfo {
                         }
                         if(showD){
                             identifierList.add(bicentIdentifier);
-                            mintList.add(" D");
+                            mintList.add("D");
                         }
                     } else {
                         identifierList.add(bicentIdentifier);
@@ -144,14 +144,14 @@ public class LincolnCents extends CollectionInfo {
             if(i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967){
                 if(showMintMarks && showD){
                     identifierList.add(newValue);
-                    mintList.add(" D");
+                    mintList.add("D");
                 }
             }
 
             if(i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)){
                 if(showMintMarks && showS){
                     identifierList.add(newValue);
-                    mintList.add(" S");
+                    mintList.add("S");
                 }
             }
 

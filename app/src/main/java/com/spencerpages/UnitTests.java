@@ -26,8 +26,6 @@ import java.util.HashMap;
 import android.content.Context;
 import android.util.Log;
 
-import com.spencerpages.collections.CollectionInfo;
-
 /**
  * Basic unit test suite - mainly just a way to sanity check that when adding new coins (for
  * instance, as the years progress and near coins are minted), we add in all the ones that we need
@@ -140,15 +138,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
         
@@ -240,15 +238,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
 
@@ -340,15 +338,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
 
@@ -439,15 +437,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
 
@@ -519,15 +517,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
 
@@ -596,15 +594,15 @@ class UnitTests {
 
             MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
 
-            parameters.put(CoinPageCreator.SHOW_MINT_MARKS, showMintMark);
-            parameters.put(CoinPageCreator.EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.SHOW_P, showP);
-            parameters.put(CoinPageCreator.SHOW_D, showD);
-            parameters.put(CoinPageCreator.SHOW_S, showS);
-            parameters.put(CoinPageCreator.SHOW_O, showO);
-            parameters.put(CoinPageCreator.SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
 
             creator.testSetInternalState(j, parameters);
 

@@ -155,19 +155,19 @@ public class NationalParkQuarters extends CollectionInfo {
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.SHOW_D, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionArrays(HashMap<String, Object> parameters,
-                                         ArrayList<String> identifierList,
-                                         ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters,
+                                        ArrayList<String> identifierList,
+                                        ArrayList<String> mintList) {
 
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.SHOW_D);
+        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
 
         for(int i = 0; i < PARKS_COIN_IDENTIFIERS.length; i++){
 
@@ -176,11 +176,11 @@ public class NationalParkQuarters extends CollectionInfo {
             if(showMintMarks){
                 if(showP){
                     identifierList.add(identifier);
-                    mintList.add(" P");
+                    mintList.add("P");
                 }
                 if(showD){
                     identifierList.add(identifier);
-                    mintList.add(" D");
+                    mintList.add("D");
                 }
             } else {
                 identifierList.add(identifier);
