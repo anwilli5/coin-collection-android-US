@@ -107,4 +107,13 @@ public abstract class CollectionInfo {
             HashMap<String, Object> parameters,
             ArrayList<String> identifierList,
             ArrayList<String> mintList);
+
+    /**
+     * Returns an attribution string that should be printed on the info page.
+     * Most commonly the coin pictures will need attribution to the author.
+     * If no attribution is required, an empty string can be returned.
+     *
+     * @return the attribution string to display
+     */
+    abstract public String getAttributionString();
 }

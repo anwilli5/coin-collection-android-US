@@ -33,10 +33,14 @@ public class BarberHalfDollars extends CollectionInfo {
     private static final Integer START_YEAR = 1892;
     private static final Integer STOP_YEAR = 1915;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.barber_half_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_barber_half;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.barber_half_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_barber_half;
+
+    // https://commons.wikimedia.org/wiki/File:1907-D_Barber_half_obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:1907-D_Barber_half_reverse.jpg
+    private static final String ATTRIBUTION = "Barber Half Dollar images courtesy of Lost Dutchman Rare Coins via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -98,5 +102,9 @@ public class BarberHalfDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

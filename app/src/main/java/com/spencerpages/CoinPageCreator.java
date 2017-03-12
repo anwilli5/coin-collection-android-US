@@ -326,11 +326,11 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // Don't take any action if the value isn't changing - needed to prevent
                 // loops that would get created by the call to updateViewFromState()
-                if(mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.valueOf(isChecked)){
+                if((Boolean)mParameters.get(OPT_SHOW_MINT_MARKS) == isChecked){
                     return;
                 }
 
-                mParameters.put(OPT_SHOW_MINT_MARKS, Boolean.valueOf(isChecked));
+                mParameters.put(OPT_SHOW_MINT_MARKS, isChecked);
 
                 // Restore defaults for all of the mint mark checkboxes when this is unchecked
                 if(!isChecked) {
@@ -356,11 +356,11 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // Don't take any action if the value isn't changing - needed to prevent
                 // loops that would get created by the call to updateViewFromState()
-                if(mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.valueOf(isChecked)){
+                if((Boolean)mParameters.get(OPT_EDIT_DATE_RANGE) == isChecked){
                     return;
                 }
 
-                mParameters.put(OPT_EDIT_DATE_RANGE, Boolean.valueOf(isChecked));
+                mParameters.put(OPT_EDIT_DATE_RANGE, isChecked);
 
                 // Reset the start/stop year when the field is unchecked
                 if(!isChecked) {
@@ -527,11 +527,11 @@ public class CoinPageCreator extends AppCompatActivity {
                 if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
                         mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
 
-                    if((mParameters.containsKey(OPT_SHOW_P) && mParameters.get(OPT_SHOW_P) == Boolean.FALSE) &&
-                            (mParameters.containsKey(OPT_SHOW_D) && mParameters.get(OPT_SHOW_D) == Boolean.FALSE) &&
-                            (mParameters.containsKey(OPT_SHOW_S) && mParameters.get(OPT_SHOW_S) == Boolean.FALSE) &&
-                            (mParameters.containsKey(OPT_SHOW_O) && mParameters.get(OPT_SHOW_O) == Boolean.FALSE) &&
-                            (mParameters.containsKey(OPT_SHOW_CC) && mParameters.get(OPT_SHOW_CC) == Boolean.FALSE)){
+                    if((!mParameters.containsKey(OPT_SHOW_P) || mParameters.get(OPT_SHOW_P) == Boolean.FALSE) &&
+                            (!mParameters.containsKey(OPT_SHOW_D) || mParameters.get(OPT_SHOW_D) == Boolean.FALSE) &&
+                            (!mParameters.containsKey(OPT_SHOW_S) || mParameters.get(OPT_SHOW_S) == Boolean.FALSE) &&
+                            (!mParameters.containsKey(OPT_SHOW_O) || mParameters.get(OPT_SHOW_O) == Boolean.FALSE) &&
+                            (!mParameters.containsKey(OPT_SHOW_CC) || mParameters.get(OPT_SHOW_CC) == Boolean.FALSE)){
 
                         Toast.makeText(CoinPageCreator.this, "Please select at least one mint to collect coins from", Toast.LENGTH_SHORT).show();
                         return;

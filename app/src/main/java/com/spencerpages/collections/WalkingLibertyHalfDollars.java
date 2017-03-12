@@ -33,10 +33,14 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
     private static final Integer START_YEAR = 1916;
     private static final Integer STOP_YEAR = 1947;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.walking_liberty_obverse;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_walking_liberty_half;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.walking_liberty_reverse;
+    private static final int REVERSE_IMAGE = R.drawable.rev_walking_liberty_half;
+
+    // https://commons.wikimedia.org/wiki/File:Walking_Liberty_Half_Dollar_1945D_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Walking_Liberty_Half_Dollar_1945D_Reverse.png
+    private static final String ATTRIBUTION = "Walking Liberty Half Dollar images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -116,5 +120,9 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

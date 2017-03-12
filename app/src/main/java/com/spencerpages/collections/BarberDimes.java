@@ -33,10 +33,14 @@ public class BarberDimes extends CollectionInfo {
     private static final Integer START_YEAR = 1892;
     private static final Integer STOP_YEAR = 1916;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.barber_dime_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_barber_dime;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.barber_dime_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_barber_dime;
+
+    // https://commons.wikimedia.org/wiki/File:1914_Barber_Dime_NGC_MS64plus_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:1914_Barber_Dime_NGC_MS64plus_Reverse.png
+    private static final String ATTRIBUTION = "Barber Dime images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -101,5 +105,9 @@ public class BarberDimes extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

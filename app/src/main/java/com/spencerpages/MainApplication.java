@@ -65,6 +65,10 @@ public class MainApplication extends Application {
     public static final int SIMPLE_DISPLAY = 0;
     public static final int ADVANCED_DISPLAY = 1;
 
+    // Common attribution string
+    // https://www.usmint.gov/consumer/indexf8be.html?action=circCoinPolicy
+    public static final String DEFAULT_ATTRIBUTION = "United States coin images from the United States Mint";
+
     // List of all the supported collection types by the app.  New collections
     // should be added here
     public static final CollectionInfo[] COLLECTION_TYPES =

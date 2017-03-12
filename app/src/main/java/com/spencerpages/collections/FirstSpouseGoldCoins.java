@@ -21,6 +21,7 @@
 package com.spencerpages.collections;
 
 import com.spencerpages.CoinPageCreator;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -157,5 +158,8 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             identifierList.add(identifier);
             mintList.add("");
         }
+    }
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
     }
 }

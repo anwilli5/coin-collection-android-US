@@ -33,10 +33,13 @@ public class IndianHeadCents extends CollectionInfo {
     private static final Integer START_YEAR = 1859;
     private static final Integer STOP_YEAR = 1909;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.indian_head_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_indian_head_cent;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.indian_head_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_indian_head_cent;
+
+    //https://commons.wikimedia.org/wiki/File:NNC-US-1859-1C-Indian_Head_Cent_(wreath).jpg
+    private static final String ATTRIBUTION = "Indian Head Cent images courtesy of the National Numismatic Collection, National Museum of American History via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -103,5 +106,8 @@ public class IndianHeadCents extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

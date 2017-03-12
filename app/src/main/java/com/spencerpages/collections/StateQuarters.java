@@ -168,6 +168,9 @@ public class StateQuarters extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.states_2001_north_carolina_unc;
 
+    // https://www.usmint.gov/consumer/index091c.html?action=designPolicy
+    private static final String ATTRIBUTION = "Quarter-dollar coin images from the United States Mint.";
+
     public String getCoinType() { return COLLECTION_TYPE; }
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
@@ -233,5 +236,9 @@ public class StateQuarters extends CollectionInfo {
                 }
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

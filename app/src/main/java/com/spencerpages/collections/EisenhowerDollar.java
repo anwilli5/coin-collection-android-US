@@ -33,10 +33,14 @@ public class EisenhowerDollar extends CollectionInfo {
     private static final Integer START_YEAR = 1971;
     private static final Integer STOP_YEAR = 1978;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.eisenhower_front_92px;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_eisenhower_dollar;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.eisenhower_back_92px;
+    private static final int REVERSE_IMAGE = R.drawable.rev_eisenhower_dollar;
+
+    // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Reverse.jpg
+    private static final String ATTRIBUTION = "Eisenhower Dollar images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -97,5 +101,9 @@ public class EisenhowerDollar extends CollectionInfo {
             //	}
             //}
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

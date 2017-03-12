@@ -33,10 +33,14 @@ public class MercuryDimes extends CollectionInfo {
     private static final Integer START_YEAR = 1916;
     private static final Integer STOP_YEAR = 1945;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.mercury_front_92px;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_mercury_dime;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.mercury_back_92px;
+    private static final int REVERSE_IMAGE = R.drawable.rev_mercury_dime;
+
+    // https://commons.wikimedia.org/wiki/File:1943D_Mercury_Dime_obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:1943D_Mercury_Dime_reverse.jpg
+    private static final String ATTRIBUTION = "Mercury Dime images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -99,5 +103,9 @@ public class MercuryDimes extends CollectionInfo {
                 }
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

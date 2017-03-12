@@ -33,10 +33,14 @@ public class StandingLibertyQuarters extends CollectionInfo {
     private static final Integer START_YEAR = 1916;
     private static final Integer STOP_YEAR = 1930;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.standing_liberty_t1_obverse;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_standing_liberty_quarter;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.standing_liberty_t2_reverse;
+    private static final int REVERSE_IMAGE = R.drawable.rev_standing_liberty_quarter;
+
+    // https://commons.wikimedia.org/wiki/File:Standing_Liberty_Quarter_Type1_1917S_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Standing_Liberty_Quarter_Type2_1924D_Reverse.png
+    private static final String ATTRIBUTION = "Standing Liberty Quarter images courtesy of John Baumgart via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -114,5 +118,9 @@ public class StandingLibertyQuarters extends CollectionInfo {
                 i--;
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

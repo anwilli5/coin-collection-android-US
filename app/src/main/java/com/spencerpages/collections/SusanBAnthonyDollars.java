@@ -21,6 +21,7 @@
 package com.spencerpages.collections;
 
 import com.spencerpages.CoinPageCreator;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -98,5 +99,8 @@ public class SusanBAnthonyDollars extends CollectionInfo {
                 }
             }
         }
+    }
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
     }
 }

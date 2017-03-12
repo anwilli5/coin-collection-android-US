@@ -33,10 +33,14 @@ public class FranklinHalfDollars extends CollectionInfo {
     private static final Integer START_YEAR = 1948;
     private static final Integer STOP_YEAR = 1963;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.franklin_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_franklin_half;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.franklin_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_franklin_half;
+
+    // https://commons.wikimedia.org/wiki/File:Franklin_Half_1963_D_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Franklin_Half_1963_D_Reverse.png
+    private static final String ATTRIBUTION = "Franklin Half Dollar images courtesy of John Baumgart via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -93,5 +97,9 @@ public class FranklinHalfDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

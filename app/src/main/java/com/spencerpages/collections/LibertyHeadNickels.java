@@ -33,10 +33,14 @@ public class LibertyHeadNickels extends CollectionInfo {
     private static final Integer START_YEAR = 1883;
     private static final Integer STOP_YEAR = 1912;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.liberty_head_nickel_obverse;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_liberty_head_nickel;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.liberty_head_nickel_reverse;
+    private static final int REVERSE_IMAGE = R.drawable.rev_liberty_head_nickel;
+
+    // https://commons.wikimedia.org/wiki/File:Liberty_Head_Nickel_1883_NoCents_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Liberty_Head_Nickel_1883_NoCents_Reverse.png
+    private static final String ATTRIBUTION = "Liberty Head Nickels images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -109,5 +113,9 @@ public class LibertyHeadNickels extends CollectionInfo {
                 i--;
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

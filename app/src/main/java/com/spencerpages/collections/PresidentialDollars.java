@@ -126,6 +126,9 @@ public class PresidentialDollars extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.presidential_coin_obverse;
 
+    //https://www.usmint.gov/mint_programs/%241coin/index1ea7.html?action=presDesignUse
+    private static final String ATTRIBUTION = "Presidential $1 Coin images from the United States Mint.";
+
     public String getCoinType() { return COLLECTION_TYPE; }
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
@@ -168,5 +171,9 @@ public class PresidentialDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

@@ -33,10 +33,14 @@ public class MorganDollars extends CollectionInfo{
     private static final Integer START_YEAR = 1878;
     private static final Integer STOP_YEAR = 1921;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.morgan_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_morgan_dollar;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.morgan_reverse;
+    private static final int REVERSE_IMAGE = R.drawable.rev_morgan_dollar;
+
+    // https://commons.wikimedia.org/wiki/File:Morgan_Dollar_1880S_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Morgan_Dollar_1880S_Reverse.png
+    private static final String ATTRIBUTION = "Morgan Dollar images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -118,5 +122,8 @@ public class MorganDollars extends CollectionInfo{
                 mintList.add("");
             }
         }
+    }
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

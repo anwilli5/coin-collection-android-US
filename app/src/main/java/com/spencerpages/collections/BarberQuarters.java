@@ -33,10 +33,14 @@ public class BarberQuarters extends CollectionInfo {
     private static final Integer START_YEAR = 1892;
     private static final Integer STOP_YEAR = 1916;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.barber_quarter_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_barber_quarter;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.barber_quarter_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_barber_quarter;
+
+    // https://commons.wikimedia.org/wiki/File:1914_Barber_Quarter_NGC_AU58_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:1914_Barber_Quarter_NGC_AU58_Reverse.png
+    private static final String ATTRIBUTION = "Barber Quarter images courtesy of Brandon Grossardt via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -101,5 +105,9 @@ public class BarberQuarters extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }

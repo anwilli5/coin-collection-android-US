@@ -33,10 +33,14 @@ public class PeaceDollars extends CollectionInfo {
     private static final Integer START_YEAR = 1921;
     private static final Integer STOP_YEAR = 1935;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.peace_dollar_obverse;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_peace_dollar;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.peace_dollar_reverse;
+    private static final int REVERSE_IMAGE = R.drawable.rev_peace_dollar;
+
+    // https://commons.wikimedia.org/wiki/File:Peace_dollar_obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:Peace_dollar_reverse.jpg
+    private static final String ATTRIBUTION = "Peace Dollar images courtesy of CCF Numismatics via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -99,5 +103,8 @@ public class PeaceDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+    public String getAttributionString(){
+        return ATTRIBUTION;
     }
 }
