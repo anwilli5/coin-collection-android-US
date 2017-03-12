@@ -80,6 +80,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -419,13 +420,17 @@ public class MainActivity extends AppCompatActivity {
 
                             break;
                         case ABOUT:
-                            //Context mContext = getApplicationContext();
+
                             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
                             View layout = inflater.inflate(R.layout.info_popup,
-                                                           (ViewGroup) findViewById(R.id.layout_root));
+                                                           (ViewGroup) findViewById(R.id.info_layout_root));
 
                             AlertDialog.Builder info_builder = new AlertDialog.Builder(mContext);
                             info_builder.setView(layout);
+
+                            TextView tv = (TextView) layout.findViewById(R.id.info_textview);
+                            tv.setText(buildInfoText());
+
                             AlertDialog alertDialog = info_builder.create();
                             alertDialog.show();
                             break;
@@ -1554,4 +1559,30 @@ public class MainActivity extends AppCompatActivity {
         }
         mDbAdapter.close();
     }
+
+    private String buildInfoText(){
+        HashSet<String> attributions = new HashSet<>();
+        for(CollectionInfo collection : MainApplication.COLLECTION_TYPES){
+            String attribution = collection.getAttributionString();
+
+            if(attribution.equals("")){
+                continue;
+            }
+
+            attributions.add(attribution);
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(getResources().getString(R.string.info_overview));
+        builder.append("\n\n");
+        for(String attribution : attributions){
+            builder.append(attribution);
+            builder.append("\n\n");
+        }
+
+        return builder.toString();
+    }
+
+
 }
