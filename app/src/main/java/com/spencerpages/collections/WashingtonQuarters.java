@@ -20,6 +20,8 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -108,5 +110,21 @@ public class WashingtonQuarters extends CollectionInfo {
     }
     public String getAttributionString(){
         return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Remove 1965 - 1967 D quarters
+            int value = db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1965", "D"});
+            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1966", "D"});
+            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1967", "D"});
+            total = total - value;
+        }
+
+        return total;
     }
 }

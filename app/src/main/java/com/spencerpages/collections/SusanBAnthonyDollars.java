@@ -20,6 +20,8 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -102,5 +104,18 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     }
     public String getAttributionString(){
         return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Remove 1982 Susan B Anthony's
+            int value = db.delete(tableName, "coinIdentifier=?", new String[]{"1982"});
+            total = total - value;
+        }
+
+        return total;
     }
 }

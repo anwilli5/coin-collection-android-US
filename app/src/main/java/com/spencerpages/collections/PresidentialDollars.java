@@ -20,7 +20,10 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
+import com.spencerpages.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -175,5 +178,85 @@ public class PresidentialDollars extends CollectionInfo {
 
     public String getAttributionString(){
         return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Add in 2012 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Chester Arthur");
+            newCoinIdentifiers.add("Grover Cleveland 1");
+            newCoinIdentifiers.add("Benjamin Harrison");
+            newCoinIdentifiers.add("Grover Cleveland 2");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if(oldVersion <= 3) {
+            // Add in 2013 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("William McKinley");
+            newCoinIdentifiers.add("Theodore Roosevelt");
+            newCoinIdentifiers.add("William Howard Taft");
+            newCoinIdentifiers.add("Woodrow Wilson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 4) {
+            // Add in 2014 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Warren G. Harding");
+            newCoinIdentifiers.add("Calvin Coolidge");
+            newCoinIdentifiers.add("Herbert Hoover");
+            newCoinIdentifiers.add("Franklin D. Roosevelt");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 6) {
+            // Add in 2015 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Harry Truman");
+            newCoinIdentifiers.add("Dwight D. Eisenhower");
+            newCoinIdentifiers.add("John F. Kennedy");
+            newCoinIdentifiers.add("Lyndon B. Johnson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 7) {
+            // Add in 2016 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Richard M. Nixon");
+            newCoinIdentifiers.add("Gerald R. Ford");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 8) {
+            // Add in missing 2016 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Ronald Reagan");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        return total;
     }
 }

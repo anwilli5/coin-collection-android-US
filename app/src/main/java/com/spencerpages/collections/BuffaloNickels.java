@@ -20,6 +20,8 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
 import com.spencerpages.R;
 
@@ -130,5 +132,10 @@ public class BuffaloNickels extends CollectionInfo{
 
     public String getAttributionString(){
         return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        return 0;
     }
 }

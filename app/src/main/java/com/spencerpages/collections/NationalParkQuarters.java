@@ -20,7 +20,11 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
+import com.spencerpages.DatabaseAdapter;
+import com.spencerpages.DatabaseHelper;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -191,5 +195,95 @@ public class NationalParkQuarters extends CollectionInfo {
     }
     public String getAttributionString(){
         return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Add in 2012 National Park Quarters
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("El Yunque");
+            newCoinIdentifiers.add("Chaco Culture");
+            newCoinIdentifiers.add("Acadia");
+            newCoinIdentifiers.add("Hawaii Volcanoes");
+            newCoinIdentifiers.add("Denali");
+
+            // Add these coins, mimicing which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if(oldVersion <= 3) {
+            // Add in 2013 National Park Quarters
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("White Mountain");
+            newCoinIdentifiers.add("Perry’s Victory");
+            newCoinIdentifiers.add("Great Basin");
+            newCoinIdentifiers.add("Fort McHenry");
+            newCoinIdentifiers.add("Mount Rushmore");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 4) {
+            // Add in 2014 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Great Smoky Mountains");
+            newCoinIdentifiers.add("Shenandoah");
+            newCoinIdentifiers.add("Arches");
+            newCoinIdentifiers.add("Great Sand Dunes");
+            newCoinIdentifiers.add("Everglades");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 6) {
+            // Add in 2015 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Homestead");
+            newCoinIdentifiers.add("Kisatchie");
+            newCoinIdentifiers.add("Blue Ridge");
+            newCoinIdentifiers.add("Bombay Hook");
+            newCoinIdentifiers.add("Saratoga");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 7) {
+            // Add in 2016 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Shawnee");
+            newCoinIdentifiers.add("Cumberland Gap");
+            newCoinIdentifiers.add("Harper's Ferry");
+            newCoinIdentifiers.add("Theodore Roosevelt");
+            newCoinIdentifiers.add("Fort Moultrie");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 8) {
+            // Add in 2017 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Effigy Mounds");
+            newCoinIdentifiers.add("Frederick Douglass");
+            newCoinIdentifiers.add("Ozark Riverways");
+            newCoinIdentifiers.add("Ellis Island");
+            newCoinIdentifiers.add("George Rogers Clark");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        return total;
     }
 }

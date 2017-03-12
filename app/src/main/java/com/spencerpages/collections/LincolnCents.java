@@ -20,7 +20,11 @@
 
 package com.spencerpages.collections;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.spencerpages.CoinPageCreator;
+import com.spencerpages.DatabaseHelper;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -166,5 +170,65 @@ public class LincolnCents extends CollectionInfo {
 
     public String getAttributionString(){
         return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 2) {
+
+            // Remove 1921 D Penny
+            int value = db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1921", "D"});
+
+            // TODO What should we do?
+            // We can't add the new identifiers, just delete the old ones
+            //value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2009" });
+
+            total = total - value;
+
+        }
+
+        if(oldVersion <= 3) {
+
+            // 1. Bug fix: The bicentennials should not display mint mark "P"
+            ContentValues values = new ContentValues();
+            values.put("coinMint", "");
+            // This shortcut works because pennies never carried the "P" mint mark
+            db.update(tableName, values, "coinMint=?", new String[]{"P"});
+
+            // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
+
+            // Add in new 2013 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2013");
+            total += value;
+        }
+
+        if (oldVersion <= 4) {
+            // Add in new 2014 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2014");
+            total += value;
+        }
+
+        if (oldVersion <= 6) {
+            // Add in new 2015 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2015");
+            total += value;
+        }
+
+        if (oldVersion <= 7) {
+            // Add in new 2016 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2016");
+            total += value;
+        }
+
+        if (oldVersion <= 8) {
+            // Add in new 2017 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2017");
+            total += value;
+        }
+
+            return total;
     }
 }

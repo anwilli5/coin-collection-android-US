@@ -20,6 +20,8 @@
 
 package com.spencerpages.collections;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -107,6 +109,29 @@ public abstract class CollectionInfo {
             HashMap<String, Object> parameters,
             ArrayList<String> identifierList,
             ArrayList<String> mintList);
+
+    /**
+     * Performs any updates to a collection's database tables.  This allows
+     * new coins to be added, incorrect coins to be fixed, etc.
+     *
+     * TODO Document collection database fields
+     *
+     * The function should only operate on the tableName provided, and MUST
+     * return the total number of coins added or removed from the collection
+     * (this is used to keep an accurate count in the database table that
+     * contains metadata about each of the collections.)
+     *
+     * @param db the SQLiteDatabase db object to use when making updates
+     * @param tableName the name of the table to make updates to
+     * @param oldVersion the previous database version
+     * @param newVersion the new database version
+     * @return the total number of collections added or removed from the collection
+     */
+    abstract public int onCollectionDatabaseUpgrade(
+            SQLiteDatabase db,
+            String tableName,
+            int oldVersion,
+            int newVersion);
 
     /**
      * Returns an attribution string that should be printed on the info page.

@@ -21,6 +21,11 @@
 package com.spencerpages;
 
 import android.app.Application;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
@@ -99,4 +104,147 @@ public class MainApplication extends Application {
                     new AmericanEagleSilverDollars(),
                     new FirstSpouseGoldCoins(),
             };
+
+    public static final String DATABASE_NAME = "CoinCollection";
+
+    /** DATABASE_VERSION Tracks the current database version, and is essential for periodic
+     *                   database updating.  It should be raised anytime we need to insert new
+     *                   coins into a user's collections (Ex: yearly coin addition, bug fixes).
+     *
+     *                   Version 2 - Used in Versions 1 and 1.1 of the app
+     *                   Version 3 - Used in Version 1.2 and 1.3 of the app
+     *                   Version 4 - Used in Version 1.4, 1.4.1, and 1.5 of the app
+     *                   Version 5 - Used in Version 1.6 of the app
+     *                   Version 6 - Used in Version 2.0, 2.0.1 of the app
+     *                   Version 7 - Used in Version 2.1, 2.1.1 of the app
+     *                   Version 8 - Used in Version 2.2.1 of the app
+     *                   Version 9 - Used in Version 2.3 of the app
+     *                   Version 10 - Used in Version 2.3.1 of the app
+     */
+    public static final int DATABASE_VERSION = 10;
+
+    /**
+     * Performs any database updates that are needed at an application level
+     * (Ex: renaming a collection type, adding fields to existing databases
+     * as required for new functionality.)  Any collection-specific changes
+     * should be performed in that collections onCollectionDatabaseUpgrade
+     * instead of here.
+     *
+     * @param db the SQLiteDatabase db object to use when making updates
+     * @param oldVersion the previous database version
+     * @param newVersion the new database version
+     */
+    public static void onDatabaseUpgrade(
+            SQLiteDatabase db,
+            int oldVersion,
+            int newVersion){
+
+        if (oldVersion <= 5) {
+
+            // We need to add in columns to support the new advanced view
+            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(SIMPLE_DISPLAY));
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query("collection_info", new String[]{"name"}, null, null, null, null, "_id");
+            if (resultCursor.moveToFirst()) {
+                do {
+
+                    String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advGradeIndex INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advQuantityIndex INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN advNotes TEXT DEFAULT \"\"");
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+
+        if (oldVersion <= 7) {
+            // Add another column for the display order
+            // We have to do this in a try/catch block, because there is one case where the
+            // table might already have the column - when importing a backup from a previous
+            // version of the app.
+            try {
+                db.execSQL("ALTER TABLE collection_info ADD COLUMN displayOrder INTEGER");
+            } catch (SQLException e) {
+                Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+            }
+
+            Cursor resultCursor = db.query("collection_info", new String[]{"name", "coinType"},
+                    null, null, null, null, "_id");
+
+            int i = 0;  // Used to set the display order
+
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+                    String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
+
+                    ContentValues values = new ContentValues();
+
+                    // Since we added the displayOrder column, populate that.
+                    // In the import case this may get done twice (in the case of going from
+                    // an imported 7 DB to the latest version.
+                    values.put("displayOrder", i);
+
+                    db.update("collection_info", values, "name=? AND coinType=?", new String[]{name, coinType});
+                    i++;
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+
+        if (oldVersion <= 9) {
+
+            ContentValues values = new ContentValues();
+
+            // We changed the name that we use for Sacagawea gold coin collections a while back,
+            // but since we now use this name to determine the backing CollectionInfo obj, we
+            // need to change it in the database (we should have done this to begin with!)
+            values.put("coinType", "Sacagawea/Native American Dollars");
+            db.update("collection_info", values, "coinType=?", new String[]{"Sacagawea Dollars"});
+            values.clear();
+
+            // Remove the space from mint marks so that this field's value is less confusing
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query("collection_info", new String[]{"name"}, null, null, null, null, "_id");
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
+
+                    values.put("coinMint", "P");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[]{" P"});
+                    values.clear();
+
+                    values.put("coinMint", "D");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[]{" D"});
+                    values.clear();
+
+                    values.put("coinMint", "S");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[]{" S"});
+                    values.clear();
+
+                    values.put("coinMint", "O");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[]{" O"});
+                    values.clear();
+
+                    values.put("coinMint", "CC");
+                    db.update("[" + name + "]", values, "coinMint=?", new String[]{" CC"});
+                    values.clear();
+
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+
+            //TODO Change buffalo nickels mint marks to remove space
+            //TODO Change indian head cent mint marks to remove space
+            //TODO Change walking liberty half dollar mint marks to remove space
+        }
+        return;
+    }
 }

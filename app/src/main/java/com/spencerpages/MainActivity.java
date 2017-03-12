@@ -759,7 +759,7 @@ public class MainActivity extends AppCompatActivity {
         mCollectionContents = null;
 
         // Update any imported tables, if necessary
-        if(mDatabaseVersion != mDbAdapter.DATABASE_VERSION) {
+        if(mDatabaseVersion != MainApplication.DATABASE_VERSION) {
             mDbAdapter.upgradeCollections(mDatabaseVersion);
         }
         mDatabaseVersion = -1;
@@ -892,7 +892,7 @@ public class MainActivity extends AppCompatActivity {
         if(out == null) return;
 
         try {
-            out.write(String.valueOf(DatabaseAdapter.DATABASE_VERSION));
+            out.write(String.valueOf(MainApplication.DATABASE_VERSION));
         } catch (Exception e) {
             // This shouldn't happen since we just created it
             showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
