@@ -39,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
+import com.spencerpages.collections.CollectionInfo;
+
 import java.util.ArrayList;
 
 /**
@@ -48,121 +50,72 @@ class CoinSlotAdapter extends BaseAdapter {
 
     /** mContext The context of the activity we are running in (for things like Toasts that have UI
      *           components) */
-	private final Context mContext;
+    private final Context mContext;
 
     // Information about the collections needed for the basic coin list view
 
-	private final String mCoinType;
-	private final String mTableName;
+    private final CollectionInfo mCollectionTypeObj;
+    private final String mTableName;
 
     /** mIdentifierList Contains a list of the main coin identifiers (Ex: "2009", or "Kentucky") */
-	private final ArrayList<String> mIdentifierList;
+    private final ArrayList<String> mIdentifierList;
 
     /** mMintList Contains a list of the mint marks associated with each coin, if any */
-	private final ArrayList<String> mMintList;
+    private final ArrayList<String> mMintList;
 
-    /** mImageIdentifier The basic collection types (Ex: Pennies) use one image for the coin slot
-     *                   image, and mImageIdentifier indicates the one to use. For some of the coin
-     *                   types with different physical appearance (Ex: State Quarters) we instead
-     *                   use mSpecialIdentifiers, allowing each of the coin image resource
-     *                   identifiers to be specified */
-	private final int mImageIdentifier;
+    // These are public so that we can reach in and grab these values to save them off
+    // We will keep track of which items need to be pushed back
 
-    /** mSpecialIdentifiers For collections that have different coin slot images per coin, this list
-     *                      contains the image resource identifiers for those images. */
-	private String[] mSpecialIdentifiers;
+    // List holding whether each coin is in the collection
+    public ArrayList<Boolean> inCollectionList = null;
 
-    /** mSpecialNameIdentifiers Some collection types have a few coins that have different coin slot
-     *                          images than the rest. Example:
-     *                              - Bicentennial Pennies
-     *                              - Westward Journey Nickels
-     *                          For these, we use mSpecialNameIdentifiers to store the identifiers
-     *                          that have special images and use mSpecialIdentifiers to store the
-     *                          corresponding image identifiers. */
-    private String[] mSpecialNameIdentifiers;
-	
-	// These are public so that we can reach in and grab these values to save them off
-	// We will keep track of which items need to be pushed back
-	
-	// List holding whether each coin is in the collection
-	public ArrayList<Boolean> inCollectionList = null;
-	
-	// Lists needed to support the advanced view
-	
-	public boolean[] indexHasChanged = null;
-	
-	// In the database, we store the index into the grade and quantity arrays
-	// so we can use these values efficiently.  For notes, we have to store the
-	// strings
+    // Lists needed to support the advanced view
+
+    public boolean[] indexHasChanged = null;
+
+    // In the database, we store the index into the grade and quantity arrays
+    // so we can use these values efficiently.  For notes, we have to store the
+    // strings
     // TODO Can we make these private?
-	public ArrayList<Integer> advancedGrades = null;
-	public ArrayList<Integer> advancedQuantities = null;
-	public ArrayList<String> advancedNotes = null;
-	
-	private OnItemSelectedListener mGradeOnItemSelectedListener = null;
-	private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
-	private OnItemSelectedListener mQuantityOnItemSelectedListener = null;
-	private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
-	
-	// Keep track of whether we are showing the advanced view so we can do extra setup
-	private int displayType = MainApplication.SIMPLE_DISPLAY;
-	// This variable will only be set for the advanced view, where we have separate
-	// views for the locked and unlocked views
-	private boolean displayIsLocked = false;
+    public ArrayList<Integer> advancedGrades = null;
+    public ArrayList<Integer> advancedQuantities = null;
+    public ArrayList<String> advancedNotes = null;
+
+    private OnItemSelectedListener mGradeOnItemSelectedListener = null;
+    private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
+    private OnItemSelectedListener mQuantityOnItemSelectedListener = null;
+    private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
+
+    // Keep track of whether we are showing the advanced view so we can do extra setup
+    private int displayType = MainApplication.SIMPLE_DISPLAY;
+    // This variable will only be set for the advanced view, where we have separate
+    // views for the locked and unlocked views
+    private boolean displayIsLocked = false;
 
     /**
      * Constructor which passes the data necessary for the adapter to work, along with a list of
      * resource identifiers for those collections that don't use the same imageIdentifier for every
      * coin.
      * @param context The Activity context that we should use for any UI things
-     * @param coinType The collection type
      * @param tableName The collection name
-     * @param idList The list of coin identifiers in the collection
+     * @param collectionTypeObj The backing object in the COLLECTION_TYPE list
+     * @param identifierList The list of coin identifiers in the collection
      * @param mintList The list of coin mints in the collection
-     * @param imageIdentifier The image identifier used for basic collection types
-     * @param inCollectionList The list of whether each coin has been marked as being in the
-     *                         collection
-     * @param specialIdentifiers The list of resource identifiers for each coin in the collection
-     */
-	public CoinSlotAdapter(Context context, String coinType, String tableName, ArrayList<String> idList, ArrayList<String> mintList, int imageIdentifier, ArrayList<Boolean> inCollectionList, String[] specialIdentifiers) {
-		// Used for State, National Park, Presidential Coins, and Native American coins
-		// and Pennies and Nickels
-		this(context, coinType, tableName, idList, mintList, imageIdentifier, inCollectionList);
-
-		mSpecialIdentifiers = specialIdentifiers;
-
-		if(coinType.equals("Pennies")){
-			// Go ahead and get the reverse images as well
-			mSpecialNameIdentifiers = mContext.getResources().getStringArray(R.array.Bicentennial_Pennies_types);
-		} else if(coinType.equals("Nickels")){
-			// Go ahead and get the reverse images as well
-			mSpecialNameIdentifiers = mContext.getResources().getStringArray(R.array.Westward_Journey_All_Nickels_types);
-		} 
-	}
-
-    /**
-     * Constructor which passes the minimum amount of data necessary for the adapter to work
-     * @param context The Activity context that we should use for any UI things
-     * @param coinType The collection type
-     * @param tableName The collection name
-     * @param idList The list of coin identifiers in the collection
-     * @param mintList The list of coin mints in the collection
-     * @param imageIdentifier The image identifier used for basic collection types
      * @param inCollectionList The list of whether each coin has been marked as being in the
      *                         collection
      */
-	public CoinSlotAdapter(Context context, String coinType, String tableName, ArrayList<String> idList, ArrayList<String> mintList, int imageIdentifier, ArrayList<Boolean> inCollectionList) {
-
+    public CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<String> identifierList, ArrayList<String> mintList, ArrayList<Boolean> inCollectionList) {
+        // Used for State, National Park, Presidential Coins, and Native American coins
+        // and Pennies and Nickels
         super();
+        mContext = context;
+        mTableName = tableName;
+        mCollectionTypeObj = collectionTypeObj;
+        mIdentifierList = identifierList;
+        mMintList = mintList;
+        this.inCollectionList = inCollectionList;
 
-		mContext = context;
-		mCoinType = coinType;
-		mTableName = tableName;
-		mIdentifierList = idList;
-		mMintList = mintList;
-		mImageIdentifier = imageIdentifier;
-		this.inCollectionList = inCollectionList;
-	}
+    }
 
     /**
      * Sets the adapter instance variables with data needed to support the advanced view
@@ -172,248 +125,98 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param hasChanged A list used to track whether the data associated with a given coin has
      *                   changed since the last time a 'Save' occurred
      */
-	public void setAdvancedLists(ArrayList<Integer> grades, ArrayList<Integer> quantities, ArrayList<String> notes, boolean[] hasChanged) {
+    public void setAdvancedLists(ArrayList<Integer> grades, ArrayList<Integer> quantities, ArrayList<String> notes, boolean[] hasChanged) {
 
         advancedGrades = grades;
-		advancedQuantities = quantities;
-		advancedNotes = notes;
-		indexHasChanged = hasChanged;
-			
-		displayType = MainApplication.ADVANCED_DISPLAY;
-			
-		if(BuildConfig.DEBUG) {
-			// Everything should be the same size
-			if( advancedGrades.size() != mIdentifierList.size() ||
-			    advancedQuantities.size() != advancedGrades.size() ||
-			    advancedNotes.size() != advancedQuantities.size() ||
-				hasChanged.length != advancedNotes.size()) {
+        advancedQuantities = quantities;
+        advancedNotes = notes;
+        indexHasChanged = hasChanged;
 
-				throw new AssertionError("Inconsistent array list lengths in CoinSlotAdapter");
-			}
+        displayType = MainApplication.ADVANCED_DISPLAY;
+
+        if(BuildConfig.DEBUG) {
+            // Everything should be the same size
+            if( advancedGrades.size() != mIdentifierList.size() ||
+                advancedQuantities.size() != advancedGrades.size() ||
+                advancedNotes.size() != advancedQuantities.size() ||
+                hasChanged.length != advancedNotes.size()) {
+
+                throw new AssertionError("Inconsistent array list lengths in CoinSlotAdapter");
+            }
         }
-			
+
         SharedPreferences mainPreferences = mContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
 
         displayIsLocked = mainPreferences.getBoolean(mTableName + "_isLocked", false);
-	}
+    }
 
     @Override
-	public int getCount() {
-		return mIdentifierList.size();
-	}
+    public int getCount() {
+        return mIdentifierList.size();
+    }
 
     @Override
-	public Object getItem(int position) {
-		return null;
-	}
+    public Object getItem(int position) {
+        return null;
+    }
 
     @Override
-	public long getItemId(int position) {
-		return 0;
-	}
+    public long getItemId(int position) {
+        return 0;
+    }
 
-	// create or recycle a new View for each item referenced by the Adapter
+    // create or recycle a new View for each item referenced by the Adapter
     @Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-		View coinView = convertView;
-				
-		if (coinView == null) {  // If we couldn't get a recycled one, create a new one
+        View coinView = convertView;
 
-			LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (coinView == null) {  // If we couldn't get a recycled one, create a new one
 
-			if(displayType == MainApplication.ADVANCED_DISPLAY){
-			    
-			    if(!displayIsLocked){
-			      // If the collection isn't locked, we show spinners and an EditText
-				  coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
+            LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            if(displayType == MainApplication.ADVANCED_DISPLAY){
+
+                if(!displayIsLocked){
+                  // If the collection isn't locked, we show spinners and an EditText
+                  coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
                 } else {
-				  // The collection is locked, so we just show the advanced details in TextViews
-				  coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
-			    }
-			    
-			} else if(displayType == MainApplication.SIMPLE_DISPLAY){
-				coinView = vi.inflate(R.layout.coin_slot, parent, false);
-			}
-		}
+                  // The collection is locked, so we just show the advanced details in TextViews
+                  coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
+                }
+
+            } else if(displayType == MainApplication.SIMPLE_DISPLAY){
+                coinView = vi.inflate(R.layout.coin_slot, parent, false);
+            }
+        }
 
         // Display the basic info first
-		String identifier = mIdentifierList.get(position);
-		String mint = mMintList.get(position);
-		TextView coinText = (TextView) coinView.findViewById(R.id.coinText);
-		boolean inCollection = inCollectionList.get(position);
+        String identifier = mIdentifierList.get(position);
+        String mint = mMintList.get(position);
+        TextView coinText = (TextView) coinView.findViewById(R.id.coinText);
+        boolean inCollection = inCollectionList.get(position);
 
-		// Set the coin identifier text (Year and Mint in most cases)
-		// TODO Fix this so there is no space if there is no mint
-		// This actually puts in two spaces, since mint has a space as well
-		coinText.setText(identifier + " " + mint);
+        // Set the coin identifier text (Year and Mint in most cases)
+        // TODO Fix this so there is no space if there is no mint
+        // This actually puts in two spaces, since mint has a space as well
+        coinText.setText(identifier + " " + mint);
 
-		//Set this image based on whether the coin has been obtained
-		ImageView coinImage = (ImageView) coinView.findViewById(R.id.coinImage);
+        //Set this image based on whether the coin has been obtained
+        ImageView coinImage = (ImageView) coinView.findViewById(R.id.coinImage);
 
         // TODO Not sure if this improves accessibility, but better than nothing
         coinImage.setContentDescription(identifier + " " + mint + " Button");
 
-        // TODO We can compress further, and move as much of this as possible out of getView
-        switch (mCoinType) {
-            case "State Quarters": {
-                // We need to override the default coin images
-                // TODO Not the best way to do this
-                // We need to check if the mint marks are shown
-                int list1Size = 50; // Shouldn't change
-
-                int list2Size = 6; // Could have the additional D.C. and Territories Quarters
-
-                int regularImageIdentifier;
-                if (mIdentifierList.size() == list1Size || mIdentifierList.size() == (list1Size + list2Size)) {
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position] + "_25", "drawable", mContext.getPackageName());
-                    }
-                } else {
-                    // If it gets here, the mint marks are shown
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2] + "_25", "drawable", mContext.getPackageName());
-                    }
-                }
-                coinImage.setImageResource(regularImageIdentifier);
-
-                break;
-            }
-            case "National Park Quarters": {
-                // Need to check if the mint marks are shown
-                // Use of the arrays like this means we MUST update collections of this type in onUpgrade
-                int list1Size = mContext.getResources().getStringArray(R.array.State_Parks_types).length;
-                int regularImageIdentifier;
-                if (mIdentifierList.size() == list1Size) {
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position] + "_25", "drawable", mContext.getPackageName());
-                    }
-                } else {
-                    // Mint marks are shown
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2] + "_25", "drawable", mContext.getPackageName());
-                    }
-                }
-                coinImage.setImageResource(regularImageIdentifier);
-                break;
-            }
-            case "Presidential Dollars": {
-                // Need to check if the mint marks are shown
-                // Use of the arrays like this means we MUST update collections of this type in onUpgrade
-                int list1Size = mContext.getResources().getStringArray(R.array.Presidential_Coins_type).length;
-                int regularImageIdentifier;
-                if (mIdentifierList.size() == list1Size) {
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position] + "_25", "drawable", mContext.getPackageName());
-                    }
-                } else {
-                    // Mint marks are shown
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[position / 2] + "_25", "drawable", mContext.getPackageName());
-                    }
-                }
-                coinImage.setImageResource(regularImageIdentifier);
-
-                break;
-            }
-            case "First Spouse Gold Coins": {
-                // TODO Make sure nothing breaks when we add new coins here
-                int regularImageIdentifier;
-                if (inCollection) {
-                    regularImageIdentifier = mContext.getResources()
-                            .getIdentifier(mSpecialIdentifiers[position],
-                                    "drawable", mContext.getPackageName());
-                } else {
-                    regularImageIdentifier = mContext.getResources()
-                            .getIdentifier(
-                                    mSpecialIdentifiers[position] + "_25",
-                                    "drawable", mContext.getPackageName());
-                }
-                coinImage.setImageResource(regularImageIdentifier);
-
-                break;
-            }
-            case "Pennies":
-            case "Nickels": {
-                // Have to check if it is a special image
-                // More expensive since we check the list each time, but hopefully it is ok since the lists are small
-                boolean foundImage = false;
-                for (int i = 0; i < mSpecialNameIdentifiers.length; i++) {
-                    if (mSpecialNameIdentifiers[i].equals(identifier)) {
-                        int regularImageIdentifier;
-                        if (inCollection) {
-                            regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[i], "drawable", mContext.getPackageName());
-                        } else {
-                            regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[i] + "_25", "drawable", mContext.getPackageName());
-                        }
-                        coinImage.setImageResource(regularImageIdentifier);
-                        foundImage = true;
-                        break;
-                    }
-                }
-
-                // If it gets here, no special image needed
-                if (!foundImage) {
-                    if (inCollection) {
-                        coinImage.setImageResource(mImageIdentifier);
-                    } else {
-                        coinImage.setImageResource(R.drawable.openslot);
-                    }
-                }
-
-                break;
-            }
-            case "Sacagawea/Native American Dollars":
-            case "Sacagawea Dollars": {
-                int regularImageIdentifier;
-                if (Integer.parseInt(identifier) >= 2009) {
-                    int listIndex = Integer.parseInt(identifier) - 2009;
-                    if (inCollection) {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[listIndex], "drawable", mContext.getPackageName());
-                    } else {
-                        regularImageIdentifier = mContext.getResources().getIdentifier(mSpecialIdentifiers[listIndex] + "_25", "drawable", mContext.getPackageName());
-                    }
-                } else {
-                    if (inCollection) {
-                        regularImageIdentifier = R.drawable.rev_sacagawea_unc;
-                    } else {
-                        regularImageIdentifier = R.drawable.rev_sacagawea_unc_25;
-                    }
-                }
-
-                coinImage.setImageResource(regularImageIdentifier);
-
-                break;
-            }
-            default:
-                // We can just reuse the one image
-                if (inCollection) {
-                    coinImage.setImageResource(mImageIdentifier);
-                } else {
-                    coinImage.setImageResource(R.drawable.openslot);
-                }
-                break;
-        }
+        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(identifier, mint, inCollection);
+        coinImage.setImageResource(imageIdentifier);
 
         // Setup the rest of the view if it is the advanced view
-		if(displayType == MainApplication.ADVANCED_DISPLAY){
-	    	setupAdvancedView(coinView, position);
-	    }
+        if(displayType == MainApplication.ADVANCED_DISPLAY){
+            setupAdvancedView(coinView, position);
+        }
 
-		return coinView;
-	}
+        return coinView;
+    }
 
     /**
      * Handles setting up the advanced view components in the case that we should display them
@@ -423,115 +226,115 @@ class CoinSlotAdapter extends BaseAdapter {
     private void setupAdvancedView(View coinView, final int position) {
 
         // Use this so the listeners know the position of the item in the list
-   		Integer positionObj = position;
-    		
-   		final ImageView imageView = (ImageView) coinView.findViewById(R.id.coinImage);
-    		
-   		imageView.setOnClickListener(new OnClickListener() {
+        Integer positionObj = position;
 
-    		public void onClick(View v) {
-   	        	// Need to check whether the collection is locked
-   	    		if(displayIsLocked){
-   	    			// Collection is locked
-   	    			Context context = mContext.getApplicationContext();
-   	    			CharSequence text = "Collection is currently locked, hit 'Menu' and then 'Unlock Collection' to unlock";
-   	    			int duration = Toast.LENGTH_SHORT;
+        final ImageView imageView = (ImageView) coinView.findViewById(R.id.coinImage);
 
-   	    			Toast toast = Toast.makeText(context, text, duration);
-   	    			toast.show();
-   	    		} else {
-   	    			// Collection is unlocked, update value
-   	    			//mDbAdapter.updateInfo(mTableName, mIdentifierList.get(position), mMintList.get(position));
-    	    			
-   	    			// Tie the update to the save button
-   	    			boolean oldValue = CoinSlotAdapter.this.inCollectionList.get(position);
+        imageView.setOnClickListener(new OnClickListener() {
+
+            public void onClick(View v) {
+                // Need to check whether the collection is locked
+                if(displayIsLocked){
+                    // Collection is locked
+                    Context context = mContext.getApplicationContext();
+                    CharSequence text = "Collection is currently locked, hit 'Menu' and then 'Unlock Collection' to unlock";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                } else {
+                    // Collection is unlocked, update value
+                    //mDbAdapter.updateInfo(mTableName, mIdentifierList.get(position), mMintList.get(position));
+
+                    // Tie the update to the save button
+                    boolean oldValue = CoinSlotAdapter.this.inCollectionList.get(position);
                     CoinSlotAdapter.this.inCollectionList.set(position, !oldValue);
                     CoinSlotAdapter.this.indexHasChanged[position] = true;
 
                     CoinSlotAdapter.this.notifyDataSetChanged();
-    	    			
-	    			CollectionPage collectionPage = (CollectionPage) mContext;
-   	    			collectionPage.showUnsavedTextView();
-   	    		}
-   			}});
-    		
-    		
+
+                    CollectionPage collectionPage = (CollectionPage) mContext;
+                    collectionPage.showUnsavedTextView();
+                }
+            }});
+
+
         // Everything below here is specific to whether the collection is locked or not.
-    	// Take care of the locked case first, since it is easier.
-    		
-    	if(displayIsLocked){
-    			
-    		Resources res = mContext.getResources();
-    			
-    		String[] grades = res.getStringArray(R.array.coin_grades);
-    		TextView gradeTextView = (TextView) coinView.findViewById(R.id.grade_textview);
-    		int gradeIndex = advancedGrades.get(position);
-    		if(gradeIndex != 0){
-    			// Preface the grade with 'Grade:'
-    			gradeTextView.setText("Grade: " + grades[gradeIndex] + "  ");
-    		} else {
-    			// 'Grade:' will be printed
-    			gradeTextView.setText(grades[gradeIndex] + "  ");
-    		}
-    			
-    		String[] quantities = res.getStringArray(R.array.coin_quantities);
-    		TextView quantitiesTextView = (TextView) coinView.findViewById(R.id.quantity_textview);
-    		quantitiesTextView.setText("Quantity: " + quantities[advancedQuantities.get(position)] + "  ");
-    			
-    		TextView notesTextView = (TextView) coinView.findViewById(R.id.notes_textview);
-    		notesTextView.setText("Notes:\n" + advancedNotes.get(position));
-    		return;
-    	}
-    		
-    	// The collection is not locked, we need to set up the spinners and edittext
-    		
+        // Take care of the locked case first, since it is easier.
+
+        if(displayIsLocked){
+
+            Resources res = mContext.getResources();
+
+            String[] grades = res.getStringArray(R.array.coin_grades);
+            TextView gradeTextView = (TextView) coinView.findViewById(R.id.grade_textview);
+            int gradeIndex = advancedGrades.get(position);
+            if(gradeIndex != 0){
+                // Preface the grade with 'Grade:'
+                gradeTextView.setText("Grade: " + grades[gradeIndex] + "  ");
+            } else {
+                // 'Grade:' will be printed
+                gradeTextView.setText(grades[gradeIndex] + "  ");
+            }
+
+            String[] quantities = res.getStringArray(R.array.coin_quantities);
+            TextView quantitiesTextView = (TextView) coinView.findViewById(R.id.quantity_textview);
+            quantitiesTextView.setText("Quantity: " + quantities[advancedQuantities.get(position)] + "  ");
+
+            TextView notesTextView = (TextView) coinView.findViewById(R.id.notes_textview);
+            notesTextView.setText("Notes:\n" + advancedNotes.get(position));
+            return;
+        }
+
+        // The collection is not locked, we need to set up the spinners and edittext
+
         // Setup the spinner that will let you select the coin grade
-    	Spinner gradeSelector = (Spinner) coinView.findViewById(R.id.grade_selector);
-    	gradeSelector.setTag(positionObj);
-    		
-    	if(mGradeArrayAdapter == null){
-    	    // Create the adapter that will handle spinner selections
-    	    mGradeArrayAdapter = ArrayAdapter.createFromResource(
-    			mContext, R.array.coin_grades, android.R.layout.simple_spinner_item);
-    	    mGradeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	}
-    	gradeSelector.setAdapter(mGradeArrayAdapter);
-    		
+        Spinner gradeSelector = (Spinner) coinView.findViewById(R.id.grade_selector);
+        gradeSelector.setTag(positionObj);
+
+        if(mGradeArrayAdapter == null){
+            // Create the adapter that will handle spinner selections
+            mGradeArrayAdapter = ArrayAdapter.createFromResource(
+                mContext, R.array.coin_grades, android.R.layout.simple_spinner_item);
+            mGradeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+        gradeSelector.setAdapter(mGradeArrayAdapter);
+
         // Put the spinner at the value we have stored for this coin
-    	gradeSelector.setSelection(advancedGrades.get(position), false);
-        	
-    	if(mGradeOnItemSelectedListener == null){
-    		mGradeOnItemSelectedListener = new OnItemSelectedListener() {
-    			public void onItemSelected(AdapterView<?> parent,
-    					View view, int pos, long id) {
+        gradeSelector.setSelection(advancedGrades.get(position), false);
+
+        if(mGradeOnItemSelectedListener == null){
+            mGradeOnItemSelectedListener = new OnItemSelectedListener() {
+                public void onItemSelected(AdapterView<?> parent,
+                        View view, int pos, long id) {
 
                     int posPrim = (int) parent.getTag();
-    					
-    	    		// Update the values in the lists if this is a new value
-    				if(pos != CoinSlotAdapter.this.advancedGrades.get(posPrim)){
-    					// Value has changed
+
+                    // Update the values in the lists if this is a new value
+                    if(pos != CoinSlotAdapter.this.advancedGrades.get(posPrim)){
+                        // Value has changed
                         CoinSlotAdapter.this.advancedGrades.set(posPrim, pos);
                         CoinSlotAdapter.this.indexHasChanged[posPrim] = true;
-    						    						
-    					// Tell the parent page to show the unsaved changes view
-    					CollectionPage collectionPage = (CollectionPage) mContext;
-    					collectionPage.showUnsavedTextView();
-    				}
-    			}
-    			public void onNothingSelected(AdapterView<?> parent) {}
-    		};
-    	}
-    	gradeSelector.setOnItemSelectedListener(mGradeOnItemSelectedListener);
 
-       	// Setup the spinner that will let you select the coin quantity
-    	Spinner quantitySelector = (Spinner) coinView.findViewById(R.id.quantity_selector);
-    	quantitySelector.setTag(positionObj);
-    		
-    	if(mQuantityArrayAdapter == null){
-    	    mQuantityArrayAdapter = ArrayAdapter.createFromResource(
-    			mContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
-    	    mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	}
+                        // Tell the parent page to show the unsaved changes view
+                        CollectionPage collectionPage = (CollectionPage) mContext;
+                        collectionPage.showUnsavedTextView();
+                    }
+                }
+                public void onNothingSelected(AdapterView<?> parent) {}
+            };
+        }
+        gradeSelector.setOnItemSelectedListener(mGradeOnItemSelectedListener);
+
+        // Setup the spinner that will let you select the coin quantity
+        Spinner quantitySelector = (Spinner) coinView.findViewById(R.id.quantity_selector);
+        quantitySelector.setTag(positionObj);
+
+        if(mQuantityArrayAdapter == null){
+            mQuantityArrayAdapter = ArrayAdapter.createFromResource(
+                mContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
+            mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
 
         quantitySelector.setAdapter(mQuantityArrayAdapter);
 
@@ -632,6 +435,6 @@ class CoinSlotAdapter extends BaseAdapter {
         // Make the edittext scrollable
         // TODO Get scrolling working all the way
         // notesEditText.setMovementMethod(new ScrollingMovementMethod());
-		
+
     }
 }

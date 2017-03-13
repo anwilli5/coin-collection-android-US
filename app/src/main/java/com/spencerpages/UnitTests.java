@@ -32,148 +32,153 @@ import android.util.Log;
  * to.
  */
 class UnitTests {
-	
-	private Context mContext = null;
-	
-	public boolean runTests(Context context) {
 
-		mContext = context;
+    private Context mContext = null;
+
+    public boolean runTests(Context context) {
+
+        mContext = context;
 
         // TODO Replace with better testing!
-		
-		boolean result = testAllMintMarks();
-		if(!result){
-		    return false;
-		}
-		
-		result = testPMintMarks();
-		if(!result){
-		    return false;
-		}
-		
-		result = testDMintMarks();
-		if(!result){
-		    return false;
-		}
-		
-		result = testSMintMarks();
-		if(!result){
-		    return false;
-		}
-		
-		result = testOMintMarks();
-		if(!result){
-		    return false;
-		}
-		
-		result = testCCMintMarks();
-		if(!result){
-		    return false;
-		}
 
-		// All tests passed
-		return true;
-	}
+        boolean result = testAllMintMarks();
+        if(!result){
+            return false;
+        }
 
-	// TODO Replace with better tests
-	private boolean testAllMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+        result = testPMintMarks();
+        if(!result){
+            return false;
+        }
+
+        result = testDMintMarks();
+        if(!result){
+            return false;
+        }
+
+        result = testSMintMarks();
+        if(!result){
+            return false;
+        }
+
+        result = testOMintMarks();
+        if(!result){
+            return false;
+        }
+
+        result = testCCMintMarks();
+        if(!result){
+            return false;
+        }
+
+        // All tests passed
+        return true;
+    }
+
+    // TODO Replace with better tests
+    private boolean testAllMintMarks() {
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
-		boolean showTerritories = true;
-		boolean showMintMark = true;
-		boolean showP = true;
-		boolean showD = true;
-		boolean showS = true;
-		boolean showCC = true;
-		boolean showO = true;
+        boolean showTerritories = true;
+        boolean showMintMark = true;
+        boolean showP = true;
+        boolean showD = true;
+        boolean showS = true;
+        boolean showCC = true;
+        boolean showO = true;
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
-		info.put("Pennies", 269); // Typically increases by 2
-		info.put("Nickels", 177); // Typically increases by 2
-		info.put("Dimes", 151); // Typically increases by 2
-		info.put("Quarters", 146);
-		info.put("State Quarters", 112);
-		info.put("National Park Quarters", 80); // Typically increases by 10
-		info.put("Half-Dollars", 100); // Typically increases by 2
-		info.put("Eisenhower Dollars", 14);
-		info.put("Susan B. Anthony Dollars", 11);
-		info.put("Sacagawea/Native American Dollars", 36); // Typically increases by 2
-		info.put("Presidential Dollars", 78); // Typically increases by 4
-		info.put("Indian Head Cents", 55);
-		info.put("Liberty Head Nickels", 33);
-		info.put("Buffalo Nickels", 64);
-		info.put("Mercury Dimes", 77);
-		info.put("Barber Dimes", 74);
-		info.put("Barber Quarters", 74);
-		info.put("Standing Liberty Quarters", 37);
-		info.put("Barber Half Dollars", 73);
-		info.put("Walking Liberty Half Dollars", 65);
-		info.put("Franklin Half Dollars", 35);
-		info.put("Morgan Dollars", 96);
-		info.put("Peace Dollars", 24);
-		info.put("American Eagle Silver Dollars", 32); // Typically increases by 1
-		info.put("First Spouse Gold Coins", 41); // Typically increases by 4
-		
-		Object[] keys = info.keySet().toArray();
-		
+        HashMap<String,Integer> info = new HashMap<>();
+        info.put("Pennies", 269); // Typically increases by 2
+        info.put("Nickels", 177); // Typically increases by 2
+        info.put("Dimes", 151); // Typically increases by 2
+        info.put("Quarters", 146);
+        info.put("State Quarters", 112);
+        info.put("National Park Quarters", 80); // Typically increases by 10
+        info.put("Half-Dollars", 100); // Typically increases by 2
+        info.put("Eisenhower Dollars", 14);
+        info.put("Susan B. Anthony Dollars", 11);
+        info.put("Sacagawea/Native American Dollars", 36); // Typically increases by 2
+        info.put("Presidential Dollars", 78); // Typically increases by 4
+        info.put("Indian Head Cents", 55);
+        info.put("Liberty Head Nickels", 33);
+        info.put("Buffalo Nickels", 64);
+        info.put("Mercury Dimes", 77);
+        info.put("Barber Dimes", 74);
+        info.put("Barber Quarters", 74);
+        info.put("Standing Liberty Quarters", 37);
+        info.put("Barber Half Dollars", 73);
+        info.put("Walking Liberty Half Dollars", 65);
+        info.put("Franklin Half Dollars", 35);
+        info.put("Morgan Dollars", 96);
+        info.put("Peace Dollars", 24);
+        info.put("American Eagle Silver Dollars", 32); // Typically increases by 1
+        info.put("First Spouse Gold Coins", 41); // Typically increases by 4
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-			creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-            showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
+
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
+
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
         
-			creator.makeTable(coinType);
+            creator.populateCollectionArrays();
 
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
-			Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
+            Integer size2 = mintList.size();
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
                 creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+            }
+        }
+
+        return true;
+    }
 
     private boolean testPMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
         boolean showTerritories = true;
@@ -186,89 +191,94 @@ class UnitTests {
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
-		// TODO Do these
-		//info.put("Pennies", 261);
-		//info.put("Nickels", 229);
-		//info.put("Dimes", 143);
-		//info.put("Quarters", 146);
-		//info.put("State Quarters", 112);
-		//info.put("National Park Quarters", 40);
-		//info.put("Half-Dollars", 92);
-		//info.put("Eisenhower Dollars", 14);
-		//info.put("Susan B. Anthony Dollars", 11);
-		//info.put("Sacagawea Dollars", 28);
-		//info.put("Presidential Dollars", 56);
-		//info.put("Indian Head Cents", 55);
-		info.put("Liberty Head Nickels", 31);
-		//info.put("Buffalo Nickels", 64);
-		//info.put("Mercury Dimes", 77);
-		//info.put("Barber Dimes", 74);
-		info.put("Barber Quarters", 25);
-		info.put("Standing Liberty Quarters", 15);
-		info.put("Barber Half Dollars", 24);
-		info.put("Walking Liberty Half Dollars", 20);
-		info.put("Franklin Half Dollars", 16);
-		info.put("Morgan Dollars", 28);
-		info.put("Peace Dollars", 10);
-		//info.put("First Spouse Gold Coins", 25);
-		
-		Object[] keys = info.keySet().toArray();
-		
+        HashMap<String,Integer> info = new HashMap<>();
+        // TODO Do these
+        //info.put("Pennies", 261);
+        //info.put("Nickels", 229);
+        //info.put("Dimes", 143);
+        //info.put("Quarters", 146);
+        //info.put("State Quarters", 112);
+        //info.put("National Park Quarters", 40);
+        //info.put("Half-Dollars", 92);
+        //info.put("Eisenhower Dollars", 14);
+        //info.put("Susan B. Anthony Dollars", 11);
+        //info.put("Sacagawea Dollars", 28);
+        //info.put("Presidential Dollars", 56);
+        //info.put("Indian Head Cents", 55);
+        info.put("Liberty Head Nickels", 31);
+        //info.put("Buffalo Nickels", 64);
+        //info.put("Mercury Dimes", 77);
+        //info.put("Barber Dimes", 74);
+        info.put("Barber Quarters", 25);
+        info.put("Standing Liberty Quarters", 15);
+        info.put("Barber Half Dollars", 24);
+        info.put("Walking Liberty Half Dollars", 20);
+        info.put("Franklin Half Dollars", 16);
+        info.put("Morgan Dollars", 28);
+        info.put("Peace Dollars", 10);
+        //info.put("First Spouse Gold Coins", 25);
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-            creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-                    showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
 
-            creator.makeTable(coinType);
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
+
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
+
+            creator.populateCollectionArrays();
 
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
             Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
                 creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+            }
+        }
+
+        return true;
+    }
     
     private boolean testDMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
         boolean showTerritories = true;
@@ -281,89 +291,93 @@ class UnitTests {
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
-		// TODO Do these
-		//info.put("Pennies", 261);
-		//info.put("Nickels", 229);
-		//info.put("Dimes", 143);
-		//info.put("Quarters", 146);
-		//info.put("State Quarters", 112);
-		//info.put("National Park Quarters", 40);
-		//info.put("Half-Dollars", 92);
-		//info.put("Eisenhower Dollars", 14);
-		//info.put("Susan B. Anthony Dollars", 11);
-		//info.put("Sacagawea Dollars", 28);
-		//info.put("Presidential Dollars", 56);
-		//info.put("Indian Head Cents", 55);
-		info.put("Liberty Head Nickels", 1);
-		//info.put("Buffalo Nickels", 64);
-		//info.put("Mercury Dimes", 77);
-		//info.put("Barber Dimes", 74);
-		info.put("Barber Quarters", 10);
-		info.put("Standing Liberty Quarters", 10);
-		info.put("Barber Half Dollars", 7);
-		info.put("Walking Liberty Half Dollars", 21);
-		info.put("Franklin Half Dollars", 14);
-		info.put("Morgan Dollars", 1);
-		info.put("Peace Dollars", 5);
-		//info.put("First Spouse Gold Coins", 25);
-		
-		Object[] keys = info.keySet().toArray();
-		
+        HashMap<String,Integer> info = new HashMap<>();
+        // TODO Do these
+        //info.put("Pennies", 261);
+        //info.put("Nickels", 229);
+        //info.put("Dimes", 143);
+        //info.put("Quarters", 146);
+        //info.put("State Quarters", 112);
+        //info.put("National Park Quarters", 40);
+        //info.put("Half-Dollars", 92);
+        //info.put("Eisenhower Dollars", 14);
+        //info.put("Susan B. Anthony Dollars", 11);
+        //info.put("Sacagawea Dollars", 28);
+        //info.put("Presidential Dollars", 56);
+        //info.put("Indian Head Cents", 55);
+        info.put("Liberty Head Nickels", 1);
+        //info.put("Buffalo Nickels", 64);
+        //info.put("Mercury Dimes", 77);
+        //info.put("Barber Dimes", 74);
+        info.put("Barber Quarters", 10);
+        info.put("Standing Liberty Quarters", 10);
+        info.put("Barber Half Dollars", 7);
+        info.put("Walking Liberty Half Dollars", 21);
+        info.put("Franklin Half Dollars", 14);
+        info.put("Morgan Dollars", 1);
+        info.put("Peace Dollars", 5);
+        //info.put("First Spouse Gold Coins", 25);
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-            creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-                    showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
 
-            creator.makeTable(coinType);
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
 
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
+
+            creator.populateCollectionArrays();
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
             Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
-				creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
+                creator.testClearLists();
+            }
+        }
+
+        return true;
+    }
     
     private boolean testSMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
         boolean showTerritories = true;
@@ -376,89 +390,94 @@ class UnitTests {
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
-		// TODO Do these
-		//info.put("Pennies", 261);
-		//info.put("Nickels", 229);
-		//info.put("Dimes", 143);
-		//info.put("Quarters", 146);
-		//info.put("State Quarters", 112);
-		//info.put("National Park Quarters", 40);
-		//info.put("Half-Dollars", 92);
-		//info.put("Eisenhower Dollars", 14);
-		//info.put("Susan B. Anthony Dollars", 11);
-		//info.put("Sacagawea Dollars", 28);
-		//info.put("Presidential Dollars", 56);
-		//info.put("Indian Head Cents", 55);
-		info.put("Liberty Head Nickels", 1);
-		//info.put("Buffalo Nickels", 64);
-		//info.put("Mercury Dimes", 77);
-		info.put("Barber Dimes", 24);
-		info.put("Barber Quarters", 21);
-		info.put("Standing Liberty Quarters", 12);
-		info.put("Barber Half Dollars", 24);
-		info.put("Walking Liberty Half Dollars", 24);
-		info.put("Franklin Half Dollars", 5);
-		info.put("Morgan Dollars", 28);
-		info.put("Peace Dollars", 9);
-		//info.put("First Spouse Gold Coins", 25);
-		
-		Object[] keys = info.keySet().toArray();
-		
+        HashMap<String,Integer> info = new HashMap<>();
+        // TODO Do these
+        //info.put("Pennies", 261);
+        //info.put("Nickels", 229);
+        //info.put("Dimes", 143);
+        //info.put("Quarters", 146);
+        //info.put("State Quarters", 112);
+        //info.put("National Park Quarters", 40);
+        //info.put("Half-Dollars", 92);
+        //info.put("Eisenhower Dollars", 14);
+        //info.put("Susan B. Anthony Dollars", 11);
+        //info.put("Sacagawea Dollars", 28);
+        //info.put("Presidential Dollars", 56);
+        //info.put("Indian Head Cents", 55);
+        info.put("Liberty Head Nickels", 1);
+        //info.put("Buffalo Nickels", 64);
+        //info.put("Mercury Dimes", 77);
+        info.put("Barber Dimes", 24);
+        info.put("Barber Quarters", 21);
+        info.put("Standing Liberty Quarters", 12);
+        info.put("Barber Half Dollars", 24);
+        info.put("Walking Liberty Half Dollars", 24);
+        info.put("Franklin Half Dollars", 5);
+        info.put("Morgan Dollars", 28);
+        info.put("Peace Dollars", 9);
+        //info.put("First Spouse Gold Coins", 25);
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-            creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-                    showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
 
-            creator.makeTable(coinType);
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
+
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
+
+            creator.populateCollectionArrays();
 
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
             Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
                 creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+            }
+        }
+
+        return true;
+    }
     
     private boolean testOMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
         boolean showTerritories = true;
@@ -471,69 +490,74 @@ class UnitTests {
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
+        HashMap<String,Integer> info = new HashMap<>();
 
-		info.put("Barber Dimes", 17);
-		info.put("Barber Quarters", 18);
-		info.put("Barber Half Dollars", 18);
-		info.put("Morgan Dollars", 26);
-		
-		Object[] keys = info.keySet().toArray();
-		
+        info.put("Barber Dimes", 17);
+        info.put("Barber Quarters", 18);
+        info.put("Barber Half Dollars", 18);
+        info.put("Morgan Dollars", 26);
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-            creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-                    showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
 
-            creator.makeTable(coinType);
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
+
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
+
+            creator.populateCollectionArrays();
 
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
             Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
                 creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+            }
+        }
+
+        return true;
+    }
     
     private boolean testCCMintMarks() {
-		
-		CoinPageCreator creator = new CoinPageCreator();
+
+        CoinPageCreator creator = new CoinPageCreator();
         creator.testSetContext(mContext);
 
         boolean showTerritories = true;
@@ -546,60 +570,65 @@ class UnitTests {
         boolean editDateRange = false;
         boolean showBurnished = false;
 
-		String[] coinTypes = mContext.getResources().getStringArray(R.array.types_of_coins);
-		
-		int[] startYears = mContext.getResources().getIntArray(R.array.year_of_first_production);
-		int[] stopYears = mContext.getResources().getIntArray(R.array.year_of_most_recent_production);
-		
-		HashMap<String,Integer> info = new HashMap<>();
+        HashMap<String,Integer> info = new HashMap<>();
 
-		info.put("Morgan Dollars", 13);
-		
-		Object[] keys = info.keySet().toArray();
-		
+        info.put("Morgan Dollars", 13);
+
+        Object[] keys = info.keySet().toArray();
+
         for(int i = 0; i < info.size(); i++){
-        	
-        	String coinType = (String) keys[i];
-        	Integer size = info.get(coinType);
-        	
-        	int j = 0;
-        	for( ; j < coinTypes.length; j++){
-        		
-        		String coinName = coinTypes[j];
-        		if(coinName.equals(coinType)){
-        			break;
-        		}
-        	}
 
-            int startYear = startYears[j];
-            int stopYear = stopYears[j];
+            String coinType = (String) keys[i];
+            Integer size = info.get(coinType);
 
-            creator.testSetInternalState(showMintMark,editDateRange,showTerritories,showBurnished,
-                    showP, showD, showS, showO, showCC, startYear, stopYear);
+            int j = 0;
+            for( ; j < MainApplication.COLLECTION_TYPES.length; j++){
 
-            creator.makeTable(coinType);
+                String coinName = MainApplication.COLLECTION_TYPES[j].getCoinType();
+                if(coinName.equals(coinType)){
+                    break;
+                }
+            }
+
+            HashMap<String, Object> parameters = new HashMap<>();
+
+            MainApplication.COLLECTION_TYPES[j].getCreationParameters(parameters);
+
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
+            parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
+            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
+            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+
+            creator.testSetInternalState(j, parameters);
+
+            creator.populateCollectionArrays();
 
             ArrayList<String> identifierList = creator.testGetIdentifierList();
             ArrayList<String> mintList = creator.testGetMintList();
 
             Integer size1 = identifierList.size();
             Integer size2 = mintList.size();
-			
-			if( !size1.equals(size) ||
-		        !size2.equals(size)    ){
-				
-				for(int k = 0; k < size1; k++){
-					Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
-				}
-				
-				Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
-				return false;
-				
-			} else {
+
+            if( !size1.equals(size) ||
+                !size2.equals(size)    ){
+
+                for(int k = 0; k < size1; k++){
+                    Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
+                }
+
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                return false;
+
+            } else {
                 creator.testClearLists();
-			}
-		}
-		
-		return true;
-	}
+            }
+        }
+
+        return true;
+    }
 }
