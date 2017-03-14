@@ -37,7 +37,7 @@
 
  */
 
-package com.spencerpages.core;
+package com.coincollection;
 
 import android.Manifest;
 import android.app.AlertDialog;

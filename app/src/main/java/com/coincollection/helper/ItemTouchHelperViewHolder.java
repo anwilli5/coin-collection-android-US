@@ -17,20 +17,28 @@
 
 // From: https://github.com/iPaulPro/Android-ItemTouchHelper-Demo
 
-package com.spencerpages.core.helper;
+package com.coincollection.helper;
 
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
 /**
- * Listener for manual initiation of a drag.
+ * Interface to notify an item ViewHolder of relevant callbacks from {@link
+ * android.support.v7.widget.helper.ItemTouchHelper.Callback}.
+ *
+ * @author Paul Burke (ipaulpro)
  */
-public interface OnStartDragListener {
+public interface ItemTouchHelperViewHolder {
 
     /**
-     * Called when a view is requesting a start of a drag.
-     *
-     * @param viewHolder The holder of the view to drag.
+     * Called when the {@link ItemTouchHelper} first registers an item as being moved or swiped.
+     * Implementations should update the item view to indicate it's active state.
      */
-    void onStartDrag(RecyclerView.ViewHolder viewHolder);
+    void onItemSelected();
 
+
+    /**
+     * Called when the {@link ItemTouchHelper} has completed the move or swipe, and the active item
+     * state should be cleared.
+     */
+    void onItemClear();
 }

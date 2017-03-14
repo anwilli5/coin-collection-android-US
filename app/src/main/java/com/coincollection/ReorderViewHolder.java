@@ -18,13 +18,13 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages.core;
+package com.coincollection;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.spencerpages.core.helper.ItemTouchHelperViewHolder;
+import com.coincollection.helper.ItemTouchHelperViewHolder;
 
 /**
  * ViewHolder used by the ReorderCollections Activity

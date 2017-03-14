@@ -26,7 +26,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.util.Log;
 
-import com.spencerpages.core.CoinPageCreator;
+import com.coincollection.CoinPageCreator;
 
 /**
  * Basic unit test suite - mainly just a way to sanity check that when adding new coins (for

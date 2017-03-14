@@ -1,4 +1,4 @@
-package com.spencerpages.core;
+package com.coincollection;
 
 import android.content.ContentValues;
 import android.content.Context;

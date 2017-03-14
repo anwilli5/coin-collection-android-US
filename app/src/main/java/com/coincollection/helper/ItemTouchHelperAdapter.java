@@ -17,7 +17,7 @@
 
 // From: https://github.com/iPaulPro/Android-ItemTouchHelper-Demo
 
-package com.spencerpages.core.helper;
+package com.coincollection.helper;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
