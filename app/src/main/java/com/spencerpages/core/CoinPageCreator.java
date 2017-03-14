@@ -18,7 +18,7 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages;
+package com.spencerpages.core;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -56,7 +56,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
-import com.spencerpages.collections.CollectionInfo;
+import com.spencerpages.MainApplication;
+import com.spencerpages.R;
 
 /**
  * Activity responsible for managing the collection creation page

@@ -32,7 +32,7 @@ import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
-import com.spencerpages.collections.CollectionInfo;
+import com.spencerpages.core.CollectionInfo;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
@@ -53,8 +53,6 @@ import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
-
-import java.util.HashMap;
 
 public class MainApplication extends Application {
 
@@ -246,5 +244,26 @@ public class MainApplication extends Application {
             //TODO Change walking liberty half dollar mint marks to remove space
         }
         return;
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+
+        if(BuildConfig.DEBUG) {
+
+            // Run unit test
+            UnitTests test = new UnitTests();
+            boolean result = test.runTests(this);
+
+            if(!result){
+                // return, so that we will see something went wrong
+                Log.e(MainApplication.APP_NAME, "Failed Unit Tests");
+                System.exit(-1);
+                return;
+            } else {
+                Log.e(MainApplication.APP_NAME, "Unit Tests finished successfully");
+            }
+        }
     }
 }

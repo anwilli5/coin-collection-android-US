@@ -18,7 +18,7 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages;
+package com.spencerpages.core;
 
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -29,8 +29,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.spencerpages.helper.ItemTouchHelperAdapter;
-import com.spencerpages.helper.OnStartDragListener;
+import com.spencerpages.R;
+import com.spencerpages.core.helper.ItemTouchHelperAdapter;
+import com.spencerpages.core.helper.OnStartDragListener;
 
 import java.util.ArrayList;
 import java.util.Collections;

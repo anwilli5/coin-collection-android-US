@@ -18,14 +18,12 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages;
+package com.spencerpages.core;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Collection;
-
-import com.spencerpages.collections.CollectionInfo;
+import com.spencerpages.MainApplication;
 
 /**
  * Object used to represent each collection in the various list of collections

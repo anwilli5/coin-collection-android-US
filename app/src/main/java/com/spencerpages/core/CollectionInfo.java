@@ -18,7 +18,7 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages.collections;
+package com.spencerpages.core;
 
 import android.database.sqlite.SQLiteDatabase;
 

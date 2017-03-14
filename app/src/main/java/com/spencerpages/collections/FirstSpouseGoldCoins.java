@@ -22,14 +22,13 @@ package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.spencerpages.CoinPageCreator;
-import com.spencerpages.DatabaseHelper;
+import com.spencerpages.core.CollectionInfo;
+import com.spencerpages.core.DatabaseHelper;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class FirstSpouseGoldCoins extends CollectionInfo {
 

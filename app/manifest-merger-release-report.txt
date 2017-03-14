@@ -65,7 +65,7 @@ category#android.intent.category.LAUNCHER
 ADDED from AndroidManifest.xml:34:17
 	android:name
 		ADDED from AndroidManifest.xml:34:27
-activity#com.spencerpages.CollectionPage
+activity#com.spencerpages.core.CollectionPage
 ADDED from AndroidManifest.xml:37:9
 	android:windowSoftInputMode
 		ADDED from AndroidManifest.xml:40:13
@@ -79,7 +79,7 @@ category#android.intent.category.DEFAULT
 ADDED from AndroidManifest.xml:46:17
 	android:name
 		ADDED from AndroidManifest.xml:46:27
-activity#com.spencerpages.CoinPageCreator
+activity#com.spencerpages.core.CoinPageCreator
 ADDED from AndroidManifest.xml:49:9
 	android:label
 		ADDED from AndroidManifest.xml:51:13

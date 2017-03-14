@@ -17,7 +17,7 @@
 
 // From: https://github.com/iPaulPro/Android-ItemTouchHelper-Demo
 
-package com.spencerpages.helper;
+package com.spencerpages.core.helper;
 
 import android.support.v7.widget.helper.ItemTouchHelper;
 

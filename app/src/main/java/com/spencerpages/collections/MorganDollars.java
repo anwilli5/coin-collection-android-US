@@ -22,13 +22,14 @@ package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.spencerpages.CoinPageCreator;
+import com.spencerpages.core.CoinPageCreator;
 import com.spencerpages.R;
+import com.spencerpages.core.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MorganDollars extends CollectionInfo{
+public class MorganDollars extends CollectionInfo {
 
     private static final String COLLECTION_TYPE = "Morgan Dollars";
 

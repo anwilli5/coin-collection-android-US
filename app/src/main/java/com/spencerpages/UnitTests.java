@@ -26,6 +26,8 @@ import java.util.HashMap;
 import android.content.Context;
 import android.util.Log;
 
+import com.spencerpages.core.CoinPageCreator;
+
 /**
  * Basic unit test suite - mainly just a way to sanity check that when adding new coins (for
  * instance, as the years progress and near coins are minted), we add in all the ones that we need

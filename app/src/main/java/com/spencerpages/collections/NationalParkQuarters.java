@@ -22,9 +22,9 @@ package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.spencerpages.CoinPageCreator;
-import com.spencerpages.DatabaseAdapter;
-import com.spencerpages.DatabaseHelper;
+import com.spencerpages.core.CoinPageCreator;
+import com.spencerpages.core.CollectionInfo;
+import com.spencerpages.core.DatabaseHelper;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 

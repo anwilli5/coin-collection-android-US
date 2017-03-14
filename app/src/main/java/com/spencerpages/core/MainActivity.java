@@ -37,7 +37,7 @@
 
  */
 
-package com.spencerpages;
+package com.spencerpages.core;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -50,7 +50,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -70,7 +69,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.spencerpages.collections.CollectionInfo;
+import com.spencerpages.BuildConfig;
+import com.spencerpages.MainApplication;
+import com.spencerpages.R;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -154,22 +155,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity_layout);
-
-        if(BuildConfig.DEBUG) {
-
-            // Run unit test
-            UnitTests test = new UnitTests();
-            boolean result = test.runTests(this);
-
-            if(!result){
-                // return, so that we will see something went wrong
-                Log.e(MainApplication.APP_NAME, "Failed Unit Tests");
-                finish();
-                return;
-            } else {
-                Log.e(MainApplication.APP_NAME, "Unit Tests finished successfully");
-            }
-        }
 
         mBuilder = new AlertDialog.Builder(this);
         mRes = getResources();

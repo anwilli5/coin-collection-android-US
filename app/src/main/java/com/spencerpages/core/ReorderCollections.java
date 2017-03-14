@@ -18,7 +18,7 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.spencerpages;
+package com.spencerpages.core;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,8 +44,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.spencerpages.helper.OnStartDragListener;
-import com.spencerpages.helper.SimpleItemTouchHelperCallback;
+import com.spencerpages.MainApplication;
+import com.spencerpages.R;
+import com.spencerpages.core.helper.OnStartDragListener;
+import com.spencerpages.core.helper.SimpleItemTouchHelperCallback;
 
 import java.util.ArrayList;
 
