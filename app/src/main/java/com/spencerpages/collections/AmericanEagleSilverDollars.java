@@ -56,7 +56,10 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, Boolean.FALSE);
+
+        // Use one of the customizable checkboxes for the 'Show Burnished' options
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
     }
 
     // TODO Perform validation and throw exception
@@ -66,7 +69,7 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_BURNISHED);
+        Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
 
         for(int i = startYear; i <= stopYear; i++){
 

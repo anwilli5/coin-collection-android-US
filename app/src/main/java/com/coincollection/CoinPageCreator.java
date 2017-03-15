@@ -30,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -48,6 +49,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -129,12 +131,25 @@ public class CoinPageCreator extends AppCompatActivity {
      *  - Associated UI Element: 'Show Mint Marks' checkbox
      *  - Associated Value Type: Boolean
      *  - This option MUST be used in conjunction with at least one of the
-     *    specific show mint mark options. (Ex: OPT_SHOW_P)
+     *    specific show mint mark options. (Ex: OPT_SHOW_MINT_MARK_1)
      *
-     *  OPT_SHOW_P, OPT_SHOW_D, OPT_SHOW_S, OPT_SHOW_O, OPT_SHOW_CC
-     *  - Associated UI Element: respective 'Show Mint' checkbox
+     *  OPT_SHOW_MINT_MARK_# (where # is a number between 1 and 5)
+     *  - Associated UI Element: Checkboxes that can be used for mint markers
      *  - Associated Value Type: Boolean
-     *  - These options MUST be used in conjunction with OPT_SHOW_MINT_MARKS
+     *  - These checkboxes will get hidden and displayed depending on the 'Show Mint Marks'
+     *    checkbox.  The text associated with the checkbox must be specified via the
+     *    associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five of these
+     *    that can be used per collection (if more are needed, minor changes to the core
+     *    code will be necessary)
+     *  - These options MUST be used in conjunction with OPT_SHOW_MINT_MARKS, and MUST
+     *    be accompanied by the respective OPT_SHOW_MINT_MARK_#_STRING_ID
+     *
+     *  OPT_SHOW_MINT_MARK_#_STRING_ID (where # is a number between 1 and 5)
+     *  - Associated UI Element: Special - see above
+     *  - Associated Value Type: Integer
+     *  - This option is special - it is used in conjunction with the option above
+     *    to indicate the resource ID associated with a String to display next
+     *    to the checkbox (Ex: R.string.show_p in the U.S. Coin Collection app)
      *
      *  OPT_EDIT_DATE_RANGE
      *  - Associated UI Element: 'Edit Date Range' checkbox
@@ -152,40 +167,81 @@ public class CoinPageCreator extends AppCompatActivity {
      *  - Associated Value Type: Integer
      *  - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
      *
-     *  OPT_SHOW_TERRITORIES
-     *  - Associated UI Element: 'Show DC / Territories' checkbox
+     *  OPT_CHECKBOX_# (where # is a number between 1 and 5)
+     *  - Associated UI Element: a standalone checkbox
      *  - Associated Value Type: Boolean
-     *  - Likely only useful for the 'State Quarters' collection type
+     *  - The text associated with the checkbox must be specified via the
+     *    associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five
+     *    of these that can be used per collection (if more are needed, minor
+     *    changes to the core code will be necessary.)
+     *  - These options MUST be accompanied by the respective
+     *    OPT_CHECKBOX_#_STRING_ID
      *
-     *  OPT_SHOW_BURNISHED
-     *  - Associated UI Element: 'Show Burnished Coins' checkbox
-     *  - Associated Value Type: Boolean
-     *  - Likely only useful for the 'American Eagle Silver Dollar' collection
-     *    type.
+     *  OPT_CHECKBOX_#_STRING_ID
+     *  - Associated UI Element: Special - see above
+     *  - Associated Value Type: Integer
+     *  - This option is special - it is used in conjunction with the option above
+     *    to indicate the resource ID associated with a String to display next
+     *    to the checkbox (Ex: R.string.show_territories in the U.S. Coin
+     *    Collection app)
      */
     public final static String OPT_SHOW_MINT_MARKS = "ShowMintMarks";
-    public final static String OPT_SHOW_P = "ShowP";
-    public final static String OPT_SHOW_D = "ShowD";
-    public final static String OPT_SHOW_S = "ShowS";
-    public final static String OPT_SHOW_O = "ShowO";
-    public final static String OPT_SHOW_CC = "ShowCC";
+    public final static String OPT_SHOW_MINT_MARK_1 = "ShowMintMark1";
+    public final static String OPT_SHOW_MINT_MARK_2 = "ShowMintMark2";
+    public final static String OPT_SHOW_MINT_MARK_3 = "ShowMintMark3";
+    public final static String OPT_SHOW_MINT_MARK_4 = "ShowMintMark4";
+    public final static String OPT_SHOW_MINT_MARK_5 = "ShowMintMark5";
     public final static String OPT_EDIT_DATE_RANGE = "EditDateRange";
     public final static String OPT_START_YEAR = "StartYear";
     public final static String OPT_STOP_YEAR = "StopYear";
-    public final static String OPT_SHOW_TERRITORIES = "ShowTerritories";
-    public final static String OPT_SHOW_BURNISHED = "ShowBurnished";
-    /* TODO Replace OPT_SHOW_TERRITORIES and OPT_SHOW_BURNISHED with generic
-     * checkbox options and extend the CollectionInfo API to let each
-     * collection populate the associated checkbox text, etc.
-     * TODO Replace OPT_SHOW_* with generics too
-     */
+    public final static String OPT_CHECKBOX_1 = "ShowCheckbox1";
+    public final static String OPT_CHECKBOX_2 = "ShowCheckbox2";
+    public final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
+    public final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
+    public final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
+
+    // TODO Is there a better way to pass this info?  Maybe we can
+    // store default values in ecah app's MainApplication and use
+    // those if not specified?
+    public final static String OPT_SHOW_MINT_MARK_1_STRING_ID = "ShowMintMark1StringId";
+    public final static String OPT_SHOW_MINT_MARK_2_STRING_ID = "ShowMintMark2StringId";
+    public final static String OPT_SHOW_MINT_MARK_3_STRING_ID = "ShowMintMark3StringId";
+    public final static String OPT_SHOW_MINT_MARK_4_STRING_ID = "ShowMintMark4StringId";
+    public final static String OPT_SHOW_MINT_MARK_5_STRING_ID = "ShowMintMark5StringId";
+
+    public final static String OPT_CHECKBOX_1_STRING_ID = "ShowCheckbox1StringId";
+    public final static String OPT_CHECKBOX_2_STRING_ID = "ShowCheckbox2StringId";
+    public final static String OPT_CHECKBOX_3_STRING_ID = "ShowCheckbox3StringId";
+    public final static String OPT_CHECKBOX_4_STRING_ID = "ShowCheckbox4StringId";
+    public final static String OPT_CHECKBOX_5_STRING_ID = "ShowCheckbox5StringId";
 
     /** This flag should be used by collections whose year of most recent
-     *  production should track the current year. */
-    //
-    // TODO Make this easier to maintain, but make sure it doesn't break database
-    //      upgrade functionality
+     *  production should track the current year.
+     *
+     * TODO Make this easier to maintain, but make sure it doesn't break database
+     *      upgrade functionality */
     public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2017;
+
+
+    private final static HashMap<String,String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
+
+    static {
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_1, OPT_SHOW_MINT_MARK_1_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_2, OPT_SHOW_MINT_MARK_2_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_3, OPT_SHOW_MINT_MARK_3_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_4, OPT_SHOW_MINT_MARK_4_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_5, OPT_SHOW_MINT_MARK_5_STRING_ID);
+    };
+
+    private final static HashMap<String,String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap();
+
+    static {
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_1, OPT_CHECKBOX_1_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_2, OPT_CHECKBOX_2_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_3, OPT_CHECKBOX_3_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_4, OPT_CHECKBOX_4_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_5, OPT_CHECKBOX_5_STRING_ID);
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -196,6 +252,10 @@ public class CoinPageCreator extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         setContentView(R.layout.collection_creation_page);
+
+        // NOTE: the UI is not fully inflated at this point (specifically, some
+        // of the checkboxes which are added programmatically have not been
+        // instantiated yet.)
 
         // Initialize our instance variables
         if(savedInstanceState != null)
@@ -210,9 +270,6 @@ public class CoinPageCreator extends AppCompatActivity {
             // Initialize mCoinTypeIndex and related internal state to index 0
             setInternalStateFromCollectionIndex(0, null);
         }
-
-        // Initialize/Update the UI from the internal state
-        updateViewFromState();
 
         // If we have an InitTask already running, inherit it
         InitTask check = (InitTask) getLastCustomNonConfigurationInstance();
@@ -234,6 +291,10 @@ public class CoinPageCreator extends AppCompatActivity {
             mProgressDialog.show();
 
         }
+
+        // Next, we will finish setting up the various UI elements (creating
+        // adapters, listeners, etc..  We won't set any of the values yet -
+        // we will do that at the end.
 
         // Prepare the Spinner that gets what type of collection they want to make
         ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
@@ -335,8 +396,7 @@ public class CoinPageCreator extends AppCompatActivity {
 
                 // Restore defaults for all of the mint mark checkboxes when this is unchecked
                 if(!isChecked) {
-                    String[] keys = {OPT_SHOW_P, OPT_SHOW_D, OPT_SHOW_S, OPT_SHOW_CC, OPT_SHOW_O};
-                    for (String key : keys) {
+                    for (String key : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
                         if (mParameters.containsKey(key)) {
                             mParameters.put(key, mDefaults.get(key));
                         }
@@ -374,70 +434,44 @@ public class CoinPageCreator extends AppCompatActivity {
             }
         });
 
-        // TODO Replace these with one onCheckedChangeListener
-
-        // Set the listener for the show territories checkbox
-        final CheckBox showTerritoriesCheckBox = (CheckBox) findViewById(R.id.check_show_territories);
-        showTerritoriesCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_TERRITORIES, isChecked);
+        // Instantiate an onCheckedChangeListener for use by all the simple checkboxes
+        OnCheckedChangeListener checkboxChangeListener = new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                // The tag store the OPT_NAME associated with the button
+                String optName = (String) compoundButton.getTag();
+                mParameters.put(optName, isChecked);
             }
-        });
+        };
 
-        // Set the listener for the show burnished silver eagle checkbox
-        final CheckBox showBurnishedCheckBox = (CheckBox) findViewById(R.id.check_show_burnished_eagles);
-        showBurnishedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        // Instantiate a LayoutParams for the simple checkboxes
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_BURNISHED, isChecked);
-            }
-        });
+        LinearLayout showMintMarksContainer = (LinearLayout) findViewById(R.id.show_mint_mark_checkbox_container);
 
-        // Set the listener for the include P checkbox
-        final CheckBox includePCheckBox = (CheckBox) findViewById(R.id.check_include_p);
-        includePCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        // Create the ShowMintMark Checkboxes (even if they aren't needed right now)
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
+            // Instantiate a checkbox in the UI for this option
+            CheckBox box = new AppCompatCheckBox(this);
+            box.setLayoutParams(layoutParams);
+            box.setTag(optName);
+            box.setOnCheckedChangeListener(checkboxChangeListener);
 
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_P, isChecked);
-            }
-        });
+            showMintMarksContainer.addView(box);
+        }
 
-        // Set the listener for the include D checkbox
-        final CheckBox includeDCheckBox = (CheckBox) findViewById(R.id.check_include_d);
-        includeDCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        // Add any stand-alone, customizable checkboxes
+        LinearLayout customizableCheckboxContainer = (LinearLayout) findViewById(R.id.customizable_checkbox_container);
 
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_D, isChecked);
-            }
-        });
+        for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            // Instantiate a checkbox in the UI for this option
+            CheckBox box = new AppCompatCheckBox(this);
+            box.setLayoutParams(layoutParams);
+            box.setTag(optName);
+            box.setOnCheckedChangeListener(checkboxChangeListener);
 
-        // Set the listener for the include S checkbox
-        final CheckBox includeSCheckBox = (CheckBox) findViewById(R.id.check_include_s);
-        includeSCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_S, isChecked);
-            }
-        });
-
-        // Set the listener for the include O checkbox
-        final CheckBox includeOCheckBox = (CheckBox) findViewById(R.id.check_include_o);
-        includeOCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_O, isChecked);
-            }
-        });
-
-        // Set the listener for the include CC checkbox
-        final CheckBox includeCCCheckBox = (CheckBox) findViewById(R.id.check_include_cc);
-        includeCCCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-                mParameters.put(OPT_SHOW_CC, isChecked);
-            }
-        });
+            customizableCheckboxContainer.addView(box);
+        }
 
         // Make a filter to block out non-numeric characters
         InputFilter digitFilter = new InputFilter() {
@@ -528,11 +562,15 @@ public class CoinPageCreator extends AppCompatActivity {
                 if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
                         mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
 
-                    if((!mParameters.containsKey(OPT_SHOW_P) || mParameters.get(OPT_SHOW_P) == Boolean.FALSE) &&
-                            (!mParameters.containsKey(OPT_SHOW_D) || mParameters.get(OPT_SHOW_D) == Boolean.FALSE) &&
-                            (!mParameters.containsKey(OPT_SHOW_S) || mParameters.get(OPT_SHOW_S) == Boolean.FALSE) &&
-                            (!mParameters.containsKey(OPT_SHOW_O) || mParameters.get(OPT_SHOW_O) == Boolean.FALSE) &&
-                            (!mParameters.containsKey(OPT_SHOW_CC) || mParameters.get(OPT_SHOW_CC) == Boolean.FALSE)){
+                    boolean atLeastOneMintMarkSelected = false;
+                    for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
+                        if (mParameters.containsKey(optName) && mParameters.get(optName) == Boolean.TRUE) {
+                            atLeastOneMintMarkSelected = true;
+                            break;
+                        }
+                    }
+
+                    if(!atLeastOneMintMarkSelected){
 
                         Toast.makeText(CoinPageCreator.this, "Please select at least one mint to collect coins from", Toast.LENGTH_SHORT).show();
                         return;
@@ -615,6 +653,10 @@ public class CoinPageCreator extends AppCompatActivity {
             alert.show();
         }
 
+        // Finally, update the UI element values and display state
+        // (VISIBLE vs. GONE) of the UI from the internal state.
+        updateViewFromState();
+
         Log.d(MainApplication.APP_NAME, "Finished in onCreate");
 
     }
@@ -645,6 +687,8 @@ public class CoinPageCreator extends AppCompatActivity {
             // Allow the parameters to be passed in for things like testing and on screen rotation
             mParameters = parameters;
         }
+
+        // TODO Validate mParameters
     }
 
     @Override
@@ -657,16 +701,16 @@ public class CoinPageCreator extends AppCompatActivity {
     }
 
     /**
-     *  Updates the UI from the internal state.
+     *  Updates the UI from the internal state.  This allows us to easily
+     *  reset the state of the UI when a big change has occurred (Ex: the
+     *  individual showMintMark checkboxes should be shown because the
+     *  showMintMarks checkbox was set to True)
      */
     private void updateViewFromState(){
 
+        Spinner coinTypeSelector = (Spinner) findViewById(R.id.coin_selector);
         CheckBox showMintMarkCheckBox = (CheckBox) findViewById(R.id.check_show_mint_mark);
-        CheckBox showPCheckBox = (CheckBox) findViewById(R.id.check_include_p);
-        CheckBox showDCheckBox = (CheckBox) findViewById(R.id.check_include_d);
-        CheckBox showSCheckBox = (CheckBox) findViewById(R.id.check_include_s);
-        CheckBox showOCheckBox = (CheckBox) findViewById(R.id.check_include_o);
-        CheckBox showCCCheckBox = (CheckBox) findViewById(R.id.check_include_cc);
+        LinearLayout showMintMarkCheckboxContainer = (LinearLayout) findViewById(R.id.show_mint_mark_checkbox_container);
 
         CheckBox editDateRangeCheckBox = (CheckBox) findViewById(R.id.check_edit_date_range);
         LinearLayout editStartYearLayout = (LinearLayout) findViewById(R.id.start_year_layout);
@@ -674,54 +718,42 @@ public class CoinPageCreator extends AppCompatActivity {
         EditText editStartYear = (EditText) findViewById(R.id.edit_start_year);
         EditText editStopYear = (EditText) findViewById(R.id.edit_stop_year);
 
-        CheckBox showTerritoriesCheckBox = (CheckBox) findViewById(R.id.check_show_territories);
-        CheckBox showBurnishedCheckBox = (CheckBox) findViewById(R.id.check_show_burnished_eagles);
+        LinearLayout customizableCheckboxContainer = (LinearLayout) findViewById(R.id.customizable_checkbox_container);
 
-        if(mParameters.containsKey(OPT_SHOW_MINT_MARKS)){
+        // Start with the Collection Type list index
+        coinTypeSelector.setSelection(mCoinTypeIndex, false);
 
-            Boolean showMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
+        // Handle the showMintMarks checkbox
+        Boolean showMintMarks = false;
+        if(mParameters.containsKey(OPT_SHOW_MINT_MARKS)) {
+
+            showMintMarks = (Boolean)mParameters.get(OPT_SHOW_MINT_MARKS);
 
             showMintMarkCheckBox.setChecked(showMintMarks);
             showMintMarkCheckBox.setVisibility(View.VISIBLE);
 
-            if(showMintMarks){
-                // Set mint marks based on their state
-                Object[][] mintMarkObjs = {
-                        {OPT_SHOW_P, showPCheckBox},
-                        {OPT_SHOW_D, showDCheckBox},
-                        {OPT_SHOW_S, showSCheckBox},
-                        {OPT_SHOW_CC, showCCCheckBox},
-                        {OPT_SHOW_O, showOCheckBox}};
-
-                for(Object[] mintMarkObj : mintMarkObjs){
-                    String paramKey = (String) mintMarkObj[0];
-                    CheckBox uiElement = (CheckBox) mintMarkObj[1];
-
-                    if(mParameters.containsKey(paramKey)){
-                        uiElement.setChecked((Boolean)mParameters.get(paramKey));
-                        uiElement.setVisibility(View.VISIBLE);
-                    } else {
-                        uiElement.setVisibility(View.GONE);
-                    }
-                }
-
-            } else {
-                showPCheckBox.setVisibility(View.GONE);
-                showDCheckBox.setVisibility(View.GONE);
-                showSCheckBox.setVisibility(View.GONE);
-                showOCheckBox.setVisibility(View.GONE);
-                showCCCheckBox.setVisibility(View.GONE);
-            }
-
         } else {
             showMintMarkCheckBox.setVisibility(View.GONE);
-            showPCheckBox.setVisibility(View.GONE);
-            showDCheckBox.setVisibility(View.GONE);
-            showSCheckBox.setVisibility(View.GONE);
-            showOCheckBox.setVisibility(View.GONE);
-            showCCCheckBox.setVisibility(View.GONE);
         }
 
+        // Now handle the individual showMintMark checkboxes
+        for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            CheckBox uiElement = (CheckBox) showMintMarkCheckboxContainer.findViewWithTag(optName);
+
+            if(mParameters.containsKey(optName) && showMintMarks){
+
+                String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+                uiElement.setText((Integer)mParameters.get(stringIdOptName));
+
+                uiElement.setChecked((Boolean)mParameters.get(optName));
+                uiElement.setVisibility(View.VISIBLE);
+            } else {
+                uiElement.setVisibility(View.GONE);
+            }
+        }
+
+        // Update the UI of the editDateRange checkbox and the associated
+        // start/stop year EditTexts
         if(mParameters.containsKey(OPT_EDIT_DATE_RANGE)){
             Boolean editDateRange = (Boolean) mParameters.get(OPT_EDIT_DATE_RANGE);
             Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
@@ -747,20 +779,19 @@ public class CoinPageCreator extends AppCompatActivity {
             editStopYearLayout.setVisibility(View.GONE);
         }
 
-        if(mParameters.containsKey(OPT_SHOW_TERRITORIES)){
-            Boolean showTerritories = (Boolean) mParameters.get(OPT_SHOW_TERRITORIES);
-            showTerritoriesCheckBox.setChecked(showTerritories);
-            showTerritoriesCheckBox.setVisibility(View.VISIBLE);
-        } else {
-            showTerritoriesCheckBox.setVisibility(View.GONE);
-        }
+        // Handle the customizable checkboxes
+        for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            CheckBox uiElement = (CheckBox) customizableCheckboxContainer.findViewWithTag(optName);
 
-        if(mParameters.containsKey(OPT_SHOW_BURNISHED)){
-            Boolean showBurnished = (Boolean) mParameters.get(OPT_SHOW_BURNISHED);
-            showBurnishedCheckBox.setChecked(showBurnished);
-            showBurnishedCheckBox.setVisibility(View.VISIBLE);
-        } else {
-            showBurnishedCheckBox.setVisibility(View.GONE);
+            if(mParameters.containsKey(optName)){
+                String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+                uiElement.setText((Integer)mParameters.get(stringIdOptName));
+
+                uiElement.setChecked((Boolean)mParameters.get(optName));
+                uiElement.setVisibility(View.VISIBLE);
+            } else {
+                uiElement.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -1012,6 +1043,5 @@ public class CoinPageCreator extends AppCompatActivity {
      */
     public void testSetContext(Context context){
         mContext = context;
-
     }
 }

@@ -49,48 +49,26 @@
                 android:layout_height="wrap_content"
                 android:text="@string/edit_date_range" />
 
-            <CheckBox
-                android:id="@+id/check_show_territories"
+            <!-- Populated programmatically with any coin-specific options -->
+            <LinearLayout
+                android:id="@+id/customizable_checkbox_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/show_territories" />
+                android:orientation="vertical">
+            </LinearLayout>
+
+            <!-- The things below here can either appear or disappear based on
+                 the above options... Putting them at the end seems to be the
+                 most user-friendly. -->
+
+            <!-- Populated programmatically with any coin-specific mint mark options -->
+            <LinearLayout
+                android:id="@+id/show_mint_mark_checkbox_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            </LinearLayout>
             
-            <CheckBox
-                android:id="@+id/check_show_burnished_eagles"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/check_show_burnished_eagles" />
-
-            <CheckBox
-                android:id="@+id/check_include_p"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/include_p" />
-
-            <CheckBox
-                android:id="@+id/check_include_d"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/include_d" />
-
-            <CheckBox
-                android:id="@+id/check_include_s"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/include_s" />
-
-            <CheckBox
-                android:id="@+id/check_include_o"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/include_o" />
-
-            <CheckBox
-                android:id="@+id/check_include_cc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/include_cc" />
-
             <LinearLayout
                 android:id="@+id/start_year_layout"
                 android:layout_width="wrap_content"
@@ -126,6 +104,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="number" />
             </LinearLayout>
+
 
             <Button
                 android:id="@+id/create_page"

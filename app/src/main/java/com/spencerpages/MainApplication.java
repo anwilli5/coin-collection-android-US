@@ -105,7 +105,8 @@ public class MainApplication extends Application {
 
     public static final String DATABASE_NAME = "CoinCollection";
 
-    /** DATABASE_VERSION Tracks the current database version, and is essential for periodic
+    /**
+     *  DATABASE_VERSION Tracks the current database version, and is essential for periodic
      *                   database updating.  It should be raised anytime we need to insert new
      *                   coins into a user's collections (Ex: yearly coin addition, bug fixes).
      *
