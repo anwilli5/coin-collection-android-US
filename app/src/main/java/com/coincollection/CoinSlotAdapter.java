@@ -44,6 +44,7 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * BaseAdapter for the collection pages
@@ -89,7 +90,7 @@ class CoinSlotAdapter extends BaseAdapter {
     private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
 
     // Keep track of whether we are showing the advanced view so we can do extra setup
-    private int displayType = MainApplication.SIMPLE_DISPLAY;
+    private int displayType = CollectionPage.SIMPLE_DISPLAY;
     // This variable will only be set for the advanced view, where we have separate
     // views for the locked and unlocked views
     private boolean displayIsLocked = false;
@@ -134,7 +135,7 @@ class CoinSlotAdapter extends BaseAdapter {
         advancedNotes = notes;
         indexHasChanged = hasChanged;
 
-        displayType = MainApplication.ADVANCED_DISPLAY;
+        displayType = CollectionPage.ADVANCED_DISPLAY;
 
         if(BuildConfig.DEBUG) {
             // Everything should be the same size
@@ -177,7 +178,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
             LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if(displayType == MainApplication.ADVANCED_DISPLAY){
+            if(displayType == CollectionPage.ADVANCED_DISPLAY){
 
                 if(!displayIsLocked){
                   // If the collection isn't locked, we show spinners and an EditText
@@ -187,7 +188,7 @@ class CoinSlotAdapter extends BaseAdapter {
                   coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
                 }
 
-            } else if(displayType == MainApplication.SIMPLE_DISPLAY){
+            } else if(displayType == CollectionPage.SIMPLE_DISPLAY){
                 coinView = vi.inflate(R.layout.coin_slot, parent, false);
             }
         }
@@ -213,7 +214,7 @@ class CoinSlotAdapter extends BaseAdapter {
         coinImage.setImageResource(imageIdentifier);
 
         // Setup the rest of the view if it is the advanced view
-        if(displayType == MainApplication.ADVANCED_DISPLAY){
+        if(displayType == CollectionPage.ADVANCED_DISPLAY){
             setupAdvancedView(coinView, position);
         }
 

@@ -266,7 +266,7 @@ public class DatabaseAdapter {
         }
 
         // We also need to add the table to the list of tables
-        addEntryToCollectionInfoTable(name, coinType, coinIdentifiers.size(), MainApplication.SIMPLE_DISPLAY, displayOrder);
+        addEntryToCollectionInfoTable(name, coinType, coinIdentifiers.size(), CollectionPage.SIMPLE_DISPLAY, displayOrder);
 
         return 1;
     }

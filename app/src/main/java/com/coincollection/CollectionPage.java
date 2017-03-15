@@ -75,7 +75,11 @@ public class CollectionPage extends AppCompatActivity {
     public final static String VIEW_INDEX             = "view_index";
     public final static String VIEW_POSITION          = "view_position";
 
-    private int mDisplayType = MainApplication.SIMPLE_DISPLAY;
+    // Global "enum" values
+    public static final int SIMPLE_DISPLAY = 0;
+    public static final int ADVANCED_DISPLAY = 1;
+
+    private int mDisplayType = SIMPLE_DISPLAY;
 
     /* Used in conjunction with the ListView in the advance view case to scroll the view to the last
      * location.  Defaults to the first item, and will be set by:
@@ -169,13 +173,13 @@ public class CollectionPage extends AppCompatActivity {
         GridView gridview = null;
         ListView listview = null;
 
-        if(mDisplayType == MainApplication.SIMPLE_DISPLAY) {
+        if(mDisplayType == SIMPLE_DISPLAY) {
 
             setContentView(R.layout.standard_collection_page);
 
             gridview = (GridView) findViewById(R.id.standard_collection_page);
 
-        } else if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        } else if(mDisplayType == ADVANCED_DISPLAY){
 
             setContentView(R.layout.advanced_collection_page);
             
@@ -206,7 +210,7 @@ public class CollectionPage extends AppCompatActivity {
         // to the mInCollectionList since in the advanced view the coin additions/deletions are tied
         // to the save button and haven't been propagated back yet.  It'd be better to architect this
         // a bit better, but this is being hacked on so for now just go with it.  :)  TODO
-        if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        if(mDisplayType == ADVANCED_DISPLAY){
 
             if(mSavedInstanceState != null){
 
@@ -220,94 +224,12 @@ public class CollectionPage extends AppCompatActivity {
                 }
             }
         }
-/*
-        switch (mCoinType) {
-            case "State Quarters": {
-                // Need to get the array of the correct images
-                String[] stateQuarterIdentifierList = getResources().getStringArray(R.array.State_Quarters_Regular_Images);
 
-                if (mIdentifierList.size() == 56 || mIdentifierList.size() == 112) {
-                    // Then we need to add in the D.C. and Territory images
-                    ArrayList<String> tempArrayList = new ArrayList<>();
-                    Collections.addAll(tempArrayList, stateQuarterIdentifierList);
-
-                    String[] tempStringArray = getResources().getStringArray(R.array.DC_and_US_Territories_Regular_Images);
-                    Collections.addAll(tempArrayList, tempStringArray);
-
-                    // TODO mIdentifierList should equal tempArrayList at this point
-
-                    // http://www.coderanch.com/t/405818/java/java/casting-object-array-string-array
-                    mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, tempArrayList.toArray(new String[tempArrayList.size()]));
-                } else {
-                    mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, stateQuarterIdentifierList);
-                }
-                break;
-            }
-            case "National Park Quarters": {
-                // Need to get the array of the correct images
-                String[] stateQuarterIdentifierList = getResources().getStringArray(R.array.State_Parks_Regular_Images);
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, stateQuarterIdentifierList);
-
-                break;
-            }
-            case "Presidential Dollars": {
-                // Need to get the array of the correct images
-                String[] presidentialDollarIdentifierList = getResources().getStringArray(R.array.Presidential_Coins_Regular_Images);
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, presidentialDollarIdentifierList);
-
-                break;
-            }
-            case "Pennies": {
-                // Need to get the array of additional images
-                String[] bicentennialPennyIdentifierList = getResources().getStringArray(R.array.Bicentennial_Pennies_Regular_Images);
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, bicentennialPennyIdentifierList);
-
-                break;
-            }
-            case "Nickels": {
-                // Need to get the arrays of additional images
-                String[] westwardNickelIdentifierList1 = getResources().getStringArray(R.array.Westward_Journey_2004_Nickels_Regular_Images);
-                ArrayList<String> tempArrayList = new ArrayList<>();
-                Collections.addAll(tempArrayList, westwardNickelIdentifierList1);
-
-                String[] tempStringArray = getResources().getStringArray(R.array.Westward_Journey_2005_Nickels_Regular_Images);
-                Collections.addAll(tempArrayList, tempStringArray);
-
-                // Note: unlike for other coin types, it isn't expected
-                // that tempArrayList.size() == mIdentifierList.size()
-
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, tempArrayList.toArray
-                        (new String[tempArrayList.size()]));
-
-                break;
-            }
-            case "First Spouse Gold Coins": {
-                // Need to get the array of the correct images
-                String[] firstSpouseDollarIdentifierList = getResources().getStringArray(R.array.First_Spouse_images);
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, firstSpouseDollarIdentifierList);
-
-                break;
-            }
-            case "Sacagawea/Native American Dollars":
-            case "Sacagawea Dollars": {
-
-                // Need to get the array of the correct images
-                String[] nativeAmericanSpecialCoinIdentifierList = getResources().getStringArray(R.array.Native_American_Special_Coin_Images);
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList, nativeAmericanSpecialCoinIdentifierList);
-
-                break;
-            }
-            default:
-                // No special images required
-                mCoinSlotAdapter = new CoinSlotAdapter(this, mCoinType, mCollectionName, mIdentifierList, mMintList, mImageIdentifier, mInCollectionList);
-                break;
-        }
-        */
         mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, mCollectionTypeObj, mIdentifierList, mMintList, mInCollectionList);
 
 
         // If we are the advanced view we need to set up the coin slot adapters advanced tables
-        if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        if(mDisplayType == ADVANCED_DISPLAY){
 
             if(mSavedInstanceState == null){
                 // This is the first time the page has loaded, so we haven't
@@ -412,7 +334,7 @@ public class CollectionPage extends AppCompatActivity {
             }
         };
 
-        if(mDisplayType == MainApplication.SIMPLE_DISPLAY){
+        if(mDisplayType == SIMPLE_DISPLAY){
 
             // Apply the adapter to handle each entry in the grid
             gridview.setAdapter(mCoinSlotAdapter);
@@ -424,7 +346,7 @@ public class CollectionPage extends AppCompatActivity {
             // Set the scroll listener so that the view re-adjusts to the new view
             gridview.setOnScrollListener(scrollListener);
 
-        } else if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        } else if(mDisplayType == ADVANCED_DISPLAY){
             // Apply the adapter to handle each entry in the list
             listview.setAdapter(mCoinSlotAdapter);
 
@@ -441,7 +363,7 @@ public class CollectionPage extends AppCompatActivity {
         // Note, for the advanced view we have to put the click listener on the
         // coin image, so we can't do it here. boo
 
-        if(mDisplayType == MainApplication.SIMPLE_DISPLAY){
+        if(mDisplayType == SIMPLE_DISPLAY){
 
             gridview.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -510,7 +432,7 @@ public class CollectionPage extends AppCompatActivity {
         } else {
             // Currently unlocked, set text to lock it
             // Default is unlocked
-            if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+            if(mDisplayType == ADVANCED_DISPLAY){
                 item.setTitle(R.string.lock_collection_adv);
             } else {
                 item.setTitle(R.string.lock_collection);
@@ -520,7 +442,7 @@ public class CollectionPage extends AppCompatActivity {
         // If we are in the advanced mode, we need to show the save and switch view
         MenuItem changeViewItem = menu.findItem(R.id.change_view);
 
-        if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        if(mDisplayType == ADVANCED_DISPLAY){
             changeViewItem.setTitle(R.string.simple_view_string);
             //saveItem.setVisible(true);
         } else {
@@ -546,7 +468,7 @@ public class CollectionPage extends AppCompatActivity {
 
             // If we are going from unlocked to lock in advance mode, we need to save the
             // changes the user may have made (if any)
-            if(mDisplayType == MainApplication.ADVANCED_DISPLAY &&
+            if(mDisplayType == ADVANCED_DISPLAY &&
                     !isLocked &&
                     this.doUnsavedChangesExist()){
 
@@ -614,7 +536,7 @@ public class CollectionPage extends AppCompatActivity {
                 // Locked, change to unlocked
                 editor.putBoolean(mCollectionName + "_isLocked", false);
                 // Change the text for next time
-                if(mDisplayType == MainApplication.SIMPLE_DISPLAY){
+                if(mDisplayType == SIMPLE_DISPLAY){
                     item.setTitle(R.string.lock_collection);
                 }
                 // Don't update in the advance case, because we are going to blow
@@ -623,7 +545,7 @@ public class CollectionPage extends AppCompatActivity {
                 // Unlocked or preference doesn't exist, change preference to locked
                 editor.putBoolean(mCollectionName + "_isLocked", true);
                 // Change the text for next time
-                if(mDisplayType == MainApplication.SIMPLE_DISPLAY){
+                if(mDisplayType == SIMPLE_DISPLAY){
                     item.setTitle(R.string.unlock_collection);
                 }
             }
@@ -633,7 +555,7 @@ public class CollectionPage extends AppCompatActivity {
             // fails below
             editor.commit(); // .apply() in later APIs
 
-            if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+            if(mDisplayType == ADVANCED_DISPLAY){
                 // We need to restart the view so we can show the locked
                 // view.  Also, at this point there are no unsaved changes
 
@@ -656,13 +578,13 @@ public class CollectionPage extends AppCompatActivity {
 
         case R.id.change_view:
 
-            if(mDisplayType == MainApplication.SIMPLE_DISPLAY){
+            if(mDisplayType == SIMPLE_DISPLAY){
                 // Setup the advanced view
 
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                dbAdapter.updateTableDisplay(mCollectionName, MainApplication.ADVANCED_DISPLAY) ;
+                dbAdapter.updateTableDisplay(mCollectionName, ADVANCED_DISPLAY) ;
 
                 dbAdapter.close();
 
@@ -683,7 +605,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 return true;
 
-            } else if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+            } else if(mDisplayType == ADVANCED_DISPLAY){
                 // Setup the basic view
 
                 // We need to see if there are any unsaved changes, and if so,
@@ -702,7 +624,7 @@ public class CollectionPage extends AppCompatActivity {
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                dbAdapter.updateTableDisplay(mCollectionName, MainApplication.SIMPLE_DISPLAY) ;
+                dbAdapter.updateTableDisplay(mCollectionName, SIMPLE_DISPLAY) ;
 
                 dbAdapter.close();
 
@@ -748,7 +670,7 @@ public class CollectionPage extends AppCompatActivity {
     
     private boolean doUnsavedChangesExist(){
 
-        if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        if(mDisplayType == ADVANCED_DISPLAY){
             // There are probably better ways to do this check, but this one is easy
             TextView unsavedChangesView = (TextView) this.findViewById(R.id.unsaved_message_textview);
             return (unsavedChangesView.getVisibility() == View.VISIBLE);
@@ -828,7 +750,7 @@ public class CollectionPage extends AppCompatActivity {
         int index;
         int top;
         
-        if(mDisplayType == MainApplication.ADVANCED_DISPLAY){
+        if(mDisplayType == ADVANCED_DISPLAY){
 
             // Save off these lists that may have unsaved user data
             outState.putIntegerArrayList("coin_grades", mCoinSlotAdapter.advancedGrades);

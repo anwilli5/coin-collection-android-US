@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
             </LinearLayout>
-            
+
             <LinearLayout
                 android:id="@+id/start_year_layout"
                 android:layout_width="wrap_content"
@@ -104,7 +104,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="number" />
             </LinearLayout>
-
 
             <Button
                 android:id="@+id/create_page"

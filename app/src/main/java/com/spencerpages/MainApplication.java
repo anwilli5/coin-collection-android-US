@@ -27,6 +27,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.coincollection.CollectionPage;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
@@ -63,10 +64,6 @@ public class MainApplication extends Application {
     // SharedPreferences are used to store information like whether the help
     // dialogs have been seen before.
     public static final String PREFS = "mainPreferences";
-
-    // Global "enum" values
-    public static final int SIMPLE_DISPLAY = 0;
-    public static final int ADVANCED_DISPLAY = 1;
 
     // Common attribution string
     // https://www.usmint.gov/consumer/indexf8be.html?action=circCoinPolicy
@@ -141,7 +138,7 @@ public class MainApplication extends Application {
         if (oldVersion <= 5) {
 
             // We need to add in columns to support the new advanced view
-            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(SIMPLE_DISPLAY));
+            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(CollectionPage.SIMPLE_DISPLAY));
 
             // Get all of the created tables
             Cursor resultCursor = db.query("collection_info", new String[]{"name"}, null, null, null, null, "_id");

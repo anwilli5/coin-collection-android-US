@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.spencerpages.MainApplication;
 
@@ -31,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " name text not null,"
                 + " coinType text not null,"
                 + " total integer,"
-                + " display integer default " + Integer.toString(MainApplication.SIMPLE_DISPLAY) + ","
+                + " display integer default " + Integer.toString(CollectionPage.SIMPLE_DISPLAY) + ","
                 + " displayOrder integer"
                 + ");";
 
