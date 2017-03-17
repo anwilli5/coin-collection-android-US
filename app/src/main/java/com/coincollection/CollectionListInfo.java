@@ -34,6 +34,7 @@ public class CollectionListInfo implements Parcelable{
     private int mTotalCoinsInCollection;
     private int mTotalCoinsCollected;
     private int mCollectionTypeIndex;
+    private int mDisplayType;
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case
      * where a screen orientation change occurs.
@@ -50,6 +51,14 @@ public class CollectionListInfo implements Parcelable{
     public CollectionListInfo() {
     }
 
+    public CollectionListInfo(String name, int max, int collected, int index, int displayType) {
+        mCollectionName = name;
+        mTotalCoinsInCollection = max;
+        mTotalCoinsCollected = collected;
+        mCollectionTypeIndex = index;
+        mDisplayType = displayType;
+    }
+
     /** Constructor required for Parcelability */
     private CollectionListInfo(Parcel in){
         String[] strings = new String[1];
@@ -62,6 +71,7 @@ public class CollectionListInfo implements Parcelable{
         mTotalCoinsInCollection = ints[0];
         mTotalCoinsCollected = ints[1];
         mCollectionTypeIndex = ints[2];
+        mDisplayType = ints[3];
     }
 
     @Override
@@ -80,7 +90,8 @@ public class CollectionListInfo implements Parcelable{
         int[] ints = new int[] {
             mTotalCoinsInCollection,
             mTotalCoinsCollected,
-            mCollectionTypeIndex
+            mCollectionTypeIndex,
+            mDisplayType
         };
 
         dest.writeStringArray(strings);
@@ -117,6 +128,14 @@ public class CollectionListInfo implements Parcelable{
 
     public void setCollectionTypeIndex(int index){
         mCollectionTypeIndex = index;
+    }
+
+    public int getDisplayType(){
+        return mDisplayType;
+    }
+
+    public void setDisplayType(int displayType){
+        mDisplayType = displayType;
     }
 
     public String getType(){

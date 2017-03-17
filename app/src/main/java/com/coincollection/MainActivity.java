@@ -69,17 +69,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -118,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     // we save the info here while we ask the user whether they really want to delete all of their
     // existing collections.
     // TODO Rename this to indicated that they are associated with importing
-    private ArrayList<String[]> mCollectionInfo = null;
+    private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
     private ArrayList<String[][]> mCollectionContents = null;
     private int mDatabaseVersion = -1;
 
@@ -479,11 +478,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Read the database version
         File inputFile = new File(dir, "database_version.txt");
-        BufferedReader in = openFileForReading(inputFile);
+        CSVReader in = openFileForReading(inputFile);
         if(in == null) return;
 
         try {
-            mDatabaseVersion = Integer.parseInt(in.readLine());
+            String[] values = in.readNext();
+            if(values == null || values.length != 1){
+                throw new Exception();
+            }
+            mDatabaseVersion = Integer.parseInt(values[0]);
         } catch (Exception e) {
             showCancelableAlert(mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath()));
             return;
@@ -503,18 +506,13 @@ public class MainActivity extends AppCompatActivity {
         in = openFileForReading(inputFile);
         if(in == null) return;
 
-        ArrayList<String[]> collectionInfo = new ArrayList<>();
+        ArrayList<CollectionListInfo> collectionInfo = new ArrayList<>();
 
         try {
-            String line;
-            while(null != (line = in.readLine())){
+            String[] items;
 
-                // Strip out all bad characters.  They shouldn't be there anyway ;)
-                line = line.replace('[', ' ');
-                line = line.replace(']', ' ');
-
-                // name, coinType, total, max. display
-                String[] items = line.split(",");
+            // TODO Raise an error if in.readNext returns null
+            while(null != (items = in.readNext())){
 
                 // Perform some sanity checks here
                 int numberOfColumns = 5;
@@ -525,10 +523,21 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
 
-                // Must be a valid coin type
-                for(int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++){
+                String name = items[0];
+                String type = items[1];
+                int totalCollected = Integer.valueOf(items[2]);
+                int total = Integer.valueOf(items[3]);
+                int displayType = Integer.valueOf(items[4]);
 
-                    if(MainApplication.COLLECTION_TYPES[i].getCoinType().equals(items[1])){
+                // Strip out all bad characters.  They shouldn't be there anyway ;)
+                name = name.replace('[', ' ');
+                name = name.replace(']', ' ');
+
+                // Must be a valid coin type
+                int i;
+                for(i = 0; i < MainApplication.COLLECTION_TYPES.length; i++){
+
+                    if(MainApplication.COLLECTION_TYPES[i].getCoinType().equals(type)){
                         break;
                     } else if(MainApplication.COLLECTION_TYPES.length == i + 1){
                         errorOccurred = true;
@@ -537,43 +546,56 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                int coinTypeIndex = i;
+
                 if(errorOccurred){
                     break;
                 }
 
-                // Must have a positive number collected and a positive
-                // max
-                if(Integer.valueOf(items[2]) < 0 ||
-                   Integer.valueOf(items[3]) < 0){
+                // Must have a positive number collected and a positive max
+                if(totalCollected < 0 || total < 0){
                     errorOccurred = true;
                     showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 3));
                     break;
                 }
 
                 // Must not have a name that is the same as a previous one
-                for(int i = 0; i < collectionInfo.size(); i++){
+                for(i = 0; i < collectionInfo.size(); i++){
 
-                    String[] previousCollectionInfo = collectionInfo.get(i);
-                    if(items[0].equals(previousCollectionInfo[0])){
+                    CollectionListInfo previousCollectionListInfo = collectionInfo.get(i);
+                    if(name.equals(previousCollectionListInfo.getName())){
                         errorOccurred = true;
                         showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 4));
                         break;
                     }
                 }
 
+
+                if(displayType != CollectionPage.SIMPLE_DISPLAY && displayType != CollectionPage.ADVANCED_DISPLAY){
+                    errorOccurred = true;
+                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 5));
+                    break;
+                }
+
                 if(errorOccurred){
                     break;
                 }
 
+                // Everything checks out, so create a new CollectionListInfo
+                // for this
+                CollectionListInfo info = new CollectionListInfo(name, total, totalCollected, coinTypeIndex, displayType);
+
                 // Good to go, add it to the list
-                collectionInfo.add(items);
+                collectionInfo.add(info);
             }
         } catch(Exception e){
             errorOccurred = true;
             showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
         }
 
-        if(!closeInputFile(in, inputFile)){
+        // Close the input file.  If we've already shown an error then no
+        // need to show another one if the close fails
+        if(!closeInputFile(in, inputFile, errorOccurred)){
             return;
         }
 
@@ -589,11 +611,12 @@ public class MainActivity extends AppCompatActivity {
         // We loaded in the collection "metadata" table, so now load in each collection
         for(int i = 0; i < collectionInfo.size(); i++){
 
-            String[] collectionData = collectionInfo.get(i);
+            CollectionListInfo collectionData = collectionInfo.get(i);
 
-            // Undo the '/' to '_SL_' translation that we did when exporting to avoid having '/'
-            // characters in the export file names (which the OS interprets as directory delimiters)
-            String collectionFileName = collectionData[0].replaceAll("/", "_SL_");
+            // If any '/''s exist in the collection name, change them to "_SL_" to match
+            // the export logic (used to prevent slashes from being confused as path
+            // delimiters when opening the file.)
+            String collectionFileName = collectionData.getName().replaceAll("/", "_SL_");
 
             inputFile = new File(dir, collectionFileName + ".csv");
 
@@ -608,15 +631,8 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String[]> collectionContent = new ArrayList<>();
 
             try {
-                String line;
-                while(null != (line = in.readLine())){
-
-                    // Strip out all bad characters.  They shouldn't be there anyway ;)
-                    line = line.replace('[', ' ');
-                    line = line.replace(']', ' ');
-
-                    // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
-                    String[] items = line.split(",", -1); // -1 to not skip empty entries
+                String[] items;
+                while(null != (items = in.readNext())){
 
                     // Perform some sanity checks and clean-up here
                     int numberOfColumns = 6;
@@ -625,19 +641,6 @@ public class MainActivity extends AppCompatActivity {
                         errorOccurred = true;
                         showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + String.valueOf(items.length));
                         break;
-                    } else if (items.length > numberOfColumns){
-                        // advNotes may contain commas, which can increase the comma count. Other fields
-                        // are numeric so cannot contain commas - restore advNotes by re-joining split
-                        // fields past advNotes (which is the last element).
-                        String[] newItems = new String[numberOfColumns];
-                        for (int j = 0; j < items.length; j++) {
-                            if(j >= numberOfColumns) {
-                                newItems[numberOfColumns-1] += ',' + items[j];
-                            } else {
-                                newItems[j] = items[j];
-                            }
-                        }
-                        items = newItems;
                     }
 
                     // TODO Maybe add more checks
@@ -656,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Verify that we read in the correct number of records
-            if(collectionContent.size() != Integer.valueOf(collectionData[3])){
+            if(collectionContent.size() != collectionData.getMax()){
                 errorOccurred = true;
                 showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
             }
@@ -678,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
         // the sanity checks.  We should put this data aside, show the user a message to
         // have them confirm that they want to do this... Although if they don't have any
         // collections we can optimize this step out
-        mCollectionInfo = collectionInfo;
+        mImportedCollectionListInfos = collectionInfo;
         mCollectionContents = collectionContents;
 
         if(0 == mNumberOfCollections){
@@ -697,7 +700,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleImportCollectionsCancel(){
         // Release the memory associated with the collection info we read in
-        this.mCollectionInfo = null;
+        this.mImportedCollectionListInfos = null;
         this.mCollectionContents = null;
         this.mDatabaseVersion = -1;
     }
@@ -727,20 +730,20 @@ public class MainActivity extends AppCompatActivity {
 
         mDbAdapter.createCollectionInfoTable();
 
-        for(int i = 0; i < mCollectionInfo.size(); i++){
-            String[] collectionInfo = mCollectionInfo.get(i);
+        for(int i = 0; i < mImportedCollectionListInfos.size(); i++){
+            CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
             String[][] collectionContents = mCollectionContents.get(i);
 
-            String name = collectionInfo[0];
-            String coinType = collectionInfo[1];
-            int total = Integer.valueOf(collectionInfo[3]);
-            int advView = Integer.valueOf(collectionInfo[4]);
+            String name = collectionListInfo.getName();
+            String coinType = collectionListInfo.getCollectionObj().getCoinType();
+            int total = collectionListInfo.getMax();
+            int displayType = collectionListInfo.getDisplayType();
 
-            mDbAdapter.createNewTable(name, coinType, total, advView, i, collectionContents);
+            mDbAdapter.createNewTable(name, coinType, total, displayType, i, collectionContents);
         }
 
         // Release the memory associated with the collection info we read in
-        mCollectionInfo = null;
+        mImportedCollectionListInfos = null;
         mCollectionContents = null;
 
         // Update any imported tables, if necessary
@@ -827,7 +830,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Write out the collection_info table
         File outputFile = new File(dir, "list-of-collections.csv");
-        OutputStreamWriter out = openFileForWriting(outputFile);
+        CSVWriter out = openFileForWriting(outputFile);
         if(out == null) return;
 
         mDbAdapter.open();
@@ -835,32 +838,23 @@ public class MainActivity extends AppCompatActivity {
         // Iterate through the list of collections and write the files
         for(int i = 0; i < mNumberOfCollections; i++){
             // name, coinType, total, max, display
+
             CollectionListInfo item = mCollectionListEntries.get(i);
+
             String name = item.getName();
             String type = item.getType();
-            int totalCollected = item.getCollected();
-            int total = item.getMax();
+            String totalCollected = String.valueOf(item.getCollected());
+            String total = String.valueOf(item.getMax());
 
-            // Strip comma's from the name
-            String cleanName = name.replace(',', ' ');
+            // NOTE For display, don't use item.getDisplayType bc I don't
+            // think we populate that value except when importing...
+            // TODO Update the code so that this value is used instead
+            // of the separate fetchTableDisplay calls
+            String display = String.valueOf(mDbAdapter.fetchTableDisplay(name));
 
-            try {
-                out.append(cleanName + "," +
-                          type + "," +
-                          String.valueOf(totalCollected) + "," +
-                          String.valueOf(total));
+            String [] values = new String[] {name, type, totalCollected, total, display};
 
-                int display = mDbAdapter.fetchTableDisplay(name);
-                out.append("," + String.valueOf(display));
-
-                if(mNumberOfCollections != i + 1){
-                    out.append("\n");
-                }
-            } catch(Exception e) {
-                showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
-                errorOccurred = true;
-                break;
-            }
+            out.writeNext(values);
         }
 
         if(!closeOutputFile(out, outputFile)){
@@ -876,13 +870,8 @@ public class MainActivity extends AppCompatActivity {
         out = openFileForWriting(outputFile);
         if(out == null) return;
 
-        try {
-            out.write(String.valueOf(MainApplication.DATABASE_VERSION));
-        } catch (Exception e) {
-            // This shouldn't happen since we just created it
-            showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
-            return;
-        }
+        String[] version = new String[] { String.valueOf(MainApplication.DATABASE_VERSION) };
+        out.writeNext(version);
 
         if(!closeOutputFile(out, outputFile)){
             return;
@@ -893,12 +882,9 @@ public class MainActivity extends AppCompatActivity {
             CollectionListInfo item = mCollectionListEntries.get(i);
             String name = item.getName();
 
-            // Strip comma's from the name
-            String cleanName = name.replace(',', ' ');
-
             // Handle '/''s in the file names (otherwise importing will fail, because the OS will
             // think the '/' characters are folder delimiters.)  This will be undone when we import.
-            cleanName = cleanName.replaceAll("/", "_SL_");
+            String cleanName = name.replaceAll("/", "_SL_");
 
             outputFile = new File(dir, cleanName + ".csv");
             out = openFileForWriting(outputFile);
@@ -906,61 +892,24 @@ public class MainActivity extends AppCompatActivity {
 
             // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
             Cursor resultCursor = mDbAdapter.getAllCollectionInfo(name);
-            boolean isFirstLine = true;
             if (resultCursor.moveToFirst()) {
                 do {
-                    ArrayList<String> info = new ArrayList<>();
-                    info.add(resultCursor.getString(resultCursor.getColumnIndex("coinIdentifier")));
-                    info.add(resultCursor.getString(resultCursor.getColumnIndex("coinMint")));
-                    info.add(String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("inCollection"))));
-                    info.add(String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advGradeIndex"))));
-                    info.add(String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advQuantityIndex"))));
-                    info.add(resultCursor.getString(resultCursor.getColumnIndex("advNotes")));
+                    String coinIdentifier = resultCursor.getString(resultCursor.getColumnIndex("coinIdentifier"));
+                    String coinMint = resultCursor.getString(resultCursor.getColumnIndex("coinMint"));
+                    String inCollection = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("inCollection")));
+                    String advGradeIndex = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advGradeIndex")));
+                    String advQuantityIndex = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advQuantityIndex")));
+                    String advNotes = resultCursor.getString(resultCursor.getColumnIndex("advNotes"));
 
-                    if(isFirstLine){
-                        isFirstLine = false;
-                    } else {
-                        // Prepend the newline.  We do it here as an easy way to know that there won't
-                        // be a blank line at the end of this file
-                        try {
-                            out.write("\n");
-                        } catch(Exception e) {
-                            showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
-                            errorOccurred = true;
-                            break;
-                        }
-                    }
+                    String[] values = new String[] {coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes};
 
-                    for(int k = 0; k < info.size(); k++){
-                        String infoItem = info.get(k);
-
-                        try {
-                            out.write(infoItem);
-                            if(info.size() != k + 1){
-                                // Add the comma after all but the last column
-                                out.write(",");
-                            }
-
-                        } catch(Exception e) {
-                            showCancelableAlert(mRes.getString(R.string.error_writing_file, outputFile.getAbsolutePath()));
-                            errorOccurred = true;
-                            break;
-                        }
-                    }
-
-                    if(errorOccurred){
-                        break;
-                    }
+                    out.writeNext(values);
 
                 } while(resultCursor.moveToNext());
             }
             resultCursor.close();
 
             if(!closeOutputFile(out, outputFile)){
-                return;
-            }
-
-            if(errorOccurred){
                 return;
             }
         }
@@ -976,12 +925,18 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private BufferedReader openFileForReading(File file){
+    private CSVReader openFileForReading(File file){
 
         try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF8");
-            return new BufferedReader(inputStreamReader);
+            // Tell the CSVReader to use the NULL character as the escape
+            // character to effectively allow no escape characters
+            // (otherwise, '\' is the escape character, and it can be
+            // typed by users!)
+            CSVReader reader = new CSVReader(new FileReader(file),
+                    CSVWriter.DEFAULT_SEPARATOR,
+                    CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                    '\0');
+            return reader;
         } catch (Exception e) {
             Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
@@ -989,11 +944,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean closeInputFile(BufferedReader in, File file){
+    private boolean closeInputFile(CSVReader in, File file){
         return closeInputFile(in, file, false);
     }
 
-    private boolean closeInputFile(BufferedReader in, File file, boolean silent){
+    private boolean closeInputFile(CSVReader in, File file, boolean silent){
         try {
             in.close();
         } catch (IOException e) {
@@ -1005,11 +960,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private OutputStreamWriter openFileForWriting(File file){
+    private CSVWriter openFileForWriting(File file){
 
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            return new OutputStreamWriter(fileOutputStream, "UTF8");
+            CSVWriter writer = new CSVWriter(new FileWriter(file));
+            return writer;
         } catch (Exception e) {
             Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
@@ -1017,7 +972,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean closeOutputFile(OutputStreamWriter out, File file){
+    private boolean closeOutputFile(CSVWriter out, File file){
         try {
             out.close();
         } catch (IOException e) {

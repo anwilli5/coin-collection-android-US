@@ -368,9 +368,10 @@ public class CoinPageCreator extends AppCompatActivity {
                 for (int i = start; i < end; i++) {
                     if (source.charAt(i) == '[' || source.charAt(i) == ']') {
                         // Don't allow these characters to break the sql
-                        return "";
-                    } else if(source.charAt(i) == ','){
-                        // This will break the csv format
+                        // TODO Verify that this is the case (and determine whether we need
+                        // the existing '[' ']' wrappers the way we do it now... If this is
+                        // unnecessary then we can take out this filter and make the code
+                        // simpler :)
                         return "";
                     }
                 }
