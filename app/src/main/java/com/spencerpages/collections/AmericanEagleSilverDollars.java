@@ -20,7 +20,12 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
+import com.coincollection.CollectionInfo;
+import com.coincollection.DatabaseHelper;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -51,7 +56,10 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, Boolean.FALSE);
+
+        // Use one of the customizable checkboxes for the 'Show Burnished' options
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
     }
 
     // TODO Perform validation and throw exception
@@ -61,7 +69,7 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_BURNISHED);
+        Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -89,5 +97,40 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
                 }
             }
         }
+    }
+
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 4) {
+            // Add in new 2014 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2014");
+            total += value;
+        }
+
+        if (oldVersion <= 6) {
+            // Add in new 2015 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2015");
+            total += value;
+        }
+
+        if (oldVersion <= 7) {
+            // Add in new 2016 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2016");
+            total += value;
+        }
+
+        if (oldVersion <= 8) {
+            // Add in new 2017 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2017");
+            total += value;
+        }
+
+        return total;
     }
 }

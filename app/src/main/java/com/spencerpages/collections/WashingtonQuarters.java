@@ -20,8 +20,12 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
+import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,9 +57,18 @@ public class WashingtonQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
     }
 
     // TODO Perform validation and throw exception
@@ -66,9 +79,9 @@ public class WashingtonQuarters extends CollectionInfo {
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
 
         for(int i = startYear; i <= stopYear; i++){
             String newValue = Integer.toString(i);
@@ -104,5 +117,24 @@ public class WashingtonQuarters extends CollectionInfo {
                 }
             }
         }
+    }
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Remove 1965 - 1967 D quarters
+            int value = db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1965", "D"});
+            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1966", "D"});
+            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1967", "D"});
+            total = total - value;
+        }
+
+        return total;
     }
 }

@@ -20,7 +20,13 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
+import com.coincollection.CollectionInfo;
+import com.coincollection.DatabaseHelper;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -80,9 +86,18 @@ public class LincolnCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
     }
 
     // TODO Perform validation and throw exception
@@ -93,9 +108,9 @@ public class LincolnCents extends CollectionInfo {
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
 
         boolean addedVdb = false;
 
@@ -161,5 +176,69 @@ public class LincolnCents extends CollectionInfo {
                 addedVdb = true;
             }
         }
+    }
+
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 2) {
+
+            // Remove 1921 D Penny
+            int value = db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1921", "D"});
+
+            // TODO What should we do?
+            // We can't add the new identifiers, just delete the old ones
+            //value += db.delete("[" + name + "]", "coinIdentifier=?", new String[] { "2009" });
+
+            total = total - value;
+
+        }
+
+        if(oldVersion <= 3) {
+
+            // 1. Bug fix: The bicentennials should not display mint mark "P"
+            ContentValues values = new ContentValues();
+            values.put("coinMint", "");
+            // This shortcut works because pennies never carried the "P" mint mark
+            db.update(tableName, values, "coinMint=?", new String[]{"P"});
+
+            // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
+
+            // Add in new 2013 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2013");
+            total += value;
+        }
+
+        if (oldVersion <= 4) {
+            // Add in new 2014 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2014");
+            total += value;
+        }
+
+        if (oldVersion <= 6) {
+            // Add in new 2015 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2015");
+            total += value;
+        }
+
+        if (oldVersion <= 7) {
+            // Add in new 2016 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2016");
+            total += value;
+        }
+
+        if (oldVersion <= 8) {
+            // Add in new 2017 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2017");
+            total += value;
+        }
+
+            return total;
     }
 }

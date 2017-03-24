@@ -26,6 +26,8 @@ import java.util.HashMap;
 import android.content.Context;
 import android.util.Log;
 
+import com.coincollection.CoinPageCreator;
+
 /**
  * Basic unit test suite - mainly just a way to sanity check that when adding new coins (for
  * instance, as the years progress and near coins are minted), we add in all the ones that we need
@@ -140,13 +142,24 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            // TODO This only works for now because we make sure each collection
+            // uses each option for the same things (but they don't have to)
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
+
 
             creator.testSetInternalState(j, parameters);
         
@@ -240,13 +253,21 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
 
             creator.testSetInternalState(j, parameters);
 
@@ -340,13 +361,21 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
 
             creator.testSetInternalState(j, parameters);
 
@@ -439,13 +468,21 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
 
             creator.testSetInternalState(j, parameters);
 
@@ -519,13 +556,21 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
 
             creator.testSetInternalState(j, parameters);
 
@@ -596,13 +641,21 @@ class UnitTests {
 
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, showMintMark);
             parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, editDateRange);
-            parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, showTerritories);
-            parameters.put(CoinPageCreator.OPT_SHOW_BURNISHED, showBurnished);
-            parameters.put(CoinPageCreator.OPT_SHOW_P, showP);
-            parameters.put(CoinPageCreator.OPT_SHOW_D, showD);
-            parameters.put(CoinPageCreator.OPT_SHOW_S, showS);
-            parameters.put(CoinPageCreator.OPT_SHOW_O, showO);
-            parameters.put(CoinPageCreator.OPT_SHOW_CC, showCC);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showTerritories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showBurnished);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, showP);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, showD);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, showS);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, showO);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, showCC);
+
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
 
             creator.testSetInternalState(j, parameters);
 

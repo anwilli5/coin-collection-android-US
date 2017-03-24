@@ -20,7 +20,11 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
+import com.coincollection.CollectionInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -126,6 +130,9 @@ public class PresidentialDollars extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.presidential_coin_obverse;
 
+    //https://www.usmint.gov/mint_programs/%241coin/index1ea7.html?action=presDesignUse
+    private static final String ATTRIBUTION = "Presidential $1 Coin images from the United States Mint.";
+
     public String getCoinType() { return COLLECTION_TYPE; }
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
@@ -137,8 +144,14 @@ public class PresidentialDollars extends CollectionInfo {
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
     }
 
     // TODO Perform validation and throw exception
@@ -147,8 +160,8 @@ public class PresidentialDollars extends CollectionInfo {
                                         ArrayList<String> mintList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
         for(int i = 0; i < PRES_COIN_IDENTIFIERS.length; i++){
 
@@ -168,5 +181,89 @@ public class PresidentialDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if(oldVersion <= 2) {
+            // Add in 2012 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Chester Arthur");
+            newCoinIdentifiers.add("Grover Cleveland 1");
+            newCoinIdentifiers.add("Benjamin Harrison");
+            newCoinIdentifiers.add("Grover Cleveland 2");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if(oldVersion <= 3) {
+            // Add in 2013 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("William McKinley");
+            newCoinIdentifiers.add("Theodore Roosevelt");
+            newCoinIdentifiers.add("William Howard Taft");
+            newCoinIdentifiers.add("Woodrow Wilson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 4) {
+            // Add in 2014 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Warren G. Harding");
+            newCoinIdentifiers.add("Calvin Coolidge");
+            newCoinIdentifiers.add("Herbert Hoover");
+            newCoinIdentifiers.add("Franklin D. Roosevelt");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 6) {
+            // Add in 2015 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Harry Truman");
+            newCoinIdentifiers.add("Dwight D. Eisenhower");
+            newCoinIdentifiers.add("John F. Kennedy");
+            newCoinIdentifiers.add("Lyndon B. Johnson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 7) {
+            // Add in 2016 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Richard M. Nixon");
+            newCoinIdentifiers.add("Gerald R. Ford");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 8) {
+            // Add in missing 2016 Presidential Dollars
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Ronald Reagan");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        return total;
     }
 }

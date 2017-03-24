@@ -16,13 +16,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".MainApplication"
+        android:name="com.spencerpages.MainApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.coincollection.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CollectionPage"
+            android:name="com.coincollection.CollectionPage"
             android:label="Collection Page"
             android:windowSoftInputMode="adjustPan" >
             <!-- Regarding android:windowSoftInputMode="adjustPan"
@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CoinPageCreator"
+            android:name="com.coincollection.CoinPageCreator"
             android:label="Collection Page Creator" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

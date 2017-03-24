@@ -20,23 +20,29 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
 import com.spencerpages.R;
+import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BuffaloNickels extends CollectionInfo{
+public class BuffaloNickels extends CollectionInfo {
 
     private static final String COLLECTION_TYPE = "Buffalo Nickels";
 
     private static final Integer START_YEAR = 1913;
     private static final Integer STOP_YEAR = 1938;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.buffalo_nickel_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_buffalo_nickel;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.buffalo_nickel_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_buffalo_nickel;
+
+    // https://commons.wikimedia.org/wiki/File:1935_Indian_Head_Buffalo_Nickel.jpg
+    private static final String ATTRIBUTION = "Buffalo Nickel images courtesy of CCF Numismatics via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -52,9 +58,18 @@ public class BuffaloNickels extends CollectionInfo{
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
     }
 
     // TODO Perform validation and throw exception
@@ -65,9 +80,9 @@ public class BuffaloNickels extends CollectionInfo{
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -123,5 +138,14 @@ public class BuffaloNickels extends CollectionInfo{
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        return 0;
     }
 }

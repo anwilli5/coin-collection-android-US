@@ -20,12 +20,15 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CollectionInfo;
+import com.coincollection.DatabaseHelper;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class FirstSpouseGoldCoins extends CollectionInfo {
 
@@ -157,5 +160,80 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             identifierList.add(identifier);
             mintList.add("");
         }
+    }
+    public String getAttributionString(){
+        return MainApplication.DEFAULT_ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+
+        int total = 0;
+
+        if(oldVersion <= 3) {
+            // Add in 2012 First Spouse Gold Coins
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Alice Paul");
+            newCoinIdentifiers.add("Frances Cleveland 1");
+            newCoinIdentifiers.add("Caroline Harrison");
+            newCoinIdentifiers.add("Frances Cleveland 2");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 4) {
+            // Add in 2013 First Spouse Gold Coins
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Ida McKinley");
+            newCoinIdentifiers.add("Edith Roosevelt");
+            newCoinIdentifiers.add("Helen Taft");
+            newCoinIdentifiers.add("Ellen Wilson");
+            newCoinIdentifiers.add("Edith Wilson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 6) {
+            // Add in 2014 First Spouse Gold Coins
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Florence Harding");
+            newCoinIdentifiers.add("Grace Coolidge");
+            newCoinIdentifiers.add("Lou Hoover");
+            newCoinIdentifiers.add("Eleanor Roosevelt");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 7) {
+            // Add in 2015 First Spouse Gold Coins
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Bess Truman");
+            newCoinIdentifiers.add("Mamie Eisenhower");
+            newCoinIdentifiers.add("Jacqueline Kennedy");
+            newCoinIdentifiers.add("Lady Bird Johnson");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 8) {
+            // Add in remaining First Spouse Gold Coins
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Patricia Nixon");
+            newCoinIdentifiers.add("Betty Ford");
+            newCoinIdentifiers.add("Nancy Reagan");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+            return total;
     }
 }

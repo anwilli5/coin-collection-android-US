@@ -20,8 +20,11 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
 import com.spencerpages.R;
+import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,6 +171,9 @@ public class StateQuarters extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.states_2001_north_carolina_unc;
 
+    // https://www.usmint.gov/consumer/index091c.html?action=designPolicy
+    private static final String ATTRIBUTION = "Quarter-dollar coin images from the United States Mint.";
+
     public String getCoinType() { return COLLECTION_TYPE; }
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
@@ -179,9 +185,18 @@ public class StateQuarters extends CollectionInfo {
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_TERRITORIES, Boolean.TRUE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use one of the customizable checkboxes for the 'Show Territories' options
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.show_territories);
     }
 
     // TODO Perform validation and throw exception
@@ -190,9 +205,9 @@ public class StateQuarters extends CollectionInfo {
                                         ArrayList<String> mintList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
-        Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_TERRITORIES);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
 
         for(int i = 0; i < STATES_COIN_IDENTIFIERS.length; i++){
 
@@ -233,5 +248,14 @@ public class StateQuarters extends CollectionInfo {
                 }
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        return 0;
     }
 }

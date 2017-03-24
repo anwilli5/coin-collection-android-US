@@ -20,8 +20,11 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
 import com.spencerpages.R;
+import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,10 +36,14 @@ public class BarberHalfDollars extends CollectionInfo {
     private static final Integer START_YEAR = 1892;
     private static final Integer STOP_YEAR = 1915;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.barber_half_front;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_barber_half;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.barber_half_back;
+    private static final int REVERSE_IMAGE = R.drawable.rev_barber_half;
+
+    // https://commons.wikimedia.org/wiki/File:1907-D_Barber_half_obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:1907-D_Barber_half_reverse.jpg
+    private static final String ATTRIBUTION = "Barber Half Dollar images courtesy of Lost Dutchman Rare Coins via Wikimedia";
 
     public String getCoinType() { return COLLECTION_TYPE; }
 
@@ -52,10 +59,22 @@ public class BarberHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_S, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_O, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+
+        // Use the MINT_MARK_4 checkbox for whether to include 'O' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
     }
 
     // TODO Perform validation and throw exception
@@ -66,10 +85,10 @@ public class BarberHalfDollars extends CollectionInfo {
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_S);
-        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_O);
+        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
 
         for(int i =startYear; i <= stopYear; i++){
             if(showMintMarks){
@@ -98,5 +117,14 @@ public class BarberHalfDollars extends CollectionInfo {
                 mintList.add("");
             }
         }
+    }
+
+    public String getAttributionString(){
+        return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        return 0;
     }
 }

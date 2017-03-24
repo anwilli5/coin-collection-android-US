@@ -20,8 +20,11 @@
 
 package com.spencerpages.collections;
 
-import com.spencerpages.CoinPageCreator;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.coincollection.CoinPageCreator;
 import com.spencerpages.R;
+import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,16 +36,24 @@ public class EisenhowerDollar extends CollectionInfo {
     private static final Integer START_YEAR = 1971;
     private static final Integer STOP_YEAR = 1978;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.eisenhower_front_92px;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_eisenhower_dollar;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
-    private static final int REVERSE_IMAGE = R.drawable.eisenhower_back_92px;
+    private static final int REVERSE_IMAGE = R.drawable.rev_eisenhower_dollar;
 
-    public String getCoinType() { return COLLECTION_TYPE; }
+    // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Obverse.jpg
+    // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Reverse.jpg
+    private static final String ATTRIBUTION = "Eisenhower Dollar images courtesy of Brandon Grossardt via Wikimedia";
 
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
+
+    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection) {
         return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
@@ -52,8 +63,14 @@ public class EisenhowerDollar extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_P, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_D, Boolean.FALSE);
+
+        // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
+
+        // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
     }
 
     // TODO Perform validation and throw exception
@@ -61,22 +78,22 @@ public class EisenhowerDollar extends CollectionInfo {
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_P);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_D);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
             String newValue = Integer.toString(i);
-            if(i == 1975 || i == 1976){
+            if (i == 1975 || i == 1976) {
                 newValue = "1776-1976";
             }
-            if(i == 1976 && startYear != 1976)
+            if (i == 1976 && startYear != 1976)
                 continue; // (what if start date is 1976)
 
-            if(showMintMarks){
-                if(showP) {
+            if (showMintMarks) {
+                if (showP) {
                     identifierList.add(newValue);
                     mintList.add("");
                 }
@@ -85,7 +102,7 @@ public class EisenhowerDollar extends CollectionInfo {
                 mintList.add("");
             }
 
-            if(showMintMarks && showD){
+            if (showMintMarks && showD) {
                 identifierList.add(newValue);
                 mintList.add("D");
             }
@@ -97,5 +114,29 @@ public class EisenhowerDollar extends CollectionInfo {
             //	}
             //}
         }
+    }
+
+    public String getAttributionString() {
+        return ATTRIBUTION;
+    }
+
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 2) {
+
+            // Take out Eisenhower dollars > 1978
+            for (int i = 1979; i <= 2012; i++) {
+                int value = db.delete(tableName, "coinIdentifier=?", new String[]{String.valueOf(i)});
+                total -= value;
+            }
+
+            // Take out Eisenhower dollars with S marks
+            int value = db.delete(tableName, "coinMint=?", new String[]{"S"});
+            total -= value;
+        }
+
+        return total;
     }
 }
