@@ -20,6 +20,7 @@
 
 package com.spencerpages.collections;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CollectionInfo;
@@ -37,12 +38,12 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
     private static final String[] FS_COIN_IDENTIFIERS = {
             "Martha Washington",
             "Abigail Adams",
-            "Thomas Jefferson’s Liberty",
+            "Thomas Jefferson's Liberty",
             "Dolley Madison",
             "Elizabeth Monroe",
             "Louisa Adams",
-            "Andrew Jackson’s Liberty",
-            "Martin Van Buren’s Liberty",
+            "Andrew Jackson's Liberty",
+            "Martin Van Buren's Liberty",
             "Anna Harrison",
             "Letitia Tyler",
             "Julia Tyler",
@@ -50,7 +51,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             "Margaret Taylor",
             "Abigail Fillmore",
             "Jane Pierce",
-            "James Buchanan’s Liberty",
+            "James Buchanan's Liberty",
             "Mary Todd Lincoln",
             "Eliza Johnson",
             "Julia Grant",
@@ -234,6 +235,29 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
         }
 
-            return total;
+        if(oldVersion <= 10){
+
+            ContentValues values = new ContentValues();
+
+            // Replace all the ’ characters with ' characters
+            values.put("coinIdentifier", "Thomas Jefferson's Liberty");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"Thomas Jefferson’s Liberty"});
+            values.clear();
+
+            values.put("coinIdentifier", "Andrew Jackson's Liberty");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"Andrew Jackson’s Liberty"});
+            values.clear();
+
+            values.put("coinIdentifier", "Martin Van Buren's Liberty");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"Martin Van Buren’s Liberty"});
+            values.clear();
+
+            values.put("coinIdentifier", "James Buchanan's Liberty");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"James Buchanan’s Liberty"});
+            values.clear();
+
+        }
+
+        return total;
     }
 }

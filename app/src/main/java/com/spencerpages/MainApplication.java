@@ -116,8 +116,9 @@ public class MainApplication extends Application {
      *                   Version 8 - Used in Version 2.2.1 of the app
      *                   Version 9 - Used in Version 2.3 of the app
      *                   Version 10 - Used in Version 2.3.1 of the app
+     *                   Version 11 - Used in Version 2.3.2 of the app
      */
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 11;
 
     /**
      * Performs any database updates that are needed at an application level
@@ -241,6 +242,7 @@ public class MainApplication extends Application {
             //TODO Change indian head cent mint marks to remove space
             //TODO Change walking liberty half dollar mint marks to remove space
         }
+
         return;
     }
 

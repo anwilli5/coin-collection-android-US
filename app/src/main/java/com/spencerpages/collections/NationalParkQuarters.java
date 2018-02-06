@@ -20,6 +20,7 @@
 
 package com.spencerpages.collections;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -52,7 +53,7 @@ public class NationalParkQuarters extends CollectionInfo {
             "Hawaii Volcanoes",
             "Denali",
             "White Mountain",
-            "Perry’s Victory",
+            "Perry's Victory",
             "Great Basin",
             "Fort McHenry",
             "Mount Rushmore",
@@ -68,7 +69,7 @@ public class NationalParkQuarters extends CollectionInfo {
             "Saratoga",
             "Shawnee",
             "Cumberland Gap",
-            "Harper’s Ferry",
+            "Harper's Ferry",
             "Theodore Roosevelt",
             "Fort Moultrie",
             "Effigy Mounds",
@@ -226,7 +227,7 @@ public class NationalParkQuarters extends CollectionInfo {
             // Add in 2013 National Park Quarters
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("White Mountain");
-            newCoinIdentifiers.add("Perry’s Victory");
+            newCoinIdentifiers.add("Perry's Victory");
             newCoinIdentifiers.add("Great Basin");
             newCoinIdentifiers.add("Fort McHenry");
             newCoinIdentifiers.add("Mount Rushmore");
@@ -289,6 +290,22 @@ public class NationalParkQuarters extends CollectionInfo {
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if(oldVersion <= 10){
+
+            ContentValues values = new ContentValues();
+
+            // Replace all the ’ characters with ' characters
+            values.put("coinIdentifier", "Perry's Victory");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"Perry’s Victory"});
+            values.clear();
+
+            values.put("coinIdentifier", "Harper's Ferry");
+            db.update(tableName, values, "coinIdentifier=?", new String[]{"Harper’s Ferry"});
+            values.clear();
+
+
         }
 
         return total;
