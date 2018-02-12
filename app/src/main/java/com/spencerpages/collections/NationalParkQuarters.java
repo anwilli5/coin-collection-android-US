@@ -77,13 +77,12 @@ public class NationalParkQuarters extends CollectionInfo {
             "Ozark Riverways",
             "Ellis Island",
             "George Rogers Clark",
-            /*
             "Pictured Rocks",
             "Apostle Islands",
             "Voyageurs",
             "Cumberland Island",
-            "Block Island",
-            "Lowell",
+            "Block Island"
+            /*"Lowell",
             "American Memorial",
             "War in the Pacific",
             "San Antonio Missions",
@@ -138,6 +137,11 @@ public class NationalParkQuarters extends CollectionInfo {
             { R.drawable.parks_2017_ozark_riverways_proof,      R.drawable.parks_2017_ozark_riverways_proof_25},
             { R.drawable.parks_2017_ellis_island_proof,         R.drawable.parks_2017_ellis_island_proof_25},
             { R.drawable.parks_2017_george_rogers_clark_proof,  R.drawable.parks_2017_george_rogers_clark_proof_25},
+            { R.drawable.parks_2018_pictured_rocks_proof,       R.drawable.parks_2018_pictured_rocks_proof_25},
+            { R.drawable.parks_2018_apostle_islands_proof,      R.drawable.parks_2018_apostle_islands_proof_25},
+            { R.drawable.parks_2018_voyageurs_proof,            R.drawable.parks_2018_voyageurs_proof_25},
+            { R.drawable.parks_2018_cumberland_island_proof,    R.drawable.parks_2018_cumberland_island_proof_25},
+            { R.drawable.parks_2018_block_island_proof,         R.drawable.parks_2018_block_island_proof_25},
     };
 
     private static final HashMap<String, Integer[]> PARKS_INFO = new HashMap<>();
@@ -304,8 +308,20 @@ public class NationalParkQuarters extends CollectionInfo {
             values.put("coinIdentifier", "Harper's Ferry");
             db.update(tableName, values, "coinIdentifier=?", new String[]{"Harper’s Ferry"});
             values.clear();
+        }
 
+        if (oldVersion <= 11) {
+            // Add in 2018 National Park Quarters
 
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Pictured Rocks");
+            newCoinIdentifiers.add("Apostle Islands");
+            newCoinIdentifiers.add("Voyageurs");
+            newCoinIdentifiers.add("Cumberland Island");
+            newCoinIdentifiers.add("Block Island");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
         }
 
         return total;

@@ -131,6 +131,12 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
             total += value;
         }
 
+        if (oldVersion <= 11) {
+            // Add in new 2018 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2018");
+            total += value;
+        }
+
         return total;
     }
 }
