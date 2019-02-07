@@ -109,7 +109,7 @@ class CoinSlotAdapter extends BaseAdapter {
      */
     public CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<String> identifierList, ArrayList<String> mintList, ArrayList<Boolean> inCollectionList) {
         // Used for State, National Park, Presidential Coins, and Native American coins
-        // and Pennies and Nickels
+        // and Pennies, Nickels, American Innovation Dollars
         super();
         mContext = context;
         mTableName = tableName;

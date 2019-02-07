@@ -47,6 +47,7 @@ public class NativeAmericanDollars extends CollectionInfo {
             "2016",
             "2017",
             "2018",
+            "2019",
     };
 
     private static final Integer[][] NATIVE_IMAGE_IDENTIFIERS = {
@@ -59,7 +60,8 @@ public class NativeAmericanDollars extends CollectionInfo {
             { R.drawable.native_2015_unc,       R.drawable.native_2015_unc_25},
             { R.drawable.native_2016_unc,       R.drawable.native_2016_unc_25},
             { R.drawable.native_2017_unc,       R.drawable.native_2017_unc_25},
-            { R.drawable.native_2018_line_art,  R.drawable.native_2018_line_art_25},
+            { R.drawable.native_2018_unc,       R.drawable.native_2018_unc_25},
+            { R.drawable.native_2019_unc,       R.drawable.native_2019_unc_25},
     };
 
     private static final HashMap<String, Integer[]> NATIVE_INFO = new HashMap<>();
@@ -179,6 +181,12 @@ public class NativeAmericanDollars extends CollectionInfo {
         if (oldVersion <= 11) {
             // Add in new 2018 coins if applicable
             int value = DatabaseHelper.addFromYear(db, tableName, "2018");
+            total += value;
+        }
+
+        if (oldVersion <= 12) {
+            // Add in new 2019 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2019");
             total += value;
         }
 
