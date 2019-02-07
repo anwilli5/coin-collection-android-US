@@ -82,7 +82,7 @@ register(
     "This is intended to be run from the command line",
     "anwilli5",
     "Andrew Williams",
-    "2017",
+    "2019",
     "<Toolbox>/Xtns/Languages/Python-Fu/CoinCollection/Prep",
     "",
     [

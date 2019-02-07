@@ -81,13 +81,13 @@ public class NationalParkQuarters extends CollectionInfo {
             "Apostle Islands",
             "Voyageurs",
             "Cumberland Island",
-            "Block Island"
-            /*"Lowell",
+            "Block Island",
+            "Lowell",
             "American Memorial",
             "War in the Pacific",
             "San Antonio Missions",
-            "Frank Church River of No Return",
-            "National Park of American Samoa",
+            "River of No Return",
+            /*"National Park of American Samoa",
             "Weir Farm",
             "Salt River Bay",
             "Marsh-Billings-Rockefeller",
@@ -142,6 +142,11 @@ public class NationalParkQuarters extends CollectionInfo {
             { R.drawable.parks_2018_voyageurs_proof,            R.drawable.parks_2018_voyageurs_proof_25},
             { R.drawable.parks_2018_cumberland_island_proof,    R.drawable.parks_2018_cumberland_island_proof_25},
             { R.drawable.parks_2018_block_island_proof,         R.drawable.parks_2018_block_island_proof_25},
+            { R.drawable.parks_2019_lowell_proof,               R.drawable.parks_2019_lowell_proof_25},
+            { R.drawable.parks_2019_american_memorial_proof,    R.drawable.parks_2019_american_memorial_proof_25},
+            { R.drawable.parks_2019_war_in_the_pacific_proof,   R.drawable.parks_2019_war_in_the_pacific_proof_25},
+            { R.drawable.parks_2019_san_antonio_missions_proof, R.drawable.parks_2019_san_antonio_missions_proof_25},
+            { R.drawable.parks_2019_river_of_no_return_proof,   R.drawable.parks_2019_river_of_no_return_proof_25},
     };
 
     private static final HashMap<String, Integer[]> PARKS_INFO = new HashMap<>();
@@ -319,6 +324,20 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Voyageurs");
             newCoinIdentifiers.add("Cumberland Island");
             newCoinIdentifiers.add("Block Island");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 12) {
+            // Add in 2019 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Lowell");
+            newCoinIdentifiers.add("American Memorial");
+            newCoinIdentifiers.add("War in the Pacific");
+            newCoinIdentifiers.add("San Antonio Missions");
+            newCoinIdentifiers.add("River of No Return");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);

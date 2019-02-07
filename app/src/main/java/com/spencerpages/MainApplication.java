@@ -29,6 +29,7 @@ import android.util.Log;
 
 import com.coincollection.CollectionPage;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -98,6 +99,7 @@ public class MainApplication extends Application {
                     new PeaceDollars(),
                     new AmericanEagleSilverDollars(),
                     new FirstSpouseGoldCoins(),
+                    new AmericanInnovationDollars(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
@@ -118,8 +120,9 @@ public class MainApplication extends Application {
      *                   Version 10 - Used in Version 2.3.1 of the app
      *                   Version 11 - Used in Version 2.3.2 of the app
      *                   Version 12 - Used in Version 2.3.3 of the app
+     *                   Version 13 - Used in Version 2.3.4 of the app
      */
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
 
     /**
      * Performs any database updates that are needed at an application level
