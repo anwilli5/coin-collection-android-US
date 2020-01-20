@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-
     // minSdkVersion should be the lowest supported.
     //  - For app versions 1.6 and below this was 4
     //  - Raised to 7 for version 2.0 to support the appcompat support library
@@ -10,20 +9,31 @@ android {
     //  - Raised to ?? for version 2.2.1 to get the recyclerview (for the
     //    view to reorder collections
     //  - Raised to 14 for version 2.3.4 since appcompat's min SDK increased to that
-
     // targetSdkVersion should be raised to match the latest version of
     // Android and then tested (on that version) to make sure it works.
-
     defaultConfig {
         applicationId "com.spencerpages"
         minSdkVersion 14
         targetSdkVersion 28
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+    flavorDimensions "version"
+    productFlavors {
+        android {
+            dimension "version"
+        }
+        amazon {
+            dimension "version"
+            applicationIdSuffix ".amazon"
         }
     }
 }
