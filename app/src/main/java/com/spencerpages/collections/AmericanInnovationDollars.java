@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -36,11 +37,15 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     private static final Object[][] COIN_IDENTIFIERS = {
             { "Introductory", R.drawable.innovation_2018_introductory_unc, R.drawable.innovation_2018_introductory_unc_25},
-            /*
             { "Delaware",     R.drawable.innovation_2019_delaware_unc, R.drawable.innovation_2019_delaware_unc_25},
             { "Pennsylvania", R.drawable.innovation_2019_pennsylvania_unc, R.drawable.innovation_2019_pennsylvania_unc_25},
             { "New Jersey",   R.drawable.innovation_2019_new_jersey_unc, R.drawable.innovation_2019_new_jersey_unc_25},
-            { "Georgia"       R.drawable.innovation_2019_georgia_unc, R.drawable.innovation_2019_georgia_unc_25},
+            { "Georgia",      R.drawable.innovation_2019_georgia_unc, R.drawable.innovation_2019_georgia_unc_25},
+            /*
+            { "Connecticut",    R.drawable.innovation_2020_connecticut_unc, R.drawable.innovation_2020_connecticut_unc_25},
+            { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc, R.drawable.innovation_2020_massachusetts_unc_25},
+            { "Maryland",       R.drawable.innovation_2020_maryland_unc, R.drawable.innovation_2020_maryland_unc_25},
+            { "South Carolina", R.drawable.innovation_2020_south_carolina_unc, R.drawable.innovation_2020_south_carolina_unc_25}
              */
     };
 
@@ -114,7 +119,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
         int total = 0;
 
-        /*if (oldVersion <= ##) {
+        if (oldVersion <= 13) {
             // Add in new 2019 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Delaware");
@@ -124,7 +129,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
-        }*/
+        }
 
         return total;
     }

@@ -35,41 +35,28 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     private static final String COLLECTION_TYPE = "Sacagawea/Native American Dollars"; // Was: Sacagawea Dollars
 
-    // Handle the ones needing the various native american coin images differently
-    private static final String[] NATIVE_COIN_IDENTIFIERS = {
-            "2009",
-            "2010",
-            "2011",
-            "2012",
-            "2013",
-            "2014",
-            "2015",
-            "2016",
-            "2017",
-            "2018",
-            "2019",
-    };
-
-    private static final Integer[][] NATIVE_IMAGE_IDENTIFIERS = {
-            { R.drawable.native_2009_unc,       R.drawable.native_2009_unc_25},
-            { R.drawable.native_2010_unc,       R.drawable.native_2010_unc_25},
-            { R.drawable.native_2011_unc,       R.drawable.native_2011_unc_25},
-            { R.drawable.native_2012_unc,       R.drawable.native_2012_unc_25},
-            { R.drawable.native_2013_proof,     R.drawable.native_2013_proof_25},
-            { R.drawable.native_2014_unc,       R.drawable.native_2014_unc_25},
-            { R.drawable.native_2015_unc,       R.drawable.native_2015_unc_25},
-            { R.drawable.native_2016_unc,       R.drawable.native_2016_unc_25},
-            { R.drawable.native_2017_unc,       R.drawable.native_2017_unc_25},
-            { R.drawable.native_2018_unc,       R.drawable.native_2018_unc_25},
-            { R.drawable.native_2019_unc,       R.drawable.native_2019_unc_25},
+    private static final Object[][] NATIVE_IMAGE_IDENTIFIERS = {
+            {"2009", R.drawable.native_2009_unc,       R.drawable.native_2009_unc_25},
+            {"2010", R.drawable.native_2010_unc,       R.drawable.native_2010_unc_25},
+            {"2011", R.drawable.native_2011_unc,       R.drawable.native_2011_unc_25},
+            {"2012", R.drawable.native_2012_unc,       R.drawable.native_2012_unc_25},
+            {"2013", R.drawable.native_2013_proof,     R.drawable.native_2013_proof_25},
+            {"2014", R.drawable.native_2014_unc,       R.drawable.native_2014_unc_25},
+            {"2015", R.drawable.native_2015_unc,       R.drawable.native_2015_unc_25},
+            {"2016", R.drawable.native_2016_unc,       R.drawable.native_2016_unc_25},
+            {"2017", R.drawable.native_2017_unc,       R.drawable.native_2017_unc_25},
+            {"2018", R.drawable.native_2018_unc,       R.drawable.native_2018_unc_25},
+            {"2019", R.drawable.native_2019_unc,       R.drawable.native_2019_unc_25},
+            {"2020", R.drawable.native_2020_unc,       R.drawable.native_2020_unc_25},
     };
 
     private static final HashMap<String, Integer[]> NATIVE_INFO = new HashMap<>();
 
     static {
         // Populate the NATIVE_INFO HashMap for quick image ID lookups later
-        for (int i = 0; i < NATIVE_COIN_IDENTIFIERS.length; i++){
-            NATIVE_INFO.put(NATIVE_COIN_IDENTIFIERS[i], NATIVE_IMAGE_IDENTIFIERS[i]);
+        for (Object[] coinData : NATIVE_IMAGE_IDENTIFIERS){
+            NATIVE_INFO.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
 
@@ -187,6 +174,12 @@ public class NativeAmericanDollars extends CollectionInfo {
         if (oldVersion <= 12) {
             // Add in new 2019 coins if applicable
             int value = DatabaseHelper.addFromYear(db, tableName, "2019");
+            total += value;
+        }
+
+        if (oldVersion <= 13) {
+            // Add in new 2020 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2020");
             total += value;
         }
 

@@ -264,6 +264,12 @@ public class JeffersonNickels extends CollectionInfo {
             total += value;
         }
 
+        if (oldVersion <= 13) {
+            // Add in new 2020 coins if applicable
+            int value = DatabaseHelper.addFromYear(db, tableName, "2020");
+            total += value;
+        }
+
         return total;
     }
 }
