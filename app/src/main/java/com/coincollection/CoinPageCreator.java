@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
+import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -658,7 +659,9 @@ public class CoinPageCreator extends AppCompatActivity {
         // (VISIBLE vs. GONE) of the UI from the internal state.
         updateViewFromState();
 
-        Log.d(MainApplication.APP_NAME, "Finished in onCreate");
+        if(BuildConfig.DEBUG) {
+            Log.d(MainApplication.APP_NAME, "Finished in onCreate");
+        }
 
     }
 

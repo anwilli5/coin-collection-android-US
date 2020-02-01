@@ -171,7 +171,9 @@ public class MainApplication extends Application {
             try {
                 db.execSQL("ALTER TABLE collection_info ADD COLUMN displayOrder INTEGER");
             } catch (SQLException e) {
-                Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+                if(BuildConfig.DEBUG) {
+                    Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+                }
             }
 
             Cursor resultCursor = db.query("collection_info", new String[]{"name", "coinType"},

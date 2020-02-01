@@ -267,7 +267,7 @@ public class CollectionPage extends AppCompatActivity {
                 // yay
 
                 if(BuildConfig.DEBUG) {
-                    Log.e(MainApplication.APP_NAME, "Successfully restored previous state");
+                    Log.d(MainApplication.APP_NAME, "Successfully restored previous state");
                 }
 
                 ArrayList<Integer> grades = mSavedInstanceState.getIntegerArrayList("coin_grades");
