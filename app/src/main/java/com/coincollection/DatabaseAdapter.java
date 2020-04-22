@@ -26,7 +26,12 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.spencerpages.MainApplication;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Adapter based on the Simple Notes Database Access Helper Class on the Android site.
@@ -40,6 +45,15 @@ public class DatabaseAdapter {
     private SQLiteDatabase mDb;
 
     private final Context mContext;
+
+    /**
+     * Record any internal DB names here!
+     * Because internal tables and user tables aren't differentiated, we must prohibit
+     * users from trying to create database collections that map to internal DB names
+     */
+    private final List<String> mReservedDbNames = new ArrayList<>(Arrays.asList(
+            "collection_info"
+    ));
 
     /**
      * Constructor - takes the context to allow the database to be
@@ -232,6 +246,23 @@ public class DatabaseAdapter {
         + " advNotes text default \"\");";
 
         mDb.execSQL(DATABASE_CREATE);
+    }
+
+    /**
+     * Helper function to rename a collection
+     * @param oldName The original collection name
+     * @param newName The new collection name
+     * @return true if the value was successfully updated, false otherwise
+     */
+    public boolean updateCollectionName(String oldName, String newName){
+        String alterDbSqlStr = "ALTER TABLE [" + oldName + "] RENAME TO [" + newName + "]";
+        mDb.execSQL(alterDbSqlStr);
+
+        ContentValues args = new ContentValues();
+        args.put("name", newName);
+
+        // TODO Should we do something if update fails?
+        return mDb.update("collection_info", args, "name=?", new String[] { oldName }) > 0;
     }
 
     /**
@@ -444,5 +475,54 @@ public class DatabaseAdapter {
      */
     public void upgradeCollections(int oldVersion) {
         mDbHelper.onUpgrade(mDb, oldVersion, MainApplication.DATABASE_VERSION);
+    }
+
+    /**
+     * Check if a name can be used for a new/renamed collection
+     * @param name The collection name
+     * @return Empty string if name is valid, otherwise a reason why the name can't be used
+     */
+    public String checkCollectionName(String name) {
+
+        // Make sure the name isn't in the reserved list
+        if (mReservedDbNames.contains(name)) {
+            return "Collection name is reserved, please choose a different name";
+        }
+
+        // By the time the user is able to click this mDbAdapter should not be NULL anymore
+        Cursor resultCursor = this.getAllCollectionNames();
+        if(resultCursor == null){
+            return "Failed to get list of current collections, low on memory perhaps?";
+        }
+        // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
+        if (resultCursor.moveToFirst()){
+            do {
+                Locale defaultLocale = Locale.getDefault();
+                if(resultCursor.getString(resultCursor.getColumnIndex("name")).toLowerCase(defaultLocale).equals(name.toLowerCase(defaultLocale))){
+                    resultCursor.close();
+                    return "A collection with this name already exists, please choose a different name";
+                }
+
+            } while(resultCursor.moveToNext());
+        }
+        resultCursor.close();
+        return "";
+    }
+
+    /**
+     * Get the next display order for a new collection
+     * @return The next display order to use
+     */
+    public int getNextDisplayOrder() {
+        String select_sqlStatement = "SELECT MAX(displayOrder) FROM collection_info";
+        SQLiteStatement compiledStatement;
+
+        compiledStatement = mDb.compileStatement(select_sqlStatement);
+        int result = (int) compiledStatement.simpleQueryForLong();
+
+        compiledStatement.clearBindings();
+        compiledStatement.close();
+
+        return result + 1;
     }
 }
