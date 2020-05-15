@@ -587,32 +587,12 @@ public class CoinPageCreator extends AppCompatActivity {
                 // Open it again.  This one shouldn't take long
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(CoinPageCreator.this);
                 dbAdapter.open();
-
-                // By the time the user is able to click this mDbAdapter should not be NULL anymore
-                Cursor resultCursor = dbAdapter.getAllCollectionNames();
-                if(resultCursor == null){
-                    Toast.makeText(CoinPageCreator.this, "Failed to get list of current collections, low on memory perhaps?", Toast.LENGTH_SHORT).show();
+                String checkNameResult = dbAdapter.checkCollectionName(collectionName);
+                if(checkNameResult != ""){
+                    Toast.makeText(CoinPageCreator.this, checkNameResult, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // We will count the collections for here for convenience as well
-                int numberOfCollections = 0;
-                // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
-                if (resultCursor.moveToFirst()){
-                    do{
-                        Locale defaultLocale = Locale.getDefault();
-                        if(resultCursor.getString(resultCursor.getColumnIndex("name")).toLowerCase(defaultLocale).equals(collectionName.toLowerCase(defaultLocale))){
-                            Toast.makeText(CoinPageCreator.this, "A collection with this name already exists, please choose a different name", Toast.LENGTH_SHORT).show();
-                            resultCursor.close();
-                            return;
-                        }
-
-                        numberOfCollections++;
-
-                    }while(resultCursor.moveToNext());
-                }
-
-                resultCursor.close();
-
+                int newDisplayOrder = dbAdapter.getNextDisplayOrder();
                 dbAdapter.close();
 
                 //Now actually set up the mIdentifierList and mMintList
@@ -625,7 +605,7 @@ public class CoinPageCreator extends AppCompatActivity {
                 mTask.coinType = mCollectionObj.getCoinType();
                 mTask.coinIdentifiers = mIdentifierList;
                 mTask.coinMints = mMintList;
-                mTask.displayOrder = numberOfCollections;
+                mTask.displayOrder = newDisplayOrder;
 
                 mTask.activity = CoinPageCreator.this;
 

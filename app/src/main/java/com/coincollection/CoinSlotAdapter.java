@@ -58,7 +58,7 @@ class CoinSlotAdapter extends BaseAdapter {
     // Information about the collections needed for the basic coin list view
 
     private final CollectionInfo mCollectionTypeObj;
-    private final String mTableName;
+    private String mTableName;
 
     /** mIdentifierList Contains a list of the main coin identifiers (Ex: "2009", or "Kentucky") */
     private final ArrayList<String> mIdentifierList;
@@ -151,6 +151,14 @@ class CoinSlotAdapter extends BaseAdapter {
         SharedPreferences mainPreferences = mContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
 
         displayIsLocked = mainPreferences.getBoolean(mTableName + "_isLocked", false);
+    }
+
+    /**
+     * Sets the table name
+     * @param tableName
+     */
+    public void setTableName(String tableName){
+        this.mTableName = tableName;
     }
 
     @Override
