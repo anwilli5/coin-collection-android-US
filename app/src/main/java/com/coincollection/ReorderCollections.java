@@ -44,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.coincollection.helper.OnStartDragListener;
@@ -147,7 +148,9 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
                 super.onItemRangeMoved(fromPosition, toPosition, itemCount);
 
-                Log.d("onItemRangeMoved", String.valueOf(fromPosition) + " " + String.valueOf(toPosition) + " " + String.valueOf(itemCount));
+                if(BuildConfig.DEBUG) {
+                    Log.d("onItemRangeMoved", String.valueOf(fromPosition) + " " + String.valueOf(toPosition) + " " + String.valueOf(itemCount));
+                }
 
                 ReorderCollections fragment = (ReorderCollections) getFragmentManager().findFragmentByTag("ReorderFragment");
 

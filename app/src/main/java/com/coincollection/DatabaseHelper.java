@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -46,9 +47,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i(MainApplication.APP_NAME, "Upgrading database from version " + oldVersion + " to "
-                + newVersion);
 
+        if(BuildConfig.DEBUG) {
+            Log.i(MainApplication.APP_NAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
+        }
 
         // First call the MainApplication's onDatabaseUpgrade to ensure that any changes necessary
         // for the app to work are done.

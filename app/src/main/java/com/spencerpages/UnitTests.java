@@ -94,17 +94,17 @@ class UnitTests {
         boolean showBurnished = false;
 
         HashMap<String,Integer> info = new HashMap<>();
-        info.put("Pennies", 273); // Typically increases by 2
-        info.put("Nickels", 181); // Typically increases by 2
-        info.put("Dimes", 155); // Typically increases by 2
+        info.put("Pennies", 275); // Typically increases by 2
+        info.put("Nickels", 183); // Typically increases by 2
+        info.put("Dimes", 157); // Typically increases by 2
         info.put("Quarters", 146);
         info.put("State Quarters", 112);
-        info.put("National Park Quarters", 100); // Typically increases by 10
-        info.put("Half-Dollars", 104); // Typically increases by 2
+        info.put("National Park Quarters", 110); // Typically increases by 10
+        info.put("Half-Dollars", 106); // Typically increases by 2
         info.put("Eisenhower Dollars", 14);
         info.put("Susan B. Anthony Dollars", 11);
-        info.put("Sacagawea/Native American Dollars", 40); // Typically increases by 2
-        info.put("Presidential Dollars", 78); // Typically increases by 4
+        info.put("Sacagawea/Native American Dollars", 42); // Typically increases by 2
+        info.put("Presidential Dollars", 78);
         info.put("Indian Head Cents", 55);
         info.put("Liberty Head Nickels", 33);
         info.put("Buffalo Nickels", 64);
@@ -117,9 +117,9 @@ class UnitTests {
         info.put("Franklin Half Dollars", 35);
         info.put("Morgan Dollars", 96);
         info.put("Peace Dollars", 24);
-        info.put("American Eagle Silver Dollars", 34); // Typically increases by 1
-        info.put("First Spouse Gold Coins", 41); // Typically increases by 4
-        info.put("American Innovation Dollars", 2); // Typically increases by 4
+        info.put("American Eagle Silver Dollars", 35); // Typically increases by 1
+        info.put("First Spouse Gold Coins", 41);
+        info.put("American Innovation Dollars", 10); // Typically increases by 8
 
         Object[] keys = info.keySet().toArray();
 

@@ -131,12 +131,13 @@
     <string name="okay">Okay!</string>
     <string name="select_collection_delete">Select a collection to delete</string>
     <string name="collection_complete">Collection Complete!</string>
+    <string name="select_collection_name">Select a new collection name</string>
 
     <!-- Coin Page Creator -->
     <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit \'Create New Collection!\'</string>
 
     <!-- Collection Page -->
-    <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above it\'s year or name.  Also, you can prevent accidental changes using the \'Lock\' action</string>
+    <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above its year or name.  Also, you can prevent accidental changes using the \'Lock\' action</string>
 
     <!-- Error and Status Messages -->
     <string name="failed_mk_dir">Failed to make/find directory at %1$s</string>

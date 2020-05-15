@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -106,8 +108,16 @@ public class CollectionPage extends AppCompatActivity {
 
         // Need to get the coin type from the intent that started this process
         Intent callingIntent = getIntent();
-        mCollectionName = callingIntent.getStringExtra(COLLECTION_NAME);
         int collectionTypeIndex = callingIntent.getIntExtra(COLLECTION_TYPE_INDEX, 0);
+
+        // Capture the collection name from the saved instance state if it's there,
+        // otherwise capture from the calling intent. Note that the calling intent
+        // is updated with any renames before re-creating the view.
+        if(mSavedInstanceState != null){
+            mCollectionName = mSavedInstanceState.getString(COLLECTION_NAME);
+        } else{
+            mCollectionName = callingIntent.getStringExtra(COLLECTION_NAME);
+        }
 
         mCollectionTypeObj = MainApplication.COLLECTION_TYPES[collectionTypeIndex];
         //TODO Take this out
@@ -267,7 +277,7 @@ public class CollectionPage extends AppCompatActivity {
                 // yay
 
                 if(BuildConfig.DEBUG) {
-                    Log.e(MainApplication.APP_NAME, "Successfully restored previous state");
+                    Log.d(MainApplication.APP_NAME, "Successfully restored previous state");
                 }
 
                 ArrayList<Integer> grades = mSavedInstanceState.getIntegerArrayList("coin_grades");
@@ -465,6 +475,7 @@ public class CollectionPage extends AppCompatActivity {
             SharedPreferences.Editor editor = mainPreferences.edit();
 
             boolean isLocked = mainPreferences.getBoolean(mCollectionName + "_isLocked", false);
+            boolean finishedSuccessfully = true;
 
             // If we are going from unlocked to lock in advance mode, we need to save the
             // changes the user may have made (if any)
@@ -475,9 +486,6 @@ public class CollectionPage extends AppCompatActivity {
                 // In the advanced display case, we also need to save
 
                 // TODO Show some kind of spinner
-                // Save everything in the database
-                boolean finishedSuccessfully = true;
-
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
@@ -532,21 +540,23 @@ public class CollectionPage extends AppCompatActivity {
                 }
             }
 
-            if(isLocked){
-                // Locked, change to unlocked
-                editor.putBoolean(mCollectionName + "_isLocked", false);
-                // Change the text for next time
-                if(mDisplayType == SIMPLE_DISPLAY){
-                    item.setTitle(R.string.lock_collection);
-                }
-                // Don't update in the advance case, because we are going to blow
-                // away this
-            } else {
-                // Unlocked or preference doesn't exist, change preference to locked
-                editor.putBoolean(mCollectionName + "_isLocked", true);
-                // Change the text for next time
-                if(mDisplayType == SIMPLE_DISPLAY){
-                    item.setTitle(R.string.unlock_collection);
+            if(finishedSuccessfully) {
+                if (isLocked) {
+                    // Locked, change to unlocked
+                    editor.putBoolean(mCollectionName + "_isLocked", false);
+                    // Change the text for next time
+                    if (mDisplayType == SIMPLE_DISPLAY) {
+                        item.setTitle(R.string.lock_collection);
+                    }
+                    // Don't update in the advance case, because we are going to blow
+                    // away this
+                } else {
+                    // Unlocked or preference doesn't exist, change preference to locked
+                    editor.putBoolean(mCollectionName + "_isLocked", true);
+                    // Change the text for next time
+                    if (mDisplayType == SIMPLE_DISPLAY) {
+                        item.setTitle(R.string.unlock_collection);
+                    }
                 }
             }
 
@@ -569,6 +579,7 @@ public class CollectionPage extends AppCompatActivity {
                 Intent callingIntent = getIntent();
                 callingIntent.putExtra(VIEW_INDEX, index);
                 callingIntent.putExtra(VIEW_POSITION, top);
+                callingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 finish();
                 startActivity(callingIntent);
@@ -598,6 +609,7 @@ public class CollectionPage extends AppCompatActivity {
                 Intent callingIntent = getIntent();
                 callingIntent.putExtra(VIEW_INDEX, index);
                 callingIntent.putExtra(VIEW_POSITION, top);
+                callingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 // Restart the activity
                 finish();
@@ -638,6 +650,7 @@ public class CollectionPage extends AppCompatActivity {
                 Intent callingIntent = getIntent();
                 callingIntent.putExtra(VIEW_INDEX, index);
                 callingIntent.putExtra(VIEW_POSITION, top);
+                callingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 // Restart the activity
                 finish();
@@ -646,6 +659,12 @@ public class CollectionPage extends AppCompatActivity {
             }
 
             // Shouldn't get here
+            return true;
+
+        case R.id.rename_collection:
+
+            // Prompt user for new name via alert dialog
+            showRenamePrompt();
             return true;
 
         case android.R.id.home:
@@ -666,6 +685,84 @@ public class CollectionPage extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    /**
+     * Updates the collection name when the user renames a collection
+     * @param newCollectionName
+     */
+    private void updateCollectionName(String newCollectionName){
+
+        String oldCollectionName = mCollectionName;
+
+        // Do nothing if the name isn't actually changed
+        if (newCollectionName.equals(oldCollectionName)){
+            return;
+        }
+
+        DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
+        dbAdapter.open();
+
+        // Make sure the new name isn't taken and is valid
+        String checkNameResult = dbAdapter.checkCollectionName(newCollectionName);
+        if(!checkNameResult.equals("")){
+            Context context = this.getApplicationContext();
+            Toast.makeText(context, checkNameResult, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Perform all actions needed to rename the collection
+
+        // Update database
+        dbAdapter.updateCollectionName(oldCollectionName, newCollectionName);
+        dbAdapter.close();
+
+        // Update app state
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = mainPreferences.edit();
+        boolean isLocked = mainPreferences.getBoolean(oldCollectionName + "_isLocked", false);
+        editor.remove(oldCollectionName + "_isLocked");
+        editor.putBoolean(newCollectionName + "_isLocked", isLocked);
+        editor.commit(); // .apply() in later APIs
+
+        // Update current view
+        mCollectionName = newCollectionName;
+        mCoinSlotAdapter.setTableName(newCollectionName);
+        this.setTitle(newCollectionName);
+    }
+
+    /**
+     * Prompts the user to rename the collection
+     */
+    private void showRenamePrompt(){
+        // Create a text box for the new collection name
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(mCollectionName);
+
+        // Build the alert dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(mRes.getString(R.string.select_collection_name));
+        builder.setView(input);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newName = input.getText().toString();
+                if(newName.equals("")){
+                    Toast.makeText(CollectionPage.this, "Please enter a name for the collection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                updateCollectionName(newName);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
     
     private boolean doUnsavedChangesExist(){
@@ -786,5 +883,6 @@ public class CollectionPage extends AppCompatActivity {
         
         outState.putInt(VIEW_INDEX, index);
         outState.putInt(VIEW_POSITION, top);
+        outState.putString(COLLECTION_NAME, mCollectionName);
     }
 }

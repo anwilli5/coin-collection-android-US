@@ -121,8 +121,9 @@ public class MainApplication extends Application {
      *                   Version 11 - Used in Version 2.3.2 of the app
      *                   Version 12 - Used in Version 2.3.3 of the app
      *                   Version 13 - Used in Version 2.3.4 of the app
+     *                   Version 14 - Used in Version 2.3.5 of the app
      */
-    public static final int DATABASE_VERSION = 13;
+    public static final int DATABASE_VERSION = 14;
 
     /**
      * Performs any database updates that are needed at an application level
@@ -170,7 +171,9 @@ public class MainApplication extends Application {
             try {
                 db.execSQL("ALTER TABLE collection_info ADD COLUMN displayOrder INTEGER");
             } catch (SQLException e) {
-                Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+                if(BuildConfig.DEBUG) {
+                    Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+                }
             }
 
             Cursor resultCursor = db.query("collection_info", new String[]{"name", "coinType"},
