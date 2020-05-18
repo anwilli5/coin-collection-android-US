@@ -7,6 +7,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content" 
             android:layout_height="fill_parent"
+            android:layout_marginRight="5dp"
             android:id="@+id/section1" >  
           <ImageView
               android:id="@+id/coinImage"
@@ -28,6 +29,7 @@
             android:layout_width="wrap_content" 
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section1"
+            android:layout_marginRight="5dp"
             android:id="@+id/section2" >  
           <TextView
             android:id="@+id/grade_textview"

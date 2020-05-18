@@ -86,7 +86,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             */
     };
 
-    public static final Integer[][] FS_IMAGE_IDENTIFIERS = {
+    private static final Integer[][] FS_IMAGE_IDENTIFIERS = {
             { R.drawable.fs_2007_martha_washington_unc,   R.drawable.fs_2007_martha_washington_unc_25},
             { R.drawable.fs_2007_abigail_adams_unc,       R.drawable.fs_2007_abigail_adams_unc_25},
             { R.drawable.fs_2007_jeffersons_liberty_unc,  R.drawable.fs_2007_jeffersons_liberty_unc_25},
@@ -156,8 +156,8 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
 
-        for(int i = 0; i < FS_COIN_IDENTIFIERS.length; i++){
-            String identifier = (String) FS_COIN_IDENTIFIERS[i];
+        for (String fsCoinIdentifier : FS_COIN_IDENTIFIERS) {
+            String identifier = (String) fsCoinIdentifier;
             identifierList.add(identifier);
             mintList.add("");
         }

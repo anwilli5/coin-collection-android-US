@@ -78,13 +78,15 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/enter_start_year" />
+                    android:text="@string/enter_start_year"
+                    android:labelFor="@id/edit_start_year"/>
 
                 <EditText
                     android:id="@+id/edit_start_year"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:hint="@string/enter_start_year"/>
             </LinearLayout>
 
             <LinearLayout
@@ -96,13 +98,15 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/enter_stop_year" />
+                    android:text="@string/enter_stop_year"
+                    android:labelFor="@id/edit_stop_year"/>
 
                 <EditText
                     android:id="@+id/edit_stop_year"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:hint="@string/enter_stop_year"/>
             </LinearLayout>
 
             <Button

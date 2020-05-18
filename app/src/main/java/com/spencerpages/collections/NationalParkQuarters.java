@@ -132,6 +132,7 @@ public class NationalParkQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
@@ -140,16 +141,16 @@ public class NationalParkQuarters extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
-        for(int i = 0; i < PARKS_IMAGE_IDENTIFIERS.length; i++){
+        for (Object[] parksImageIdentifier : PARKS_IMAGE_IDENTIFIERS) {
 
-            String identifier = (String) PARKS_IMAGE_IDENTIFIERS[i][0];
+            String identifier = (String) parksImageIdentifier[0];
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     identifierList.add(identifier);
                     mintList.add("P");
                 }
-                if(showD){
+                if (showD) {
                     identifierList.add(identifier);
                     mintList.add("D");
                 }

@@ -69,12 +69,9 @@ class UnitTests {
         }
 
         result = testCCMintMarks();
-        if(!result){
-            return false;
-        }
+        return result;
 
         // All tests passed
-        return true;
     }
 
     // TODO Replace with better tests
@@ -179,7 +176,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {
@@ -288,7 +285,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {
@@ -396,7 +393,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {
@@ -505,7 +502,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {
@@ -593,7 +590,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {
@@ -678,7 +675,7 @@ class UnitTests {
                     Log.e(MainApplication.APP_NAME, identifierList.get(k) + " " + mintList.get(k));
                 }
 
-                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + String.valueOf(size1) + " : " + String.valueOf(size2) + ") != " + String.valueOf(size));
+                Log.e(MainApplication.APP_NAME, "Failed sanity check - " + coinType + " - (" + size1 + " : " + size2 + ") != " + size);
                 return false;
 
             } else {

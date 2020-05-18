@@ -23,7 +23,6 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -79,6 +78,7 @@ public class BarberDimes extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {

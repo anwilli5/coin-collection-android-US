@@ -108,6 +108,7 @@ public class JeffersonNickels extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
@@ -123,16 +124,14 @@ public class JeffersonNickels extends CollectionInfo {
 
             if(i == 2004){
                 // 2004 Jefferson Presidential Nickels
-                for(int j = 0; j < WESTWARD_2004_COIN_IDENTIFIERS.length; j++){
+                for (String identifier : WESTWARD_2004_COIN_IDENTIFIERS) {
 
-                    String identifier = WESTWARD_2004_COIN_IDENTIFIERS[j];
-
-                    if(showMintMarks){
-                        if(showP){
+                    if (showMintMarks) {
+                        if (showP) {
                             identifierList.add(identifier);
                             mintList.add("P");
                         }
-                        if(showD){
+                        if (showD) {
                             identifierList.add(identifier);
                             mintList.add("D");
                         }
@@ -146,16 +145,14 @@ public class JeffersonNickels extends CollectionInfo {
 
             if(i == 2005){
                 // 2005 Jefferson Presidential Nickels
-                for(int j = 0; j < WESTWARD_2005_COIN_IDENTIFIERS.length; j++){
+                for (String identifier : WESTWARD_2005_COIN_IDENTIFIERS) {
 
-                    String identifier = WESTWARD_2005_COIN_IDENTIFIERS[j];
-
-                    if(showMintMarks){
-                        if(showP){
+                    if (showMintMarks) {
+                        if (showP) {
                             identifierList.add(identifier);
                             mintList.add("P");
                         }
-                        if(showD){
+                        if (showD) {
                             identifierList.add(identifier);
                             mintList.add("D");
                         }

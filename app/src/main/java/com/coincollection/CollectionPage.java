@@ -54,6 +54,10 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 
+import static com.coincollection.MainActivity.createAndShowHelpDialog;
+import static com.coincollection.MainActivity.showUnsavedChangesAlertAndExitActivity;
+import static com.coincollection.MainActivity.showUnsavedChangesAlertViewChange;
+
 /** Activity for managing each collection page
  *
  * http://developer.android.com/resources/tutorials/views/hello-gridview.html
@@ -74,8 +78,8 @@ public class CollectionPage extends AppCompatActivity {
     // Intent Argument Keywords
     public final static String COLLECTION_NAME        = "Collection_Name";
     public final static String COLLECTION_TYPE_INDEX  = "Collection_Type_Index";
-    public final static String VIEW_INDEX             = "view_index";
-    public final static String VIEW_POSITION          = "view_position";
+    private final static String VIEW_INDEX            = "view_index";
+    private final static String VIEW_POSITION         = "view_position";
 
     // Global "enum" values
     public static final int SIMPLE_DISPLAY = 0;
@@ -137,24 +141,7 @@ public class CollectionPage extends AppCompatActivity {
 
         // Tell the user they can now lock the collections
         // Check whether it is the users first time using the app
-        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-        if(mainPreferences.getBoolean("first_Time_screen3", true)){
-            // Show the user how to do everything
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(mRes.getString(R.string.tutorial_add_to_and_lock_collection))
-                   .setCancelable(false)
-                   .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                           dialog.cancel();
-                           SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-                           SharedPreferences.Editor editor = mainPreferences.edit();
-                           editor.putBoolean("first_Time_screen3", false);
-                           editor.commit(); // .apply() in later APIs
-                       }
-                   });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
+        createAndShowHelpDialog("first_Time_screen3", R.string.tutorial_add_to_and_lock_collection, this);
 
         // TODO We use to break this up with an AsyncTask, but doesn't look like that's needed
         // anymore.  Consider combining functions.
@@ -174,11 +161,12 @@ public class CollectionPage extends AppCompatActivity {
 
         // Update the icon
         ActionBar actionBar = this.getSupportActionBar();
-        actionBar.setIcon(mActionBarImage);
-
-        // Set the actionbar so that clicking the icon takes you back
-        // SO 1010877
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(actionBar != null){
+            actionBar.setIcon(mActionBarImage);
+            // Set the actionbar so that clicking the icon takes you back
+            // SO 1010877
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         GridView gridview = null;
         ListView listview = null;
@@ -187,13 +175,13 @@ public class CollectionPage extends AppCompatActivity {
 
             setContentView(R.layout.standard_collection_page);
 
-            gridview = (GridView) findViewById(R.id.standard_collection_page);
+            gridview = findViewById(R.id.standard_collection_page);
 
         } else if(mDisplayType == ADVANCED_DISPLAY){
 
             setContentView(R.layout.advanced_collection_page);
             
-            listview = (ListView) findViewById(R.id.advanced_collection_page);
+            listview = findViewById(R.id.advanced_collection_page);
 
             // Make it so that the elements in the listview cells can get focus
             listview.setItemsCanFocus(true);
@@ -563,7 +551,7 @@ public class CollectionPage extends AppCompatActivity {
             // Save changes
             // TODO Consider not saving these if in advance mode and the db update
             // fails below
-            editor.commit(); // .apply() in later APIs
+            editor.apply();
 
             if(mDisplayType == ADVANCED_DISPLAY){
                 // We need to restart the view so we can show the locked
@@ -625,7 +613,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 if(this.doUnsavedChangesExist()){
 
-                    showUnsavedChangesAlert();
+                    showUnsavedChangesAlertViewChange(mRes, this);
                     return true;
                 }
 
@@ -642,7 +630,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 // Save the position that the user was at for convenience
                 // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
-                ListView listview = (ListView) findViewById(R.id.advanced_collection_page);
+                ListView listview = findViewById(R.id.advanced_collection_page);
                 int index = listview.getFirstVisiblePosition();
                 View v = listview.getChildAt(0);
                 int top = (v == null) ? 0 : v.getTop();
@@ -671,11 +659,9 @@ public class CollectionPage extends AppCompatActivity {
             // To support having a back arrow on the page
 
             if(this.doUnsavedChangesExist()){
-
                 // If we have unsaved changes, don't go back right away but
                 // instead let the user decide
-                showUnsavedChangesMessage();
-
+                showUnsavedChangesAlertAndExitActivity(mRes, this);
             } else {
                 this.onBackPressed();
             }
@@ -689,7 +675,7 @@ public class CollectionPage extends AppCompatActivity {
 
     /**
      * Updates the collection name when the user renames a collection
-     * @param newCollectionName
+     * @param newCollectionName Name of the new collection
      */
     private void updateCollectionName(String newCollectionName){
 
@@ -723,7 +709,7 @@ public class CollectionPage extends AppCompatActivity {
         boolean isLocked = mainPreferences.getBoolean(oldCollectionName + "_isLocked", false);
         editor.remove(oldCollectionName + "_isLocked");
         editor.putBoolean(newCollectionName + "_isLocked", isLocked);
-        editor.commit(); // .apply() in later APIs
+        editor.apply();
 
         // Update current view
         mCollectionName = newCollectionName;
@@ -744,18 +730,18 @@ public class CollectionPage extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(mRes.getString(R.string.select_collection_name));
         builder.setView(input);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = input.getText().toString();
                 if(newName.equals("")){
-                    Toast.makeText(CollectionPage.this, "Please enter a name for the collection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 updateCollectionName(newName);
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -769,43 +755,12 @@ public class CollectionPage extends AppCompatActivity {
 
         if(mDisplayType == ADVANCED_DISPLAY){
             // There are probably better ways to do this check, but this one is easy
-            TextView unsavedChangesView = (TextView) this.findViewById(R.id.unsaved_message_textview);
+            TextView unsavedChangesView = this.findViewById(R.id.unsaved_message_textview);
             return (unsavedChangesView.getVisibility() == View.VISIBLE);
         } else {
             // In the simple view, there will never be unsaved changes
             return false;
         }
-    }
-        
-    private void showUnsavedChangesAlert() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("This collection has unsaved changes, please save before changing views.")
-               .setCancelable(false)
-               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                        // Nothing to do, just a warning
-                   }
-                   });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-    
-    private void showUnsavedChangesMessage(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Leaving this page will erase your unsaved changes, are you sure you want to exit?")
-               .setCancelable(false)
-               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                       finish();
-                   }})
-               .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                   }});
-        AlertDialog alert = builder.create();
-        alert.show();
     }
     
     @Override
@@ -816,8 +771,7 @@ public class CollectionPage extends AppCompatActivity {
             // If the back key is pressed, we want to warn the user if there are unsaved changes
 
             if(this.doUnsavedChangesExist()){
-
-                showUnsavedChangesMessage();
+                showUnsavedChangesAlertAndExitActivity(mRes, this);
                 return true;
             }
         }
@@ -864,7 +818,7 @@ public class CollectionPage extends AppCompatActivity {
             outState.putBooleanArray("in_collection", array);
 
             // Finally, save off the position of the listview
-            ListView listview = (ListView) findViewById(R.id.advanced_collection_page);
+            ListView listview = findViewById(R.id.advanced_collection_page);
 
             // save index and top position
             // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
@@ -874,7 +828,7 @@ public class CollectionPage extends AppCompatActivity {
 
         } else {
 
-            GridView gridview = (GridView) findViewById(R.id.standard_collection_page);
+            GridView gridview = findViewById(R.id.standard_collection_page);
 
             index = gridview.getFirstVisiblePosition();
             View v = gridview.getChildAt(0);

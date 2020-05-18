@@ -200,6 +200,7 @@ public class StateQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
@@ -209,16 +210,14 @@ public class StateQuarters extends CollectionInfo {
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
 
-        for(int i = 0; i < STATES_COIN_IDENTIFIERS.length; i++){
+        for (String identifier : STATES_COIN_IDENTIFIERS) {
 
-            String identifier = STATES_COIN_IDENTIFIERS[i];
-
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     identifierList.add(identifier);
                     mintList.add("P");
                 }
-                if(showD){
+                if (showD) {
                     identifierList.add(identifier);
                     mintList.add("D");
                 }
@@ -229,16 +228,14 @@ public class StateQuarters extends CollectionInfo {
         }
         if(showTerritories){
             // Add those to the list
-            for(int i = 0; i < DC_AND_TERR_COIN_IDENTIFIERS.length; i++){
+            for (String identifier : DC_AND_TERR_COIN_IDENTIFIERS) {
 
-                String identifier = DC_AND_TERR_COIN_IDENTIFIERS[i];
-
-                if(showMintMarks){
-                    if(showP){
+                if (showMintMarks) {
+                    if (showP) {
                         identifierList.add(identifier);
                         mintList.add("P");
                     }
-                    if(showD){
+                    if (showD) {
                         identifierList.add(identifier);
                         mintList.add("D");
                     }

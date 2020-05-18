@@ -34,7 +34,7 @@ public class ReorderViewHolder extends RecyclerView.ViewHolder implements
 
     public final View view;
 
-    public ReorderViewHolder(View itemView) {
+    ReorderViewHolder(View itemView) {
         super(itemView);
         view = itemView;
     }

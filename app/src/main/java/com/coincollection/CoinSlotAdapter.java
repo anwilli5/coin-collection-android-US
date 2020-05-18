@@ -38,13 +38,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
-
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
-
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * BaseAdapter for the collection pages
@@ -70,19 +67,19 @@ class CoinSlotAdapter extends BaseAdapter {
     // We will keep track of which items need to be pushed back
 
     // List holding whether each coin is in the collection
-    public ArrayList<Boolean> inCollectionList = null;
+    final ArrayList<Boolean> inCollectionList;
 
     // Lists needed to support the advanced view
 
-    public boolean[] indexHasChanged = null;
+    boolean[] indexHasChanged = null;
 
     // In the database, we store the index into the grade and quantity arrays
     // so we can use these values efficiently.  For notes, we have to store the
     // strings
     // TODO Can we make these private?
-    public ArrayList<Integer> advancedGrades = null;
-    public ArrayList<Integer> advancedQuantities = null;
-    public ArrayList<String> advancedNotes = null;
+    ArrayList<Integer> advancedGrades = null;
+    ArrayList<Integer> advancedQuantities = null;
+    ArrayList<String> advancedNotes = null;
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
     private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
@@ -107,7 +104,7 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param inCollectionList The list of whether each coin has been marked as being in the
      *                         collection
      */
-    public CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<String> identifierList, ArrayList<String> mintList, ArrayList<Boolean> inCollectionList) {
+    CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<String> identifierList, ArrayList<String> mintList, ArrayList<Boolean> inCollectionList) {
         // Used for State, National Park, Presidential Coins, and Native American coins
         // and Pennies, Nickels, American Innovation Dollars
         super();
@@ -128,7 +125,7 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param hasChanged A list used to track whether the data associated with a given coin has
      *                   changed since the last time a 'Save' occurred
      */
-    public void setAdvancedLists(ArrayList<Integer> grades, ArrayList<Integer> quantities, ArrayList<String> notes, boolean[] hasChanged) {
+    void setAdvancedLists(ArrayList<Integer> grades, ArrayList<Integer> quantities, ArrayList<String> notes, boolean[] hasChanged) {
 
         advancedGrades = grades;
         advancedQuantities = quantities;
@@ -155,7 +152,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
     /**
      * Sets the table name
-     * @param tableName
+     * @param tableName Table name
      */
     public void setTableName(String tableName){
         this.mTableName = tableName;
@@ -181,6 +178,7 @@ class CoinSlotAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View coinView = convertView;
+        Resources res = mContext.getResources();
 
         if (coinView == null) {  // If we couldn't get a recycled one, create a new one
 
@@ -204,19 +202,19 @@ class CoinSlotAdapter extends BaseAdapter {
         // Display the basic info first
         String identifier = mIdentifierList.get(position);
         String mint = mMintList.get(position);
-        TextView coinText = (TextView) coinView.findViewById(R.id.coinText);
+        TextView coinText = coinView.findViewById(R.id.coinText);
         boolean inCollection = inCollectionList.get(position);
 
         // Set the coin identifier text (Year and Mint in most cases)
         // TODO Fix this so there is no space if there is no mint
         // This actually puts in two spaces, since mint has a space as well
-        coinText.setText(identifier + " " + mint);
+        coinText.setText(res.getString(R.string.coin_text_template, identifier, mint));
 
         //Set this image based on whether the coin has been obtained
-        ImageView coinImage = (ImageView) coinView.findViewById(R.id.coinImage);
+        ImageView coinImage = coinView.findViewById(R.id.coinImage);
 
         // TODO Not sure if this improves accessibility, but better than nothing
-        coinImage.setContentDescription(identifier + " " + mint + " Button");
+        coinImage.setContentDescription(res.getString(R.string.coin_content_desc_template, identifier, mint));
 
         int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(identifier, mint, inCollection);
         coinImage.setImageResource(imageIdentifier);
@@ -239,7 +237,7 @@ class CoinSlotAdapter extends BaseAdapter {
         // Use this so the listeners know the position of the item in the list
         Integer positionObj = position;
 
-        final ImageView imageView = (ImageView) coinView.findViewById(R.id.coinImage);
+        final ImageView imageView = coinView.findViewById(R.id.coinImage);
 
         imageView.setOnClickListener(new OnClickListener() {
 
@@ -278,29 +276,29 @@ class CoinSlotAdapter extends BaseAdapter {
             Resources res = mContext.getResources();
 
             String[] grades = res.getStringArray(R.array.coin_grades);
-            TextView gradeTextView = (TextView) coinView.findViewById(R.id.grade_textview);
+            TextView gradeTextView = coinView.findViewById(R.id.grade_textview);
             int gradeIndex = advancedGrades.get(position);
             if(gradeIndex != 0){
-                // Preface the grade with 'Grade:'
-                gradeTextView.setText("Grade: " + grades[gradeIndex] + "  ");
+                // Prefix the grade with 'Grade:'
+                gradeTextView.setText(res.getString(R.string.grade_text_view_template, grades[gradeIndex]));
             } else {
                 // 'Grade:' will be printed
-                gradeTextView.setText(grades[gradeIndex] + "  ");
+                gradeTextView.setText(res.getString(R.string.grade_text_view_template_without_grade, grades[gradeIndex]));
             }
 
             String[] quantities = res.getStringArray(R.array.coin_quantities);
-            TextView quantitiesTextView = (TextView) coinView.findViewById(R.id.quantity_textview);
-            quantitiesTextView.setText("Quantity: " + quantities[advancedQuantities.get(position)] + "  ");
+            TextView quantitiesTextView = coinView.findViewById(R.id.quantity_textview);
+            quantitiesTextView.setText(res.getString(R.string.quantities_text_view_template, quantities[advancedQuantities.get(position)]));
 
-            TextView notesTextView = (TextView) coinView.findViewById(R.id.notes_textview);
-            notesTextView.setText("Notes:\n" + advancedNotes.get(position));
+            TextView notesTextView = coinView.findViewById(R.id.notes_textview);
+            notesTextView.setText(res.getString(R.string.notes_text_view_template, advancedNotes.get(position)));
             return;
         }
 
         // The collection is not locked, we need to set up the spinners and edittext
 
         // Setup the spinner that will let you select the coin grade
-        Spinner gradeSelector = (Spinner) coinView.findViewById(R.id.grade_selector);
+        Spinner gradeSelector = coinView.findViewById(R.id.grade_selector);
         gradeSelector.setTag(positionObj);
 
         if(mGradeArrayAdapter == null){
@@ -338,7 +336,7 @@ class CoinSlotAdapter extends BaseAdapter {
         gradeSelector.setOnItemSelectedListener(mGradeOnItemSelectedListener);
 
         // Setup the spinner that will let you select the coin quantity
-        Spinner quantitySelector = (Spinner) coinView.findViewById(R.id.quantity_selector);
+        Spinner quantitySelector = coinView.findViewById(R.id.quantity_selector);
         quantitySelector.setTag(positionObj);
 
         if(mQuantityArrayAdapter == null){
@@ -377,7 +375,7 @@ class CoinSlotAdapter extends BaseAdapter {
         quantitySelector.setOnItemSelectedListener(mQuantityOnItemSelectedListener);
 
         // Setup the edit text to allow for coin notes
-        EditText notesEditText = (EditText) coinView.findViewById(R.id.notes_edit_text);
+        EditText notesEditText = coinView.findViewById(R.id.notes_edit_text);
 
         // Get the current tag associated with this EditText.  We use this to know whether or not
         // this is a new EditText that doesn't have a TextWatcher yet (as opposed to a recycled

@@ -155,6 +155,7 @@ public class PresidentialDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
@@ -163,16 +164,14 @@ public class PresidentialDollars extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
-        for(int i = 0; i < PRES_COIN_IDENTIFIERS.length; i++){
+        for (String identifier : PRES_COIN_IDENTIFIERS) {
 
-            String identifier = PRES_COIN_IDENTIFIERS[i];
-
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     identifierList.add(identifier);
                     mintList.add("P");
                 }
-                if(showD){
+                if (showD) {
                     identifierList.add(identifier);
                     mintList.add("D");
                 }

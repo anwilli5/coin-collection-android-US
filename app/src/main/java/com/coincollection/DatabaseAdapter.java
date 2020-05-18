@@ -26,10 +26,9 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.spencerpages.MainApplication;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,7 +38,7 @@ import java.util.Locale;
  * This Adapter is used to get information that the user has entered regarding his or her coin
  * collections (from the backing database.)
  */
-public class DatabaseAdapter {
+class DatabaseAdapter {
 
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
@@ -51,7 +50,7 @@ public class DatabaseAdapter {
      * Because internal tables and user tables aren't differentiated, we must prohibit
      * users from trying to create database collections that map to internal DB names
      */
-    private final List<String> mReservedDbNames = new ArrayList<>(Arrays.asList(
+    private final List<String> mReservedDbNames = new ArrayList<>(Collections.singletonList(
             "collection_info"
     ));
 
@@ -61,7 +60,7 @@ public class DatabaseAdapter {
      *
      * @param ctx the Context within which to work
      */
-    public DatabaseAdapter(Context ctx) {
+    DatabaseAdapter(Context ctx) {
         this.mContext = ctx;
     }
 
@@ -74,14 +73,14 @@ public class DatabaseAdapter {
      *         initialization call)
      * @throws SQLException if the database could be neither opened or created
      */
-    public DatabaseAdapter open() throws SQLException {
+    DatabaseAdapter open() throws SQLException {
         mDbHelper = new DatabaseHelper(mContext);
         mDb = mDbHelper.getWritableDatabase();
         return this;
     }
 
     // Clean up a bit if we no longer need this DatabaseAdapter
-    public void close() {
+    void close() {
         mDbHelper.close();
     }
 
@@ -91,7 +90,7 @@ public class DatabaseAdapter {
      * @param name String that identifiers which table to query
      * @return int with the total number of coins in the collection
      */
-    public int fetchTotalCollected(String name) {
+    int fetchTotalCollected(String name) {
         String select_sqlStatement = "SELECT COUNT(_id) FROM [" + name + "] WHERE inCollection=1 LIMIT 1";
         SQLiteStatement compiledStatement;
 
@@ -140,7 +139,7 @@ public class DatabaseAdapter {
      * @return true if the value was successfully updated, false otherwise
      */
 
-    public boolean updateInfo(String name, String coinIdentifier, String coinMint) {
+    boolean updateInfo(String name, String coinIdentifier, String coinMint) {
         int result = fetchInfo(name, coinIdentifier, coinMint);
         int newValue = (result + 1) % 2;
         ContentValues args = new ContentValues();
@@ -157,7 +156,7 @@ public class DatabaseAdapter {
      * @return which display we should show.  See MainApplication for the types
      * @throws SQLException if an SQL-related error occurs
      */
-    public int fetchTableDisplay(String tableName) throws SQLException {
+    int fetchTableDisplay(String tableName) throws SQLException {
 
         // The database will only be set up this way in this case
         String select_sqlStatement = "SELECT display FROM collection_info WHERE name=? LIMIT 1";
@@ -179,7 +178,7 @@ public class DatabaseAdapter {
      * @return 0 on update success, 1 otherwise
      * @throws SQLException if an SQL-related error occurs
      */
-    public boolean updateTableDisplay(String tableName, int displayType) throws SQLException {
+    boolean updateTableDisplay(String tableName, int displayType) throws SQLException {
 
         ContentValues args = new ContentValues();
         args.put("display", displayType);
@@ -196,13 +195,12 @@ public class DatabaseAdapter {
      * @return 0 if the update was successful, 1 otherwise
      * @throws SQLException if an SQL-related error occurs
      */
-    public boolean updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
+    boolean updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
 
         ContentValues args = new ContentValues();
         args.put("displayOrder", displayOrder);
         // TODO Should we do something if update fails?
         return mDb.update("collection_info", args, "name=?", new String[] { tableName }) > 0;
-
     }
 
     /**
@@ -210,15 +208,15 @@ public class DatabaseAdapter {
      * coinIdentifier and coinMint. This includes the advanced info (coin grade, quantity, and
      * notes) in addition to whether it is inc the collection.
      * @param name The collection name
-     * @param coinIdentifier
-     * @param coinMint
-     * @param grade
-     * @param quantity
-     * @param notes
-     * @param inCollection
+     * @param coinIdentifier Coin image id
+     * @param coinMint Coin mint mark
+     * @param grade Coin grade
+     * @param quantity Quantity of coins
+     * @param notes Notes about the coin
+     * @param inCollection whether the coin is in the collection
      * @return 1 on success, 0 otherwise
      */
-    public int updateAdvInfo(String name, String coinIdentifier, String coinMint, int grade,
+    int updateAdvInfo(String name, String coinIdentifier, String coinMint, int grade,
                              int quantity, String notes, int inCollection) {
 
         ContentValues args = new ContentValues();
@@ -254,7 +252,7 @@ public class DatabaseAdapter {
      * @param newName The new collection name
      * @return true if the value was successfully updated, false otherwise
      */
-    public boolean updateCollectionName(String oldName, String newName){
+    boolean updateCollectionName(String oldName, String newName){
         String alterDbSqlStr = "ALTER TABLE [" + oldName + "] RENAME TO [" + newName + "]";
         mDb.execSQL(alterDbSqlStr);
 
@@ -278,7 +276,7 @@ public class DatabaseAdapter {
      * @return 1 TODO
      */
     // TODO Rename, since we aren't just creating a new table
-    public int createNewTable(String name, String coinType, ArrayList<String> coinIdentifiers,
+    int createNewTable(String name, String coinType, ArrayList<String> coinIdentifiers,
                               ArrayList<String> coinMints, int displayOrder) {
 
         // Actually make the table
@@ -304,11 +302,11 @@ public class DatabaseAdapter {
 
     /**
      * Helper function to add a collection into the global list of collections
-     * @param name
-     * @param coinType
-     * @param total
-     * @param display
-     * @param displayOrder
+     * @param name Collection name
+     * @param coinType Type of collection
+     * @param total Number of coins in collection
+     * @param display Type of display
+     * @param displayOrder Display order of this collection
      */
     private void addEntryToCollectionInfoTable(String name, String coinType, int total, int display, int displayOrder){
         ContentValues values = new ContentValues();
@@ -337,7 +335,7 @@ public class DatabaseAdapter {
      * @return 1 TODO
      */
     // TODO Rename, since we aren't just creating a new table
-    public int createNewTable(String name, String coinType, int total, int display, int displayOrder, String[][] rawData) {
+    int createNewTable(String name, String coinType, int total, int display, int displayOrder, String[][] rawData) {
 
         // Actually make the table
         createNewTable(name);
@@ -369,7 +367,7 @@ public class DatabaseAdapter {
      * @param name The collection name
      */
     // TODO Rename, since it does more than just drop a table
-    public void dropTable(String name){
+    void dropTable(String name){
         String DATABASE_DROP = "DROP TABLE [" + name + "];";
         mDb.execSQL(DATABASE_DROP);
 
@@ -384,7 +382,7 @@ public class DatabaseAdapter {
     /**
      * Deletes the table of metadata about all the current collections
      */
-    public void dropCollectionInfoTable(){
+    void dropCollectionInfoTable(){
 
         String DATABASE_DROP = "DROP TABLE [collection_info];";
         mDb.execSQL(DATABASE_DROP);
@@ -393,7 +391,7 @@ public class DatabaseAdapter {
     /**
      * Creates the table of metadata for all the current collections
      */
-    public void createCollectionInfoTable(){
+    void createCollectionInfoTable(){
 
         // I would put the functionality here and call it from within the mDbHelper,
         // but I couldn't figure out how to get this working.  :(
@@ -405,7 +403,7 @@ public class DatabaseAdapter {
      *
      * @return Cursor
      */
-    public Cursor getAllCollectionNames() {
+    Cursor getAllCollectionNames() {
 
         return mDb.query("collection_info", new String[] {"name"}, null, null, null, null, "displayOrder");
     }
@@ -415,7 +413,7 @@ public class DatabaseAdapter {
      *
      * @return Cursor
      */
-    public Cursor getAllTables() {
+    Cursor getAllTables() {
 
         return mDb.query("collection_info", new String[] {"name", "coinType",
         "total"}, null, null, null, null, "displayOrder");
@@ -427,7 +425,7 @@ public class DatabaseAdapter {
      * @param name The name of the collection
      * @return Cursor over all coins in the collection
      */
-    public Cursor getAllIdentifiers(String name) {
+    Cursor getAllIdentifiers(String name) {
 
         return mDb.query("[" + name + "]", new String[] {"coinIdentifier", "coinMint"},
                 null, null, null, null, "_id");
@@ -438,7 +436,7 @@ public class DatabaseAdapter {
      *
      * @return Cursor over all coins in the collection
      */
-    public Cursor getInCollectionInfo(String tableName) {
+    Cursor getInCollectionInfo(String tableName) {
         return mDb.query("[" + tableName + "]", new String[] {"inCollection"},
                     null, null, null, null, "_id");
     }
@@ -450,7 +448,7 @@ public class DatabaseAdapter {
      * @param name The collection name
      * @return Cursor over all coins in the collection
      */
-    public Cursor getAdvInfo(String name) {
+    Cursor getAdvInfo(String name) {
 
         return mDb.query("[" + name + "]", new String[] {"advGradeIndex", "advQuantityIndex", "advNotes"},
                 null, null, null, null, "_id");
@@ -462,7 +460,7 @@ public class DatabaseAdapter {
      * @param name The collection name
      * @return Cursor over all coins in the collection
      */
-    public Cursor getAllCollectionInfo(String name) {
+    Cursor getAllCollectionInfo(String name) {
 
         return mDb.query("[" + name + "]", new String[] {"coinIdentifier", "coinMint", "inCollection", "advGradeIndex", "advQuantityIndex", "advNotes"},
                 null, null, null, null, "_id");
@@ -473,7 +471,7 @@ public class DatabaseAdapter {
      *
      * @param oldVersion the db version to upgrade from
      */
-    public void upgradeCollections(int oldVersion) {
+    void upgradeCollections(int oldVersion) {
         mDbHelper.onUpgrade(mDb, oldVersion, MainApplication.DATABASE_VERSION);
     }
 
@@ -482,7 +480,7 @@ public class DatabaseAdapter {
      * @param name The collection name
      * @return Empty string if name is valid, otherwise a reason why the name can't be used
      */
-    public String checkCollectionName(String name) {
+    String checkCollectionName(String name) {
 
         // Make sure the name isn't in the reserved list
         if (mReservedDbNames.contains(name)) {
@@ -513,7 +511,7 @@ public class DatabaseAdapter {
      * Get the next display order for a new collection
      * @return The next display order to use
      */
-    public int getNextDisplayOrder() {
+    int getNextDisplayOrder() {
         String select_sqlStatement = "SELECT MAX(displayOrder) FROM collection_info";
         SQLiteStatement compiledStatement;
 

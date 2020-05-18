@@ -48,10 +48,10 @@ public class CollectionListInfo implements Parcelable{
         }
     };
 
-    public CollectionListInfo() {
+    CollectionListInfo() {
     }
 
-    public CollectionListInfo(String name, int max, int collected, int index, int displayType) {
+    CollectionListInfo(String name, int max, int collected, int index, int displayType) {
         mCollectionName = name;
         mTotalCoinsInCollection = max;
         mTotalCoinsCollected = collected;
@@ -62,7 +62,7 @@ public class CollectionListInfo implements Parcelable{
     /** Constructor required for Parcelability */
     private CollectionListInfo(Parcel in){
         String[] strings = new String[1];
-        int[] ints = new int[3];
+        int[] ints = new int[4];
 
         in.readStringArray(strings);
         mCollectionName = strings[0];
@@ -106,11 +106,11 @@ public class CollectionListInfo implements Parcelable{
     	mCollectionName = name;
     }
 
-    public int getMax(){
+    int getMax(){
     	return mTotalCoinsInCollection;
     }
     
-    public void setMax(int max){
+    void setMax(int max){
     	mTotalCoinsInCollection = max;
     }
     
@@ -122,15 +122,15 @@ public class CollectionListInfo implements Parcelable{
         mTotalCoinsCollected = total;
     }
 
-    public int getCollectionTypeIndex(){
+    int getCollectionTypeIndex(){
         return mCollectionTypeIndex;
     }
 
-    public void setCollectionTypeIndex(int index){
+    void setCollectionTypeIndex(int index){
         mCollectionTypeIndex = index;
     }
 
-    public int getDisplayType(){
+    int getDisplayType(){
         return mDisplayType;
     }
 
@@ -146,7 +146,7 @@ public class CollectionListInfo implements Parcelable{
         return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex].getCoinImageIdentifier();
     }
 
-    public CollectionInfo getCollectionObj() {
+    CollectionInfo getCollectionObj() {
         return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
 

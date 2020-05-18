@@ -18,28 +18,10 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/***
- This file pulls in the AsyncTask code from cw-android
- Copyright (c) 2008-2012 CommonsWare, LLC
- Modified by Andrew Williams
- Licensed under the Apache License, Version 2.0 (the "License"); you may not
- use this file except in compliance with the License. You may obtain	a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0. Unless required
- by applicable law or agreed to in writing, software distributed under the
- License is distributed on an "AS IS" BASIS,	WITHOUT	WARRANTIES OR CONDITIONS
- OF ANY KIND, either express or implied. See the License for the specific
- language governing permissions and limitations under the License.
-
- From _The Busy Coder's Guide to Android Development_
- http://commonsware.com/Android
-
- https://raw.github.com/commonsguy/cw-android/master/Rotation/RotationAsync/src/com/commonsware/android/rotation/async/RotationAsync.java
-
- */
-
 package com.coincollection;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -49,13 +31,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -104,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Used for the Update Database functionality
     private ProgressDialog mProgressDialog = null;
-    private InitTask mTask = null;
-
+    private AsyncProgressTask mTask = null;
+    private AsyncProgressInterface mImportInterface;
+    private static final int ASYNC_TASK_OPEN_ID = 1;
+    private static final int ASYNC_TASK_IMPORT_ID = 2;
     private boolean mDatabaseHasBeenOpened = false;
     private boolean mIsImportingCollection = false;
 
@@ -134,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
     // Note: Using constants instead of an enum based on this:
     // https://developer.android.com/training/articles/memory.html#Overhead
     // - Enums often require more than twice as much memory as static constants.
-    public final static int ADD_COLLECTION = 0;
-    public final static int REMOVE_COLLECTION = 1;
-    public final static int IMPORT_COLLECTIONS = 2;
-    public final static int EXPORT_COLLECTIONS = 3;
-    public final static int REORDER_COLLECTIONS = 4;
-    public final static int ABOUT = 5;
+    private final static int ADD_COLLECTION = 0;
+    private final static int REMOVE_COLLECTION = 1;
+    private final static int IMPORT_COLLECTIONS = 2;
+    private final static int EXPORT_COLLECTIONS = 3;
+    private final static int REORDER_COLLECTIONS = 4;
+    private final static int ABOUT = 5;
     // As a hack to get the static strings at the bottom of the list, we add spacers into
     // mCollectionListEntries.  This tracks the number of those spacers, which we use in several
     // places.
@@ -165,44 +150,43 @@ public class MainActivity extends AppCompatActivity {
         // until they made it to the create collection screen.  That isn't necessary anymore, but
         // if they are upgrading from that don't show them the help screen if first_Time_screen1
         // isn't set
-        if(mainPreferences.getBoolean("first_Time_screen1", true) && mainPreferences.getBoolean("first_Time_screen2", true)){
-            // Show the user how to do everything
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(mRes.getString(R.string.intro_message))
-                   .setCancelable(false)
-                   .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                           dialog.cancel();
-                           SharedPreferences.Editor editor = mainPreferences.edit();
-                           editor.putBoolean("first_Time_screen1", false);
-                           editor.commit(); // .apply() in later APIs
-                       }
-                   });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
+        createAndShowHelpDialog("first_Time_screen1", R.string.intro_message, this);
 
-        InitTask check = (InitTask) getLastCustomNonConfigurationInstance();
+        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
+        AsyncProgressInterface openInterface = new AsyncProgressInterface() {
+            @Override
+            public void asyncProgressDoInBackground() {
+                DatabaseAdapter dbAdapter = new DatabaseAdapter(MainActivity.this);
+                dbAdapter.open();
+                // Now just close it, since the database will have updated and
+                // that's really all we need this AsyncTask for
+                dbAdapter.close();
+            }
+            @Override
+            public void asyncProgressOnPreExecute() {
+                createProgressDialog("Opening Databases...");
+            }
+            @Override
+            public void asyncProgressOnPostExecute() {
+                completeProgressDialogAndFinishViewSetup();
+            }
+        };
 
         // TODO If there is a screen orientation change, it looks like a ProgressDialog gets leaked. :(
         if(check == null){
 
             if(BuildConfig.DEBUG) {
-                Log.d(MainApplication.APP_NAME, "No previous state so kicking off InitTask to doOpen");
+                Log.d(MainApplication.APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
 
-            // Kick off the InitTask to open the database.  This will likely be the first open,
+            // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
             // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
             // a long time.
-
-            mTask = new InitTask();
-
-            mTask.doOpen = true;
-            mTask.activity = this;
-
+            mTask = new AsyncProgressTask(openInterface);
+            mTask.mAsyncTaskId = ASYNC_TASK_OPEN_ID;
             mTask.execute();
 
-            // The InitTask will call finishViewSetup once the database has been opened
+            // The AsyncProgressTask will call finishViewSetup once the database has been opened
             // for the first time
 
         } else {
@@ -211,41 +195,50 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(MainApplication.APP_NAME, "Taking over existing mTask");
             }
 
-            // an InitTask is running, make a new dialog to show it
+            // An AsyncProgressTask is running, make a new dialog to show it
             mTask = check;
-            mTask.activity = this;
+            // Change the task's listener the new activity will be the listener. See note above AsyncTask
+            // definition for more info.
+            mTask.mListener = openInterface;
 
-            // There's two possible InitTask's that could be running:
+            // There's two possible AsyncProgressTask's that could be running:
             //     - The one to open the database for the first time
             //     - The one to import collections
             // In the case of the former, we just want to show the dialog that the user had on the
             // screen.  For the latter case, we still need something to call finishViewSetup, and
             // we don't want to call it here bc it will try to use the database too early.  Instead,
-            // set a flag that will have that InitTask call finishViewSetup for us as well.
-
+            // set a flag that will have that AsyncProgressTask call finishViewSetup for us as well.
             if(mProgressDialog != null && mProgressDialog.isShowing()){
                 mProgressDialog.dismiss();
             }
 
-            String message = mTask.openMessage;
-
-            if(mTask.doImport){
-                message = mTask.importMessage;
-
+            // Make a new dialog
+            if(mTask.mAsyncTaskId == ASYNC_TASK_OPEN_ID) {
+                createProgressDialog("Opening Databases...");
+            } else if(mTask.mAsyncTaskId == ASYNC_TASK_IMPORT_ID){
                 mDatabaseHasBeenOpened = true; // This has to have happened at this point
                 mIsImportingCollection = true;
                 mShouldFinishViewSetupToo = true;
+                createProgressDialog("Importing Collections...");
             }
-            // Make a new dialog
-
-            mProgressDialog = new ProgressDialog(mContext);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.setMessage(message);
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mProgressDialog.setProgress(0);
-            mProgressDialog.show();
-
         }
+
+        // Interface for kicking off collection import
+        mImportInterface = new AsyncProgressInterface() {
+            @Override
+            public void asyncProgressDoInBackground() {
+                // Start doing all of the file reading and database importing
+                handleImportCollectionsPart2();
+            }
+            @Override
+            public void asyncProgressOnPreExecute() {
+                createProgressDialog("Importing Collections...");
+            }
+            @Override
+            public void asyncProgressOnPostExecute() {
+                completeProgressDialogAndFinishViewSetup();
+            }
+        };
 
         // HISTORIC - no longer the case:
         //
@@ -263,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         // for it to stay alive.  So, each activity must bind to it on onCreate and
         // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
         // will have been called and the service's onDestroy will then get called, where
-        // we close the databse
+        // we close the database
 
         // Actually instantiate the database service
         //Intent mServiceIntent = new Intent(this, DatabaseService.class);
@@ -281,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void finishViewSetup(){
 
-        // Called from the InitTask after the database has been successfully
+        // Called from the AsyncProgressTask after the database has been successfully
         // opened for the first time.  Now we can be fairly sure that future
         // open's won't trigger an ANR issue.
 
@@ -298,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         // Instantiate the FrontAdapter
         mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
 
-        ListView lv = (ListView) findViewById(R.id.main_activity_listview);
+        ListView lv = findViewById(R.id.main_activity_listview);
 
         lv.setAdapter(mListAdapter);
 
@@ -315,9 +308,12 @@ public class MainActivity extends AppCompatActivity {
                         if(0 == getSupportFragmentManager().getBackStackEntryCount()){
 
                             // We are back at this activity, so restore the ActionBar
-                            getSupportActionBar().setTitle(mRes.getString(R.string.app_name));
-                            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                            getSupportActionBar().setHomeButtonEnabled(false);
+                            ActionBar actionBar = getSupportActionBar();
+                            if(actionBar != null){
+                                actionBar.setTitle(mRes.getString(R.string.app_name));
+                                actionBar.setDisplayHomeAsUpEnabled(false);
+                                actionBar.setHomeButtonEnabled(false);
+                            }
 
                             // The collections may have been re-ordered, so update them here.
                             updateCollectionListFromDatabase();
@@ -398,9 +394,12 @@ public class MainActivity extends AppCompatActivity {
 
                             // Setup the actionbar for the reorder page
                             // TODO Check for NULL
-                            getSupportActionBar().setTitle(mRes.getString(R.string.reorder_collection));
-                            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                            getSupportActionBar().setHomeButtonEnabled(true);
+                            ActionBar actionBar = getSupportActionBar();
+                            if(actionBar != null){
+                                actionBar.setTitle(mRes.getString(R.string.reorder_collection));
+                                actionBar.setDisplayHomeAsUpEnabled(true);
+                                actionBar.setHomeButtonEnabled(true);
+                            }
 
                             break;
                         case ABOUT:
@@ -412,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
                             AlertDialog.Builder info_builder = new AlertDialog.Builder(mContext);
                             info_builder.setView(layout);
 
-                            TextView tv = (TextView) layout.findViewById(R.id.info_textview);
+                            TextView tv = layout.findViewById(R.id.info_textview);
                             tv.setText(buildInfoText());
 
                             AlertDialog alertDialog = info_builder.create();
@@ -451,6 +450,7 @@ public class MainActivity extends AppCompatActivity {
 
         // See whether we can read from the external storage
         String state = Environment.getExternalStorageState();
+        //noinspection StatementWithEmptyBody
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             // Should be able to read from it without issue
         } else if (Environment.MEDIA_SHARED.equals(state)) {
@@ -639,7 +639,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(items.length < numberOfColumns){
                         errorOccurred = true;
-                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + String.valueOf(items.length));
+                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + items.length);
                         break;
                     }
 
@@ -686,11 +686,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(0 == mNumberOfCollections){
             // Finish the import by kicking off an AsyncTask to do the heavy lifting    		
-            mTask = new InitTask();
-
-            mTask.doImport = true;
-            mTask.activity = this;
-
+            mTask = new AsyncProgressTask(mImportInterface);
+            mTask.mAsyncTaskId = ASYNC_TASK_IMPORT_ID;
             mTask.execute();
 
         } else {
@@ -932,11 +929,10 @@ public class MainActivity extends AppCompatActivity {
             // character to effectively allow no escape characters
             // (otherwise, '\' is the escape character, and it can be
             // typed by users!)
-            CSVReader reader = new CSVReader(new FileReader(file),
+            return new CSVReader(new FileReader(file),
                     CSVWriter.DEFAULT_SEPARATOR,
                     CSVWriter.DEFAULT_QUOTE_CHARACTER,
                     '\0');
-            return reader;
         } catch (Exception e) {
             Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
@@ -963,8 +959,7 @@ public class MainActivity extends AppCompatActivity {
     private CSVWriter openFileForWriting(File file){
 
         try {
-            CSVWriter writer = new CSVWriter(new FileWriter(file));
-            return writer;
+            return new CSVWriter(new FileWriter(file));
         } catch (Exception e) {
             Log.e(MainApplication.APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
@@ -1000,8 +995,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
 
         if(  (grantResults.length > 0)
           && (grantResults[0] == PackageManager.PERMISSION_GRANTED)){
@@ -1038,11 +1032,11 @@ public class MainActivity extends AppCompatActivity {
     // Thanks! http://www.softwarepassion.com/android-series-custom-listview-items-and-adapters/
     private class FrontAdapter extends ArrayAdapter<CollectionListInfo> {
 
-        public ArrayList<CollectionListInfo> items;
-        public int numberOfCollections;
-        private Resources mRes;
+        ArrayList<CollectionListInfo> items;
+        int numberOfCollections;
+        private final Resources mRes;
 
-        public FrontAdapter(Context context, ArrayList<CollectionListInfo> items, int numberOfCollections) {
+        FrontAdapter(Context context, ArrayList<CollectionListInfo> items, int numberOfCollections) {
             super(context, R.layout.list_element, R.id.textView1, items);
             this.items = items;
             this.numberOfCollections = numberOfCollections;
@@ -1064,23 +1058,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-                View v = convertView;
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+                View view = convertView;
                 int viewType = getItemViewType(position);
-                if (v == null) {
+                if (view == null) {
                     LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
                     if(0 == viewType){
-                        v = vi.inflate(R.layout.list_element, parent, false);
+                        view = vi.inflate(R.layout.list_element, parent, false);
                     } else {
-                        v = vi.inflate(R.layout.list_element_navigation, parent, false);
+                        view = vi.inflate(R.layout.list_element_navigation, parent, false);
                     }
                 }
 
                 if(1 == viewType){
                     // Set up the non-collection views
-                    ImageView image = (ImageView) v.findViewById(R.id.navImageView);
-                    TextView text = (TextView) v.findViewById(R.id.navTextView);
+                    ImageView image = view.findViewById(R.id.navImageView);
+                    TextView text = view.findViewById(R.id.navTextView);
 
                     int newPosition = position - this.numberOfCollections;
 
@@ -1115,44 +1110,13 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
 
-                    return v;
+                    return view;
                 }
 
                 // If it gets here, we need to set up a view for a collection
-
                 CollectionListInfo item = items.get(position);
-
-                String tableName = item.getName();
-
-                int total = item.getCollected();
-                if (tableName != null) {
-
-                    ImageView image = (ImageView) v.findViewById(R.id.imageView1);
-                    if (image != null) {
-                        image.setBackgroundResource(item.getCoinImageIdentifier());
-                    }
-
-                    TextView tt = (TextView) v.findViewById(R.id.textView1);
-                    if (tt != null) {
-                        tt.setText(tableName);
-                    }
-
-                    TextView mt = (TextView) v.findViewById(R.id.textView2);
-                    if(mt != null){
-                        mt.setText(total + "/" + item.getMax());
-                    }
-
-                    TextView bt = (TextView) v.findViewById(R.id.textView3);
-                    if(total >= item.getMax()){
-                        // The collection is complete
-                        if(bt != null){
-                            bt.setText(mRes.getString(R.string.collection_complete));
-                        }
-                    } else {
-                        bt.setText("");
-                    }
-                }
-                return v;
+                buildListElement(item, view, mRes);
+                return view;
         }
     }
 
@@ -1243,6 +1207,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Show dialog for user to confirm export
+     */
     private void showExportConfirmation(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1263,6 +1230,9 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
+    /**
+     * Show dialog for user to confirm import
+     */
     private void showImportConfirmation(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1271,13 +1241,9 @@ public class MainActivity extends AppCompatActivity {
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                       mTask = new InitTask();
-
-                       mTask.doImport = true;
-                       mTask.activity = MainActivity.this;
-
-                       MainActivity.this.mIsImportingCollection = true;
-
+                       mTask = new AsyncProgressTask(mImportInterface);
+                       mIsImportingCollection = true;
+                       mTask.mAsyncTaskId = ASYNC_TASK_IMPORT_ID;
                        mTask.execute();
                    }
                })
@@ -1291,20 +1257,20 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private void showDeleteConfirmation(String name){
-
-        // TODO Not sure why we have to do this????  Take out and ensure no breakage.  Maybe when I
-        // originally wrote this my Java skills were just poor ;)
-        final String name2 = name;
+    /**
+     * Show dialog for user to confirm deletion of collection
+     * @param name collection name
+     */
+    private void showDeleteConfirmation(final String name){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(mRes.getString(R.string.delete_warning, name2))
+        builder.setMessage(mRes.getString(R.string.delete_warning, name))
                .setCancelable(false)
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        //Do the deleting
                        mDbAdapter.open();
-                       mDbAdapter.dropTable(name2);
+                       mDbAdapter.dropTable(name);
 
                        //Get a list of all the database tables
                        Cursor resultCursor = mDbAdapter.getAllCollectionNames();
@@ -1331,15 +1297,6 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    /**
-     * Used by the ReorderCollections fragment to get our context
-     * TODO Better way for it to get 'this'?
-     * @return our Activity context
-     */
-    public Context getContext(){
-        return this;
-    }
-
     // https://raw.github.com/commonsguy/cw-android/master/Rotation/RotationAsync/src/com/commonsware/android/rotation/async/RotationAsync.java
     // TODO Consider only using one of onSaveInstanceState and onRetainNonConfigurationInstanceState
     // TODO Also, read the notes on this better and make sure we are using it correctly
@@ -1357,130 +1314,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy(){
-
         // TODO Not a perfect solution, but assuming this gets called, we should cut down on the
         // race condition inherent in how we do our AsyncTask
         if(mTask != null) {
-            mTask.activity = null;
+            mTask.mListener = null;
         }
         super.onDestroy();
-    }
-
-    /**
-     * sub-class of AsyncTask
-     * Example from http://code.google.com/p/makemachine/source/browse/trunk/android/examples/async_task/src/makemachine/android/examples/async/AsyncTaskExample.java
-     */
-
-    // We need to use this AsyncTask for two purposes - opening the database and also
-    // importing a collection.
-
-    // TODO For passing the AsyncTask between Activity instances, see this post:
-    // http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html
-    // Our method is subject to the race conditions described therein :O
-
-    class InitTask extends AsyncTask<Void, Void, Void>
-    {
-        // Use these to know whether we are opening the database or importing new ones
-        // TODO Make these strings come from the strings resource file
-        boolean doImport = false;
-        final String importMessage = "Importing Collections...";
-
-        boolean doOpen = false;
-        final String openMessage = "Opening Databases...";
-
-        MainActivity activity;
-
-        @Override
-        protected Void doInBackground( Void... params )
-        {
-            if(activity == null){
-                return null;
-            }
-
-            if(doOpen){
-
-                DatabaseAdapter dbAdapter = new DatabaseAdapter(activity);
-                dbAdapter.open();
-                // Now just close it, since the database will have updated and
-                // that's really all we need this AsyncTask for
-                dbAdapter.close();
-
-            } else if(doImport) {
-
-                // Start doing all of the file reading and database importing
-                activity.handleImportCollectionsPart2();
-            }
-
-            return null;
-        }
-
-        // -- gets called just before thread begins
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-
-            String message = openMessage;
-
-            if(doImport){
-                message = importMessage;
-            }
-
-            if(activity == null) {
-                return;
-            }
-
-            activity.mProgressDialog = new ProgressDialog(activity);
-            activity.mProgressDialog.setCancelable(false);
-            activity.mProgressDialog.setMessage(message);
-            activity.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            activity.mProgressDialog.setProgress(0);
-            activity.mProgressDialog.show();
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values)
-        {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onPostExecute( Void result )
-        {
-            super.onPostExecute(result);
-
-            if(activity == null) {
-                return;
-            }
-
-            if(activity.mProgressDialog.isShowing()){
-                activity.mProgressDialog.dismiss();
-            }
-            activity.mProgressDialog = null;
-
-            if(doOpen){
-
-                activity.mDatabaseHasBeenOpened = true;
-
-                activity.finishViewSetup();
-
-            } else if(doImport) {
-
-                activity.mIsImportingCollection = false;
-
-                // If we've rotated and need to finish setting up the view, do it
-                if(activity.mShouldFinishViewSetupToo){
-                    activity.finishViewSetup();
-                    activity.mShouldFinishViewSetupToo = false;
-                }
-
-                // Good to go!
-            }
-            doOpen = false;
-            doImport = false;
-            activity = null;
-        }
     }
 
     /**
@@ -1524,5 +1363,144 @@ public class MainActivity extends AppCompatActivity {
         return builder.toString();
     }
 
+    /**
+     * Create a new progress dialog for initial collection creation
+     */
+    private void createProgressDialog(String message){
+        if (mProgressDialog != null){
+            // Progress bar already being displayed
+            return;
+        }
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setProgress(0);
+        mProgressDialog.show();
+    }
 
+    /**
+     * Hide the dialog and finish view setup
+     */
+    private void completeProgressDialogAndFinishViewSetup(){
+
+        if(mProgressDialog != null) {
+            if (mProgressDialog.isShowing()) {
+                mProgressDialog.dismiss();
+            }
+            mProgressDialog = null;
+        }
+        if(mTask.mAsyncTaskId == ASYNC_TASK_OPEN_ID){
+            mDatabaseHasBeenOpened = true;
+            finishViewSetup();
+        } else if (mTask.mAsyncTaskId == ASYNC_TASK_IMPORT_ID){
+            mIsImportingCollection = false;
+            // If we've rotated and need to finish setting up the view, do it
+            if(mShouldFinishViewSetupToo) {
+                finishViewSetup();
+                mShouldFinishViewSetupToo = false;
+            }
+        }
+    }
+
+    /**
+     * Builds the list element for displaying collections
+     * @param item Collection list info item
+     * @param view view that needs to be populated
+     * @param res Used to access project string values
+     */
+    public static void buildListElement(CollectionListInfo item, View view, Resources res){
+
+        String tableName = item.getName();
+
+        int total = item.getCollected();
+        if (tableName != null) {
+
+            ImageView image = view.findViewById(R.id.imageView1);
+            if (image != null) {
+                image.setBackgroundResource(item.getCoinImageIdentifier());
+            }
+
+            TextView nameTextView = view.findViewById(R.id.textView1);
+            if (nameTextView != null) {
+                nameTextView.setText(tableName);
+            }
+
+            TextView progressTextView = view.findViewById(R.id.textView2);
+            if(progressTextView != null){
+                progressTextView.setText(res.getString(R.string.collection_completion_template, total, item.getMax()));
+            }
+
+            TextView completionTextView = view.findViewById(R.id.textView3);
+            if(total >= item.getMax()){
+                // The collection is complete
+                if(completionTextView != null){
+                    completionTextView.setText(res.getString(R.string.collection_complete));
+                }
+            } else {
+                completionTextView.setText("");
+            }
+        }
+    }
+
+    /**
+     * Create a help dialog to show the user how to do something
+     * @param helpStrKey key uniquely identifying this boolean key
+     * @param helpStrId Help message to display
+     * @param activity activity reference
+     */
+    public static void createAndShowHelpDialog (final String helpStrKey, int helpStrId, Activity activity){
+        final SharedPreferences mainPreferences = activity.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        final Resources res = activity.getResources();
+        if(mainPreferences.getBoolean(helpStrKey, true)){
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setMessage(res.getString(helpStrId))
+                    .setCancelable(false)
+                    .setPositiveButton(res.getString(R.string.okay_exp), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            SharedPreferences.Editor editor = mainPreferences.edit();
+                            editor.putBoolean(helpStrKey, false);
+                            editor.apply();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+    }
+
+    /**
+     * Show an alert that changes aren't saved before changing views
+     */
+    public static void showUnsavedChangesAlertViewChange(Resources res, final Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
+                .setCancelable(false)
+                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Nothing to do, just a warning
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    /**
+     * Show an alert that changes aren't saved before exiting activity
+     */
+    public static void showUnsavedChangesAlertAndExitActivity(Resources res, final Activity activity){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
+                .setCancelable(false)
+                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        activity.finish();
+                    }})
+                .setNegativeButton(res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }});
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

@@ -101,6 +101,7 @@ public class LincolnCents extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters,
                                         ArrayList<String> identifierList,
                                         ArrayList<String> mintList) {
@@ -125,15 +126,14 @@ public class LincolnCents extends CollectionInfo {
             if(i == 2009){
 
                 // Add support for 2009 Lincoln Presidential Pennies
-                for(int j = 0; j < BICENT_COIN_IDENTIFIERS.length; j++){
+                for (String bicentIdentifier : BICENT_COIN_IDENTIFIERS) {
 
-                    String bicentIdentifier = BICENT_COIN_IDENTIFIERS[j];
-                    if(showMintMarks){
-                        if(showP){
+                    if (showMintMarks) {
+                        if (showP) {
                             identifierList.add(bicentIdentifier);
                             mintList.add("");
                         }
-                        if(showD){
+                        if (showD) {
                             identifierList.add(bicentIdentifier);
                             mintList.add("D");
                         }

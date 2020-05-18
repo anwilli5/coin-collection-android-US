@@ -144,7 +144,7 @@ public class MainApplication extends Application {
         if (oldVersion <= 5) {
 
             // We need to add in columns to support the new advanced view
-            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(CollectionPage.SIMPLE_DISPLAY));
+            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
 
             // Get all of the created tables
             Cursor resultCursor = db.query("collection_info", new String[]{"name"}, null, null, null, null, "_id");

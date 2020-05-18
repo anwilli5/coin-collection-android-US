@@ -6,10 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Collection;
-
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 
@@ -25,7 +22,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         _createCollectionInfoTable(db);
     }
 
-    public void _createCollectionInfoTable(SQLiteDatabase db) {
+    void _createCollectionInfoTable(SQLiteDatabase db) {
 
         // v2.2.1 - Until this version all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
@@ -33,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " name text not null,"
                 + " coinType text not null,"
                 + " total integer,"
-                + " display integer default " + Integer.toString(CollectionPage.SIMPLE_DISPLAY) + ","
+                + " display integer default " + CollectionPage.SIMPLE_DISPLAY + ","
                 + " displayOrder integer"
                 + ");";
 
@@ -158,10 +155,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * really just store the mint information in the database and store that.
      *
      * * Consider moving to MainApplication?
-     * @param db
-     * @param tableName
-     * @param year
-     * @return
+     * @param db database
+     * @param tableName database table name
+     * @param year coin year
+     * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, String tableName, String year) {
 

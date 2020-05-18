@@ -2,12 +2,14 @@
     <LinearLayout 
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:id="@+id/listElementParent">
         <ImageView 
             android:layout_width="wrap_content" 
             android:id="@+id/imageView1"
             android:layout_height="wrap_content"
-            android:contentDescription="Set programmatically"
+            android:contentDescription="@string/coin_slot_description"
+            android:layout_marginRight="5dp"
             android:maxWidth="51dp"
             android:maxHeight="51dp" />
         <RelativeLayout 
@@ -17,8 +19,7 @@
                 android:id="@+id/textView1" 
                 android:layout_width="fill_parent" 
                 android:layout_height="wrap_content"
-                android:lines="1"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:scrollHorizontally="true"
                 android:ellipsize="marquee"
                 android:textSize="24sp"/>
