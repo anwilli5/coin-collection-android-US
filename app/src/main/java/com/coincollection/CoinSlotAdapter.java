@@ -38,7 +38,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
-import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import java.util.ArrayList;
@@ -51,35 +50,14 @@ class CoinSlotAdapter extends BaseAdapter {
     /** mContext The context of the activity we are running in (for things like Toasts that have UI
      *           components) */
     private final Context mContext;
+    private final Resources mRes;
 
     // Information about the collections needed for the basic coin list view
 
     private final CollectionInfo mCollectionTypeObj;
     private String mTableName;
 
-    /** mIdentifierList Contains a list of the main coin identifiers (Ex: "2009", or "Kentucky") */
-    private final ArrayList<String> mIdentifierList;
-
-    /** mMintList Contains a list of the mint marks associated with each coin, if any */
-    private final ArrayList<String> mMintList;
-
-    // These are public so that we can reach in and grab these values to save them off
-    // We will keep track of which items need to be pushed back
-
-    // List holding whether each coin is in the collection
-    final ArrayList<Boolean> inCollectionList;
-
-    // Lists needed to support the advanced view
-
-    boolean[] indexHasChanged = null;
-
-    // In the database, we store the index into the grade and quantity arrays
-    // so we can use these values efficiently.  For notes, we have to store the
-    // strings
-    // TODO Can we make these private?
-    ArrayList<Integer> advancedGrades = null;
-    ArrayList<Integer> advancedQuantities = null;
-    ArrayList<String> advancedNotes = null;
+    private final ArrayList<CoinSlot> mCoinList;
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
     private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
@@ -87,10 +65,10 @@ class CoinSlotAdapter extends BaseAdapter {
     private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
 
     // Keep track of whether we are showing the advanced view so we can do extra setup
-    private int displayType = CollectionPage.SIMPLE_DISPLAY;
+    private final int mDisplayType;
     // This variable will only be set for the advanced view, where we have separate
     // views for the locked and unlocked views
-    private boolean displayIsLocked = false;
+    private final boolean mDisplayIsLocked;
 
     /**
      * Constructor which passes the data necessary for the adapter to work, along with a list of
@@ -99,55 +77,21 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param context The Activity context that we should use for any UI things
      * @param tableName The collection name
      * @param collectionTypeObj The backing object in the COLLECTION_TYPE list
-     * @param identifierList The list of coin identifiers in the collection
-     * @param mintList The list of coin mints in the collection
-     * @param inCollectionList The list of whether each coin has been marked as being in the
-     *                         collection
+     * @param coinList The list of coins
      */
-    CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<String> identifierList, ArrayList<String> mintList, ArrayList<Boolean> inCollectionList) {
+    CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<CoinSlot> coinList, int displayType) {
         // Used for State, National Park, Presidential Coins, and Native American coins
         // and Pennies, Nickels, American Innovation Dollars
         super();
         mContext = context;
         mTableName = tableName;
         mCollectionTypeObj = collectionTypeObj;
-        mIdentifierList = identifierList;
-        mMintList = mintList;
-        this.inCollectionList = inCollectionList;
+        mCoinList = coinList;
+        mDisplayType = displayType;
 
-    }
-
-    /**
-     * Sets the adapter instance variables with data needed to support the advanced view
-     * @param grades A list of the grades associated with each coin in the collection
-     * @param quantities A list of quantities associated with each coin in the collection
-     * @param notes A list of notes associated with each coin in the collection
-     * @param hasChanged A list used to track whether the data associated with a given coin has
-     *                   changed since the last time a 'Save' occurred
-     */
-    void setAdvancedLists(ArrayList<Integer> grades, ArrayList<Integer> quantities, ArrayList<String> notes, boolean[] hasChanged) {
-
-        advancedGrades = grades;
-        advancedQuantities = quantities;
-        advancedNotes = notes;
-        indexHasChanged = hasChanged;
-
-        displayType = CollectionPage.ADVANCED_DISPLAY;
-
-        if(BuildConfig.DEBUG) {
-            // Everything should be the same size
-            if( advancedGrades.size() != mIdentifierList.size() ||
-                advancedQuantities.size() != advancedGrades.size() ||
-                advancedNotes.size() != advancedQuantities.size() ||
-                hasChanged.length != advancedNotes.size()) {
-
-                throw new AssertionError("Inconsistent array list lengths in CoinSlotAdapter");
-            }
-        }
-
+        mRes = mContext.getResources();
         SharedPreferences mainPreferences = mContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
-
-        displayIsLocked = mainPreferences.getBoolean(mTableName + "_isLocked", false);
+        mDisplayIsLocked = mainPreferences.getBoolean(mTableName + CollectionPage.IS_LOCKED, false);
     }
 
     /**
@@ -155,12 +99,12 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param tableName Table name
      */
     public void setTableName(String tableName){
-        this.mTableName = tableName;
+        mTableName = tableName;
     }
 
     @Override
     public int getCount() {
-        return mIdentifierList.size();
+        return mCoinList.size();
     }
 
     @Override
@@ -178,15 +122,14 @@ class CoinSlotAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View coinView = convertView;
-        Resources res = mContext.getResources();
 
         if (coinView == null) {  // If we couldn't get a recycled one, create a new one
 
             LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if(displayType == CollectionPage.ADVANCED_DISPLAY){
+            if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
 
-                if(!displayIsLocked){
+                if(!mDisplayIsLocked){
                   // If the collection isn't locked, we show spinners and an EditText
                   coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
                 } else {
@@ -194,33 +137,34 @@ class CoinSlotAdapter extends BaseAdapter {
                   coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
                 }
 
-            } else if(displayType == CollectionPage.SIMPLE_DISPLAY){
+            } else if(mDisplayType == CollectionPage.SIMPLE_DISPLAY){
                 coinView = vi.inflate(R.layout.coin_slot, parent, false);
             }
         }
 
         // Display the basic info first
-        String identifier = mIdentifierList.get(position);
-        String mint = mMintList.get(position);
+        CoinSlot coinSlot = mCoinList.get(position);
+        String identifier = coinSlot.getIdentifier();
+        String mint = coinSlot.getMint();
         TextView coinText = coinView.findViewById(R.id.coinText);
-        boolean inCollection = inCollectionList.get(position);
+        boolean inCollection = coinSlot.isInCollection();
 
         // Set the coin identifier text (Year and Mint in most cases)
         // TODO Fix this so there is no space if there is no mint
         // This actually puts in two spaces, since mint has a space as well
-        coinText.setText(res.getString(R.string.coin_text_template, identifier, mint));
+        coinText.setText(mRes.getString(R.string.coin_text_template, identifier, mint));
 
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
 
         // TODO Not sure if this improves accessibility, but better than nothing
-        coinImage.setContentDescription(res.getString(R.string.coin_content_desc_template, identifier, mint));
+        coinImage.setContentDescription(mRes.getString(R.string.coin_content_desc_template, identifier, mint));
 
-        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(identifier, mint, inCollection);
+        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
         coinImage.setImageResource(imageIdentifier);
 
         // Setup the rest of the view if it is the advanced view
-        if(displayType == CollectionPage.ADVANCED_DISPLAY){
+        if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
             setupAdvancedView(coinView, position);
         }
 
@@ -236,6 +180,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // Use this so the listeners know the position of the item in the list
         Integer positionObj = position;
+        CoinSlot coinSlot = mCoinList.get(position);
 
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
 
@@ -243,7 +188,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
             public void onClick(View v) {
                 // Need to check whether the collection is locked
-                if(displayIsLocked){
+                if(mDisplayIsLocked){
                     // Collection is locked
                     Context context = mContext.getApplicationContext();
                     CharSequence text = "Collection is currently locked, hit 'Menu' and then 'Unlock Collection' to unlock";
@@ -253,12 +198,13 @@ class CoinSlotAdapter extends BaseAdapter {
                     toast.show();
                 } else {
                     // Collection is unlocked, update value
-                    //mDbAdapter.updateInfo(mTableName, mIdentifierList.get(position), mMintList.get(position));
+                    //mDbAdapter.toggleInCollection(mTableName, mIdentifierList.get(position), mMintList.get(position));
 
                     // Tie the update to the save button
-                    boolean oldValue = CoinSlotAdapter.this.inCollectionList.get(position);
-                    CoinSlotAdapter.this.inCollectionList.set(position, !oldValue);
-                    CoinSlotAdapter.this.indexHasChanged[position] = true;
+                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(position);
+                    boolean oldValue = coinSlot.isInCollection();
+                    coinSlot.setInCollection(!oldValue);
+                    coinSlot.setIndexChanged(true);
 
                     CoinSlotAdapter.this.notifyDataSetChanged();
 
@@ -267,31 +213,28 @@ class CoinSlotAdapter extends BaseAdapter {
                 }
             }});
 
-
         // Everything below here is specific to whether the collection is locked or not.
         // Take care of the locked case first, since it is easier.
 
-        if(displayIsLocked){
+        if(mDisplayIsLocked){
 
-            Resources res = mContext.getResources();
-
-            String[] grades = res.getStringArray(R.array.coin_grades);
+            String[] grades = mRes.getStringArray(R.array.coin_grades);
             TextView gradeTextView = coinView.findViewById(R.id.grade_textview);
-            int gradeIndex = advancedGrades.get(position);
+            int gradeIndex = coinSlot.getAdvancedGrades();
             if(gradeIndex != 0){
                 // Prefix the grade with 'Grade:'
-                gradeTextView.setText(res.getString(R.string.grade_text_view_template, grades[gradeIndex]));
+                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template, grades[gradeIndex]));
             } else {
                 // 'Grade:' will be printed
-                gradeTextView.setText(res.getString(R.string.grade_text_view_template_without_grade, grades[gradeIndex]));
+                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template_without_grade, grades[gradeIndex]));
             }
 
-            String[] quantities = res.getStringArray(R.array.coin_quantities);
+            String[] quantities = mRes.getStringArray(R.array.coin_quantities);
             TextView quantitiesTextView = coinView.findViewById(R.id.quantity_textview);
-            quantitiesTextView.setText(res.getString(R.string.quantities_text_view_template, quantities[advancedQuantities.get(position)]));
+            quantitiesTextView.setText(mRes.getString(R.string.quantities_text_view_template, quantities[coinSlot.getAdvancedQuantities()]));
 
             TextView notesTextView = coinView.findViewById(R.id.notes_textview);
-            notesTextView.setText(res.getString(R.string.notes_text_view_template, advancedNotes.get(position)));
+            notesTextView.setText(mRes.getString(R.string.notes_text_view_template, coinSlot.getAdvancedNotes()));
             return;
         }
 
@@ -310,7 +253,7 @@ class CoinSlotAdapter extends BaseAdapter {
         gradeSelector.setAdapter(mGradeArrayAdapter);
 
         // Put the spinner at the value we have stored for this coin
-        gradeSelector.setSelection(advancedGrades.get(position), false);
+        gradeSelector.setSelection(coinSlot.getAdvancedGrades(), false);
 
         if(mGradeOnItemSelectedListener == null){
             mGradeOnItemSelectedListener = new OnItemSelectedListener() {
@@ -318,12 +261,13 @@ class CoinSlotAdapter extends BaseAdapter {
                         View view, int pos, long id) {
 
                     int posPrim = (int) parent.getTag();
+                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
 
                     // Update the values in the lists if this is a new value
-                    if(pos != CoinSlotAdapter.this.advancedGrades.get(posPrim)){
+                    if(pos != coinSlot.getAdvancedGrades()){
                         // Value has changed
-                        CoinSlotAdapter.this.advancedGrades.set(posPrim, pos);
-                        CoinSlotAdapter.this.indexHasChanged[posPrim] = true;
+                        coinSlot.setAdvancedGrades(pos);
+                        coinSlot.setIndexChanged(true);
 
                         // Tell the parent page to show the unsaved changes view
                         CollectionPage collectionPage = (CollectionPage) mContext;
@@ -348,7 +292,7 @@ class CoinSlotAdapter extends BaseAdapter {
         quantitySelector.setAdapter(mQuantityArrayAdapter);
 
         // Put the spinner at the value we have stored for this coin
-        quantitySelector.setSelection(advancedQuantities.get(position), false);
+        quantitySelector.setSelection(coinSlot.getAdvancedQuantities(), false);
 
         if(mQuantityOnItemSelectedListener == null) {
             mQuantityOnItemSelectedListener = new OnItemSelectedListener() {
@@ -356,12 +300,13 @@ class CoinSlotAdapter extends BaseAdapter {
                                            View view, int pos, long id) {
 
                     int posPrim = (Integer) parent.getTag();
+                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
 
                     // Update the values in the lists if this is a new value
-                    if(pos != CoinSlotAdapter.this.advancedQuantities.get(posPrim)){
+                    if(pos != coinSlot.getAdvancedQuantities()){
                         // Value has changed
-                        CoinSlotAdapter.this.advancedQuantities.set(posPrim, pos);
-                        CoinSlotAdapter.this.indexHasChanged[posPrim] = true;
+                        coinSlot.setAdvancedQuantities(pos);
+                        coinSlot.setIndexChanged(true);
 
                         // Tell the parent page to show the unsaved changes view
                         CollectionPage collectionPage = (CollectionPage) mContext;
@@ -394,7 +339,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // Set the EditText to the string previously entered by the user
         // - This will trigger the TextWatcher if recycled but the new/old values should match
-        String text = advancedNotes.get(position);
+        String text = coinSlot.getAdvancedNotes();
         notesEditText.setText(text);
         // http://stackoverflow.com/questions/6217378/place-cursor-at-the-end-of-text-in-edittext
         notesEditText.setSelection(text.length());
@@ -421,15 +366,16 @@ class CoinSlotAdapter extends BaseAdapter {
 
                     // Ignore if the text matches what's already temporarily saved
                     int posPrim = (Integer) textWatcherEditText.getTag();
+                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
                     String newText = s.toString();
-                    if (CoinSlotAdapter.this.advancedNotes.get(posPrim).equals(newText)) {
-                        //Log.e(MainApplication.APP_NAME, "Text equals what is currently stored, not updating");
+                    if (coinSlot.getAdvancedNotes().equals(newText)) {
+                        //Log.e(APP_NAME, "Text equals what is currently stored, not updating");
                         return;
                     }
 
                     // Change detected - Temporarily store the modified text
-                    CoinSlotAdapter.this.advancedNotes.set(posPrim, newText);
-                    CoinSlotAdapter.this.indexHasChanged[posPrim] = true;
+                    coinSlot.setAdvancedNotes(newText);
+                    coinSlot.setIndexChanged(true);
                     //Log.e("CoinCollection", "Text has changed: " + newText + " position: " + Integer.toString(posPrim));
 
                     CollectionPage collectionPage = (CollectionPage) mContext;
@@ -439,7 +385,6 @@ class CoinSlotAdapter extends BaseAdapter {
             // Add the TextWatcher for this EditText
             notesEditText.addTextChangedListener(notesTextWatcher);
         }
-
 
         // Make the edittext scrollable
         // TODO Get scrolling working all the way

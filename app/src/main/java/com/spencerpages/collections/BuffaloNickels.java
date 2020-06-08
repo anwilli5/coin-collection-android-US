@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -48,8 +49,8 @@ public class BuffaloNickels extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -74,9 +75,7 @@ public class BuffaloNickels extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -95,48 +94,35 @@ public class BuffaloNickels extends CollectionInfo {
                 if(showP){
                     if(i != 1931 && i != 1938){
                         if(i == 1913){
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" Type 1");
-
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" Type 2");
+                            coinList.add(new CoinSlot(Integer.toString(i), " Type 1"));
+                            coinList.add(new CoinSlot(Integer.toString(i), " Type 2"));
                         } else {
-                            identifierList.add(Integer.toString(i));
-                            mintList.add("");
+                            coinList.add(new CoinSlot(Integer.toString(i), ""));
                         }
                     }
                 }
                 if(showD){
                     if(i != 1921 && i != 1923 && i != 1930 && i != 1931){
                         if(i == 1913){
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" D Type 1");
-
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" D Type 2");
+                            coinList.add(new CoinSlot(Integer.toString(i), " D Type 1"));
+                            coinList.add(new CoinSlot(Integer.toString(i), " D Type 2"));
                         } else {
-                            identifierList.add(Integer.toString(i));
-                            mintList.add("D");
+                            coinList.add(new CoinSlot(Integer.toString(i), "D"));
                         }
                     }
                 }
                 if(showS){
                     if(i != 1934 && i != 1938){
                         if(i == 1913){
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" S Type 1");
-
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" S Type 2");
+                            coinList.add(new CoinSlot(Integer.toString(i), " S Type 1"));
+                            coinList.add(new CoinSlot(Integer.toString(i), " S Type 2"));
                         } else {
-                            identifierList.add(Integer.toString(i));
-                            mintList.add("S");
+                            coinList.add(new CoinSlot(Integer.toString(i), "S"));
                         }
                     }
                 }
             } else {
-                identifierList.add(Integer.toString(i));
-                mintList.add("");
+                coinList.add(new CoinSlot(Integer.toString(i), ""));
             }
         }
     }

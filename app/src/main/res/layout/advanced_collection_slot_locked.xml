@@ -4,8 +4,7 @@
         android:layout_width="fill_parent" 
         android:layout_height="fill_parent" >
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content" 
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_marginRight="5dp"
             android:id="@+id/section1" >  
@@ -25,8 +24,7 @@
             android:textSize="12sp" />
         </RelativeLayout>
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content" 
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section1"
             android:layout_marginRight="5dp"
@@ -46,8 +44,7 @@
             android:textSize="18sp" />
         </RelativeLayout>
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent" 
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section2"
             android:id="@+id/section3" > 

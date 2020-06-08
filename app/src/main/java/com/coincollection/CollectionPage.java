@@ -54,9 +54,16 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 
+import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
+import static com.coincollection.CoinSlot.COL_ADV_NOTES;
+import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.MainActivity.createAndShowHelpDialog;
 import static com.coincollection.MainActivity.showUnsavedChangesAlertAndExitActivity;
 import static com.coincollection.MainActivity.showUnsavedChangesAlertViewChange;
+import static com.spencerpages.MainApplication.APP_NAME;
 
 /** Activity for managing each collection page
  *
@@ -65,21 +72,20 @@ import static com.coincollection.MainActivity.showUnsavedChangesAlertViewChange;
 public class CollectionPage extends AppCompatActivity {
     private String mCollectionName;
     private CollectionInfo mCollectionTypeObj;
-    private String mCoinType;
-    private int mImageIdentifier;
     private int mActionBarImage;
-    private final ArrayList<String> mIdentifierList = new ArrayList<>();
-    private final ArrayList<String> mMintList = new ArrayList<>();
-    private ArrayList<Boolean> mInCollectionList = new ArrayList<>();
+    private ArrayList<CoinSlot> mCoinList;
     private CoinSlotAdapter mCoinSlotAdapter;
     private Bundle mSavedInstanceState = null;
     private Resources mRes;
+
+    // Saved Instance State Keywords
 
     // Intent Argument Keywords
     public final static String COLLECTION_NAME        = "Collection_Name";
     public final static String COLLECTION_TYPE_INDEX  = "Collection_Type_Index";
     private final static String VIEW_INDEX            = "view_index";
     private final static String VIEW_POSITION         = "view_position";
+    private final static String COIN_LIST             = "coin_list";
 
     // Global "enum" values
     public static final int SIMPLE_DISPLAY = 0;
@@ -100,6 +106,8 @@ public class CollectionPage extends AppCompatActivity {
      */
     private int mViewIndex = 0;
     private int mViewPosition = 0;
+
+    public static final String IS_LOCKED = "_isLocked";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,13 +132,13 @@ public class CollectionPage extends AppCompatActivity {
         }
 
         mCollectionTypeObj = MainApplication.COLLECTION_TYPES[collectionTypeIndex];
-        //TODO Take this out
-        mCoinType = mCollectionTypeObj.getCoinType();
-        // TODO Take out mImageIdentifier
-        mImageIdentifier = mCollectionTypeObj.getCoinImageIdentifier();
         mActionBarImage = mCollectionTypeObj.getCoinImageIdentifier();
-        
-        if(callingIntent.hasExtra(VIEW_INDEX)){
+
+        // Restore the view index and position
+        if(mSavedInstanceState != null){
+            mViewIndex = mSavedInstanceState.getInt(VIEW_INDEX);
+            mViewPosition = mSavedInstanceState.getInt(VIEW_POSITION);
+        } else if(callingIntent.hasExtra(VIEW_INDEX)){
             mViewIndex = callingIntent.getIntExtra(VIEW_INDEX, 0);
             mViewPosition = callingIntent.getIntExtra(VIEW_POSITION, 0);
         }
@@ -174,139 +182,74 @@ public class CollectionPage extends AppCompatActivity {
         if(mDisplayType == SIMPLE_DISPLAY) {
 
             setContentView(R.layout.standard_collection_page);
-
             gridview = findViewById(R.id.standard_collection_page);
 
         } else if(mDisplayType == ADVANCED_DISPLAY){
 
             setContentView(R.layout.advanced_collection_page);
-            
             listview = findViewById(R.id.advanced_collection_page);
 
             // Make it so that the elements in the listview cells can get focus
             listview.setItemsCanFocus(true);
         }
 
-        Cursor resultCursor = dbAdapter.getAllIdentifiers(mCollectionName);
-        Cursor resultCursor2 = dbAdapter.getInCollectionInfo(mCollectionName);
-        // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
-        if (resultCursor.moveToFirst() && resultCursor2.moveToFirst()){
-            do{
-                mIdentifierList.add(resultCursor.getString(resultCursor.getColumnIndex("coinIdentifier")));
-                mMintList.add(resultCursor.getString(resultCursor.getColumnIndex("coinMint")));
-                int inCollectionInt = resultCursor2.getInt(resultCursor2.getColumnIndex("inCollection"));
-                mInCollectionList.add(inCollectionInt == 1);
+        // Populate the coin list
+        if(mSavedInstanceState == null){
 
-            }while(resultCursor.moveToNext() && resultCursor2.moveToNext());
-        }
-        resultCursor.close();
-        resultCursor2.close();
-        
-        // In the advanced case, the mInCollectionList that we generated could be inaccurate if we
-        // had unsaved data and then a screen rotation or something like that occurred.  We have to
-        // do this same stuff for the advanced specific information below, but we also need to do it
-        // to the mInCollectionList since in the advanced view the coin additions/deletions are tied
-        // to the save button and haven't been propagated back yet.  It'd be better to architect this
-        // a bit better, but this is being hacked on so for now just go with it.  :)  TODO
-        if(mDisplayType == ADVANCED_DISPLAY){
-
-            if(mSavedInstanceState != null){
-
-                boolean[] inCollectionBools = mSavedInstanceState.getBooleanArray("in_collection");
-
-                assert inCollectionBools != null;
-
-                mInCollectionList = new ArrayList<>();
-                for (boolean inCollectionBool : inCollectionBools) {
-                    mInCollectionList.add(inCollectionBool);
-                }
+            mCoinList = new ArrayList<>();
+            Cursor resultCursor = dbAdapter.getBasicCoinInfo(mCollectionName);
+            // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
+            if (resultCursor.moveToFirst()){
+                do{
+                    mCoinList.add(new CoinSlot(
+                            resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_IDENTIFIER)),
+                            resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_MINT)),
+                            (resultCursor.getInt(resultCursor.getColumnIndex(COL_IN_COLLECTION)) == 1)
+                    ));
+                } while(resultCursor.moveToNext());
             }
-        }
+            resultCursor.close();
 
-        mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, mCollectionTypeObj, mIdentifierList, mMintList, mInCollectionList);
-
-
-        // If we are the advanced view we need to set up the coin slot adapters advanced tables
-        if(mDisplayType == ADVANCED_DISPLAY){
-
-            if(mSavedInstanceState == null){
-                // This is the first time the page has loaded, so we haven't
-                // loaded this info yet
-
-                ArrayList<Integer> grades = new ArrayList<>();
-                ArrayList<Integer> quantities = new ArrayList<>();
-                ArrayList<String> notes = new ArrayList<>();
+            // If we are the advanced view we need to set up the coin slot adapters advanced tables
+            if(mDisplayType == ADVANCED_DISPLAY){
 
                 // We need to give the coin adapter the extra info
                 Cursor advResultCursor = dbAdapter.getAdvInfo(mCollectionName);
-
                 if (advResultCursor.moveToFirst()){
+                    int i = 0;
                     do{
-                        grades.add(advResultCursor.getInt(advResultCursor.getColumnIndex("advGradeIndex")));
-                        quantities.add(advResultCursor.getInt(advResultCursor.getColumnIndex("advQuantityIndex")));
-                        notes.add(advResultCursor.getString(advResultCursor.getColumnIndex("advNotes")));
-                    }while(advResultCursor.moveToNext());
+                        CoinSlot coinSlot = mCoinList.get(i++);
+                        coinSlot.setAdvancedGrades(advResultCursor.getInt(advResultCursor.getColumnIndex(COL_ADV_GRADE_INDEX)));
+                        coinSlot.setAdvancedQuantities(advResultCursor.getInt(advResultCursor.getColumnIndex(COL_ADV_QUANTITY_INDEX)));
+                        coinSlot.setAdvancedNotes(advResultCursor.getString(advResultCursor.getColumnIndex(COL_ADV_NOTES)));
+                    } while(advResultCursor.moveToNext());
                 } else {
-                    Log.e(MainApplication.APP_NAME, "cursor.moveToFirst() returned false - getAdvInfo");
+                    Log.e(APP_NAME, "cursor.moveToFirst() returned false - getAdvInfo");
                 }
                 advResultCursor.close();
-                
-                // Mark everything as not having changed
-                boolean[] hasChanged = new boolean[grades.size()];
-                for(int i = 0; i < grades.size(); i++){
-                    hasChanged[i] = false;
-                }
-                mCoinSlotAdapter.setAdvancedLists(grades, quantities, notes, hasChanged);
+            }
+        } else {
 
-            } else {
-
-                // We have already loaded the advanced lists, so use those instead.
-                // That way we have all of the state from before the page loaded.
-                // yay
-
-                if(BuildConfig.DEBUG) {
-                    Log.d(MainApplication.APP_NAME, "Successfully restored previous state");
-                }
-
-                ArrayList<Integer> grades = mSavedInstanceState.getIntegerArrayList("coin_grades");
-                ArrayList<Integer> quantities = mSavedInstanceState.getIntegerArrayList("coin_quantities");
-                ArrayList<String> notes = mSavedInstanceState.getStringArrayList("coin_notes");
-                boolean[] hasChanged = mSavedInstanceState.getBooleanArray("change_list");
-                mViewIndex = mSavedInstanceState.getInt(VIEW_INDEX);
-                mViewPosition = mSavedInstanceState.getInt(VIEW_POSITION);
-
-                if(BuildConfig.DEBUG) {
-
-                    if(grades == null || quantities == null || notes == null || hasChanged == null ||
-                       grades.size() != hasChanged.length) {
-
-                        throw new AssertionError("mSavedInstanceState didn't contain the values expected");
-
-                    }
-                }
-
-                // Search through the hasChanged history and see whether we should
-                // re-display the "Unsaved Changes" view
-
-                for(int i = 0; i < grades.size(); i++){
-                    if(hasChanged[i]){
+            // We have already loaded the advanced lists, so use those instead.
+            // That way we have all of the state from before the page loaded.
+            // yay
+            if(BuildConfig.DEBUG) {
+                Log.d(APP_NAME, "Successfully restored previous state");
+            }
+            mCoinList = mSavedInstanceState.getParcelableArrayList(COIN_LIST);
+            // Search through the hasChanged history and see whether we should
+            // re-display the "Unsaved Changes" view
+            if (mCoinList != null){
+                for(int i = 0; i < mCoinList.size(); i++){
+                    if(mCoinList.get(i).hasIndexChanged()){
                         this.showUnsavedTextView();
                         break;
                     }
                 }
-
-                mCoinSlotAdapter.setAdvancedLists(grades, quantities, notes, hasChanged);
-            }
-        } else {
-            // Simple view, get the gridview location
-            if(mSavedInstanceState != null){
-                mViewIndex = mSavedInstanceState.getInt(VIEW_INDEX);
-                mViewPosition = mSavedInstanceState.getInt(VIEW_POSITION);
             }
         }
-
         dbAdapter.close();
-        dbAdapter = null;
+        mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, mCollectionTypeObj, mCoinList, mDisplayType);
 
         OnScrollListener scrollListener = new OnScrollListener(){
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -344,31 +287,15 @@ public class CollectionPage extends AppCompatActivity {
             // Set the scroll listener so that the view re-adjusts to the new view
             gridview.setOnScrollListener(scrollListener);
 
-        } else if(mDisplayType == ADVANCED_DISPLAY){
-            // Apply the adapter to handle each entry in the list
-            listview.setAdapter(mCoinSlotAdapter);
-
-            // Restore the position in the list that the user was at
-            // (or go to the default of the first item)
-            listview.setSelectionFromTop(mViewIndex, mViewPosition);
-
-            // Set the scroll listener so that the view re-adjusts to the new view
-            listview.setOnScrollListener(scrollListener);
-
-        }
-
-        // Set the onClick listener that will handle changing the coin state
-        // Note, for the advanced view we have to put the click listener on the
-        // coin image, so we can't do it here. boo
-
-        if(mDisplayType == SIMPLE_DISPLAY){
-
+            // Set the onClick listener that will handle changing the coin state
+            // Note, for the advanced view we have to put the click listener on the
+            // coin image, so we can't do it here. boo
             gridview.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                     // Need to check whether the collection is locked
                     SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 
-                    if(mainPreferences.getBoolean(mCollectionName + "_isLocked", false)){
+                    if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
                         // Collection is locked
                         Context context = getApplicationContext();
                         CharSequence text = "Collection is currently locked, hit the 'Edit' action to unlock";
@@ -381,14 +308,13 @@ public class CollectionPage extends AppCompatActivity {
 
                         DatabaseAdapter dbAdapter = new DatabaseAdapter(CollectionPage.this);
                         dbAdapter.open();
-
-                        dbAdapter.updateInfo(mCollectionName, mIdentifierList.get(position), mMintList.get(position));
-
+                        CoinSlot coinSlot = mCoinList.get(position);
+                        dbAdapter.toggleInCollection(mCollectionName, coinSlot);
                         dbAdapter.close();
 
                         // Update the mCoinSlotAdapters copy of the coins in this collection
-                        boolean oldValue = mCoinSlotAdapter.inCollectionList.get(position);
-                        mCoinSlotAdapter.inCollectionList.set(position, !oldValue);
+                        boolean oldValue = coinSlot.isInCollection();
+                        coinSlot.setInCollection(!oldValue);
 
                         // And have the adapter redraw with this new info
 
@@ -396,21 +322,30 @@ public class CollectionPage extends AppCompatActivity {
                     }
                 }
             });
-        }
 
+        } else if(mDisplayType == ADVANCED_DISPLAY){
+            // Apply the adapter to handle each entry in the list
+            listview.setAdapter(mCoinSlotAdapter);
+
+            // Restore the position in the list that the user was at
+            // (or go to the default of the first item)
+            listview.setSelectionFromTop(mViewIndex, mViewPosition);
+
+            // Set the scroll listener so that the view re-adjusts to the new view
+            listview.setOnScrollListener(scrollListener);
+
+        }
     }
     
     public void showUnsavedTextView() {
 
-        TextView unsavedMessageView = (TextView) findViewById(R.id.unsaved_message_textview);
-
+        TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.VISIBLE);
     }
     
     private void hideUnsavedTextView() {
 
-        TextView unsavedMessageView = (TextView) findViewById(R.id.unsaved_message_textview);
-
+        TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.GONE);
     }
 
@@ -424,7 +359,7 @@ public class CollectionPage extends AppCompatActivity {
         SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         MenuItem item = menu.findItem(R.id.lock_unlock_collection);
 
-        if(mainPreferences.getBoolean(mCollectionName + "_isLocked", false)){
+        if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
             // Current Locked, set text to unlock it
             item.setTitle(R.string.unlock_collection);
         } else {
@@ -462,7 +397,7 @@ public class CollectionPage extends AppCompatActivity {
             SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
             SharedPreferences.Editor editor = mainPreferences.edit();
 
-            boolean isLocked = mainPreferences.getBoolean(mCollectionName + "_isLocked", false);
+            boolean isLocked = mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false);
             boolean finishedSuccessfully = true;
 
             // If we are going from unlocked to lock in advance mode, we need to save the
@@ -477,30 +412,16 @@ public class CollectionPage extends AppCompatActivity {
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                for(int i = 0; i < mCoinSlotAdapter.advancedGrades.size(); i++){
-                    if(mCoinSlotAdapter.indexHasChanged[i]){
-
-                        String coinIdentifier = mIdentifierList.get(i);
-                        String coinMint = mMintList.get(i);
-                        Integer grade = mCoinSlotAdapter.advancedGrades.get(i);
-                        Integer quantity = mCoinSlotAdapter.advancedQuantities.get(i);
-                        String notes = mCoinSlotAdapter.advancedNotes.get(i);
-                        int inCollection = mCoinSlotAdapter.inCollectionList.get(i) ? 1 : 0;
-
-                        if(dbAdapter.updateAdvInfo(
-                                mCollectionName,
-                                coinIdentifier,
-                                coinMint,
-                                grade,
-                                quantity,
-                                notes,
-                                inCollection) != 1){
+                for(int i = 0; i < mCoinList.size(); i++){
+                    CoinSlot coinSlot = mCoinList.get(i);
+                    if(coinSlot.hasIndexChanged()){
+                        if(dbAdapter.updateAdvInfo(mCollectionName, coinSlot) != 1){
                             finishedSuccessfully = false;
                             // Keep going, though
                             continue;
                         }
                         // Mark this data as being unchanged
-                        mCoinSlotAdapter.indexHasChanged[i] = false;
+                        coinSlot.setIndexChanged(false);
                     }
                 }
 
@@ -531,7 +452,7 @@ public class CollectionPage extends AppCompatActivity {
             if(finishedSuccessfully) {
                 if (isLocked) {
                     // Locked, change to unlocked
-                    editor.putBoolean(mCollectionName + "_isLocked", false);
+                    editor.putBoolean(mCollectionName + IS_LOCKED, false);
                     // Change the text for next time
                     if (mDisplayType == SIMPLE_DISPLAY) {
                         item.setTitle(R.string.lock_collection);
@@ -540,7 +461,7 @@ public class CollectionPage extends AppCompatActivity {
                     // away this
                 } else {
                     // Unlocked or preference doesn't exist, change preference to locked
-                    editor.putBoolean(mCollectionName + "_isLocked", true);
+                    editor.putBoolean(mCollectionName + IS_LOCKED, true);
                     // Change the text for next time
                     if (mDisplayType == SIMPLE_DISPLAY) {
                         item.setTitle(R.string.unlock_collection);
@@ -559,7 +480,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 // Save the position that the user was at for convenience
                 // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
-                ListView listview = (ListView) findViewById(R.id.advanced_collection_page);
+                ListView listview = findViewById(R.id.advanced_collection_page);
                 int index = listview.getFirstVisiblePosition();
                 View v = listview.getChildAt(0);
                 int top = (v == null) ? 0 : v.getTop();
@@ -589,7 +510,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 // Save the position that the user was at for convenience
                 // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
-                GridView gridview = (GridView) findViewById(R.id.standard_collection_page);
+                GridView gridview = findViewById(R.id.standard_collection_page);
                 int index = gridview.getFirstVisiblePosition();
                 View v = gridview.getChildAt(0);
                 int top = (v == null) ? 0 : v.getTop();
@@ -618,8 +539,6 @@ public class CollectionPage extends AppCompatActivity {
                 }
 
                 // The user doesn't have any unsaved changes
-
-                // TODO Try catch
 
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
@@ -694,6 +613,7 @@ public class CollectionPage extends AppCompatActivity {
         if(!checkNameResult.equals("")){
             Context context = this.getApplicationContext();
             Toast.makeText(context, checkNameResult, Toast.LENGTH_SHORT).show();
+            dbAdapter.close();
             return;
         }
 
@@ -706,9 +626,9 @@ public class CollectionPage extends AppCompatActivity {
         // Update app state
         SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = mainPreferences.edit();
-        boolean isLocked = mainPreferences.getBoolean(oldCollectionName + "_isLocked", false);
-        editor.remove(oldCollectionName + "_isLocked");
-        editor.putBoolean(newCollectionName + "_isLocked", isLocked);
+        boolean isLocked = mainPreferences.getBoolean(oldCollectionName + IS_LOCKED, false);
+        editor.remove(oldCollectionName + IS_LOCKED);
+        editor.putBoolean(newCollectionName + IS_LOCKED, isLocked);
         editor.apply();
 
         // Update current view
@@ -803,20 +723,6 @@ public class CollectionPage extends AppCompatActivity {
         
         if(mDisplayType == ADVANCED_DISPLAY){
 
-            // Save off these lists that may have unsaved user data
-            outState.putIntegerArrayList("coin_grades", mCoinSlotAdapter.advancedGrades);
-            outState.putIntegerArrayList("coin_quantities", mCoinSlotAdapter.advancedQuantities);
-            outState.putStringArrayList("coin_notes", mCoinSlotAdapter.advancedNotes);
-            outState.putBooleanArray("change_list", mCoinSlotAdapter.indexHasChanged);
-
-            // Save off the list of the coins in the collection
-            boolean[] array = new boolean[mCoinSlotAdapter.inCollectionList.size()];
-            for (int i = 0; i < mCoinSlotAdapter.inCollectionList.size(); i++) {
-                array[i] = mCoinSlotAdapter.inCollectionList.get(i);
-            }
-
-            outState.putBooleanArray("in_collection", array);
-
             // Finally, save off the position of the listview
             ListView listview = findViewById(R.id.advanced_collection_page);
 
@@ -834,7 +740,9 @@ public class CollectionPage extends AppCompatActivity {
             View v = gridview.getChildAt(0);
             top = (v == null) ? 0 : v.getTop();
         }
-        
+
+        // Save off these lists that may have unsaved user data
+        outState.putParcelableArrayList(COIN_LIST, mCoinList);
         outState.putInt(VIEW_INDEX, index);
         outState.putInt(VIEW_POSITION, top);
         outState.putString(COLLECTION_NAME, mCollectionName);

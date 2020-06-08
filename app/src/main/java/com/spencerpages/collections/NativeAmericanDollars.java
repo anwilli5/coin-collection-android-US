@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -72,12 +73,12 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
+    public int getCoinSlotImage(CoinSlot coinSlot){
 
-        if(NATIVE_INFO.containsKey(identifier)){
-            return NATIVE_INFO.get(identifier)[inCollection ? 0 : 1 ];
+        if(NATIVE_INFO.containsKey(coinSlot.getIdentifier())){
+            return NATIVE_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
         } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+            return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
         }
     }
 
@@ -99,9 +100,7 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -113,17 +112,14 @@ public class NativeAmericanDollars extends CollectionInfo {
 
             if(showMintMarks){
                 if(showP){
-                    identifierList.add(Integer.toString(i));
-                    mintList.add("P");
+                    coinList.add(new CoinSlot(Integer.toString(i), "P"));
                 }
             } else {
-                identifierList.add(Integer.toString(i));
-                mintList.add("");
+                coinList.add(new CoinSlot(Integer.toString(i), ""));
             }
 
             if(showMintMarks && showD){
-                identifierList.add(Integer.toString(i));
-                mintList.add("D");
+                coinList.add(new CoinSlot(Integer.toString(i), "D"));
             }
         }
     }

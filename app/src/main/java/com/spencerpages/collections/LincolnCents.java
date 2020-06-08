@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -71,12 +72,12 @@ public class LincolnCents extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
+    public int getCoinSlotImage(CoinSlot coinSlot){
 
-        if(BICENT_INFO.containsKey(identifier)){
-            return BICENT_INFO.get(identifier)[inCollection ? 0 : 1];
+        if(BICENT_INFO.containsKey(coinSlot.getIdentifier())){
+            return BICENT_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
         } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+            return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
         }
     }
 
@@ -102,9 +103,7 @@ public class LincolnCents extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -130,16 +129,13 @@ public class LincolnCents extends CollectionInfo {
 
                     if (showMintMarks) {
                         if (showP) {
-                            identifierList.add(bicentIdentifier);
-                            mintList.add("");
+                            coinList.add(new CoinSlot(bicentIdentifier, ""));
                         }
                         if (showD) {
-                            identifierList.add(bicentIdentifier);
-                            mintList.add("D");
+                            coinList.add(new CoinSlot(bicentIdentifier, "D"));
                         }
                     } else {
-                        identifierList.add(bicentIdentifier);
-                        mintList.add("");
+                        coinList.add(new CoinSlot(bicentIdentifier, ""));
                     }
                 }
                 continue;
@@ -148,26 +144,20 @@ public class LincolnCents extends CollectionInfo {
             if(showMintMarks){
                 if(showP){
                     // The P was never on any Pennies
-                    identifierList.add(newValue);
-                    mintList.add("");
+                    coinList.add(new CoinSlot(newValue, ""));
+                }
+                if(showD){
+                    if(i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967){
+                        coinList.add(new CoinSlot(newValue, "D"));
+                    }
+                }
+                if(showS){
+                    if(i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)){
+                        coinList.add(new CoinSlot(newValue, "S"));
+                    }
                 }
             } else {
-                identifierList.add(newValue);
-                mintList.add("");
-            }
-
-            if(i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967){
-                if(showMintMarks && showD){
-                    identifierList.add(newValue);
-                    mintList.add("D");
-                }
-            }
-
-            if(i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)){
-                if(showMintMarks && showS){
-                    identifierList.add(newValue);
-                    mintList.add("S");
-                }
+                coinList.add(new CoinSlot(newValue, ""));
             }
 
             // If we are adding in the VDB, turn this off

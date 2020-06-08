@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -79,11 +80,11 @@ public class JeffersonNickels extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        if(WESTWARD_INFO.containsKey(identifier)){
-            return WESTWARD_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        if(WESTWARD_INFO.containsKey(coinSlot.getIdentifier())){
+            return WESTWARD_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
         } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+            return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
         }
     }
 
@@ -109,9 +110,7 @@ public class JeffersonNickels extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -128,16 +127,13 @@ public class JeffersonNickels extends CollectionInfo {
 
                     if (showMintMarks) {
                         if (showP) {
-                            identifierList.add(identifier);
-                            mintList.add("P");
+                            coinList.add(new CoinSlot(identifier, "P"));
                         }
                         if (showD) {
-                            identifierList.add(identifier);
-                            mintList.add("D");
+                            coinList.add(new CoinSlot(identifier, "D"));
                         }
                     } else {
-                        identifierList.add(identifier);
-                        mintList.add("");
+                        coinList.add(new CoinSlot(identifier, ""));
                     }
                 }
                 continue;
@@ -149,47 +145,40 @@ public class JeffersonNickels extends CollectionInfo {
 
                     if (showMintMarks) {
                         if (showP) {
-                            identifierList.add(identifier);
-                            mintList.add("P");
+                            coinList.add(new CoinSlot(identifier, "P"));
                         }
                         if (showD) {
-                            identifierList.add(identifier);
-                            mintList.add("D");
+                            coinList.add(new CoinSlot(identifier, "D"));
                         }
                     } else {
-                        identifierList.add(identifier);
-                        mintList.add("");
+                        coinList.add(new CoinSlot(identifier, ""));
                     }
                 }
                 continue;
             }
 
             if(showMintMarks){
-                if(i != 1968 && i != 1969 && i != 1970){
-                    if(showP && i >= 1980){
-                        identifierList.add(Integer.toString(i));
-                        mintList.add("P");
-                    } else if(showP){
-                        identifierList.add(Integer.toString(i));
-                        mintList.add("");
+                if(showP) {
+                    if (i != 1968 && i != 1969 && i != 1970) {
+                        if (i >= 1980) {
+                            coinList.add(new CoinSlot(Integer.toString(i), "P"));
+                        } else {
+                            coinList.add(new CoinSlot(Integer.toString(i), ""));
+                        }
+                    }
+                }
+                if(showD){
+                    if(i != 1965 && i != 1966 && i != 1967){
+                        coinList.add(new CoinSlot(Integer.toString(i), "D"));
+                    }
+                }
+                if(showS){
+                    if(i <= 1970 && i != 1950 && (i < 1955 || i > 1967)){
+                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
                     }
                 }
             } else {
-                identifierList.add(Integer.toString(i));
-                mintList.add("");
-            }
-
-            if(i != 1965 && i != 1966 && i != 1967){
-                if(showMintMarks && showD){
-                    identifierList.add(Integer.toString(i));
-                    mintList.add("D");
-                }
-            }
-            if(i <= 1970 && i != 1950 && (i < 1955 || i > 1967)){
-                if(showMintMarks && showS){
-                    identifierList.add(Integer.toString(i));
-                    mintList.add("S");
-                }
+                coinList.add(new CoinSlot(Integer.toString(i), ""));
             }
         }
     }

@@ -66,6 +66,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.spencerpages.MainApplication.APP_NAME;
+
 /**
  * The main Activity for the app.  Implements a ListView which lets the user view a previously
  * created collection or add/delete/reorder/export/import collections
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
     private final Context mContext = this;
     private FrontAdapter mListAdapter;
-    private DatabaseAdapter mDbAdapter;
+    public DatabaseAdapter mDbAdapter;
     private Resources mRes;
 
     // The number of actual collections in mCollectionListEntries
@@ -176,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         if(check == null){
 
             if(BuildConfig.DEBUG) {
-                Log.d(MainApplication.APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
+                Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
 
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             if(BuildConfig.DEBUG) {
-                Log.d(MainApplication.APP_NAME, "Taking over existing mTask");
+                Log.d(APP_NAME, "Taking over existing mTask");
             }
 
             // An AsyncProgressTask is running, make a new dialog to show it
@@ -934,7 +936,7 @@ public class MainActivity extends AppCompatActivity {
                     CSVWriter.DEFAULT_QUOTE_CHARACTER,
                     '\0');
         } catch (Exception e) {
-            Log.e(MainApplication.APP_NAME, e.toString());
+            Log.e(APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
             return null;
         }
@@ -961,7 +963,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             return new CSVWriter(new FileWriter(file));
         } catch (Exception e) {
-            Log.e(MainApplication.APP_NAME, e.toString());
+            Log.e(APP_NAME, e.toString());
             showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
             return null;
         }

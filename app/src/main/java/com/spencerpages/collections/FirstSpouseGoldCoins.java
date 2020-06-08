@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -145,21 +146,17 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return FS_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return FS_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
     }
 
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         for (String fsCoinIdentifier : FS_COIN_IDENTIFIERS) {
-            String identifier = (String) fsCoinIdentifier;
-            identifierList.add(identifier);
-            mintList.add("");
+            coinList.add(new CoinSlot(fsCoinIdentifier, ""));
         }
     }
     public String getAttributionString(){

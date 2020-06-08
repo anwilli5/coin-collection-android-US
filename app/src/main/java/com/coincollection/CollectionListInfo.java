@@ -36,18 +36,6 @@ public class CollectionListInfo implements Parcelable{
     private int mCollectionTypeIndex;
     private int mDisplayType;
 
-    /* We make this object Parcelable so that the list can be passed between Activities in the case
-     * where a screen orientation change occurs.
-     */
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public CollectionListInfo createFromParcel(Parcel in){
-            return new CollectionListInfo(in);
-        }
-        public CollectionListInfo[] newArray(int size){
-            return new CollectionListInfo[size];
-        }
-    };
-
     CollectionListInfo() {
     }
 
@@ -57,45 +45,6 @@ public class CollectionListInfo implements Parcelable{
         mTotalCoinsCollected = collected;
         mCollectionTypeIndex = index;
         mDisplayType = displayType;
-    }
-
-    /** Constructor required for Parcelability */
-    private CollectionListInfo(Parcel in){
-        String[] strings = new String[1];
-        int[] ints = new int[4];
-
-        in.readStringArray(strings);
-        mCollectionName = strings[0];
-
-        in.readIntArray(ints);
-        mTotalCoinsInCollection = ints[0];
-        mTotalCoinsCollected = ints[1];
-        mCollectionTypeIndex = ints[2];
-        mDisplayType = ints[3];
-    }
-
-    @Override
-    public int describeContents(){
-        // return 0 - none of our contents need special handling
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags){
-
-        String[] strings = new String[] {
-            mCollectionName,
-        };
-
-        int[] ints = new int[] {
-            mTotalCoinsInCollection,
-            mTotalCoinsCollected,
-            mCollectionTypeIndex,
-            mDisplayType
-        };
-
-        dest.writeStringArray(strings);
-        dest.writeIntArray(ints);
     }
 
     public String getName(){
@@ -150,4 +99,40 @@ public class CollectionListInfo implements Parcelable{
         return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
 
+    /* We make this object Parcelable so that the list can be passed between Activities in the case
+     * where a screen orientation change occurs.
+     */
+    private CollectionListInfo(Parcel in) {
+        mCollectionName = in.readString();
+        mTotalCoinsInCollection = in.readInt();
+        mTotalCoinsCollected = in.readInt();
+        mCollectionTypeIndex = in.readInt();
+        mDisplayType = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mCollectionName);
+        dest.writeInt(mTotalCoinsInCollection);
+        dest.writeInt(mTotalCoinsCollected);
+        dest.writeInt(mCollectionTypeIndex);
+        dest.writeInt(mDisplayType);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<CollectionListInfo> CREATOR = new Creator<CollectionListInfo>() {
+        @Override
+        public CollectionListInfo createFromParcel(Parcel in) {
+            return new CollectionListInfo(in);
+        }
+
+        @Override
+        public CollectionListInfo[] newArray(int size) {
+            return new CollectionListInfo[size];
+        }
+    };
 }

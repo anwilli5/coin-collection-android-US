@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
@@ -47,8 +48,8 @@ public class WashingtonQuarters extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -73,9 +74,7 @@ public class WashingtonQuarters extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -93,29 +92,25 @@ public class WashingtonQuarters extends CollectionInfo {
                 continue;
 
             if(showMintMarks){
-                if(showP && i >= 1980){
-                    identifierList.add(newValue);
-                    mintList.add("P");
-                } else if(showP) {
-                    identifierList.add(newValue);
-                    mintList.add("");
+                if(showP){
+                    if(i >= 1980){
+                        coinList.add(new CoinSlot(newValue, "P"));
+                    } else {
+                        coinList.add(new CoinSlot(newValue, ""));
+                    }
+                }
+                if(showD){
+                    if(i != 1938 && (i < 1965 || i > 1967)){
+                        coinList.add(new CoinSlot(newValue, "D"));
+                    }
+                }
+                if(showS){
+                    if(i < 1955 && i != 1934 && i != 1949){
+                        coinList.add(new CoinSlot(newValue, "S"));
+                    }
                 }
             } else {
-                identifierList.add(newValue);
-                mintList.add("");
-            }
-
-            if(i != 1938 && (i < 1965 || i > 1967)){
-                if(showMintMarks && showD){
-                    identifierList.add(newValue);
-                    mintList.add("D");
-                }
-            }
-            if(i < 1955 && i != 1934 && i != 1949){
-                if(showMintMarks && showS){
-                    identifierList.add(newValue);
-                    mintList.add("S");
-                }
+                coinList.add(new CoinSlot(newValue, ""));
             }
         }
     }

@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -47,8 +48,8 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -64,9 +65,7 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -74,27 +73,22 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
         for(int i = startYear; i <= stopYear; i++){
 
-            identifierList.add(Integer.toString(i));
-            mintList.add("");
+            coinList.add(new CoinSlot(Integer.toString(i), ""));
 
             if(showBurnished){
                 if(i == 2006){
-                    identifierList.add("2006 W Burnished");
-                    mintList.add("");
+                    coinList.add(new CoinSlot("2006 W Burnished", ""));
                 }
 
                 else if(i == 2007){
-                    identifierList.add("2007 W Burnished");
-                    mintList.add("");
+                    coinList.add(new CoinSlot("2007 W Burnished", ""));
                 }
 
                 else if(i == 2008){
-                    identifierList.add("2008 W Burnished");
-                    mintList.add("");
+                    coinList.add(new CoinSlot("2008 W Burnished", ""));
                 }
                 else if(i == 2011){
-                    identifierList.add("2011 W Burnished");
-                    mintList.add("");
+                    coinList.add(new CoinSlot("2011 W Burnished", ""));
                 }
             }
         }

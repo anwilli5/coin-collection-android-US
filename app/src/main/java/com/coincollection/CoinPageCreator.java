@@ -55,6 +55,7 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import static com.coincollection.MainActivity.createAndShowHelpDialog;
+import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
  * Activity responsible for managing the collection creation page
@@ -77,14 +78,9 @@ public class CoinPageCreator extends AppCompatActivity {
      *             mCollectionObj getCreationParameters method. */
     private HashMap<String, Object> mDefaults;
 
-    /** mIdentifierList Upon selecting to create a collection, gets populated with a list of the
-     *                  individual coin identifiers (years, states, people, etc.) created after
-     *                  taking into account the various options above. */
-    private final ArrayList<String> mIdentifierList = new ArrayList<>();
-
-    /** mMintList Upon selecting to create a collection, gets populated with a list of the
-     *            individual coin mint marks after taking into account the various options above.*/
-    private final ArrayList<String> mMintList = new ArrayList<>();
+    /** mCoinList Upon selecting to create a collection, gets populated with coin identifiers
+     *            and mint marks */
+    private final ArrayList<CoinSlot> mCoinList = new ArrayList<>();
 
     /** mTask Holds the AsyncTask that we use to interact with the database (so that our database
      *        activity doesn't run on the main thread and trigger an Application Not Responding
@@ -98,14 +94,6 @@ public class CoinPageCreator extends AppCompatActivity {
      *                  orientation change case. See other TODOs below and get this working
      *                  correctly if it is indeed broken! */
     private ProgressDialog mProgressDialog = null;
-
-    /**
-     * mContext This is currently needed for our UnitTesting, where we use the coin creation
-     *          functions in this class and do some sanity checks based on the list that is
-     *          created.  Don't use this elsewhere - we should really just be using 'this'.
-     *          TODO take this out once we have better unit tests.
-     */
-    private Context mContext = this;
 
     /* Internal keys to use for passing data via saved instance state */
     private final static String _COIN_TYPE_INDEX = "CoinTypeIndex";
@@ -603,7 +591,7 @@ public class CoinPageCreator extends AppCompatActivity {
                     public void asyncProgressDoInBackground() {
                         // Create the table in the database
                         final String aCoinType = mCollectionObj.getCoinType();
-                        createNewTable(collectionName, aCoinType, mIdentifierList, mMintList, newDisplayOrder);
+                        createNewTable(collectionName, aCoinType, mCoinList, newDisplayOrder);
                     }
                     @Override
                     public void asyncProgressOnPreExecute() {
@@ -628,7 +616,7 @@ public class CoinPageCreator extends AppCompatActivity {
         updateViewFromState();
 
         if(BuildConfig.DEBUG) {
-            Log.d(MainApplication.APP_NAME, "Finished in onCreate");
+            Log.d(APP_NAME, "Finished in onCreate");
         }
 
     }
@@ -858,9 +846,9 @@ public class CoinPageCreator extends AppCompatActivity {
      *  Helper function to call the make collection method corresponding to the creation parameters
      *  NOTE: This is public so we can use it with our current test bench
      */
-    public void populateCollectionArrays(){
+    private void populateCollectionArrays(){
 
-        mCollectionObj.populateCollectionLists(mParameters, mIdentifierList, mMintList);
+        mCollectionObj.populateCollectionLists(mParameters, mCoinList);
     }
 
     @Override
@@ -911,48 +899,37 @@ public class CoinPageCreator extends AppCompatActivity {
      * Testing function - getter for mIdentifierList
      */
     public ArrayList<String> testGetIdentifierList(){
-        return mIdentifierList;
+        ArrayList<String> identifierList = new ArrayList<>();
+        for(int i = 0; i < mCoinList.size(); i++){
+            identifierList.add(mCoinList.get(i).getIdentifier());
+        }
+        return identifierList;
     }
 
     /**
      * Testing function - getter for mMintList
      */
     public ArrayList<String> testGetMintList(){
-        return mMintList;
-    }
-
-    /**
-     * Testing function - clears mIdentifierList and mMintList
-     */
-    public void testClearLists(){
-        mIdentifierList.clear();
-        mMintList.clear();
-    }
-
-    /**
-     * Testing function - changes the context that is used for resource lookups. Without this, the
-     * calls to getResource in some of the collection creation functions will trigger
-     * NullPointerExceptions. Instead we lend our CoinPageCreator our context so that we can
-     * sidestep actually going through the CoinPageCreator android lifecycle.
-     */
-    public void testSetContext(Context context){
-        mContext = context;
+        ArrayList<String> mintList = new ArrayList<>();
+        for(int i = 0; i < mCoinList.size(); i++){
+            mintList.add(mCoinList.get(i).getMint());
+        }
+        return mintList;
     }
 
     /**
      * Create a database table for a new collection
      * @param tableName Name of the table
      * @param coinType Type of coin
-     * @param coinIdentifiers List of coin images
-     * @param coinMints List of coin mints
+     * @param coinList List of coin slots
      * @param displayOrder Display order of the collection
      */
-    private void createNewTable(String tableName, String coinType, ArrayList<String> coinIdentifiers,
-                                ArrayList<String> coinMints, int displayOrder){
+    private void createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList,
+                                int displayOrder){
         // Open it again.  This one shouldn't take long
         DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
         dbAdapter.open();
-        dbAdapter.createNewTable(tableName, coinType, coinIdentifiers, coinMints, displayOrder);
+        dbAdapter.createNewTable(tableName, coinType, coinList, displayOrder);
         dbAdapter.close();
     }
 

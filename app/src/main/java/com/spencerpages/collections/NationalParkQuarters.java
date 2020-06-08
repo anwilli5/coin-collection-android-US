@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -113,8 +114,8 @@ public class NationalParkQuarters extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return PARKS_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return PARKS_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -133,9 +134,7 @@ public class NationalParkQuarters extends CollectionInfo {
 
     // TODO Perform validation and throw exception
     @SuppressWarnings("ConstantConditions")
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
@@ -147,16 +146,13 @@ public class NationalParkQuarters extends CollectionInfo {
 
             if (showMintMarks) {
                 if (showP) {
-                    identifierList.add(identifier);
-                    mintList.add("P");
+                    coinList.add(new CoinSlot(identifier, "P"));
                 }
                 if (showD) {
-                    identifierList.add(identifier);
-                    mintList.add("D");
+                    coinList.add(new CoinSlot(identifier, "D"));
                 }
             } else {
-                identifierList.add(identifier);
-                mintList.add("");
+                coinList.add(new CoinSlot(identifier, ""));
             }
         }
     }
