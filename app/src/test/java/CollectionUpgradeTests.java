@@ -75,7 +75,7 @@ import static junit.framework.TestCase.assertTrue;
 public class CollectionUpgradeTests {
 
     private final static int VERSION_1_YEAR = 2013;
-    
+
     // TODO - Improve tests by testing with all options set instead of none
 
     class TestDatabaseHelper extends SQLiteOpenHelper {
