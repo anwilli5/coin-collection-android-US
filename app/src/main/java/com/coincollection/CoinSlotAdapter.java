@@ -147,7 +147,6 @@ class CoinSlotAdapter extends BaseAdapter {
         String identifier = coinSlot.getIdentifier();
         String mint = coinSlot.getMint();
         TextView coinText = coinView.findViewById(R.id.coinText);
-        boolean inCollection = coinSlot.isInCollection();
 
         // Set the coin identifier text (Year and Mint in most cases)
         // TODO Fix this so there is no space if there is no mint

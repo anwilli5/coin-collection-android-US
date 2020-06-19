@@ -180,7 +180,7 @@ public class DatabaseAdapter {
      * Updates the display type associated with a given collection
      *
      * @param tableName - Used to know which table to update
-     * @param displayType - New displaytype to store for this table
+     * @param displayType - New display type to store for this table
      * @return 0 on update success, 1 otherwise
      * @throws SQLException if an SQL-related error occurs
      */

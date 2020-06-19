@@ -65,7 +65,7 @@ public abstract class CollectionInfo {
 
     /**
      * Returns the image identifier (R.drawable.image_name) that should be used
-     * in the collection list views (Ex: the first view displayd by the app.)
+     * in the collection list views (Ex: the first view displayed by the app.)
      * The convention in Coin Collection is to use the coin reverse image for
      * this.
      *
@@ -88,7 +88,7 @@ public abstract class CollectionInfo {
 
     /**
      * Populates the identifierList and mintList ArrayLists with coin
-     * identifers and mint identifiers based on the values in
+     * identifiers and mint identifiers based on the values in
      * the parameters HashMap. NOTE: The parameters HashMap has the same keys
      * that were added by the getCreationParameters call, but will have had
      * the associated values changed based on user action.

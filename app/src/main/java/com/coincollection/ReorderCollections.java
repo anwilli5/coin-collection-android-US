@@ -178,7 +178,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         // Inflate the menu - it has the 'Save' button.  This is also another
         // thing necessary for proper 'Up' button operation.
         inflater.inflate(R.menu.menu_reorder_collections, menu);

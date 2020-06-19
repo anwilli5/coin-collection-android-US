@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO Not sure what this does?
         lv.setTextFilterEnabled(true); // Typing narrows down the list
 
-        // For when we use fragments, listen to the backstack so we can transition back here from
+        // For when we use fragments, listen to the back stack so we can transition back here from
         // the fragment
 
         getSupportFragmentManager().addOnBackStackChangedListener(
@@ -773,20 +773,22 @@ public class MainActivity extends AppCompatActivity {
 
         // See whether we can write to the external storage
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // Should be able to write to it without issue
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // Can't write to it, so notify user
-            showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_ro));
-            return;
-        } else if (Environment.MEDIA_SHARED.equals(state)) {
-            // Shared with PC so can't write to it
-            showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_shared));
-            return;
-        } else {
-            // Doesn't exist, so notify user
-            showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_state, state));
-            return;
+        switch (state) {
+            case Environment.MEDIA_MOUNTED:
+                // Should be able to write to it without issue
+                break;
+            case Environment.MEDIA_MOUNTED_READ_ONLY:
+                // Can't write to it, so notify user
+                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_ro));
+                return;
+            case Environment.MEDIA_SHARED:
+                // Shared with PC so can't write to it
+                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_shared));
+                return;
+            default:
+                // Doesn't exist, so notify user
+                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_state, state));
+                return;
         }
 
         //http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
@@ -1127,7 +1129,7 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
 
         // Note that this provides information about global focus state, which is managed
-        // independently of activity lifecycles. As such, while focus changes will generally have
+        // independently of activity lifecycle. As such, while focus changes will generally have
         // some relation to lifecycle changes (an activity that is stopped will not generally get
         // window focus), you should not rely on any particular order between the callbacks here
         // and those in the other lifecycle methods such as onResume().
