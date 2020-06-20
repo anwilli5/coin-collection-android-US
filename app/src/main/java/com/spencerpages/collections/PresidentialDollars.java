@@ -139,7 +139,13 @@ public class PresidentialDollars extends CollectionInfo {
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
     public int getCoinSlotImage(CoinSlot coinSlot){
-        return PRES_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
+        Integer[] slotImages = PRES_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? (int) PRES_IMAGE_IDENTIFIERS[0][0] : (int) PRES_IMAGE_IDENTIFIERS[0][1];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {

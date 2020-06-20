@@ -142,6 +142,11 @@ class CoinSlotAdapter extends BaseAdapter {
             }
         }
 
+        // Make lint happy
+        if(coinView == null){
+            return coinView;
+        }
+
         // Display the basic info first
         CoinSlot coinSlot = mCoinList.get(position);
         String identifier = coinSlot.getIdentifier();

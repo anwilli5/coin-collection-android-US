@@ -3,11 +3,11 @@
       xmlns:appcompat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/rename_collection"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="Rename Collection"
+        android:title="@string/rename_collection"
         android:orderInCategory="100"
         appcompat:showAsAction="ifRoom" />
     <item android:id="@+id/lock_unlock_collection"
-        android:title="Set programmatically"
+        android:title="@string/unlock_collection"
         android:orderInCategory="200"
         appcompat:showAsAction="ifRoom" />
     <item android:id="@+id/change_view"

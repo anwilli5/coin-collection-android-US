@@ -67,7 +67,13 @@ public class AmericanInnovationDollars extends CollectionInfo {
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
     public int getCoinSlotImage(CoinSlot coinSlot){
-        return COIN_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
+        Integer[] slotImages = COIN_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {

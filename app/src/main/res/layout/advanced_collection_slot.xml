@@ -26,7 +26,8 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section1"
-            android:id="@+id/section2" >  
+            android:layout_toEndOf="@id/section1"
+            android:id="@+id/section2">
           <Spinner
             android:id="@+id/grade_selector"
             android:layout_width="wrap_content"
@@ -43,6 +44,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section2"
+            android:layout_toEndOf="@id/section2"
             android:id="@+id/section3" > 
           <EditText
             android:id="@+id/notes_edit_text"
@@ -52,9 +54,10 @@
             android:imeOptions="actionDone|flagNoExtractUi"
             android:scrollHorizontally="false"
             android:minLines="5"
-            android:gravity="top|left"
+            android:gravity="top|start"
             android:hint="@string/notes"
-            android:textSize="14sp" >
+            android:textSize="14sp"
+            android:importantForAutofill="no">
             <!-- actionDone will resend the keyboard after typing
                  flagNoExtractUI will prevent the edittext from getting
                                  huge in landscape mode -->

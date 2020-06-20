@@ -74,11 +74,12 @@ public class NativeAmericanDollars extends CollectionInfo {
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
     public int getCoinSlotImage(CoinSlot coinSlot){
-
-        if(NATIVE_INFO.containsKey(coinSlot.getIdentifier())){
-            return NATIVE_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
+        Integer[] slotImages = NATIVE_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
         } else {
-            return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
         }
     }
 

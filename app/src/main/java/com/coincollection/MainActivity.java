@@ -145,9 +145,6 @@ public class MainActivity extends AppCompatActivity {
         mBuilder = new AlertDialog.Builder(this);
         mRes = getResources();
 
-        // Check whether it is the users first time using the app
-        final SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
         // until they made it to the create collection screen.  That isn't necessary anymore, but
         // if they are upgrading from that don't show them the help screen if first_Time_screen1
@@ -527,9 +524,9 @@ public class MainActivity extends AppCompatActivity {
 
                 String name = items[0];
                 String type = items[1];
-                int totalCollected = Integer.valueOf(items[2]);
-                int total = Integer.valueOf(items[3]);
-                int displayType = Integer.valueOf(items[4]);
+                int totalCollected = Integer.parseInt(items[2]);
+                int total = Integer.parseInt(items[3]);
+                int displayType = Integer.parseInt(items[4]);
 
                 // Strip out all bad characters.  They shouldn't be there anyway ;)
                 name = name.replace('[', ' ');

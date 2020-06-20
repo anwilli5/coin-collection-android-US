@@ -180,7 +180,13 @@ public class StateQuarters extends CollectionInfo {
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
     public int getCoinSlotImage(CoinSlot coinSlot){
-        return STATES_INFO.get(coinSlot.getIdentifier())[coinSlot.isInCollection() ? 0 : 1];
+        Integer[] slotImages = STATES_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? (int) STATES_IMAGE_IDENTIFIERS[0][0] : (int) STATES_IMAGE_IDENTIFIERS[0][1];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {

@@ -185,7 +185,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (lastYearCursor.moveToFirst()) {
             String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex(COL_COIN_IDENTIFIER));
-            if (lastYear.equals(String.valueOf(Integer.valueOf(year) - 1))) {
+            if (lastYear.equals(String.valueOf(Integer.parseInt(year) - 1))) {
                 // If the collection included last year's coins, it's likely
                 // they want this year's in there too
                 //

@@ -10,6 +10,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/coin_slot_description"
             android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:maxWidth="51dp"
             android:maxHeight="51dp" />
         <RelativeLayout 

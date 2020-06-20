@@ -23,6 +23,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
@@ -57,28 +58,32 @@ import com.spencerpages.collections.WashingtonQuarters;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
+
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.spencerpages.MainApplication.DATABASE_NAME;
-import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
+// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
+@Config(sdk = Build.VERSION_CODES.P)
 public class CollectionUpgradeTests {
 
     private final static int VERSION_1_YEAR = 2013;
 
     // TODO - Improve tests by testing with all options set instead of none
 
-    class TestDatabaseHelper extends SQLiteOpenHelper {
+    static class TestDatabaseHelper extends SQLiteOpenHelper {
 
         TestDatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, 1);
@@ -120,54 +125,60 @@ public class CollectionUpgradeTests {
         db.insert("collection_info", null, values);
     }
 
-    private void validateUpdatedDb(CollectionInfo collectionInfo, String collectionName, MainActivity activity){
+    private void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName){
         HashMap<String, Object> parameters = new HashMap<>();
-        validateUpdatedDb(collectionInfo, collectionName, activity, parameters);
+        validateUpdatedDb(collectionInfo, collectionName, parameters);
     }
 
-    private void validateUpdatedDb(CollectionInfo collectionInfo, String collectionName, MainActivity activity,
-                                   HashMap<String, Object> parameters){
+    private void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
+                                   final HashMap<String, Object> parameters){
+        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+                @Override
+                public void perform(MainActivity activity) {
+                    // Create a new database from scratch
+                    collectionInfo.getCreationParameters(parameters);
+                    ArrayList<CoinSlot> newCoinList = new ArrayList<>();
+                    collectionInfo.populateCollectionLists(parameters, newCoinList);
 
-        // Create a new database from scratch
-        collectionInfo.getCreationParameters(parameters);
-        ArrayList<CoinSlot> newCoinList = new ArrayList<>();
-        collectionInfo.populateCollectionLists(parameters, newCoinList);
+                    // Get coins from the updated database
+                    activity.mDbAdapter.open();
+                    Cursor resultCursor = activity.mDbAdapter.getAllIdentifiers(collectionName);
+                    assertNotNull(resultCursor);
+                    ArrayList<CoinSlot> dbCoinList = new ArrayList<>();
+                    if (resultCursor.moveToFirst()){
+                        do {
+                            dbCoinList.add(new CoinSlot(
+                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_IDENTIFIER)),
+                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_MINT)),
+                                    false));
+                        } while(resultCursor.moveToNext());
+                    }
+                    resultCursor.close();
 
-        // Get coins from the updated database
-        activity.mDbAdapter.open();
-        Cursor resultCursor = activity.mDbAdapter.getAllIdentifiers(collectionName);
-        assertNotNull(resultCursor);
-        ArrayList<CoinSlot> dbCoinList = new ArrayList<>();
-        if (resultCursor.moveToFirst()){
-            do {
-                dbCoinList.add(new CoinSlot(
-                        resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                        resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_MINT)),
-                        false));
-            } while(resultCursor.moveToNext());
-        }
-        resultCursor.close();
+                    // Make sure coin lists match
+                    assertEquals(newCoinList.size(), dbCoinList.size());
+                    for(int i = 0; i < newCoinList.size(); i++){
+                        assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
+                        assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
+                    }
 
-        // Make sure coin lists match
-        assertEquals(newCoinList.size(), dbCoinList.size());
-        for(int i = 0; i < newCoinList.size(); i++){
-            assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
-            assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
-        }
-
-        // Make sure total matches
-        resultCursor = activity.mDbAdapter.getAllTables();
-        boolean foundTable = false;
-        if (resultCursor.moveToFirst()){
-            do{
-                if(collectionName.equals(resultCursor.getString(resultCursor.getColumnIndex("name")))){
-                    foundTable = true;
-                    assertEquals(newCoinList.size(), resultCursor.getInt(resultCursor.getColumnIndex("total")));
+                    // Make sure total matches
+                    resultCursor = activity.mDbAdapter.getAllTables();
+                    boolean foundTable = false;
+                    if (resultCursor.moveToFirst()){
+                        do{
+                            if(collectionName.equals(resultCursor.getString(resultCursor.getColumnIndex("name")))){
+                                foundTable = true;
+                                assertEquals(newCoinList.size(), resultCursor.getInt(resultCursor.getColumnIndex("total")));
+                            }
+                        } while(resultCursor.moveToNext());
+                    }
+                    resultCursor.close();
+                    assertTrue(foundTable);
                 }
-            } while(resultCursor.moveToNext());
+            });
         }
-        resultCursor.close();
-        assertTrue(foundTable);
     }
 
     /**
@@ -184,7 +195,7 @@ public class CollectionUpgradeTests {
         int startYear = 1986;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -192,10 +203,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -211,16 +221,15 @@ public class CollectionUpgradeTests {
         String collectionName = coinType + " Upgrade";
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Introductory", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -238,7 +247,7 @@ public class CollectionUpgradeTests {
         int endYear = 1916;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -246,10 +255,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -267,7 +275,7 @@ public class CollectionUpgradeTests {
         int endYear = 1915;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -275,10 +283,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -296,7 +303,7 @@ public class CollectionUpgradeTests {
         int endYear = 1916;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -304,10 +311,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -325,7 +331,7 @@ public class CollectionUpgradeTests {
         int endYear = 1938;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -336,10 +342,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -357,7 +362,7 @@ public class CollectionUpgradeTests {
         int endYear = 1978;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -372,10 +377,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -391,7 +395,7 @@ public class CollectionUpgradeTests {
         String collectionName = coinType + " Upgrade";
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Martha Washington", "", 0});
@@ -417,10 +421,9 @@ public class CollectionUpgradeTests {
         coinList.add(new Object[]{"Lucretia Garfield", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -438,7 +441,7 @@ public class CollectionUpgradeTests {
         int endYear = 1963;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -446,10 +449,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -467,7 +469,7 @@ public class CollectionUpgradeTests {
         int endYear = 1909;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -475,10 +477,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -495,7 +496,7 @@ public class CollectionUpgradeTests {
         int startYear = 1938;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -511,10 +512,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -531,7 +531,7 @@ public class CollectionUpgradeTests {
         int startYear = 1964;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -546,10 +546,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -567,7 +566,7 @@ public class CollectionUpgradeTests {
         int endYear = 1912;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -580,10 +579,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -600,7 +598,7 @@ public class CollectionUpgradeTests {
         int startYear = 1909;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -618,10 +616,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -639,7 +636,7 @@ public class CollectionUpgradeTests {
         int endYear = 1945;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -650,10 +647,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -671,7 +667,7 @@ public class CollectionUpgradeTests {
         int endYear = 1921;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -682,10 +678,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -701,7 +696,7 @@ public class CollectionUpgradeTests {
         String collectionName = coinType + " Upgrade";
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Hot Springs", "", 0});
@@ -716,10 +711,9 @@ public class CollectionUpgradeTests {
         coinList.add(new Object[]{"Chickasaw", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -736,7 +730,7 @@ public class CollectionUpgradeTests {
         int startYear = 2000;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -744,10 +738,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -765,7 +758,7 @@ public class CollectionUpgradeTests {
         int endYear = 1935;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -776,10 +769,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -795,7 +787,7 @@ public class CollectionUpgradeTests {
         String collectionName = coinType + " Upgrade";
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"George Washington", "", 0});
@@ -820,10 +812,9 @@ public class CollectionUpgradeTests {
         coinList.add(new Object[]{"James Garfield", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -840,7 +831,7 @@ public class CollectionUpgradeTests {
         int startYear = 1946;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= VERSION_1_YEAR; i++){
@@ -848,10 +839,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -869,7 +859,7 @@ public class CollectionUpgradeTests {
         int endYear = 1930;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++){
@@ -885,10 +875,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -904,7 +893,7 @@ public class CollectionUpgradeTests {
         String collectionName = coinType + " Upgrade";
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Delaware", "", 0});
@@ -965,11 +954,10 @@ public class CollectionUpgradeTests {
         coinList.add(new Object[]{"Northern Mariana Islands", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
         // Compare against a new database
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        validateUpdatedDb(collection, collectionName, activity, parameters);
+        validateUpdatedDb(collection, collectionName, parameters);
     }
 
     /**
@@ -987,7 +975,7 @@ public class CollectionUpgradeTests {
         int endYear = 1999;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++) {
@@ -998,10 +986,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -1019,7 +1006,7 @@ public class CollectionUpgradeTests {
         int endYear = 1947;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++) {
@@ -1030,10 +1017,9 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 
     /**
@@ -1051,7 +1037,7 @@ public class CollectionUpgradeTests {
         int endYear = 1998;
 
         // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(RuntimeEnvironment.application);
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for(int i = startYear; i <= endYear; i++) {
@@ -1066,9 +1052,8 @@ public class CollectionUpgradeTests {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
-        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
 
         // Compare against a new database
-        validateUpdatedDb(collection, collectionName, activity);
+        validateUpdatedDb(collection, collectionName);
     }
 }

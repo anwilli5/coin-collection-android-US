@@ -32,6 +32,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -56,6 +58,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 
+import static com.coincollection.CoinPageCreator.getCollectionNameFilter;
 import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
 import static com.coincollection.CoinSlot.COL_ADV_NOTES;
 import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
@@ -646,6 +649,9 @@ public class CollectionPage extends AppCompatActivity {
         // Create a text box for the new collection name
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
+        // Make a filter to block out bad characters
+        InputFilter nameFilter = getCollectionNameFilter();
+        input.setFilters(new InputFilter[]{nameFilter});
         input.setText(mCollectionName);
 
         // Build the alert dialog

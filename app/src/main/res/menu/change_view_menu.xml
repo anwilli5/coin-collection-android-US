@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/simple_view_menu_option"
-          android:title="@string/simple_view_string" />
-    <item android:id="@+id/advanced_view_menu_option"
-          android:title="@string/advanced_view_string" />
-</menu>

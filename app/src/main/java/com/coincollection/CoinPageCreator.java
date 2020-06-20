@@ -351,22 +351,7 @@ public class CoinPageCreator extends AppCompatActivity {
         nameEditText.setOnKeyListener(hideKeyboardListener);
 
         // Make a filter to block out bad characters
-        InputFilter nameFilter = new InputFilter() {
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                for (int i = start; i < end; i++) {
-                    if (source.charAt(i) == '[' || source.charAt(i) == ']') {
-                        // Don't allow these characters to break the sql
-                        // TODO Verify that this is the case (and determine whether we need
-                        // the existing '[' ']' wrappers the way we do it now... If this is
-                        // unnecessary then we can take out this filter and make the code
-                        // simpler :)
-                        return "";
-                    }
-                }
-                return null;
-            }
-        };
-
+        InputFilter nameFilter = getCollectionNameFilter();
         nameEditText.setFilters(new InputFilter[]{nameFilter});
 
         // Set the listener for the show mint mark checkbox
@@ -619,6 +604,23 @@ public class CoinPageCreator extends AppCompatActivity {
             Log.d(APP_NAME, "Finished in onCreate");
         }
 
+    }
+
+    /** Returns an input filter for sanitizing collection names
+     * @return The input filter
+     */
+    static InputFilter getCollectionNameFilter() {
+        return new InputFilter() {
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                for (int i = start; i < end; i++) {
+                    if (source.charAt(i) == '[' || source.charAt(i) == ']') {
+                        // Don't allow these characters as they break the sql queries
+                        return "";
+                    }
+                }
+                return null;
+            }
+        };
     }
 
     /**
@@ -884,37 +886,6 @@ public class CoinPageCreator extends AppCompatActivity {
         }
         super.onDestroy();
 
-    }
-
-    /**
-     * Function used by our unit tests - sets the internal state of the CoinPageCreator such that
-     * we can make collection tests for testing
-     */
-    public void testSetInternalState(int coinTypeIndex, HashMap<String, Object>parameters) {
-
-        setInternalStateFromCollectionIndex(coinTypeIndex, parameters);
-    }
-
-    /**
-     * Testing function - getter for mIdentifierList
-     */
-    public ArrayList<String> testGetIdentifierList(){
-        ArrayList<String> identifierList = new ArrayList<>();
-        for(int i = 0; i < mCoinList.size(); i++){
-            identifierList.add(mCoinList.get(i).getIdentifier());
-        }
-        return identifierList;
-    }
-
-    /**
-     * Testing function - getter for mMintList
-     */
-    public ArrayList<String> testGetMintList(){
-        ArrayList<String> mintList = new ArrayList<>();
-        for(int i = 0; i < mCoinList.size(); i++){
-            mintList.add(mCoinList.get(i).getMint());
-        }
-        return mintList;
     }
 
     /**

@@ -83,10 +83,6 @@ public class CollectionListInfo implements Parcelable{
         return mDisplayType;
     }
 
-    public void setDisplayType(int displayType){
-        mDisplayType = displayType;
-    }
-
     public String getType(){
         return MainApplication.COLLECTION_TYPES[mCollectionTypeIndex].getCoinType();
     }
