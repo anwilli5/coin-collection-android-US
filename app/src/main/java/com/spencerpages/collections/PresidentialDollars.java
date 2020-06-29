@@ -144,7 +144,7 @@ public class PresidentialDollars extends CollectionInfo {
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
         } else {
-            return inCollection ? (int) PRES_IMAGE_IDENTIFIERS[0][0] : (int) PRES_IMAGE_IDENTIFIERS[0][1];
+            return inCollection ? PRES_IMAGE_IDENTIFIERS[0][0] : PRES_IMAGE_IDENTIFIERS[0][1];
         }
     }
 

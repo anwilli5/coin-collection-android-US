@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteStatement;
 import com.spencerpages.MainApplication;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +38,7 @@ import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;
 
 /**
  * Adapter based on the Simple Notes Database Access Helper Class on the Android site.
@@ -52,7 +53,7 @@ public class DatabaseAdapter {
 
     final static String TBL_COLLECTION_INFO = "collection_info";
 
-    final static String COL_NAME = "name";
+    public final static String COL_NAME = "name";
     final static String COL_COIN_TYPE = "coinType";
     final static String COL_TOTAL = "total";
     final static String COL_DISPLAY_ORDER = "displayOrder";
@@ -62,9 +63,11 @@ public class DatabaseAdapter {
      * Record any internal DB names here!
      * Because internal tables and user tables aren't differentiated, we must prohibit
      * users from trying to create database collections that map to internal DB names
+     * Must also include the collection export file name, so that import/exports work
      */
-    private final List<String> mReservedDbNames = new ArrayList<>(Collections.singletonList(
-            TBL_COLLECTION_INFO
+    private final List<String> mReservedDbNames = new ArrayList<>(Arrays.asList(
+            TBL_COLLECTION_INFO,
+            EXPORT_COLLECTION_LIST_FILE_NAME
     ));
 
     /**
@@ -276,7 +279,7 @@ public class DatabaseAdapter {
      * @return 1 TODO
      */
     // TODO Rename, since we aren't just creating a new table
-    int createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList, int displayOrder) {
+    public int createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList, int displayOrder) {
 
         // Actually make the table
         createNewTable(tableName);
@@ -367,7 +370,7 @@ public class DatabaseAdapter {
      * @param tableName The collection name
      */
     // TODO Rename, since it does more than just drop a table
-    void dropTable(String tableName){
+    public void dropTable(String tableName){
         String DATABASE_DROP = "DROP TABLE [" + tableName + "];";
         mDb.execSQL(DATABASE_DROP);
 

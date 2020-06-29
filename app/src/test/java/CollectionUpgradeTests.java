@@ -56,6 +56,8 @@ import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 
+import junit.framework.TestCase;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -77,7 +79,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
 @Config(sdk = Build.VERSION_CODES.P)
-public class CollectionUpgradeTests {
+public class CollectionUpgradeTests extends TestCase {
 
     private final static int VERSION_1_YEAR = 2013;
 

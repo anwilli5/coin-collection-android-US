@@ -74,14 +74,14 @@ import static com.spencerpages.MainApplication.APP_NAME;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
+    public final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
     private final Context mContext = this;
     private FrontAdapter mListAdapter;
     public DatabaseAdapter mDbAdapter;
     private Resources mRes;
 
     // The number of actual collections in mCollectionListEntries
-    private int mNumberOfCollections;
+    public int mNumberOfCollections;
 
     // To be used with a simple cancel-able alert.  For more complicated alerts use a different one
     private AlertDialog.Builder mBuilder = null;
@@ -105,11 +105,14 @@ public class MainActivity extends AppCompatActivity {
     // existing collections.
     // TODO Rename this to indicated that they are associated with importing
     private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
-    private ArrayList<String[][]> mCollectionContents = null;
+    public ArrayList<String[][]> mCollectionContents = null;
     private int mDatabaseVersion = -1;
 
     // Export directory path
-    private final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
+    public final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
+    public final static String EXPORT_COLLECTION_LIST_FILE_NAME = "list-of-collections";
+    public final static String EXPORT_COLLECTION_LIST_FILE_EXT = ".csv";
+    public final static String EXPORT_DB_VERSION_FILE = "database_version.txt";
 
     // Default list item view positions
     //  0. Add Collection
@@ -123,14 +126,14 @@ public class MainActivity extends AppCompatActivity {
     // - Enums often require more than twice as much memory as static constants.
     private final static int ADD_COLLECTION = 0;
     private final static int REMOVE_COLLECTION = 1;
-    private final static int IMPORT_COLLECTIONS = 2;
-    private final static int EXPORT_COLLECTIONS = 3;
+    public final static int IMPORT_COLLECTIONS = 2;
+    public final static int EXPORT_COLLECTIONS = 3;
     private final static int REORDER_COLLECTIONS = 4;
     private final static int ABOUT = 5;
     // As a hack to get the static strings at the bottom of the list, we add spacers into
     // mCollectionListEntries.  This tracks the number of those spacers, which we use in several
     // places.
-    private final static int NUMBER_OF_COLLECTION_LIST_SPACERS = 6;
+    public final static int NUMBER_OF_COLLECTION_LIST_SPACERS = 6;
 
     // App permission requests
     private final static int IMPORT_PERMISSIONS_REQUEST = 0;
@@ -181,9 +184,7 @@ public class MainActivity extends AppCompatActivity {
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
             // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
             // a long time.
-            mTask = new AsyncProgressTask(openInterface);
-            mTask.mAsyncTaskId = ASYNC_TASK_OPEN_ID;
-            mTask.execute();
+            mTask = kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
 
             // The AsyncProgressTask will call finishViewSetup once the database has been opened
             // for the first time
@@ -438,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
      * Kicks off the import process by reading in the import files into our internal representation.
      * Once this is complete, it kicks off an AsyncTask to actually store the data in the database.
      */
-    private void handleImportCollectionsPart1(){
+    public void handleImportCollectionsPart1(){
 
         // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
         // hasPermissions() will kick off the permissions request and the handler will re-call
@@ -462,9 +463,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        //http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
-        File sdCard = Environment.getExternalStorageDirectory();
-        String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
+        String path = getExportFolderName();
         File dir = new File(path);
 
         if(!dir.isDirectory()){
@@ -476,7 +475,7 @@ public class MainActivity extends AppCompatActivity {
         boolean errorOccurred = false;
 
         // Read the database version
-        File inputFile = new File(dir, "database_version.txt");
+        File inputFile = new File(dir, EXPORT_DB_VERSION_FILE);
         CSVReader in = openFileForReading(inputFile);
         if(in == null) return;
 
@@ -501,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Read the collection_info table
-        inputFile = new File(dir, "list-of-collections.csv");
+        inputFile = new File(dir, EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
         in = openFileForReading(inputFile);
         if(in == null) return;
 
@@ -684,11 +683,8 @@ public class MainActivity extends AppCompatActivity {
         mCollectionContents = collectionContents;
 
         if(0 == mNumberOfCollections){
-            // Finish the import by kicking off an AsyncTask to do the heavy lifting    		
-            mTask = new AsyncProgressTask(mImportInterface);
-            mTask.mAsyncTaskId = ASYNC_TASK_IMPORT_ID;
-            mTask.execute();
-
+            // Finish the import by kicking off an AsyncTask to do the heavy lifting
+            mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
         } else {
             showImportConfirmation();
         }
@@ -706,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
      * should be done from an AsyncTask, since it could cause an ANR error if done on the main
      * thread!
      */
-    private void handleImportCollectionsPart2(){
+    public void handleImportCollectionsPart2(){
 
         // Take the data we've stored and replace what's in the database with it
 
@@ -757,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
      * Begins the collection export process by doing some preliminary external media checks and
      * prompts the user if an export will overwrite previous backup files.
      */
-    private void handleExportCollectionsPart1(){
+    public void handleExportCollectionsPart1(){
         // TODO Move this function to be more resistant to ANR, if reports show that it is a
         // problem
 
@@ -788,9 +784,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
         }
 
-        //http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
-        File sdCard = Environment.getExternalStorageDirectory();
-        String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
+        String path = getExportFolderName();
         File dir = new File(path);
 
         if(dir.isDirectory() || dir.exists()){
@@ -813,9 +807,7 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Move this function to be more resistant to ANR, if necessary
 
-        //http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
-        File sdCard = Environment.getExternalStorageDirectory();
-        String path = sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
+        String path = getExportFolderName();
         File dir = new File(path);
 
         if(!dir.isDirectory() && !dir.mkdir()){
@@ -827,7 +819,7 @@ public class MainActivity extends AppCompatActivity {
         boolean errorOccurred = false;
 
         // Write out the collection_info table
-        File outputFile = new File(dir, "list-of-collections.csv");
+        File outputFile = new File(dir, EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
         CSVWriter out = openFileForWriting(outputFile);
         if(out == null) return;
 
@@ -864,7 +856,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Write out the database version
-        outputFile = new File(dir, "database_version.txt");
+        outputFile = new File(dir, EXPORT_DB_VERSION_FILE);
         out = openFileForWriting(outputFile);
         if(out == null) return;
 
@@ -1061,63 +1053,58 @@ public class MainActivity extends AppCompatActivity {
         @Override
         @NonNull
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                View view = convertView;
-                int viewType = getItemViewType(position);
-                if (view == null) {
-                    LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = convertView;
+            int viewType = getItemViewType(position);
+            if (view == null) {
+                LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                    if(0 == viewType){
-                        view = vi.inflate(R.layout.list_element, parent, false);
-                    } else {
-                        view = vi.inflate(R.layout.list_element_navigation, parent, false);
-                    }
+                if(0 == viewType){
+                    view = vi.inflate(R.layout.list_element, parent, false);
+                } else {
+                    view = vi.inflate(R.layout.list_element_navigation, parent, false);
                 }
+            }
 
-                if(1 == viewType){
-                    // Set up the non-collection views
-                    ImageView image = view.findViewById(R.id.navImageView);
-                    TextView text = view.findViewById(R.id.navTextView);
+            if(1 == viewType){
+                // Set up the non-collection views
+                ImageView image = view.findViewById(R.id.navImageView);
+                TextView text = view.findViewById(R.id.navTextView);
 
-                    int newPosition = position - this.numberOfCollections;
+                int newPosition = position - this.numberOfCollections;
 
-                    switch(newPosition){
-                        case ADD_COLLECTION:
-                            image.setBackgroundResource(R.drawable.icon_circle_add);
-                            text.setText(mRes.getString(R.string.create_new_collection));
-                            break;
-                        case REMOVE_COLLECTION:
-                            image.setBackgroundResource(R.drawable.icon_minus);
-                            text.setText(mRes.getString(R.string.delete_collection));
-                            break;
-                        case IMPORT_COLLECTIONS:
-                            image.setBackgroundResource(R.drawable.icon_cloud_upload);
-                            text.setText(mRes.getString(R.string.import_collection));
-
-                            break;
-                        case EXPORT_COLLECTIONS:
-                            image.setBackgroundResource(R.drawable.icon_cloud_download);
-                            text.setText(mRes.getString(R.string.export_collection));
-
-                            break;
-                        case REORDER_COLLECTIONS:
-                            image.setBackgroundResource(R.drawable.icon_sort);
-                            text.setText(mRes.getString(R.string.reorder_collection));
-
-                            break;
-                        case ABOUT:
-                            image.setBackgroundResource(R.drawable.icon_info);
-                            text.setText(mRes.getString(R.string.app_info));
-
-                            break;
-                    }
-
-                    return view;
+                switch(newPosition){
+                    case ADD_COLLECTION:
+                        image.setBackgroundResource(R.drawable.icon_circle_add);
+                        text.setText(mRes.getString(R.string.create_new_collection));
+                        break;
+                    case REMOVE_COLLECTION:
+                        image.setBackgroundResource(R.drawable.icon_minus);
+                        text.setText(mRes.getString(R.string.delete_collection));
+                        break;
+                    case IMPORT_COLLECTIONS:
+                        image.setBackgroundResource(R.drawable.icon_cloud_upload);
+                        text.setText(mRes.getString(R.string.import_collection));
+                        break;
+                    case EXPORT_COLLECTIONS:
+                        image.setBackgroundResource(R.drawable.icon_cloud_download);
+                        text.setText(mRes.getString(R.string.export_collection));
+                        break;
+                    case REORDER_COLLECTIONS:
+                        image.setBackgroundResource(R.drawable.icon_sort);
+                        text.setText(mRes.getString(R.string.reorder_collection));
+                        break;
+                    case ABOUT:
+                        image.setBackgroundResource(R.drawable.icon_info);
+                        text.setText(mRes.getString(R.string.app_info));
+                        break;
                 }
-
-                // If it gets here, we need to set up a view for a collection
-                CollectionListInfo item = items.get(position);
-                buildListElement(item, view, mRes);
                 return view;
+            }
+
+            // If it gets here, we need to set up a view for a collection
+            CollectionListInfo item = items.get(position);
+            buildListElement(item, view, mRes);
+            return view;
         }
     }
 
@@ -1154,7 +1141,7 @@ public class MainActivity extends AppCompatActivity {
      * Reloads the collection list from the database.  This is useful after changes have been made
      * (collections reordered, deleted, etc.)
      */
-    private void updateCollectionListFromDatabase(){
+    public void updateCollectionListFromDatabase(){
 
         // Get rid of the other items in the list (if any)
         mCollectionListEntries.clear();
@@ -1242,10 +1229,8 @@ public class MainActivity extends AppCompatActivity {
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                       mTask = new AsyncProgressTask(mImportInterface);
+                       mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
                        mIsImportingCollection = true;
-                       mTask.mAsyncTaskId = ASYNC_TASK_IMPORT_ID;
-                       mTask.execute();
                    }
                })
                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1503,5 +1488,27 @@ public class MainActivity extends AppCompatActivity {
                     }});
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    /**
+     * Returns the path to the external storage directory
+     * @return path string
+     */
+    public static String getExportFolderName(){
+        File sdCard = Environment.getExternalStorageDirectory();
+        return sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
+    }
+
+    /**
+     * Create and kick-off an async task to finish long-running tasks
+     * @param asyncInterface caller interface
+     * @param taskId type of task
+     * @return async task
+     */
+    public AsyncProgressTask kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
+        AsyncProgressTask task = new AsyncProgressTask(asyncInterface);
+        task.mAsyncTaskId = taskId;
+        task.execute();
+        return task;
     }
 }

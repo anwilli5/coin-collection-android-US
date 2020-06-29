@@ -152,7 +152,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
         } else {
-            return inCollection ? (int) FS_IMAGE_IDENTIFIERS[0][0] : (int) FS_IMAGE_IDENTIFIERS[0][1];
+            return inCollection ? FS_IMAGE_IDENTIFIERS[0][0] : FS_IMAGE_IDENTIFIERS[0][1];
         }
     }
 

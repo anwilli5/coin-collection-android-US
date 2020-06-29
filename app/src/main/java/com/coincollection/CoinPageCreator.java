@@ -895,8 +895,8 @@ public class CoinPageCreator extends AppCompatActivity {
      * @param coinList List of coin slots
      * @param displayOrder Display order of the collection
      */
-    private void createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList,
-                                int displayOrder){
+    public void createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList,
+                                      int displayOrder){
         // Open it again.  This one shouldn't take long
         DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
         dbAdapter.open();

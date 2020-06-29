@@ -185,7 +185,7 @@ public class StateQuarters extends CollectionInfo {
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
         } else {
-            return inCollection ? (int) STATES_IMAGE_IDENTIFIERS[0][0] : (int) STATES_IMAGE_IDENTIFIERS[0][1];
+            return inCollection ? STATES_IMAGE_IDENTIFIERS[0][0] : STATES_IMAGE_IDENTIFIERS[0][1];
         }
     }
 
