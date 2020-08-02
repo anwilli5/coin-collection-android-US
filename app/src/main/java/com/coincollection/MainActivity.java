@@ -513,9 +513,7 @@ public class MainActivity extends AppCompatActivity {
             while(null != (items = in.readNext())){
 
                 // Perform some sanity checks here
-                int numberOfColumns = 5;
-
-                if(items.length != numberOfColumns){
+                if(items.length != 4 && items.length != 5){
                     errorOccurred = true;
                     showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 1));
                     break;
@@ -525,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
                 String type = items[1];
                 int totalCollected = Integer.parseInt(items[2]);
                 int total = Integer.parseInt(items[3]);
-                int displayType = Integer.parseInt(items[4]);
+                int displayType = (items.length >= 5) ? Integer.parseInt(items[4]) : 0;
 
                 // Strip out all bad characters.  They shouldn't be there anyway ;)
                 name = name.replace('[', ' ');
@@ -567,7 +565,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                 }
-
 
                 if(displayType != CollectionPage.SIMPLE_DISPLAY && displayType != CollectionPage.ADVANCED_DISPLAY){
                     errorOccurred = true;
@@ -1494,7 +1491,7 @@ public class MainActivity extends AppCompatActivity {
      * Returns the path to the external storage directory
      * @return path string
      */
-    public static String getExportFolderName(){
+    public String getExportFolderName(){
         File sdCard = Environment.getExternalStorageDirectory();
         return sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
     }

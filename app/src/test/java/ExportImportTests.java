@@ -46,6 +46,7 @@ import org.robolectric.shadows.ShadowEnvironment;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import androidx.test.core.app.ActivityScenario;
@@ -94,6 +95,23 @@ public class ExportImportTests extends TestCase {
         return true;
     }
 
+    /**
+     * Populate the database with one collection of each type
+     * @param activity activity associated with the collection
+     * @return true if successful, otherwise false
+     */
+    public boolean setupCollectionsWithNames(MainActivity activity, ArrayList<String> collectionNames) {
+        int displayOrder = 0;
+        for (String collectionName : collectionNames) {
+            CollectionInfo collectionInfo = COLLECTION_TYPES[displayOrder % COLLECTION_TYPES.length];
+            HashMap<String, Object> parameters = new HashMap<>();
+            collectionInfo.getCreationParameters(parameters);
+            ArrayList<CoinSlot> newCoinList = new ArrayList<>();
+            collectionInfo.populateCollectionLists(parameters, newCoinList);
+            createNewTable(activity, collectionName, collectionInfo.getCoinType(), newCoinList, displayOrder++);
+        }
+        return true;
+    }
     /**
      * Create a database table for a new collection
      * @param tableName Name of the table
@@ -164,19 +182,19 @@ public class ExportImportTests extends TestCase {
 
                     // Export and check output
                     activity.handleExportCollectionsPart1();
-                    File exportDir = new File(MainActivity.getExportFolderName());
+                    File exportDir = new File(activity.getExportFolderName());
                     assertTrue(exportDir.exists());
-                    File dbVersionFile = new File(MainActivity.getExportFolderName(), EXPORT_DB_VERSION_FILE);
-                    File collectionListFile = new File(MainActivity.getExportFolderName(), EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
+                    File dbVersionFile = new File(activity.getExportFolderName(), EXPORT_DB_VERSION_FILE);
+                    File collectionListFile = new File(activity.getExportFolderName(), EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
                     assertTrue(dbVersionFile.exists());
                     assertTrue(collectionListFile.exists());
                     for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
                         assertNotNull(collectionInfo);
                         File collectionFile;
                         if(collectionInfo instanceof NativeAmericanDollars){
-                            collectionFile = new File(MainActivity.getExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
+                            collectionFile = new File(activity.getExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
                         } else {
-                            collectionFile = new File(MainActivity.getExportFolderName(), collectionInfo.getCoinType() + ".csv");
+                            collectionFile = new File(activity.getExportFolderName(), collectionInfo.getCoinType() + ".csv");
                         }
                         assertTrue(collectionFile.exists());
                     }
@@ -213,7 +231,31 @@ public class ExportImportTests extends TestCase {
      */
     @Test
     public void test_importV1Collection() {
+        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+                @Override
+                public void perform(MainActivity activity) {
+                    File v1DbDir = new File("src/test/data/v1-coin-collection-files");
+                    setEnabledPermissions();
+                    // Disable the async task since it isn't reliable in the unit test
+                    // This test will instead call both Part1 and Part2 (normally called by
+                    // the async task).
+                    MainActivity activitySpy = spy(activity);
+                    when(activitySpy.kickOffAsyncProgressTask(any(AsyncProgressInterface.class), any(int.class))).thenReturn(null);
+                    when(activitySpy.getExportFolderName()).thenReturn(v1DbDir.getAbsolutePath());
 
+                    // Run import and check results
+                    activitySpy.handleImportCollectionsPart1();
+                    ((AlertDialog) ShadowAlertDialog.getLatestDialog())
+                            .getButton(AlertDialog.BUTTON_POSITIVE)
+                            .performClick();
+                    activitySpy.handleImportCollectionsPart2();
+                    ArrayList<String> afterCollectionNames = getCollectionNames(activitySpy);
+                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                    //assertEquals(beforeCollectionNames, afterCollectionNames);
+                }
+            });
+        }
     }
 
     /**
@@ -221,6 +263,71 @@ public class ExportImportTests extends TestCase {
      */
     @Test
     public void test_exportCollectionNames() {
+        final ArrayList<String> namesToTest = new ArrayList<>(Arrays.asList(
+                "Name with Spaces",
+                "Name with/backslash",
+                "a",
+                "0",
+                ".",
+                "..",
+                "fake_SL_slash",
+                "!@#$%^&*()",
+                "special chars -=_+{",
+                "}{<.>?/",
+                "893174289347",
+                "\\n",
+                "$name",
+                "collection.csv"
+        ));
+        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+                @Override
+                public void perform(MainActivity activity) {
+                    // Set up collections
+                    setEnabledPermissions();
+                    assertTrue(setupCollectionsWithNames(activity, namesToTest));
+                    activity.updateCollectionListFromDatabase();
+                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
 
+                    // Export and check output
+                    activity.handleExportCollectionsPart1();
+                    File exportDir = new File(activity.getExportFolderName());
+                    assertTrue(exportDir.exists());
+                    File dbVersionFile = new File(activity.getExportFolderName(), EXPORT_DB_VERSION_FILE);
+                    File collectionListFile = new File(activity.getExportFolderName(), EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
+                    assertTrue(dbVersionFile.exists());
+                    assertTrue(collectionListFile.exists());
+                    for (String inputCollectionName : namesToTest) {
+                        File collectionFile;
+                        String comparisonName = inputCollectionName.replace("/", "_SL_");
+                        collectionFile = new File(activity.getExportFolderName(), comparisonName + ".csv");
+                        assertTrue(collectionFile.exists());
+                    }
+
+                    // Delete all collections
+                    deleteAllCollections(activity);
+                    activity.updateCollectionListFromDatabase();
+                    assertEquals(getCollectionNames(activity).size(), 0);
+                    assertEquals(activity.mNumberOfCollections, 0);
+                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+
+                    // Disable the async task since it isn't reliable in the unit test
+                    // This test will instead call both Part1 and Part2 (normally called by
+                    // the async task).
+                    MainActivity activitySpy = spy(activity);
+                    when(activitySpy.kickOffAsyncProgressTask(any(AsyncProgressInterface.class), any(int.class))).thenReturn(null);
+
+                    // Run import and check results
+                    activitySpy.handleImportCollectionsPart1();
+                    ((AlertDialog) ShadowAlertDialog.getLatestDialog())
+                            .getButton(AlertDialog.BUTTON_POSITIVE)
+                            .performClick();
+                    activitySpy.handleImportCollectionsPart2();
+                    ArrayList<String> afterCollectionNames = getCollectionNames(activitySpy);
+                    assertEquals(afterCollectionNames.size(), namesToTest.size());
+                    assertEquals(beforeCollectionNames, afterCollectionNames);
+                }
+            });
+        }
     }
 }

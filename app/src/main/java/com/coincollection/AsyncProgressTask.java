@@ -22,15 +22,6 @@ package com.coincollection;
 import android.os.AsyncTask;
 
 /**
- * Interface used for AsyncProgressTask to communicate with activity
- */
-interface AsyncProgressInterface {
-    void asyncProgressDoInBackground();
-    void asyncProgressOnPreExecute();
-    void asyncProgressOnPostExecute();
-}
-
-/**
  * sub-class of AsyncTask
  * See: http://stackoverflow.com/questions/6450275/android-how-to-work-with-asynctasks-progressdialog
  */
