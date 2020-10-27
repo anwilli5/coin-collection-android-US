@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -49,8 +50,8 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -74,9 +75,8 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    @SuppressWarnings("ConstantConditions")
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -95,41 +95,31 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
             if(showMintMarks){
                 if(showP){
                     if( (i < 1923 || i > 1933) ){
-                        identifierList.add(Integer.toString(i));
-                        mintList.add("");
+                        coinList.add(new CoinSlot(Integer.toString(i), ""));
                     }
                 }
                 if(showD){
                     if( (i < 1923 || i > 1928) && i != 1933 && i != 1940){
                         if(i == 1917){
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" D Obv");
-
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" D Rev");
+                            coinList.add(new CoinSlot(Integer.toString(i), " D Obv"));
+                            coinList.add(new CoinSlot(Integer.toString(i), " D Rev"));
                         } else {
-                            identifierList.add(Integer.toString(i));
-                            mintList.add("D");
+                            coinList.add(new CoinSlot(Integer.toString(i), "D"));
                         }
                     }
                 }
                 if(showS){
                     if(i != 1938 && i != 1947){
                         if(i == 1917){
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" S Obv");
-
-                            identifierList.add(Integer.toString(i));
-                            mintList.add(" S Rev");
+                            coinList.add(new CoinSlot(Integer.toString(i), " S Obv"));
+                            coinList.add(new CoinSlot(Integer.toString(i), " S Rev"));
                         } else {
-                            identifierList.add(Integer.toString(i));
-                            mintList.add("S");
+                            coinList.add(new CoinSlot(Integer.toString(i), "S"));
                         }
                     }
                 }
             } else {
-                identifierList.add(Integer.toString(i));
-                mintList.add("");
+                coinList.add(new CoinSlot(Integer.toString(i), ""));
             }
         }
     }

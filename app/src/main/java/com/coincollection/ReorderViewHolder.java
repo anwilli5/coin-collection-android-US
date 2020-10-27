@@ -21,7 +21,7 @@
 package com.coincollection;
 
 import android.graphics.Color;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import com.coincollection.helper.ItemTouchHelperViewHolder;
@@ -34,7 +34,7 @@ public class ReorderViewHolder extends RecyclerView.ViewHolder implements
 
     public final View view;
 
-    public ReorderViewHolder(View itemView) {
+    ReorderViewHolder(View itemView) {
         super(itemView);
         view = itemView;
     }

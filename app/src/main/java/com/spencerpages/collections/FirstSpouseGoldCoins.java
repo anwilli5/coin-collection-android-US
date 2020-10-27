@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -86,7 +87,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             */
     };
 
-    public static final Integer[][] FS_IMAGE_IDENTIFIERS = {
+    private static final Integer[][] FS_IMAGE_IDENTIFIERS = {
             { R.drawable.fs_2007_martha_washington_unc,   R.drawable.fs_2007_martha_washington_unc_25},
             { R.drawable.fs_2007_abigail_adams_unc,       R.drawable.fs_2007_abigail_adams_unc_25},
             { R.drawable.fs_2007_jeffersons_liberty_unc,  R.drawable.fs_2007_jeffersons_liberty_unc_25},
@@ -145,21 +146,23 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return FS_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        Integer[] slotImages = FS_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? FS_IMAGE_IDENTIFIERS[0][0] : FS_IMAGE_IDENTIFIERS[0][1];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
     }
 
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        for(int i = 0; i < FS_COIN_IDENTIFIERS.length; i++){
-            String identifier = (String) FS_COIN_IDENTIFIERS[i];
-            identifierList.add(identifier);
-            mintList.add("");
+        for (String fsCoinIdentifier : FS_COIN_IDENTIFIERS) {
+            coinList.add(new CoinSlot(fsCoinIdentifier, ""));
         }
     }
     public String getAttributionString(){

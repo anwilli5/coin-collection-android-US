@@ -20,14 +20,14 @@
 
 package com.coincollection;
 
-import android.support.v4.view.MotionEventCompat;
-import android.support.v7.widget.RecyclerView;
+import android.content.res.Resources;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.spencerpages.R;
 import com.coincollection.helper.ItemTouchHelperAdapter;
@@ -41,17 +41,17 @@ import java.util.Collections;
  */
 public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
         implements ItemTouchHelperAdapter{
-
     private final ArrayList<CollectionListInfo> mItems;
     private final OnStartDragListener mDragStartListener;
 
-    public ReorderAdapter(ArrayList<CollectionListInfo> items, OnStartDragListener dragStartListener) {
+    ReorderAdapter(ArrayList<CollectionListInfo> items, OnStartDragListener dragStartListener) {
         super();
         mItems = items;
         mDragStartListener = dragStartListener;
     }
 
     @Override
+    @NonNull
     public ReorderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_element, parent, false);
 
@@ -61,54 +61,33 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
     @Override
     public void onBindViewHolder(final ReorderViewHolder holder, int position) {
 
-        // TODO Copied from the adapter that handles mainActivity, refactor it
-        // so that this code only lives in one place
+        // Populate the list element
         CollectionListInfo item = mItems.get(position);
+        Resources res = holder.view.getResources();
+        MainActivity.buildListElement(item, holder.view, res);
 
+        // Add the reorder on-touch adapter
         String tableName = item.getName();
-
-        int total = item.getCollected();
         if (tableName != null) {
-
-            //Get the image
-            ImageView image = (ImageView) holder.view.findViewById(R.id.imageView1);
-            if (image != null) {
-                image.setBackgroundResource(item.getCoinImageIdentifier());
-            }
-
-            TextView tt = (TextView) holder.view.findViewById(R.id.textView1);
-            if (tt != null) {
-                tt.setText(tableName);
-            }
-
-            TextView mt = (TextView) holder.view.findViewById(R.id.textView2);
-            if (mt != null) {
-                mt.setText(total + "/" + item.getMax());
-            }
-
-            TextView bt = (TextView) holder.view.findViewById(R.id.textView3);
-            if (total >= item.getMax()) {
-                // The collection is complete
-                if (bt != null) {
-                    bt.setText("Collection Complete!");
-                }
-            } else {
-                bt.setText("");
-            }
+            // Get the parent view
+            LinearLayout parent = holder.view.findViewById(R.id.listElementParent);
 
             // Start a drag whenever the handle view is touched
-            image.setOnTouchListener(new View.OnTouchListener() {
+            parent.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        mDragStartListener.onStartDrag(holder);
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            mDragStartListener.onStartDrag(holder);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            v.performClick();
+                            break;
                     }
                     return false;
                 }
             });
         }
-
     }
 
     @Override

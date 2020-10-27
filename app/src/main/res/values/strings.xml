@@ -94,11 +94,12 @@
     <string name="import_collection">Import Collection</string>
     <string name="export_collection">Export Collection</string>
     <string name="reorder_collection">Reorder Collections</string>
+    <string name="rename_collection">Rename Collections</string>
     <string name="app_info">App Info</string>
     <string name="lock_collection">Lock</string>
     <string name="lock_collection_adv">Save</string>
     <string name="unlock_collection">Edit</string>
-    <string name="coin_slot_description">Not Used</string>
+    <string name="coin_slot_description">Coin Image</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="enter_collection_name">Enter Collection Name</string>
@@ -125,19 +126,30 @@
     <string name="simple_view_string">Basic View</string>
     <string name="advanced_view_string">Advanced View</string>
     <string name="info_overview">This App is meant to help you keep track of which coins you have already come across and saved in your collection. To help keep your collection organized, we recommend purchasing a coin album specific to each type of coin.\n\nThe mint marking on most coins can be found near the date that appears on the face of the coin. If no mint mark is present, it typically symbolizes that this coin was produced at the Philadelphia (P) mint. Other possible mint marks include that of the Denver mint (D) and the San Francisco mint (S), although the San Francisco mint has not produced coins for circulation for some time now. Also, for some older coins, the mint marks of the Carson City mint (CC) and the New Orleans mint (O) can be found, and special coins like the American Eagle Silver Dollars may carry the West Point mint mark (W). For more information, feel free to check out the website of the U.S. Mint.\n\nIf you have any suggestions or questions about the app, feel free to send an email to andrew27379091@gmail.com.\n\nThis app is not endorsed by the United States Mint.</string>
-    <string name="title_activity_reorder_collections">ReorderCollections</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="okay">Okay!</string>
+    <string name="okay_exp">Okay!</string>
+    <string name="okay">Okay</string>
+    <string name="cancel">Cancel</string>
     <string name="select_collection_delete">Select a collection to delete</string>
+    <string name="collection_completion_template">%1$d/%2$d"</string>
     <string name="collection_complete">Collection Complete!</string>
     <string name="select_collection_name">Select a new collection name</string>
 
     <!-- Coin Page Creator -->
     <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit \'Create New Collection!\'</string>
 
+    <!-- Coin Slot Adapter -->
+    <string name="coin_text_template">%1$s %2$s</string>
+    <string name="coin_content_desc_template">%1$s %2$s Button</string>
+    <string name="grade_text_view_template">Grade: %1$s</string>
+    <string name="grade_text_view_template_without_grade">%1$s</string>
+    <string name="quantities_text_view_template">Quantity: %1$s</string>
+    <string name="notes_text_view_template">Notes:\n%1$s</string>
+
     <!-- Collection Page -->
+    <string name="dialog_enter_collection_name">Please enter a name for the collection</string>
     <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above its year or name.  Also, you can prevent accidental changes using the \'Lock\' action</string>
+    <string name="dialog_unsaved_changes_change_views">This collection has unsaved changes, please save before changing views.</string>
+    <string name="dialog_unsaved_changes_exit">Leaving this page will erase your unsaved changes, are you sure you want to exit?</string>
 
     <!-- Error and Status Messages -->
     <string name="failed_mk_dir">Failed to make/find directory at %1$s</string>
@@ -156,7 +168,6 @@
     <string name="error_invalid_backup_file">Invalid backup file detected (Error %1$d)</string>
     <string name="error_unknown_read">An unknown error occurred when trying to read in collection at %1$s</string>
     <string name="cannot_find_input_file">Couldn\'t find collection input file at %1$s</string>
-    <string name="error_writing_file">Error when writing to output file at %1$s</string>
     <string name="error_reading_file">Error when reading input file at %1$s</string>
     <string name="success_export">Successfully exported collection to \'%1$s\' on the external storage device!</string>
     <string name="export_warning">Existing collections found on the external storage. Exporting again will overwrite these. Are you sure you want to do this?</string>
@@ -164,5 +175,9 @@
     <string name="delete_warning">Are you sure you want to delete collection named \'%1$s\'?</string>
     <string name="import_canceled">Import canceled - storage read permission request denied</string>
     <string name="export_canceled">Export canceled - storage write permission request denied</string>
+
+    <!-- Reorder Collections Page -->
+    <string name="changes_saved">Saved changes successfully</string>
+    <string name="tutorial_reorder_collections">Drag a collection\'s coin image to reposition it in the list of collections. To scroll through the list, swipe using the right half of the screen. Tap \'Save\' when finished.</string>
 
 </resources>

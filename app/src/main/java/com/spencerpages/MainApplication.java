@@ -144,7 +144,7 @@ public class MainApplication extends Application {
         if (oldVersion <= 5) {
 
             // We need to add in columns to support the new advanced view
-            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + Integer.toString(CollectionPage.SIMPLE_DISPLAY));
+            db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
 
             // Get all of the created tables
             Cursor resultCursor = db.query("collection_info", new String[]{"name"}, null, null, null, null, "_id");
@@ -172,7 +172,7 @@ public class MainApplication extends Application {
                 db.execSQL("ALTER TABLE collection_info ADD COLUMN displayOrder INTEGER");
             } catch (SQLException e) {
                 if(BuildConfig.DEBUG) {
-                    Log.d(MainApplication.APP_NAME, "collection_info already has column displayOrder");
+                    Log.d(APP_NAME, "collection_info already has column displayOrder");
                 }
             }
 
@@ -248,29 +248,6 @@ public class MainApplication extends Application {
             //TODO Change buffalo nickels mint marks to remove space
             //TODO Change indian head cent mint marks to remove space
             //TODO Change walking liberty half dollar mint marks to remove space
-        }
-
-        return;
-    }
-
-    @Override
-    public void onCreate(){
-        super.onCreate();
-
-        if(BuildConfig.DEBUG) {
-
-            // Run unit test
-            UnitTests test = new UnitTests();
-            boolean result = test.runTests(this);
-
-            if(!result){
-                // return, so that we will see something went wrong
-                Log.e(MainApplication.APP_NAME, "Failed Unit Tests");
-                System.exit(-1);
-                return;
-            } else {
-                Log.e(MainApplication.APP_NAME, "Unit Tests finished successfully");
-            }
         }
     }
 }

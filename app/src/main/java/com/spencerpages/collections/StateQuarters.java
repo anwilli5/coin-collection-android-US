@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -178,8 +179,14 @@ public class StateQuarters extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return STATES_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        Integer[] slotImages = STATES_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? STATES_IMAGE_IDENTIFIERS[0][0] : STATES_IMAGE_IDENTIFIERS[0][1];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -200,51 +207,40 @@ public class StateQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    @SuppressWarnings("ConstantConditions")
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
 
-        for(int i = 0; i < STATES_COIN_IDENTIFIERS.length; i++){
+        for (String identifier : STATES_COIN_IDENTIFIERS) {
 
-            String identifier = STATES_COIN_IDENTIFIERS[i];
-
-            if(showMintMarks){
-                if(showP){
-                    identifierList.add(identifier);
-                    mintList.add("P");
+            if (showMintMarks) {
+                if (showP) {
+                    coinList.add(new CoinSlot(identifier, "P"));
                 }
-                if(showD){
-                    identifierList.add(identifier);
-                    mintList.add("D");
+                if (showD) {
+                    coinList.add(new CoinSlot(identifier, "D"));
                 }
             } else {
-                identifierList.add(identifier);
-                mintList.add("");
+                coinList.add(new CoinSlot(identifier, ""));
             }
         }
         if(showTerritories){
             // Add those to the list
-            for(int i = 0; i < DC_AND_TERR_COIN_IDENTIFIERS.length; i++){
+            for (String identifier : DC_AND_TERR_COIN_IDENTIFIERS) {
 
-                String identifier = DC_AND_TERR_COIN_IDENTIFIERS[i];
-
-                if(showMintMarks){
-                    if(showP){
-                        identifierList.add(identifier);
-                        mintList.add("P");
+                if (showMintMarks) {
+                    if (showP) {
+                        coinList.add(new CoinSlot(identifier, "P"));
                     }
-                    if(showD){
-                        identifierList.add(identifier);
-                        mintList.add("D");
+                    if (showD) {
+                        coinList.add(new CoinSlot(identifier, "D"));
                     }
                 } else {
-                    identifierList.add(identifier);
-                    mintList.add("");
+                    coinList.add(new CoinSlot(identifier, ""));
                 }
             }
         }

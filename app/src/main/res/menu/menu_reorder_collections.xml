@@ -1,10 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.spencerpages.com.coincollection.ReorderCollections">
     <item android:id="@+id/save_reordered_collections"
-        android:title="Save"
+        android:title="@string/save_string"
         android:orderInCategory="100"
         appcompat:showAsAction="ifRoom" />
 </menu>

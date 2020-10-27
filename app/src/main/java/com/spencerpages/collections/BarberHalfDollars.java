@@ -23,6 +23,7 @@ package com.spencerpages.collections;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -49,8 +50,8 @@ public class BarberHalfDollars extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -78,9 +79,8 @@ public class BarberHalfDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    @SuppressWarnings("ConstantConditions")
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
@@ -93,28 +93,23 @@ public class BarberHalfDollars extends CollectionInfo {
         for(int i =startYear; i <= stopYear; i++){
             if(showMintMarks){
                 if(showP){
-                    identifierList.add(Integer.toString(i));
-                    mintList.add("");
+                    coinList.add(new CoinSlot(Integer.toString(i), ""));
                 }
                 if(showD){
                     if( i >= 1906 && i != 1909 && i != 1910 && i != 1914){
-                        identifierList.add(Integer.toString(i));
-                        mintList.add("D");
+                        coinList.add(new CoinSlot(Integer.toString(i), "D"));
                     }
                 }
                 if(showS){
-                    identifierList.add(Integer.toString(i));
-                    mintList.add("S");
+                    coinList.add(new CoinSlot(Integer.toString(i), "S"));
                 }
                 if(showO){
                     if( i <= 1909 ){
-                        identifierList.add(Integer.toString(i));
-                        mintList.add("O");
+                        coinList.add(new CoinSlot(Integer.toString(i), "O"));
                     }
                 }
             } else {
-                identifierList.add(Integer.toString(i));
-                mintList.add("");
+                coinList.add(new CoinSlot(Integer.toString(i), ""));
             }
         }
     }

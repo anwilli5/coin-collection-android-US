@@ -51,16 +51,10 @@ public abstract class CollectionInfo {
      *    automatically from thee regular images.  See image-prep.py for more
      *    details.)
      *
-     * @param identifier the coin identifier (Ex: '2009', 'George Washington')
-     * @param mint the coin mint (Ex: '', ' D'.  NOTE: may change from ' D' to
-     *             'D" in the future.)
-     * @param inCollection Boolean.TRUE if the coin is in the collection
+     * @param coinSlot the coin slot to return an image for
      * @return the id of an image to use for this coin
      */
-    abstract public int getCoinSlotImage(
-            String identifier,
-            String mint,
-            Boolean inCollection);
+    abstract public int getCoinSlotImage(CoinSlot coinSlot);
 
     /**
      * Returns a string used to identify this collection type
@@ -71,7 +65,7 @@ public abstract class CollectionInfo {
 
     /**
      * Returns the image identifier (R.drawable.image_name) that should be used
-     * in the collection list views (Ex: the first view displayd by the app.)
+     * in the collection list views (Ex: the first view displayed by the app.)
      * The convention in Coin Collection is to use the coin reverse image for
      * this.
      *
@@ -94,21 +88,19 @@ public abstract class CollectionInfo {
 
     /**
      * Populates the identifierList and mintList ArrayLists with coin
-     * identifers and mint identifiers based on the values in
+     * identifiers and mint identifiers based on the values in
      * the parameters HashMap. NOTE: The parameters HashMap has the same keys
      * that were added by the getCreationParameters call, but will have had
      * the associated values changed based on user action.
      *
      * @param parameters the HashMap that this method should use to get the
      *                   values needed to create the collection.
-     * @param identifierList the ArrayList to populate with coin identifiers
-     *                       (Ex: '2009', 'George Washington')
-     * @param mintList the ArrayList to populate with coin mints (Ex: '', ' P')
+     * @param coinList the ArrayList to populate with coin information
+     *                       (Ex: ('2009', ''), ('George Washington', 'P'))
      */
     abstract public void populateCollectionLists(
             HashMap<String, Object> parameters,
-            ArrayList<String> identifierList,
-            ArrayList<String> mintList);
+            ArrayList<CoinSlot> coinList);
 
     /**
      * Performs any updates to a collection's database tables.  This allows

@@ -24,15 +24,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,12 +46,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.spencerpages.BuildConfig;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.coincollection.helper.OnStartDragListener;
 import com.coincollection.helper.SimpleItemTouchHelperCallback;
 
 import java.util.ArrayList;
+
+import static com.coincollection.MainActivity.createAndShowHelpDialog;
 
 /**
  * Fragment utilizing a RecyclerView to implement a collection re-ordering capability
@@ -70,29 +72,12 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Check whether it is the users have seen this page
-        SharedPreferences mainPreferences = getActivity().getSharedPreferences(MainApplication.PREFS, Activity.MODE_PRIVATE);
-        if(mainPreferences.getBoolean("reorder_help1", true)){
-            // Show the user how to do everything
-            // TODO Move to the strings resource page
-            CharSequence text = "Drag a collection's coin image to reposition it in the list of collections. To scroll through the list, swipe using the right half of the screen. Tap 'Save' when finished.";
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(((MainActivity)getActivity()).getContext());
-            builder.setMessage(text)
-                    .setCancelable(false)
-                    .setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            SharedPreferences mainPreferences = getActivity().getSharedPreferences(MainApplication.PREFS, Activity.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = mainPreferences.edit();
-                            editor.putBoolean("reorder_help1", false);
-                            editor.commit(); // .apply() in later APIs
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
+        // Show help to reorder the collection
+        Activity activity = getActivity();
+        if(activity != null){
+            createAndShowHelpDialog("reorder_help1", R.string.tutorial_reorder_collections, activity);
         }
 
         return inflater.inflate(R.layout.activity_reorder_collections, container, false);
@@ -109,7 +94,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // If the screen rotated and our view got destroyed/recreated,
@@ -120,7 +105,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             mUnsavedChanges = savedInstanceState.getBoolean("mUnsavedChanges");
         }
 
-        RecyclerView mRecyclerView = (RecyclerView) view.findViewById(R.id.reorder_collections_recycler_view);
+        RecyclerView mRecyclerView = view.findViewById(R.id.reorder_collections_recycler_view);
 
         mRecyclerView.setBackgroundColor(Color.BLACK);
 
@@ -149,7 +134,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
                 super.onItemRangeMoved(fromPosition, toPosition, itemCount);
 
                 if(BuildConfig.DEBUG) {
-                    Log.d("onItemRangeMoved", String.valueOf(fromPosition) + " " + String.valueOf(toPosition) + " " + String.valueOf(itemCount));
+                    Log.d("onItemRangeMoved", fromPosition + " " + toPosition + " " + itemCount);
                 }
 
                 ReorderCollections fragment = (ReorderCollections) getFragmentManager().findFragmentByTag("ReorderFragment");
@@ -171,7 +156,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                     if(mUnsavedChanges){
-                        showUnsavedChangesMessage();
+                        showUnsavedChangesAlertAndExitFragment();
                     } else {
                         closeFragment();
                     }
@@ -183,7 +168,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(@NonNull Bundle outState){
         super.onSaveInstanceState(outState);
 
         // Save off our collection list in the event of a screen orientation change
@@ -193,7 +178,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         // Inflate the menu - it has the 'Save' button.  This is also another
         // thing necessary for proper 'Up' button operation.
         inflater.inflate(R.menu.menu_reorder_collections, menu);
@@ -207,20 +192,20 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             case android.R.id.home:
 
                 if(mUnsavedChanges){
-                    showUnsavedChangesMessage();
+                    showUnsavedChangesAlertAndExitFragment();
                 } else {
                     closeFragment();
                 }
                 return true;
 
             case R.id.save_reordered_collections:
-
                 MainActivity activity = (MainActivity) getActivity();
+                Resources res = activity.getResources();
 
                 activity.handleCollectionsReordered(mItems);
 
                 Context context = activity.getApplicationContext();
-                CharSequence text = "Saved changes successfully";
+                CharSequence text = res.getString(R.string.changes_saved);
                 Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
                 toast.show();
 
@@ -232,12 +217,15 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     private void closeFragment(){
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        fm.beginTransaction()
-                .remove(this)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-                .commit();
-        fm.popBackStack();
+        MainActivity activity = (MainActivity) getActivity();
+        if(activity != null){
+            FragmentManager fm = activity.getSupportFragmentManager();
+            fm.beginTransaction()
+                    .remove(this)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+                    .commit();
+            fm.popBackStack();
+        }
     }
 
     @Override
@@ -247,34 +235,40 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
 
     private void showUnsavedTextView() {
 
-        TextView unsavedMessageView = (TextView) getView().findViewById(R.id.unsaved_message_textview_reorder);
+        TextView unsavedMessageView = getView().findViewById(R.id.unsaved_message_textview_reorder);
 
         unsavedMessageView.setVisibility(View.VISIBLE);
     }
 
     private void hideUnsavedTextView() {
 
-        TextView unsavedMessageView = (TextView) getView().findViewById(R.id.unsaved_message_textview_reorder);
+        TextView unsavedMessageView = getView().findViewById(R.id.unsaved_message_textview_reorder);
 
         unsavedMessageView.setVisibility(View.GONE);
     }
 
-    private void showUnsavedChangesMessage(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Leaving this page will erase your unsaved changes, are you sure you want to exit?")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        closeFragment();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
+    /**
+     * Show an alert that changes aren't saved before exiting fragment
+     */
+    private void showUnsavedChangesAlertAndExitFragment(){
+        Activity activity = getActivity();
+        if (activity != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            Resources res = activity.getResources();
+            builder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
+                    .setCancelable(false)
+                    .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            closeFragment();
+                        }
+                    })
+                    .setNegativeButton(res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 }

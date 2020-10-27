@@ -6,17 +6,29 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Collection;
-
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.coincollection.DatabaseAdapter.COL_COIN_TYPE;
+import static com.coincollection.DatabaseAdapter.COL_DISPLAY;
+import static com.coincollection.DatabaseAdapter.COL_DISPLAY_ORDER;
+import static com.coincollection.DatabaseAdapter.COL_NAME;
+import static com.coincollection.DatabaseAdapter.COL_TOTAL;
+import static com.coincollection.DatabaseAdapter.TBL_COLLECTION_INFO;
+import static com.spencerpages.MainApplication.APP_NAME;
+import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.MainApplication.DATABASE_NAME;
+import static com.spencerpages.MainApplication.DATABASE_VERSION;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    DatabaseHelper(Context context) {
-        super(context, MainApplication.DATABASE_NAME, null, MainApplication.DATABASE_VERSION);
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -25,16 +37,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         _createCollectionInfoTable(db);
     }
 
-    public void _createCollectionInfoTable(SQLiteDatabase db) {
+    void _createCollectionInfoTable(SQLiteDatabase db) {
 
         // v2.2.1 - Until this version all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-        String makeCollectionInfoTable = "CREATE TABLE collection_info (_id integer primary key,"
-                + " name text not null,"
-                + " coinType text not null,"
-                + " total integer,"
-                + " display integer default " + Integer.toString(CollectionPage.SIMPLE_DISPLAY) + ","
-                + " displayOrder integer"
+        String makeCollectionInfoTable = "CREATE TABLE " + TBL_COLLECTION_INFO + " (_id integer primary key,"
+                + " " + COL_NAME + " text not null,"
+                + " " + COL_COIN_TYPE + " text not null,"
+                + " " + COL_TOTAL + " integer,"
+                + " " + COL_DISPLAY + " integer default " + SIMPLE_DISPLAY + ","
+                + " " + COL_DISPLAY_ORDER + " integer"
                 + ");";
 
         db.execSQL(makeCollectionInfoTable);
@@ -49,7 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         if(BuildConfig.DEBUG) {
-            Log.i(MainApplication.APP_NAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
+            Log.i(APP_NAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
         }
 
         // First call the MainApplication's onDatabaseUpgrade to ensure that any changes necessary
@@ -59,19 +71,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Now get a list of the collections and call each one's onCollectionDatabaseUpgrade method
 
-        Cursor resultCursor = db.query("collection_info", new String[]{"name", "coinType",
-                "total"}, null, null, null, null, "_id");
+        Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_COIN_TYPE,
+                COL_TOTAL}, null, null, null, null, "_id");
 
         if (resultCursor.moveToFirst()) {
 
             do {
-                String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-                String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
-                int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
+                String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                String coinType = resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_TYPE));
+                int total = resultCursor.getInt(resultCursor.getColumnIndex(COL_TOTAL));
 
                 int originalTotal = total;
 
-                for (CollectionInfo collectionInfo : MainApplication.COLLECTION_TYPES) {
+                for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
 
                     if (collectionInfo.getCoinType().equals(coinType)) {
 
@@ -92,8 +104,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (originalTotal != total) {
                     // Update the total
                     ContentValues values = new ContentValues();
-                    values.put("total", total);
-                    db.update("collection_info", values, "name=? AND coinType=?", new String[]{name, coinType});
+                    values.put(COL_TOTAL, total);
+                    db.update(TBL_COLLECTION_INFO, values, COL_NAME + "=? AND " + COL_COIN_TYPE + "=?", new String[]{name, coinType});
                 }
 
             } while (resultCursor.moveToNext());
@@ -117,20 +129,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int total = 0;
         // Get the distinct columns from the coinMint field
-        Cursor coinMintCursor = db.query(true, tableName, new String[]{"coinMint"}, null, null, null, null, "_id", null);
+        Cursor coinMintCursor = db.query(true, tableName, new String[]{COL_COIN_MINT}, null, null, null, null, "_id", null);
 
         // Now add the new coins
         for (int j = 0; j < values.size(); j++) {
             ContentValues initialValues = new ContentValues();
-            initialValues.put("coinIdentifier", values.get(j));
-            initialValues.put("inCollection", 0);
+            initialValues.put(COL_COIN_IDENTIFIER, values.get(j));
+            initialValues.put(COL_IN_COLLECTION, 0);
             // For each mint mark in the collection, add in a new Coin
             if (coinMintCursor.moveToFirst()) {
                 do {
-                    String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
+                    String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex(COL_COIN_MINT));
 
-                    initialValues.remove("coinMint");
-                    initialValues.put("coinMint", coinMint);
+                    initialValues.remove(COL_COIN_MINT);
+                    initialValues.put(COL_COIN_MINT, coinMint);
                     if (db.insert(tableName, null, initialValues) != -1) {
                         total++;
                     }
@@ -158,22 +170,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * really just store the mint information in the database and store that.
      *
      * * Consider moving to MainApplication?
-     * @param db
-     * @param tableName
-     * @param year
-     * @return
+     * @param db database
+     * @param tableName database table name
+     * @param year coin year
+     * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, String tableName, String year) {
 
         int total = 0;
 
         // First, we need to determine whether we should add the year to this album
-        Cursor lastYearCursor = db.query(tableName, new String[]{"coinIdentifier"}, null, null, null, null, "_id DESC", "1");
+        Cursor lastYearCursor = db.query(tableName, new String[]{COL_COIN_IDENTIFIER}, null, null, null, null, "_id DESC", "1");
         boolean shouldAddNextYear = false;
 
         if (lastYearCursor.moveToFirst()) {
-            String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex("coinIdentifier"));
-            if (lastYear.equals(String.valueOf(Integer.valueOf(year) - 1))) {
+            String lastYear = lastYearCursor.getString(lastYearCursor.getColumnIndex(COL_COIN_IDENTIFIER));
+            if (lastYear.equals(String.valueOf(Integer.parseInt(year) - 1))) {
                 // If the collection included last year's coins, it's likely
                 // they want this year's in there too
                 //
@@ -187,7 +199,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (shouldAddNextYear) {
             // For each collection, we need to know which mint marks are present
             // Get the distinct columns from the coinMint field
-            Cursor coinMintCursor = db.query(true, tableName, new String[]{"coinMint"}, null, null, null, null, "_id", null);
+            Cursor coinMintCursor = db.query(true, tableName, new String[]{COL_COIN_MINT}, null, null, null, null, "_id", null);
 
             // We need to determine which mint marks to add.  The way we do this is
             // a bit complicated, but is as follows:
@@ -215,7 +227,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (coinMintCursor.moveToFirst()) {
                 do {
-                    String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex("coinMint"));
+                    String coinMint = coinMintCursor.getString(coinMintCursor.getColumnIndex(COL_COIN_MINT));
 
                     switch (coinMint) {
                         case "":
@@ -239,8 +251,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (shouldAddP) {
                 ContentValues newYearPCoinValues = new ContentValues();
-                newYearPCoinValues.put("coinIdentifier", year);
-                newYearPCoinValues.put("coinMint", "P");
+                newYearPCoinValues.put(COL_COIN_IDENTIFIER, year);
+                newYearPCoinValues.put(COL_COIN_MINT, "P");
                 if (db.insert(tableName, null, newYearPCoinValues) != -1) {
                     total++;
                 }
@@ -248,8 +260,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 if (foundBlank) {
                     ContentValues newYearBlankCoinValues = new ContentValues();
-                    newYearBlankCoinValues.put("coinIdentifier", year);
-                    newYearBlankCoinValues.put("coinMint", "");
+                    newYearBlankCoinValues.put(COL_COIN_IDENTIFIER, year);
+                    newYearBlankCoinValues.put(COL_COIN_MINT, "");
                     if (db.insert(tableName, null, newYearBlankCoinValues) != -1) {
                         total++;
                     }
@@ -258,8 +270,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (shouldAddD) {
                 ContentValues newYearDCoinValues = new ContentValues();
-                newYearDCoinValues.put("coinIdentifier", year);
-                newYearDCoinValues.put("coinMint", "D");
+                newYearDCoinValues.put(COL_COIN_IDENTIFIER, year);
+                newYearDCoinValues.put(COL_COIN_MINT, "D");
                 if (db.insert(tableName, null, newYearDCoinValues) != -1) {
                     total++;
                 }

@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.MainApplication;
@@ -113,8 +114,14 @@ public class NationalParkQuarters extends CollectionInfo {
 
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
-    public int getCoinSlotImage(String identifier, String mint, Boolean inCollection){
-        return PARKS_INFO.get(identifier)[inCollection ? 0 : 1];
+    public int getCoinSlotImage(CoinSlot coinSlot){
+        Integer[] slotImages = PARKS_INFO.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? (int) PARKS_IMAGE_IDENTIFIERS[0][1] : (int) PARKS_IMAGE_IDENTIFIERS[0][2];
+        }
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -132,30 +139,26 @@ public class NationalParkQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    public void populateCollectionLists(HashMap<String, Object> parameters,
-                                        ArrayList<String> identifierList,
-                                        ArrayList<String> mintList) {
+    @SuppressWarnings("ConstantConditions")
+    public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
-        for(int i = 0; i < PARKS_IMAGE_IDENTIFIERS.length; i++){
+        for (Object[] parksImageIdentifier : PARKS_IMAGE_IDENTIFIERS) {
 
-            String identifier = (String) PARKS_IMAGE_IDENTIFIERS[i][0];
+            String identifier = (String) parksImageIdentifier[0];
 
-            if(showMintMarks){
-                if(showP){
-                    identifierList.add(identifier);
-                    mintList.add("P");
+            if (showMintMarks) {
+                if (showP) {
+                    coinList.add(new CoinSlot(identifier, "P"));
                 }
-                if(showD){
-                    identifierList.add(identifier);
-                    mintList.add("D");
+                if (showD) {
+                    coinList.add(new CoinSlot(identifier, "D"));
                 }
             } else {
-                identifierList.add(identifier);
-                mintList.add("");
+                coinList.add(new CoinSlot(identifier, ""));
             }
         }
     }
@@ -177,7 +180,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Hawaii Volcanoes");
             newCoinIdentifiers.add("Denali");
 
-            // Add these coins, mimicing which coinMints the user already has defined
+            // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
         }
 

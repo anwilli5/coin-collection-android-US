@@ -4,9 +4,10 @@
         android:layout_width="fill_parent" 
         android:layout_height="fill_parent" >
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content" 
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:id="@+id/section1" >  
           <ImageView
               android:id="@+id/coinImage"
@@ -24,30 +25,32 @@
             android:textSize="12sp" />
         </RelativeLayout>
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content" 
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section1"
+            android:layout_toEndOf="@id/section1"
+            android:layout_marginRight="5dp"
+            android:layout_marginEnd="5dp"
             android:id="@+id/section2" >  
           <TextView
             android:id="@+id/grade_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="top|left"
+            android:gravity="top|start"
             android:textSize="18sp" />
           <TextView
             android:id="@+id/quantity_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/grade_textview"
-            android:gravity="top|left"
+            android:gravity="top|start"
             android:textSize="18sp" />
         </RelativeLayout>
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent" 
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@id/section2"
+            android:layout_toEndOf="@id/section2"
             android:id="@+id/section3" > 
           <TextView
             android:id="@+id/notes_textview"
@@ -57,7 +60,7 @@
             android:scrollHorizontally="false"
             android:minLines="4"
             android:maxLines="4"
-            android:gravity="top|left"
+            android:gravity="top|start"
             android:textSize="14sp" />
         </RelativeLayout>
     </RelativeLayout>
