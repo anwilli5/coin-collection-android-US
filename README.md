@@ -5,6 +5,14 @@ Coin Collection helps users keep track of the coins that they've collected.
 
 This app is available for free on the [Google Play App Store](https://play.google.com/store/apps/details?id=com.spencerpages)
 
+<style>
+table {
+    border-collapse: collapse;
+}
+table, th, td {
+   border: 0px;
+}
+</style>
 <table>
     <tr>
         <td><img src="./images/screen1.png" alt="Coin Collection Home" width="200"/></td>
