@@ -66,6 +66,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
+import static com.coincollection.CoinSlot.COL_ADV_NOTES;
+import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
@@ -105,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     // existing collections.
     // TODO Rename this to indicated that they are associated with importing
     private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
-    public ArrayList<String[][]> mCollectionContents = null;
+    public ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
     private int mDatabaseVersion = -1;
 
     // Export directory path
@@ -523,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                 String type = items[1];
                 int totalCollected = Integer.parseInt(items[2]);
                 int total = Integer.parseInt(items[3]);
-                int displayType = (items.length >= 5) ? Integer.parseInt(items[4]) : 0;
+                int displayType = (items.length > 4) ? Integer.parseInt(items[4]) : 0;
 
                 // Strip out all bad characters.  They shouldn't be there anyway ;)
                 name = name.replace('[', ' ');
@@ -601,7 +607,7 @@ public class MainActivity extends AppCompatActivity {
 
         // The ArrayList will be indexed by collection, the outer String[] will be indexed
         // by line number, and the inner String[] will be each cell in the row
-        ArrayList<String[][]> collectionContents = new ArrayList<>();
+        ArrayList<ArrayList<CoinSlot>> collectionContents = new ArrayList<>();
 
         // We loaded in the collection "metadata" table, so now load in each collection
         for(int i = 0; i < collectionInfo.size(); i++){
@@ -623,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
             in = openFileForReading(inputFile);
             if(in == null) return;
 
-            ArrayList<String[]> collectionContent = new ArrayList<>();
+            ArrayList<CoinSlot> collectionContent = new ArrayList<>();
 
             try {
                 String[] items;
@@ -631,15 +637,16 @@ public class MainActivity extends AppCompatActivity {
 
                     // Perform some sanity checks and clean-up here
                     int numberOfColumns = 6;
-
-                    if(items.length < numberOfColumns){
-                        errorOccurred = true;
-                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + items.length);
-                        break;
-                    }
+                    CoinSlot coinData = new CoinSlot(
+                            (items.length > 0 ? items[0] : ""),
+                            (items.length > 1 ? items[1] : ""),
+                            (items.length > 2 ? (Integer.valueOf(items[2]) != 0) : false),
+                            (items.length > 3 ? Integer.valueOf(items[3]) : 0),
+                            (items.length > 4 ? Integer.valueOf(items[4]) : 0),
+                            (items.length > 5 ? items[5] : ""));
 
                     // TODO Maybe add more checks
-                    collectionContent.add(items);
+                    collectionContent.add(coinData);
                 }
 
             } catch(Exception e){
@@ -658,9 +665,7 @@ public class MainActivity extends AppCompatActivity {
                 errorOccurred = true;
                 showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
             }
-
-            // TODO Can this happen? ClassCastException Object[] cannot be cast to String[][]
-            collectionContents.add(collectionContent.toArray(new String[0][]));
+            collectionContents.add(collectionContent);
 
             if(!closeInputFile(in, inputFile)){
                 return;
@@ -721,7 +726,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i < mImportedCollectionListInfos.size(); i++){
             CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
-            String[][] collectionContents = mCollectionContents.get(i);
+            ArrayList<CoinSlot> collectionContents = mCollectionContents.get(i);
 
             String name = collectionListInfo.getName();
             String coinType = collectionListInfo.getCollectionObj().getCoinType();
@@ -737,7 +742,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update any imported tables, if necessary
         if(mDatabaseVersion != MainApplication.DATABASE_VERSION) {
-            mDbAdapter.upgradeCollections(mDatabaseVersion);
+            mDbAdapter.upgradeCollections(mDatabaseVersion, true);
         }
         mDatabaseVersion = -1;
 

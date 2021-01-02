@@ -135,13 +135,15 @@ public class MainApplication extends Application {
      * @param db the SQLiteDatabase db object to use when making updates
      * @param oldVersion the previous database version
      * @param newVersion the new database version
+     * @param fromImport true if the upgrade is part of a database import
      */
     public static void onDatabaseUpgrade(
             SQLiteDatabase db,
             int oldVersion,
-            int newVersion){
+            int newVersion,
+            boolean fromImport){
 
-        if (oldVersion <= 5) {
+        if (oldVersion <= 5 && !fromImport) {
 
             // We need to add in columns to support the new advanced view
             db.execSQL("ALTER TABLE collection_info ADD COLUMN display INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
@@ -163,7 +165,7 @@ public class MainApplication extends Application {
             resultCursor.close();
         }
 
-        if (oldVersion <= 7) {
+        if (oldVersion <= 7 && !fromImport) {
             // Add another column for the display order
             // We have to do this in a try/catch block, because there is one case where the
             // table might already have the column - when importing a backup from a previous
