@@ -143,6 +143,7 @@ public class MainApplication extends Application {
             int newVersion,
             boolean fromImport){
 
+        // Skip if importing, since the database will be created with the latest structure
         if (oldVersion <= 5 && !fromImport) {
 
             // We need to add in columns to support the new advanced view
@@ -165,6 +166,7 @@ public class MainApplication extends Application {
             resultCursor.close();
         }
 
+        // Skip if importing, since the database will be created with the latest structure
         if (oldVersion <= 7 && !fromImport) {
             // Add another column for the display order
             // We have to do this in a try/catch block, because there is one case where the
