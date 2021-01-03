@@ -83,8 +83,12 @@ public class MainActivity extends AppCompatActivity {
     public final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
     private final Context mContext = this;
     private FrontAdapter mListAdapter;
-    public DatabaseAdapter mDbAdapter;
+    public DatabaseAdapter mDbAdapter = new DatabaseAdapter(this);
     private Resources mRes;
+
+    // Data from caller intent
+    public static final String UNIT_TEST_USE_ASYNC_TASKS = "unit-test-use-async-tasks";
+    private boolean mUseAsyncTasks = true;
 
     // The number of actual collections in mCollectionListEntries
     public int mNumberOfCollections;
@@ -111,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     // existing collections.
     // TODO Rename this to indicated that they are associated with importing
     private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
-    public ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
+    private ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
     private int mDatabaseVersion = -1;
 
     // Export directory path
@@ -153,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
         mBuilder = new AlertDialog.Builder(this);
         mRes = getResources();
+        Intent callingIntent = getIntent();
+        mUseAsyncTasks = callingIntent.getBooleanExtra(UNIT_TEST_USE_ASYNC_TASKS, true);
 
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
         // until they made it to the create collection screen.  That isn't necessary anymore, but
@@ -160,7 +166,43 @@ public class MainActivity extends AppCompatActivity {
         // isn't set
         createAndShowHelpDialog("first_Time_screen1", R.string.intro_message, this);
 
-        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
+        // Set up the asynchronous portion of onCreate()
+        setupOnCreateAsyncTasks();
+
+        // HISTORIC - no longer the case:
+        //
+        // We need to open the database since we are the first activity to run
+        // We only want to open the database once, though, because it is a hassle
+        // in that it is very expensive and must be opened in an asynchronous mTask
+        // background thread as to avoid getting application not responding errors.
+        // So, here is what we do:
+        // - Instantiate a Service that will hold the database adapter
+        //    + This will be around for the lifetime of the application
+        // - Once the service has been created, open up the database in an async mTask
+        // - Once the database is open, finish setting up the UI from the data pulled
+
+        // After we open it, it must have at least one activity bound to it at all times
+        // for it to stay alive.  So, each activity must bind to it on onCreate and
+        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
+        // will have been called and the service's onDestroy will then get called, where
+        // we close the database
+
+        // Actually instantiate the database service
+        //Intent mServiceIntent = new Intent(this, DatabaseService.class);
+        // and bind to it
+        //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        //
+        // Having the database open for a long time didn't seem to work out well, though - after
+        // having the app open for a while, database errors would start popping up.  Now, we just
+        // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
+        // is required, but just open and close the database regularly as needed after that.
+    }
+
+    /**
+     * Performs the async portion of the onCreate process
+     */
+    public void setupOnCreateAsyncTasks() {
+
         AsyncProgressInterface openInterface = new AsyncProgressInterface() {
             @Override
             public void asyncProgressDoInBackground() {
@@ -181,26 +223,21 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // TODO If there is a screen orientation change, it looks like a ProgressDialog gets leaked. :(
+        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
         if(check == null){
-
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
-
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
             // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
             // a long time.
-            mTask = kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
-
+            kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
             // The AsyncProgressTask will call finishViewSetup once the database has been opened
             // for the first time
-
         } else {
-
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "Taking over existing mTask");
             }
-
             // An AsyncProgressTask is running, make a new dialog to show it
             mTask = check;
             // Change the task's listener the new activity will be the listener. See note above AsyncTask
@@ -245,34 +282,6 @@ public class MainActivity extends AppCompatActivity {
                 completeProgressDialogAndFinishViewSetup();
             }
         };
-
-        // HISTORIC - no longer the case:
-        //
-        // We need to open the database since we are the first activity to run
-        // We only want to open the database once, though, because it is a hassle
-        // in that it is very expensive and must be opened in an asynchronous mTask
-        // background thread as to avoid getting application not responding errors.
-        // So, here is what we do:
-        // - Instantiate a Service that will hold the database adapter
-        //    + This will be around for the lifetime of the application
-        // - Once the service has been created, open up the database in an async mTask
-        // - Once the database is open, finish setting up the UI from the data pulled
-
-        // After we open it, it must have at least one activity bound to it at all times
-        // for it to stay alive.  So, each activity must bind to it on onCreate and
-        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
-        // will have been called and the service's onDestroy will then get called, where
-        // we close the database
-
-        // Actually instantiate the database service
-        //Intent mServiceIntent = new Intent(this, DatabaseService.class);
-        // and bind to it
-        //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        //
-        // Having the database open for a long time didn't seem to work out well, though - after
-        // having the app open for a while, database errors would start popping up.  Now, we just
-        // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
-        // is required, but just open and close the database regularly as needed after that.
     }
 
     /**
@@ -287,9 +296,6 @@ public class MainActivity extends AppCompatActivity {
         if(BuildConfig.DEBUG) {
             Log.v("mainActivity", "finishViewSetup");
         }
-
-        // Instantiate the DatabaseAdapter
-        mDbAdapter = new DatabaseAdapter(this);
 
         // Populate mCollectionListEntries with the data from the database
         updateCollectionListFromDatabase();
@@ -686,7 +692,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(0 == mNumberOfCollections){
             // Finish the import by kicking off an AsyncTask to do the heavy lifting
-            mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
+            kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
         } else {
             showImportConfirmation();
         }
@@ -1231,8 +1237,8 @@ public class MainActivity extends AppCompatActivity {
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                       mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
                        mIsImportingCollection = true;
+                       kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
                    }
                })
                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1507,10 +1513,18 @@ public class MainActivity extends AppCompatActivity {
      * @param taskId type of task
      * @return async task
      */
-    public AsyncProgressTask kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
-        AsyncProgressTask task = new AsyncProgressTask(asyncInterface);
-        task.mAsyncTaskId = taskId;
-        task.execute();
-        return task;
+    public void kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
+        if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
+            mTask = new AsyncProgressTask(asyncInterface);
+            mTask.mAsyncTaskId = taskId;
+            mTask.execute();
+        } else {
+            // Call the tasks on the current thread (used for unit tests)
+            mTask = new AsyncProgressTask(asyncInterface);
+            mTask.mAsyncTaskId = taskId;
+            asyncInterface.asyncProgressOnPreExecute();
+            asyncInterface.asyncProgressDoInBackground();
+            asyncInterface.asyncProgressOnPostExecute();
+        }
     }
 }
