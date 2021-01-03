@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
 
-import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.MainActivity;
 import com.spencerpages.collections.NativeAmericanDollars;

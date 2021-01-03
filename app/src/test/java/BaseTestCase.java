@@ -20,7 +20,6 @@
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -29,13 +28,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
-import com.coincollection.AsyncProgressInterface;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.MainActivity;
 
-import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowEnvironment;
@@ -54,10 +51,6 @@ import static com.spencerpages.MainApplication.DATABASE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class BaseTestCase {
 
@@ -65,8 +58,9 @@ public class BaseTestCase {
 
     /**
      * Enable storage read/write permission
-     * returns true if enabling permissions was successful
+     * @return true if enabling permissions was successful
      */
+    @SuppressWarnings("SameReturnValue")
     public boolean setEnabledPermissions(MainActivity activity) {
         ShadowApplication app = Shadows.shadowOf(activity.getApplication());
         app.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -80,6 +74,7 @@ public class BaseTestCase {
      * @param activity activity associated with the collection
      * @return true if successful, otherwise false
      */
+    @SuppressWarnings("SameReturnValue")
     public boolean setupOneOfEachCollectionTypes(MainActivity activity) {
         int displayOrder = 0;
         for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
@@ -97,6 +92,7 @@ public class BaseTestCase {
      * @param activity activity associated with the collection
      * @return true if successful, otherwise false
      */
+    @SuppressWarnings("SameReturnValue")
     public boolean setupCollectionsWithNames(MainActivity activity, ArrayList<String> collectionNames) {
         int displayOrder = 0;
         for (String collectionName : collectionNames) {

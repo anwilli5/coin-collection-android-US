@@ -33,24 +33,17 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -66,12 +59,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
-import static com.coincollection.CoinSlot.COL_ADV_NOTES;
-import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
@@ -83,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     public final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
     private final Context mContext = this;
     private FrontAdapter mListAdapter;
-    public DatabaseAdapter mDbAdapter = new DatabaseAdapter(this);
+    public final DatabaseAdapter mDbAdapter = new DatabaseAdapter(this);
     private Resources mRes;
 
     // Data from caller intent
@@ -168,34 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the asynchronous portion of onCreate()
         setupOnCreateAsyncTasks();
-
-        // HISTORIC - no longer the case:
-        //
-        // We need to open the database since we are the first activity to run
-        // We only want to open the database once, though, because it is a hassle
-        // in that it is very expensive and must be opened in an asynchronous mTask
-        // background thread as to avoid getting application not responding errors.
-        // So, here is what we do:
-        // - Instantiate a Service that will hold the database adapter
-        //    + This will be around for the lifetime of the application
-        // - Once the service has been created, open up the database in an async mTask
-        // - Once the database is open, finish setting up the UI from the data pulled
-
-        // After we open it, it must have at least one activity bound to it at all times
-        // for it to stay alive.  So, each activity must bind to it on onCreate and
-        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
-        // will have been called and the service's onDestroy will then get called, where
-        // we close the database
-
-        // Actually instantiate the database service
-        //Intent mServiceIntent = new Intent(this, DatabaseService.class);
-        // and bind to it
-        //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        //
-        // Having the database open for a long time didn't seem to work out well, though - after
-        // having the app open for a while, database errors would start popping up.  Now, we just
-        // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
-        // is required, but just open and close the database regularly as needed after that.
     }
 
     /**
@@ -282,6 +249,34 @@ public class MainActivity extends AppCompatActivity {
                 completeProgressDialogAndFinishViewSetup();
             }
         };
+
+        // HISTORIC - no longer the case:
+        //
+        // We need to open the database since we are the first activity to run
+        // We only want to open the database once, though, because it is a hassle
+        // in that it is very expensive and must be opened in an asynchronous mTask
+        // background thread as to avoid getting application not responding errors.
+        // So, here is what we do:
+        // - Instantiate a Service that will hold the database adapter
+        //    + This will be around for the lifetime of the application
+        // - Once the service has been created, open up the database in an async mTask
+        // - Once the database is open, finish setting up the UI from the data pulled
+
+        // After we open it, it must have at least one activity bound to it at all times
+        // for it to stay alive.  So, each activity must bind to it on onCreate and
+        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
+        // will have been called and the service's onDestroy will then get called, where
+        // we close the database
+
+        // Actually instantiate the database service
+        //Intent mServiceIntent = new Intent(this, DatabaseService.class);
+        // and bind to it
+        //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        //
+        // Having the database open for a long time didn't seem to work out well, though - after
+        // having the app open for a while, database errors would start popping up.  Now, we just
+        // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
+        // is required, but just open and close the database regularly as needed after that.
     }
 
     /**
@@ -642,13 +637,12 @@ public class MainActivity extends AppCompatActivity {
                 while(null != (items = in.readNext())){
 
                     // Perform some sanity checks and clean-up here
-                    int numberOfColumns = 6;
                     CoinSlot coinData = new CoinSlot(
                             (items.length > 0 ? items[0] : ""),
                             (items.length > 1 ? items[1] : ""),
-                            (items.length > 2 ? (Integer.valueOf(items[2]) != 0) : false),
-                            (items.length > 3 ? Integer.valueOf(items[3]) : 0),
-                            (items.length > 4 ? Integer.valueOf(items[4]) : 0),
+                            (items.length > 2 && (Integer.parseInt(items[2]) != 0)),
+                            (items.length > 3 ? Integer.parseInt(items[3]) : 0),
+                            (items.length > 4 ? Integer.parseInt(items[4]) : 0),
                             (items.length > 5 ? items[5] : ""));
 
                     // TODO Maybe add more checks
@@ -1511,7 +1505,6 @@ public class MainActivity extends AppCompatActivity {
      * Create and kick-off an async task to finish long-running tasks
      * @param asyncInterface caller interface
      * @param taskId type of task
-     * @return async task
      */
     public void kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
         if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
