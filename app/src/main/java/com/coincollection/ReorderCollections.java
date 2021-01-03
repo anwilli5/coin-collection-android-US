@@ -187,32 +187,28 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch(item.getItemId()){
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            if (mUnsavedChanges) {
+                showUnsavedChangesAlertAndExitFragment();
+            } else {
+                closeFragment();
+            }
+            return true;
+        } else if (itemId == R.id.save_reordered_collections) {
+            MainActivity activity = (MainActivity) getActivity();
+            Resources res = activity.getResources();
 
-            case android.R.id.home:
+            activity.handleCollectionsReordered(mItems);
 
-                if(mUnsavedChanges){
-                    showUnsavedChangesAlertAndExitFragment();
-                } else {
-                    closeFragment();
-                }
-                return true;
+            Context context = activity.getApplicationContext();
+            CharSequence text = res.getString(R.string.changes_saved);
+            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+            toast.show();
 
-            case R.id.save_reordered_collections:
-                MainActivity activity = (MainActivity) getActivity();
-                Resources res = activity.getResources();
-
-                activity.handleCollectionsReordered(mItems);
-
-                Context context = activity.getApplicationContext();
-                CharSequence text = res.getString(R.string.changes_saved);
-                Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-                toast.show();
-
-                this.hideUnsavedTextView();
-                this.setUnsavedChanges(false);
+            this.hideUnsavedTextView();
+            this.setUnsavedChanges(false);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
