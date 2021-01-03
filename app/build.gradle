@@ -3,14 +3,17 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         Android {
-            def props = new Properties()
-            def fileInputStream = new FileInputStream(file('../signing.properties'))
-            props.load(fileInputStream)
-            fileInputStream.close()
-            storeFile = file(props['storeFilePath'])
-            storePassword = props['storePassword']
-            keyAlias = props['keyAlias']
-            keyPassword = props['keyPassword']
+            def signingPropsFile = new File('../signing.properties')
+            if (signingPropsFile.canRead()) {
+                def props = new Properties()
+                def fileInputStream = new FileInputStream(signingPropsFile)
+                props.load(fileInputStream)
+                fileInputStream.close()
+                storeFile = file(props['storeFilePath'])
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
+            }
         }
     }
     compileSdkVersion 29
