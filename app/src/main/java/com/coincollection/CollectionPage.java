@@ -394,10 +394,8 @@ public class CollectionPage extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch(item.getItemId()) {
-
-        case R.id.lock_unlock_collection:
-
+        int itemId = item.getItemId();
+        if (itemId == R.id.lock_unlock_collection) {
             // Need to check the preferences to see whether the collection is locked or unlocked
             SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
             SharedPreferences.Editor editor = mainPreferences.edit();
@@ -407,9 +405,9 @@ public class CollectionPage extends AppCompatActivity {
 
             // If we are going from unlocked to lock in advance mode, we need to save the
             // changes the user may have made (if any)
-            if(mDisplayType == ADVANCED_DISPLAY &&
+            if (mDisplayType == ADVANCED_DISPLAY &&
                     !isLocked &&
-                    this.doUnsavedChangesExist()){
+                    this.doUnsavedChangesExist()) {
 
                 // In the advanced display case, we also need to save
 
@@ -417,10 +415,10 @@ public class CollectionPage extends AppCompatActivity {
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                for(int i = 0; i < mCoinList.size(); i++){
+                for (int i = 0; i < mCoinList.size(); i++) {
                     CoinSlot coinSlot = mCoinList.get(i);
-                    if(coinSlot.hasIndexChanged()){
-                        if(dbAdapter.updateAdvInfo(mCollectionName, coinSlot) != 1){
+                    if (coinSlot.hasIndexChanged()) {
+                        if (dbAdapter.updateAdvInfo(mCollectionName, coinSlot) != 1) {
                             finishedSuccessfully = false;
                             // Keep going, though
                             continue;
@@ -432,7 +430,7 @@ public class CollectionPage extends AppCompatActivity {
 
                 dbAdapter.close();
 
-                if(finishedSuccessfully){
+                if (finishedSuccessfully) {
                     // Hide the unsaved changes view
                     Context context = this.getApplicationContext();
                     CharSequence text = "Saved changes successfully.  :)";
@@ -454,7 +452,7 @@ public class CollectionPage extends AppCompatActivity {
                 }
             }
 
-            if(finishedSuccessfully) {
+            if (finishedSuccessfully) {
                 if (isLocked) {
                     // Locked, change to unlocked
                     editor.putBoolean(mCollectionName + IS_LOCKED, false);
@@ -479,7 +477,7 @@ public class CollectionPage extends AppCompatActivity {
             // fails below
             editor.apply();
 
-            if(mDisplayType == ADVANCED_DISPLAY){
+            if (mDisplayType == ADVANCED_DISPLAY) {
                 // We need to restart the view so we can show the locked
                 // view.  Also, at this point there are no unsaved changes
 
@@ -500,16 +498,14 @@ public class CollectionPage extends AppCompatActivity {
             }
 
             return true;
-
-        case R.id.change_view:
-
-            if(mDisplayType == SIMPLE_DISPLAY){
+        } else if (itemId == R.id.change_view) {
+            if (mDisplayType == SIMPLE_DISPLAY) {
                 // Setup the advanced view
 
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                dbAdapter.updateTableDisplay(mCollectionName, ADVANCED_DISPLAY) ;
+                dbAdapter.updateTableDisplay(mCollectionName, ADVANCED_DISPLAY);
 
                 dbAdapter.close();
 
@@ -531,13 +527,13 @@ public class CollectionPage extends AppCompatActivity {
 
                 return true;
 
-            } else if(mDisplayType == ADVANCED_DISPLAY){
+            } else if (mDisplayType == ADVANCED_DISPLAY) {
                 // Setup the basic view
 
                 // We need to see if there are any unsaved changes, and if so,
                 // present an alert
 
-                if(this.doUnsavedChangesExist()){
+                if (this.doUnsavedChangesExist()) {
 
                     showUnsavedChangesAlertViewChange(mRes, this);
                     return true;
@@ -548,7 +544,7 @@ public class CollectionPage extends AppCompatActivity {
                 DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
                 dbAdapter.open();
 
-                dbAdapter.updateTableDisplay(mCollectionName, SIMPLE_DISPLAY) ;
+                dbAdapter.updateTableDisplay(mCollectionName, SIMPLE_DISPLAY);
 
                 dbAdapter.close();
 
@@ -572,17 +568,14 @@ public class CollectionPage extends AppCompatActivity {
 
             // Shouldn't get here
             return true;
-
-        case R.id.rename_collection:
-
+        } else if (itemId == R.id.rename_collection) {
             // Prompt user for new name via alert dialog
             showRenamePrompt();
             return true;
-
-        case android.R.id.home:
+        } else if (itemId == android.R.id.home) {
             // To support having a back arrow on the page
 
-            if(this.doUnsavedChangesExist()){
+            if (this.doUnsavedChangesExist()) {
                 // If we have unsaved changes, don't go back right away but
                 // instead let the user decide
                 showUnsavedChangesAlertAndExitActivity(mRes, this);
@@ -590,11 +583,8 @@ public class CollectionPage extends AppCompatActivity {
                 this.onBackPressed();
             }
             return true;
-
-        default:
-            return super.onOptionsItemSelected(item);
-
         }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

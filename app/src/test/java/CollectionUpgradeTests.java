@@ -18,17 +18,11 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
 import com.coincollection.CoinPageCreator;
-import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
-import com.coincollection.MainActivity;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
@@ -56,8 +50,6 @@ import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -66,122 +58,14 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.spencerpages.MainApplication.DATABASE_NAME;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
 @Config(sdk = Build.VERSION_CODES.P)
-public class CollectionUpgradeTests extends TestCase {
-
-    private final static int VERSION_1_YEAR = 2013;
+public class CollectionUpgradeTests extends BaseTestCase {
 
     // TODO - Improve tests by testing with all options set instead of none
-
-    static class TestDatabaseHelper extends SQLiteOpenHelper {
-
-        TestDatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, 1);
-        }
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE collection_info (_id integer primary key,"
-                    + " name text not null,"
-                    + " coinType text not null,"
-                    + " total integer"
-                    + ");");
-        }
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-        }
-    }
-
-    public void createV1Collection(SQLiteDatabase db, String collectionName, String coinType, ArrayList<Object[]> coinList) {
-
-        db.execSQL("CREATE TABLE [" + collectionName
-                + "] (_id integer primary key,"
-                + " coinIdentifier text not null,"
-                + " coinMint text,"
-                + " inCollection integer);");
-
-        for(Object[] coinInfo : coinList){
-            ContentValues initialValues = new ContentValues();
-            initialValues.put("coinIdentifier", (String) coinInfo[0]);
-            initialValues.put("coinMint", (String) coinInfo[1]);
-            initialValues.put("inCollection", (int) coinInfo[2]);
-            db.insert("[" + collectionName + "]", null, initialValues);
-        }
-
-        ContentValues values = new ContentValues();
-        values.put("name", collectionName);
-        values.put("coinType", coinType);
-        values.put("total", coinList.size());
-        db.insert("collection_info", null, values);
-    }
-
-    private void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName){
-        HashMap<String, Object> parameters = new HashMap<>();
-        validateUpdatedDb(collectionInfo, collectionName, parameters);
-    }
-
-    private void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
-                                   final HashMap<String, Object> parameters){
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Create a new database from scratch
-                    collectionInfo.getCreationParameters(parameters);
-                    ArrayList<CoinSlot> newCoinList = new ArrayList<>();
-                    collectionInfo.populateCollectionLists(parameters, newCoinList);
-
-                    // Get coins from the updated database
-                    activity.mDbAdapter.open();
-                    Cursor resultCursor = activity.mDbAdapter.getAllIdentifiers(collectionName);
-                    assertNotNull(resultCursor);
-                    ArrayList<CoinSlot> dbCoinList = new ArrayList<>();
-                    if (resultCursor.moveToFirst()){
-                        do {
-                            dbCoinList.add(new CoinSlot(
-                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_MINT)),
-                                    false));
-                        } while(resultCursor.moveToNext());
-                    }
-                    resultCursor.close();
-
-                    // Make sure coin lists match
-                    assertEquals(newCoinList.size(), dbCoinList.size());
-                    for(int i = 0; i < newCoinList.size(); i++){
-                        assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
-                        assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
-                    }
-
-                    // Make sure total matches
-                    resultCursor = activity.mDbAdapter.getAllTables();
-                    boolean foundTable = false;
-                    if (resultCursor.moveToFirst()){
-                        do{
-                            if(collectionName.equals(resultCursor.getString(resultCursor.getColumnIndex("name")))){
-                                foundTable = true;
-                                assertEquals(newCoinList.size(), resultCursor.getInt(resultCursor.getColumnIndex("total")));
-                            }
-                        } while(resultCursor.moveToNext());
-                    }
-                    resultCursor.close();
-                    assertTrue(foundTable);
-                }
-            });
-        }
-    }
 
     /**
      * For AmericanEagleSilverDollars

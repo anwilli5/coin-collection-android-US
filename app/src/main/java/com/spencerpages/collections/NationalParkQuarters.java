@@ -139,7 +139,6 @@ public class NationalParkQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);

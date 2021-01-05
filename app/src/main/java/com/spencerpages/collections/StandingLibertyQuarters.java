@@ -75,7 +75,6 @@ public class StandingLibertyQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
-    @SuppressWarnings("ConstantConditions")
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);

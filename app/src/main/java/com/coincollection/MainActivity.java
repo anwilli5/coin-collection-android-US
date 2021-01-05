@@ -33,24 +33,17 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -66,6 +59,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
@@ -77,8 +78,12 @@ public class MainActivity extends AppCompatActivity {
     public final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
     private final Context mContext = this;
     private FrontAdapter mListAdapter;
-    public DatabaseAdapter mDbAdapter;
+    public final DatabaseAdapter mDbAdapter = new DatabaseAdapter(this);
     private Resources mRes;
+
+    // Data from caller intent
+    public static final String UNIT_TEST_USE_ASYNC_TASKS = "unit-test-use-async-tasks";
+    private boolean mUseAsyncTasks = true;
 
     // The number of actual collections in mCollectionListEntries
     public int mNumberOfCollections;
@@ -105,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     // existing collections.
     // TODO Rename this to indicated that they are associated with importing
     private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
-    public ArrayList<String[][]> mCollectionContents = null;
+    private ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
     private int mDatabaseVersion = -1;
 
     // Export directory path
@@ -147,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
         mBuilder = new AlertDialog.Builder(this);
         mRes = getResources();
+        Intent callingIntent = getIntent();
+        mUseAsyncTasks = callingIntent.getBooleanExtra(UNIT_TEST_USE_ASYNC_TASKS, true);
 
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
         // until they made it to the create collection screen.  That isn't necessary anymore, but
@@ -154,7 +161,15 @@ public class MainActivity extends AppCompatActivity {
         // isn't set
         createAndShowHelpDialog("first_Time_screen1", R.string.intro_message, this);
 
-        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
+        // Set up the asynchronous portion of onCreate()
+        setupOnCreateAsyncTasks();
+    }
+
+    /**
+     * Performs the async portion of the onCreate process
+     */
+    public void setupOnCreateAsyncTasks() {
+
         AsyncProgressInterface openInterface = new AsyncProgressInterface() {
             @Override
             public void asyncProgressDoInBackground() {
@@ -175,26 +190,21 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // TODO If there is a screen orientation change, it looks like a ProgressDialog gets leaked. :(
+        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
         if(check == null){
-
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
-
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
             // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
             // a long time.
-            mTask = kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
-
+            kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
             // The AsyncProgressTask will call finishViewSetup once the database has been opened
             // for the first time
-
         } else {
-
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "Taking over existing mTask");
             }
-
             // An AsyncProgressTask is running, make a new dialog to show it
             mTask = check;
             // Change the task's listener the new activity will be the listener. See note above AsyncTask
@@ -281,9 +291,6 @@ public class MainActivity extends AppCompatActivity {
         if(BuildConfig.DEBUG) {
             Log.v("mainActivity", "finishViewSetup");
         }
-
-        // Instantiate the DatabaseAdapter
-        mDbAdapter = new DatabaseAdapter(this);
 
         // Populate mCollectionListEntries with the data from the database
         updateCollectionListFromDatabase();
@@ -523,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
                 String type = items[1];
                 int totalCollected = Integer.parseInt(items[2]);
                 int total = Integer.parseInt(items[3]);
-                int displayType = (items.length >= 5) ? Integer.parseInt(items[4]) : 0;
+                int displayType = (items.length > 4) ? Integer.parseInt(items[4]) : 0;
 
                 // Strip out all bad characters.  They shouldn't be there anyway ;)
                 name = name.replace('[', ' ');
@@ -601,7 +608,7 @@ public class MainActivity extends AppCompatActivity {
 
         // The ArrayList will be indexed by collection, the outer String[] will be indexed
         // by line number, and the inner String[] will be each cell in the row
-        ArrayList<String[][]> collectionContents = new ArrayList<>();
+        ArrayList<ArrayList<CoinSlot>> collectionContents = new ArrayList<>();
 
         // We loaded in the collection "metadata" table, so now load in each collection
         for(int i = 0; i < collectionInfo.size(); i++){
@@ -623,23 +630,23 @@ public class MainActivity extends AppCompatActivity {
             in = openFileForReading(inputFile);
             if(in == null) return;
 
-            ArrayList<String[]> collectionContent = new ArrayList<>();
+            ArrayList<CoinSlot> collectionContent = new ArrayList<>();
 
             try {
                 String[] items;
                 while(null != (items = in.readNext())){
 
                     // Perform some sanity checks and clean-up here
-                    int numberOfColumns = 6;
-
-                    if(items.length < numberOfColumns){
-                        errorOccurred = true;
-                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 11) + " " + items.length);
-                        break;
-                    }
+                    CoinSlot coinData = new CoinSlot(
+                            (items.length > 0 ? items[0] : ""),
+                            (items.length > 1 ? items[1] : ""),
+                            (items.length > 2 && (Integer.parseInt(items[2]) != 0)),
+                            (items.length > 3 ? Integer.parseInt(items[3]) : 0),
+                            (items.length > 4 ? Integer.parseInt(items[4]) : 0),
+                            (items.length > 5 ? items[5] : ""));
 
                     // TODO Maybe add more checks
-                    collectionContent.add(items);
+                    collectionContent.add(coinData);
                 }
 
             } catch(Exception e){
@@ -658,9 +665,7 @@ public class MainActivity extends AppCompatActivity {
                 errorOccurred = true;
                 showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
             }
-
-            // TODO Can this happen? ClassCastException Object[] cannot be cast to String[][]
-            collectionContents.add(collectionContent.toArray(new String[0][]));
+            collectionContents.add(collectionContent);
 
             if(!closeInputFile(in, inputFile)){
                 return;
@@ -681,7 +686,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(0 == mNumberOfCollections){
             // Finish the import by kicking off an AsyncTask to do the heavy lifting
-            mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
+            kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
         } else {
             showImportConfirmation();
         }
@@ -721,7 +726,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0; i < mImportedCollectionListInfos.size(); i++){
             CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
-            String[][] collectionContents = mCollectionContents.get(i);
+            ArrayList<CoinSlot> collectionContents = mCollectionContents.get(i);
 
             String name = collectionListInfo.getName();
             String coinType = collectionListInfo.getCollectionObj().getCoinType();
@@ -737,7 +742,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update any imported tables, if necessary
         if(mDatabaseVersion != MainApplication.DATABASE_VERSION) {
-            mDbAdapter.upgradeCollections(mDatabaseVersion);
+            mDbAdapter.upgradeCollections(mDatabaseVersion, true);
         }
         mDatabaseVersion = -1;
 
@@ -1226,8 +1231,8 @@ public class MainActivity extends AppCompatActivity {
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                       mTask = kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
                        mIsImportingCollection = true;
+                       kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
                    }
                })
                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1500,12 +1505,19 @@ public class MainActivity extends AppCompatActivity {
      * Create and kick-off an async task to finish long-running tasks
      * @param asyncInterface caller interface
      * @param taskId type of task
-     * @return async task
      */
-    public AsyncProgressTask kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
-        AsyncProgressTask task = new AsyncProgressTask(asyncInterface);
-        task.mAsyncTaskId = taskId;
-        task.execute();
-        return task;
+    public void kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
+        if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
+            mTask = new AsyncProgressTask(asyncInterface);
+            mTask.mAsyncTaskId = taskId;
+            mTask.execute();
+        } else {
+            // Call the tasks on the current thread (used for unit tests)
+            mTask = new AsyncProgressTask(asyncInterface);
+            mTask.mAsyncTaskId = taskId;
+            asyncInterface.asyncProgressOnPreExecute();
+            asyncInterface.asyncProgressDoInBackground();
+            asyncInterface.asyncProgressOnPostExecute();
+        }
     }
 }

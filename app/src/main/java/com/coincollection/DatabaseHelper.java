@@ -59,6 +59,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        this.upgradeDb(db, oldVersion, newVersion, false);
+    }
+
+    /**
+     * Upgrades the database
+     *
+     * @param db the database to upgrade
+     * @param oldVersion the database's current version
+     * @param newVersion the version to upgrade to
+     * @param fromImport if true, indicates that the upgrade is part of a collection import
+     */
+    public void upgradeDb(SQLiteDatabase db, int oldVersion, int newVersion, boolean fromImport) {
 
         if(BuildConfig.DEBUG) {
             Log.i(APP_NAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
@@ -67,7 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // First call the MainApplication's onDatabaseUpgrade to ensure that any changes necessary
         // for the app to work are done.
 
-        MainApplication.onDatabaseUpgrade(db, oldVersion, newVersion);
+        MainApplication.onDatabaseUpgrade(db, oldVersion, newVersion, fromImport);
 
         // Now get a list of the collections and call each one's onCollectionDatabaseUpgrade method
 

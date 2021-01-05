@@ -60,13 +60,23 @@ public class CoinSlot implements Parcelable {
     // Database helpers
     final static String COIN_SLOT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
 
-    public CoinSlot (String identifier, String mint, boolean inCollection){
+    public CoinSlot (String identifier, String mint, boolean inCollection, Integer advancedGrades,
+                     Integer advancedQuantities, String advancedNotes) {
+        mIdentifier = identifier;
+        mMint = mint;
+        mInCollection = inCollection;
+        mAdvancedGrades = advancedGrades;
+        mAdvancedQuantities = advancedQuantities;
+        mAdvancedNotes = advancedNotes;
+    }
+
+    public CoinSlot (String identifier, String mint, boolean inCollection) {
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = inCollection;
     }
 
-    public CoinSlot (String identifier, String mint){
+    public CoinSlot (String identifier, String mint) {
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = false;
@@ -90,6 +100,10 @@ public class CoinSlot implements Parcelable {
 
     public boolean isInCollection() {
         return mInCollection;
+    }
+
+    public Integer isInCollectionInt() {
+        return this.isInCollection() ? 1 : 0;
     }
 
     boolean hasIndexChanged() {

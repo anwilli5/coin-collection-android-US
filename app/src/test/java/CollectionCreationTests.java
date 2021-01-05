@@ -54,7 +54,7 @@ import java.util.HashMap;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class CollectionCreationTests {
+public class CollectionCreationTests extends BaseTestCase {
 
     /**
      * For AmericanEagleSilverDollars

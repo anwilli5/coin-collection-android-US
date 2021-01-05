@@ -223,7 +223,7 @@ public class DatabaseAdapter {
     int updateAdvInfo(String tableName, CoinSlot coinSlot) {
 
         ContentValues args = new ContentValues();
-        args.put(COL_IN_COLLECTION, coinSlot.isInCollection() ? 1 : 0);
+        args.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
         args.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
         args.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
         args.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
@@ -334,26 +334,26 @@ public class DatabaseAdapter {
      * @param total The total number of coins in the collection (TODO I think)
      * @param display The display type of this collection
      * @param displayOrder The order that this collection should appear in the list of collections
-     * @param rawData The data that should be put into the backing database once it is created
+     * @param coinData The data that should be put into the backing database once it is created
      * @return 1 TODO
      */
     // TODO Rename, since we aren't just creating a new table
-    int createNewTable(String tableName, String coinType, int total, int display, int displayOrder, String[][] rawData) {
+    int createNewTable(String tableName, String coinType, int total, int display, int displayOrder, ArrayList<CoinSlot> coinData) {
 
         // Actually make the table
         createNewTable(tableName);
 
         // We have the list of identifiers, now set them correctly
-        for (String[] rawRowData : rawData) {
+        for (CoinSlot coinSlot : coinData) {
 
             // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
             ContentValues initialValues = new ContentValues();
-            initialValues.put(COL_COIN_IDENTIFIER, rawRowData[0]);
-            initialValues.put(COL_COIN_MINT, rawRowData[1]);
-            initialValues.put(COL_IN_COLLECTION, Integer.valueOf(rawRowData[2]));
-            initialValues.put(COL_ADV_GRADE_INDEX, Integer.valueOf(rawRowData[3]));
-            initialValues.put(COL_ADV_QUANTITY_INDEX, Integer.valueOf(rawRowData[4]));
-            initialValues.put(COL_ADV_NOTES, rawRowData[5]);
+            initialValues.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
+            initialValues.put(COL_COIN_MINT, coinSlot.getMint());
+            initialValues.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
+            initialValues.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
+            initialValues.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
+            initialValues.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
 
             long value = mDb.insert("[" + tableName + "]", null, initialValues);
             // TODO Do something if insert fails?
@@ -484,9 +484,10 @@ public class DatabaseAdapter {
      * Expose the dbHelper's onUpgrade method so we can call it manually when importing collections
      *
      * @param oldVersion the db version to upgrade from
+     * @param fromImport true if the upgrade is part of a database import
      */
-    void upgradeCollections(int oldVersion) {
-        mDbHelper.onUpgrade(mDb, oldVersion, MainApplication.DATABASE_VERSION);
+    void upgradeCollections(int oldVersion, boolean fromImport) {
+        mDbHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, fromImport);
     }
 
     /**
