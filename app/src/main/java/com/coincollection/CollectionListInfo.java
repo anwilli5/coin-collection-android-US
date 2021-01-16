@@ -30,7 +30,7 @@ import com.spencerpages.MainApplication;
  * (the main page and the reorder page)
  */
 public class CollectionListInfo implements Parcelable{
-	private String mCollectionName;
+    private String mCollectionName;
     private int mTotalCoinsInCollection;
     private int mTotalCoinsCollected;
     private int mCollectionTypeIndex;
@@ -48,19 +48,19 @@ public class CollectionListInfo implements Parcelable{
     }
 
     public String getName(){
-    	return mCollectionName;
+        return mCollectionName;
     }
     
     public void setName(String name){
-    	mCollectionName = name;
+        mCollectionName = name;
     }
 
     int getMax(){
-    	return mTotalCoinsInCollection;
+        return mTotalCoinsInCollection;
     }
     
     void setMax(int max){
-    	mTotalCoinsInCollection = max;
+        mTotalCoinsInCollection = max;
     }
     
     public int getCollected(){

@@ -6,7 +6,7 @@
         android:id="@+id/listElementParent">
         <ImageView 
             android:layout_width="wrap_content" 
-            android:id="@+id/imageView1"
+            android:id="@+id/coinImageView"
             android:layout_height="wrap_content"
             android:contentDescription="@string/coin_slot_description"
             android:layout_marginRight="5dp"
@@ -17,7 +17,7 @@
             android:layout_width="fill_parent" 
             android:layout_height="wrap_content">
             <TextView 
-                android:id="@+id/textView1" 
+                android:id="@+id/collectionNameTextView"
                 android:layout_width="fill_parent" 
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -25,17 +25,17 @@
                 android:ellipsize="marquee"
                 android:textSize="24sp"/>
             <TextView 
-                android:id="@+id/textView2"
+                android:id="@+id/progressTextView"
                 android:layout_width="fill_parent" 
                 android:layout_height="wrap_content"
                 android:textSize="17sp"
-                android:layout_below="@id/textView1" />
+                android:layout_below="@id/collectionNameTextView" />
             <TextView 
-                android:id="@+id/textView3" 
+                android:id="@+id/completeTextView"
                 android:layout_width="fill_parent" 
                 android:layout_height="wrap_content"
                 android:textSize="17sp"
                 android:textColor="#00FF00"
-                android:layout_below="@id/textView2" />
+                android:layout_below="@id/progressTextView" />
         </RelativeLayout>
     </LinearLayout>
