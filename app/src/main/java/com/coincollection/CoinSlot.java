@@ -23,6 +23,8 @@ package com.coincollection;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.spencerpages.R;
+
 /**
  * Coin contained in a collection
  */
@@ -104,6 +106,10 @@ public class CoinSlot implements Parcelable {
 
     public Integer isInCollectionInt() {
         return this.isInCollection() ? 1 : 0;
+    }
+
+    public Integer isInCollectionStringRes() {
+        return this.isInCollection() ? R.string.collected : R.string.missing;
     }
 
     boolean hasIndexChanged() {

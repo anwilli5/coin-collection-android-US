@@ -21,26 +21,26 @@
 package com.coincollection;
 
 import android.content.res.Resources;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 
-import com.spencerpages.R;
 import com.coincollection.helper.ItemTouchHelperAdapter;
 import com.coincollection.helper.OnStartDragListener;
+import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * RecyclerView.Adapter that supports reordering the coin collections
  */
 public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
-        implements ItemTouchHelperAdapter{
+        implements ItemTouchHelperAdapter {
     private final ArrayList<CollectionListInfo> mItems;
     private final OnStartDragListener mDragStartListener;
 
@@ -53,11 +53,12 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
     @Override
     @NonNull
     public ReorderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_element, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.reorder_list_element, parent, false);
 
         return new ReorderViewHolder(view);
     }
 
+    // Suppressing this as we've added up and down arrows for accessibility (in addition to drag support)
     @Override
     public void onBindViewHolder(final ReorderViewHolder holder, int position) {
 
@@ -69,24 +70,30 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
         // Add the reorder on-touch adapter
         String tableName = item.getName();
         if (tableName != null) {
-            // Get the parent view
-            LinearLayout parent = holder.view.findViewById(R.id.listElementParent);
 
-            // Start a drag whenever the handle view is touched
-            parent.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            mDragStartListener.onStartDrag(holder);
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            v.performClick();
-                            break;
+            // Move the view up when the up arrow is clicked
+            ImageView upArrowView = holder.view.findViewById(R.id.move_up_arrow);
+            upArrowView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    int clickIndex = holder.getAdapterPosition();
+                    if (clickIndex != 0) {
+                        onItemMove(clickIndex, clickIndex - 1);
                     }
-                    return false;
                 }
             });
+            upArrowView.setContentDescription(res.getString(R.string.reorder_move_up_context_desc, tableName));
+
+            // Move the view down when the down arrow is clicked
+            ImageView downArrowView = holder.view.findViewById(R.id.move_down_arrow);
+            downArrowView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    int clickIndex = holder.getAdapterPosition();
+                    if ((clickIndex + 1) < getItemCount()) {
+                        onItemMove(clickIndex, clickIndex + 1);
+                    }
+                }
+            });
+            downArrowView.setContentDescription(res.getString(R.string.reorder_move_down_context_desc, tableName));
         }
     }
 

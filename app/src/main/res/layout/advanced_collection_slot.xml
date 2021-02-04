@@ -1,66 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <RelativeLayout 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent" 
-        android:layout_height="fill_parent" >
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:id="@+id/section1" >  
-          <ImageView
-              android:id="@+id/coinImage"
-              android:layout_width="92dp"
-              android:layout_height="wrap_content"
-              android:contentDescription="@string/coin_slot_description" />
-
-            <!-- android:layout_alignParentTop="true" />-->
-          <TextView 
-            android:id="@+id/coinText" 
-            android:layout_width="92dp" 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <RelativeLayout
+        android:id="@+id/section1"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent">
+        <ImageView
+            android:id="@+id/coinImage"
+            android:layout_width="92dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/coin_slot_description" />
+        <!-- android:layout_alignParentTop="true" />-->
+        <TextView
+            android:id="@+id/coinText"
+            android:layout_width="92dp"
             android:layout_height="fill_parent"
             android:layout_below="@id/coinImage"
             android:gravity="center_horizontal"
             android:textSize="12sp" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_toRightOf="@id/section1"
-            android:layout_toEndOf="@id/section1"
-            android:id="@+id/section2">
-          <Spinner
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/section2"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_toEndOf="@id/section1"
+        android:layout_toRightOf="@id/section1"
+        android:layout_alignTop="@id/section1"
+        android:layout_alignBottom="@id/section1"
+        android:gravity="center">
+        <Spinner
             android:id="@+id/grade_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:prompt="@string/select_grade" />
-          <Spinner
+            android:minHeight="40dp"
+            android:prompt="@string/select_grade"/>
+        <Spinner
             android:id="@+id/quantity_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:layout_below="@id/grade_selector"
+            android:layout_alignRight="@id/grade_selector"
+            android:layout_alignEnd="@id/grade_selector"
             android:prompt="@string/select_quantity" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_toRightOf="@id/section2"
-            android:layout_toEndOf="@id/section2"
-            android:id="@+id/section3" > 
-          <EditText
-            android:id="@+id/notes_edit_text"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:inputType="textMultiLine"
-            android:imeOptions="actionDone|flagNoExtractUi"
-            android:scrollHorizontally="false"
-            android:minLines="5"
-            android:gravity="top|start"
-            android:hint="@string/notes"
-            android:textSize="14sp"
-            android:importantForAutofill="no">
-            <!-- actionDone will resend the keyboard after typing
-                 flagNoExtractUI will prevent the edittext from getting
-                                 huge in landscape mode -->
-          </EditText>
-        </RelativeLayout>
     </RelativeLayout>
+    <EditText
+        android:id="@+id/notes_edit_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="top|start"
+        android:hint="@string/notes"
+        android:imeOptions="actionDone|flagNoExtractUi"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:minLines="5"
+        android:scrollHorizontally="false"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/section2"
+        android:layout_toRightOf="@id/section2"
+        android:layout_alignTop="@id/section2"
+        android:layout_alignBottom="@id/section2">
+        <!-- actionDone will resend the keyboard after typing
+             flagNoExtractUI will prevent the edittext from getting
+                             huge in landscape mode -->
+    </EditText>
+</RelativeLayout>

@@ -2,110 +2,152 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
-
+    android:orientation="vertical">
     <EditText
         android:id="@+id/edit_enter_collection_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_collection_name"
         android:inputType="textCapWords"
-        android:importantForAutofill="no"/>
-
+        android:importantForAutofill="no"
+        android:paddingTop="20dp"
+        android:minHeight="50dp"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/select_collection_type" />
-
         <Spinner
             android:id="@+id/coin_selector"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/select_coin_type" />
+            android:prompt="@string/select_coin_type"
+            android:minHeight="50dp"/>
     </LinearLayout>
-
     <CheckBox
         android:id="@+id/check_show_mint_mark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/show_mint_mark" />
-
+        android:text="@string/show_mint_mark"
+        android:minHeight="40dp"/>
     <CheckBox
         android:id="@+id/check_edit_date_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/edit_date_range" />
-
+        android:text="@string/edit_date_range"
+        android:minHeight="40dp"/>
     <!-- Populated programmatically with any coin-specific options -->
     <LinearLayout
         android:id="@+id/customizable_checkbox_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowCheckbox1"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowCheckbox2"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowCheckbox3"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowCheckbox4"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowCheckbox5"
+            android:minHeight="40dp"/>
     </LinearLayout>
-
     <!-- The things below here can either appear or disappear based on
          the above options... Putting them at the end seems to be the
          most user-friendly. -->
-
     <!-- Populated programmatically with any coin-specific mint mark options -->
     <LinearLayout
         android:id="@+id/show_mint_mark_checkbox_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowMintMark1"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowMintMark2"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowMintMark3"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowMintMark4"
+            android:minHeight="40dp"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="ShowMintMark5"
+            android:minHeight="40dp"/>
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/start_year_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/enter_start_year"
             android:labelFor="@id/edit_start_year"/>
-
         <EditText
             android:id="@+id/edit_start_year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:hint="@string/enter_start_year"
-            android:importantForAutofill="no"/>
+            android:importantForAutofill="no"
+            android:minHeight="50dp"/>
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/stop_year_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/enter_stop_year"
             android:labelFor="@id/edit_stop_year"/>
-
         <EditText
             android:id="@+id/edit_stop_year"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:hint="@string/enter_stop_year"
-            android:importantForAutofill="no"/>
+            android:importantForAutofill="no"
+            android:minHeight="50dp"/>
     </LinearLayout>
-
     <Button
         android:id="@+id/create_page"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/create_page" />
+        android:text="@string/create_page"
+        android:minHeight="50dp"/>
 </LinearLayout>

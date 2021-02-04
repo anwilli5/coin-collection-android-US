@@ -1032,7 +1032,7 @@ public class MainActivity extends AppCompatActivity {
         private final Resources mRes;
 
         FrontAdapter(Context context, ArrayList<CollectionListInfo> items, int numberOfCollections) {
-            super(context, R.layout.list_element, R.id.textView1, items);
+            super(context, R.layout.list_element, R.id.collectionNameTextView, items);
             this.items = items;
             this.numberOfCollections = numberOfCollections;
             mRes = context.getResources();
@@ -1341,12 +1341,13 @@ public class MainActivity extends AppCompatActivity {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getResources().getString(R.string.info_overview));
+        builder.append(mRes.getString(R.string.info_overview));
         builder.append("\n\n");
         for(String attribution : attributions){
             builder.append(attribution);
             builder.append("\n\n");
         }
+        builder.append(mRes.getString(R.string.info_icons));
 
         return builder.toString();
     }
@@ -1404,22 +1405,22 @@ public class MainActivity extends AppCompatActivity {
         int total = item.getCollected();
         if (tableName != null) {
 
-            ImageView image = view.findViewById(R.id.imageView1);
+            ImageView image = view.findViewById(R.id.coinImageView);
             if (image != null) {
                 image.setBackgroundResource(item.getCoinImageIdentifier());
             }
 
-            TextView nameTextView = view.findViewById(R.id.textView1);
+            TextView nameTextView = view.findViewById(R.id.collectionNameTextView);
             if (nameTextView != null) {
                 nameTextView.setText(tableName);
             }
 
-            TextView progressTextView = view.findViewById(R.id.textView2);
+            TextView progressTextView = view.findViewById(R.id.progressTextView);
             if(progressTextView != null){
                 progressTextView.setText(res.getString(R.string.collection_completion_template, total, item.getMax()));
             }
 
-            TextView completionTextView = view.findViewById(R.id.textView3);
+            TextView completionTextView = view.findViewById(R.id.completeTextView);
             if(total >= item.getMax()){
                 // The collection is complete
                 if(completionTextView != null){

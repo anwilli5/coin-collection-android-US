@@ -161,8 +161,10 @@ class CoinSlotAdapter extends BaseAdapter {
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
 
-        // TODO Not sure if this improves accessibility, but better than nothing
-        coinImage.setContentDescription(mRes.getString(R.string.coin_content_desc_template, identifier, mint));
+        // Add an accessibility string to indicate that the coin has been found or not
+        String contextDesc = mRes.getString(coinSlot.isInCollectionStringRes());
+        contextDesc = mRes.getString(R.string.coin_content_desc_template, identifier, mint, contextDesc);
+        coinImage.setContentDescription(contextDesc);
 
         int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
         coinImage.setImageResource(imageIdentifier);
@@ -347,6 +349,11 @@ class CoinSlotAdapter extends BaseAdapter {
         notesEditText.setText(text);
         // http://stackoverflow.com/questions/6217378/place-cursor-at-the-end-of-text-in-edittext
         notesEditText.setSelection(text.length());
+
+        // Make the hint specific for this coin's notes field
+        String notes = mRes.getString(R.string.notes);
+        String contextDesc = mRes.getString(R.string.coin_content_desc_template, coinSlot.getIdentifier(), coinSlot.getMint(), notes);
+        notesEditText.setHint(contextDesc);
 
         // If the display is not locked, we also need to set up a TextWatcher so that we can know
         // when the user types into the notes field. Create one for each unique EditText

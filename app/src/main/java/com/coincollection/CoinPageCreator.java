@@ -23,20 +23,18 @@ package com.coincollection;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -47,12 +45,16 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import static com.coincollection.MainActivity.createAndShowHelpDialog;
 import static com.spencerpages.MainApplication.APP_NAME;
@@ -428,12 +430,8 @@ public class CoinPageCreator extends AppCompatActivity {
         // Create the ShowMintMark Checkboxes (even if they aren't needed right now)
         for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             // Instantiate a checkbox in the UI for this option
-            CheckBox box = new AppCompatCheckBox(this);
-            box.setLayoutParams(layoutParams);
-            box.setTag(optName);
+            CheckBox box = showMintMarksContainer.findViewWithTag(optName);
             box.setOnCheckedChangeListener(checkboxChangeListener);
-
-            showMintMarksContainer.addView(box);
         }
 
         // Add any stand-alone, customizable checkboxes
@@ -441,12 +439,8 @@ public class CoinPageCreator extends AppCompatActivity {
 
         for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
             // Instantiate a checkbox in the UI for this option
-            CheckBox box = new AppCompatCheckBox(this);
-            box.setLayoutParams(layoutParams);
-            box.setTag(optName);
+            CheckBox box = customizableCheckboxContainer.findViewWithTag(optName);
             box.setOnCheckedChangeListener(checkboxChangeListener);
-
-            customizableCheckboxContainer.addView(box);
         }
 
         // Make a filter to block out non-numeric characters

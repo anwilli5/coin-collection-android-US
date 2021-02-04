@@ -12,7 +12,9 @@
             android:id="@+id/navImageView"
             android:contentDescription="@string/coin_slot_description"
             android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp" />
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
        <TextView 
            android:layout_width="fill_parent" 
            android:layout_height="wrap_content"
