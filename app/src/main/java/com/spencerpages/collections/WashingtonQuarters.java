@@ -24,16 +24,19 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
-import com.spencerpages.MainApplication;
-import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
+import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.coincollection.CoinSlot.COIN_SLOT_WHERE_CLAUSE;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 public class WashingtonQuarters extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Quarters";
+    public static final String COLLECTION_TYPE = "Quarters";
 
     private static final Integer START_YEAR = 1932;
     private static final Integer STOP_YEAR = 1998;
@@ -44,14 +47,18 @@ public class WashingtonQuarters extends CollectionInfo {
     // TODO Replace with standard back when good image becomes available
     private static final int REVERSE_IMAGE = R.drawable.rev_1976_washington_quarter_unc;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -73,6 +80,7 @@ public class WashingtonQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -113,21 +121,33 @@ public class WashingtonQuarters extends CollectionInfo {
             }
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+
+    @Override
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
-                                           int oldVersion, int newVersion) {
+    @Override
+    public int getStartYear() {
+        return START_YEAR;
+    }
 
+    @Override
+    public int getStopYear() {
+        return STOP_YEAR;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                           int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
         int total = 0;
 
         if(oldVersion <= 2) {
             // Remove 1965 - 1967 D quarters
-            int value = db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1965", "D"});
-            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1966", "D"});
-            value += db.delete(tableName, "coinIdentifier=? AND coinMint=?", new String[]{"1967", "D"});
-            total = total - value;
+            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1965", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1966", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1967", "D"});
         }
 
         return total;

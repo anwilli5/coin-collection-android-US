@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
@@ -33,7 +34,7 @@ import java.util.HashMap;
 
 public class PresidentialDollars extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Presidential Dollars";
+    public static final String COLLECTION_TYPE = "Presidential Dollars";
 
     //TODO Need to update to Harry S. Truman - requires db update too
     private static final String[] PRES_COIN_IDENTIFIERS = {
@@ -132,12 +133,15 @@ public class PresidentialDollars extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.presidential_coin_obverse;
 
     //https://www.usmint.gov/mint_programs/%241coin/index1ea7.html?action=presDesignUse
-    private static final String ATTRIBUTION = "Presidential $1 Coin images from the United States Mint.";
+    private static final int ATTRIBUTION = R.string.attr_presidential_dollars;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = PRES_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -148,6 +152,7 @@ public class PresidentialDollars extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
@@ -162,6 +167,7 @@ public class PresidentialDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
@@ -183,11 +189,23 @@ public class PresidentialDollars extends CollectionInfo {
         }
     }
 
-    public String getAttributionString(){
+    @Override
+    public int getAttributionResId(){
         return ATTRIBUTION;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return 0;
+    }
+
+    @Override
+    public int getStopYear() {
+        return 0;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
         int total = 0;
 
@@ -201,7 +219,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Grover Cleveland 2");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if(oldVersion <= 3) {
@@ -214,7 +232,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Woodrow Wilson");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 4) {
@@ -227,7 +245,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Franklin D. Roosevelt");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 6) {
@@ -240,7 +258,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Lyndon B. Johnson");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 7) {
@@ -251,7 +269,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Gerald R. Ford");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 8) {
@@ -261,7 +279,7 @@ public class PresidentialDollars extends CollectionInfo {
             newCoinIdentifiers.add("Ronald Reagan");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         return total;

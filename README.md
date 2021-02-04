@@ -13,4 +13,10 @@ This app is available for free on the [Google Play App Store](https://play.googl
     </tr>
 </table>
 
+## Reporting issues
+Review our [open issues](https://github.com/anwilli5/coin-collection-android-US/issues) or
+[report a new issue](https://github.com/anwilli5/coin-collection-android-US/issues/new)
 
+## Development
+Contributions via Pull Requests are welcome! For more info about building the app, see the
+[Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)

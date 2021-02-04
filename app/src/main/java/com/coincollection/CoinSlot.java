@@ -40,27 +40,28 @@ public class CoinSlot implements Parcelable {
     // We will keep track of which items need to be pushed back
 
     // List holding whether each coin is in the collection
-    private boolean mInCollection;
+    private boolean mInCollection = false;
 
     // Lists needed to support the advanced view
     private boolean mIndexHasChanged = false;
 
     // In the database, we store the index into the grade and quantity arrays
     // so we can use these values efficiently.  For notes, we have to store the
-    private Integer mAdvancedGrades;
-    private Integer mAdvancedQuantities;
-    private String mAdvancedNotes;
+    // - Note: these default values must match the DB defaults
+    private Integer mAdvancedGrades = 0;
+    private Integer mAdvancedQuantities = 0;
+    private String mAdvancedNotes = "";
 
     // Database keys
     public final static String COL_COIN_IDENTIFIER = "coinIdentifier";
     public final static String COL_COIN_MINT = "coinMint";
-    final static String COL_IN_COLLECTION = "inCollection";
-    final static String COL_ADV_GRADE_INDEX = "advGradeIndex";
-    final static String COL_ADV_QUANTITY_INDEX = "advQuantityIndex";
-    final static String COL_ADV_NOTES = "advNotes";
+    public final static String COL_IN_COLLECTION = "inCollection";
+    public final static String COL_ADV_GRADE_INDEX = "advGradeIndex";
+    public final static String COL_ADV_QUANTITY_INDEX = "advQuantityIndex";
+    public final static String COL_ADV_NOTES = "advNotes";
 
     // Database helpers
-    final static String COIN_SLOT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
+    public final static String COIN_SLOT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
 
     public CoinSlot (String identifier, String mint, boolean inCollection, Integer advancedGrades,
                      Integer advancedQuantities, String advancedNotes) {
@@ -81,7 +82,6 @@ public class CoinSlot implements Parcelable {
     public CoinSlot (String identifier, String mint) {
         mIdentifier = identifier;
         mMint = mint;
-        mInCollection = false;
     }
 
     void setInCollection (boolean inCollection) {
@@ -116,15 +116,15 @@ public class CoinSlot implements Parcelable {
         return mIndexHasChanged;
     }
 
-    Integer getAdvancedGrades() {
+    public Integer getAdvancedGrades() {
         return mAdvancedGrades;
     }
 
-    Integer getAdvancedQuantities() {
+    public Integer getAdvancedQuantities() {
         return mAdvancedQuantities;
     }
 
-    String getAdvancedNotes() {
+    public String getAdvancedNotes() {
         return mAdvancedNotes;
     }
 
@@ -197,5 +197,14 @@ public class CoinSlot implements Parcelable {
             dest.writeInt(mAdvancedQuantities);
         }
         dest.writeString(mAdvancedNotes);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CoinSlot coinSlot = (CoinSlot) o;
+        return mIdentifier.equals(coinSlot.mIdentifier) &&
+                mMint.equals(coinSlot.mMint);
     }
 }

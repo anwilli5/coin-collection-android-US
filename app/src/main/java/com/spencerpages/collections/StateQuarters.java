@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -32,7 +33,7 @@ import java.util.HashMap;
 
 public class StateQuarters extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "State Quarters";
+    public static final String COLLECTION_TYPE = "State Quarters";
 
     private static final String[] STATES_COIN_IDENTIFIERS = {
             "Delaware",
@@ -140,7 +141,7 @@ public class StateQuarters extends CollectionInfo {
             { R.drawable.states_2008_hawaii_unc,        R.drawable.states_2008_hawaii_unc_25},
     };
 
-    private static final String[] DC_AND_TERR_COIN_IDENTIFIERS = {
+    public static final String[] DC_AND_TERR_COIN_IDENTIFIERS = {
             "District of Columbia",
             "Puerto Rico",
             "Guam",
@@ -173,12 +174,15 @@ public class StateQuarters extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.states_2001_north_carolina_unc;
 
     // https://www.usmint.gov/consumer/index091c.html?action=designPolicy
-    private static final String ATTRIBUTION = "Quarter-dollar coin images from the United States Mint.";
+    private static final int ATTRIBUTION = R.string.attr_state_quarters;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = STATES_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -189,6 +193,7 @@ public class StateQuarters extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
@@ -207,6 +212,7 @@ public class StateQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
@@ -245,11 +251,23 @@ public class StateQuarters extends CollectionInfo {
         }
     }
 
-    public String getAttributionString(){
+    @Override
+    public int getAttributionResId(){
         return ATTRIBUTION;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return 0;
+    }
+
+    @Override
+    public int getStopYear() {
+        return 0;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
         return 0;
     }

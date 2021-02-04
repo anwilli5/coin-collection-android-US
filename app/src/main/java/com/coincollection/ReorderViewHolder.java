@@ -21,16 +21,17 @@
 package com.coincollection;
 
 import android.graphics.Color;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import com.coincollection.helper.ItemTouchHelperViewHolder;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * ViewHolder used by the ReorderCollections Activity
  */
 public class ReorderViewHolder extends RecyclerView.ViewHolder implements
-        ItemTouchHelperViewHolder{
+        ItemTouchHelperViewHolder {
 
     public final View view;
 

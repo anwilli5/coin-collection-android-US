@@ -25,16 +25,19 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseHelper;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
 public class FirstSpouseGoldCoins extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "First Spouse Gold Coins";
+    public static final String COLLECTION_TYPE = "First Spouse Gold Coins";
 
     private static final String[] FS_COIN_IDENTIFIERS = {
             "Martha Washington",
@@ -142,10 +145,13 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.first_spouse_obverse;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = FS_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -156,22 +162,37 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
     }
 
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         for (String fsCoinIdentifier : FS_COIN_IDENTIFIERS) {
             coinList.add(new CoinSlot(fsCoinIdentifier, ""));
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+
+    @Override
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
-                                           int oldVersion, int newVersion) {
+    @Override
+    public int getStartYear() {
+        return 0;
+    }
 
+    @Override
+    public int getStopYear() {
+        return 0;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                           int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
         int total = 0;
 
         if(oldVersion <= 3) {
@@ -183,7 +204,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             newCoinIdentifiers.add("Frances Cleveland 2");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 4) {
@@ -197,7 +218,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             newCoinIdentifiers.add("Edith Wilson");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 6) {
@@ -210,7 +231,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             newCoinIdentifiers.add("Eleanor Roosevelt");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 7) {
@@ -223,7 +244,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             newCoinIdentifiers.add("Lady Bird Johnson");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 8) {
@@ -235,7 +256,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             newCoinIdentifiers.add("Nancy Reagan");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if(oldVersion <= 10){
@@ -243,20 +264,20 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             ContentValues values = new ContentValues();
 
             // Replace all the ’ characters with ' characters
-            values.put("coinIdentifier", "Thomas Jefferson's Liberty");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"Thomas Jefferson’s Liberty"});
+            values.put(COL_COIN_IDENTIFIER, "Thomas Jefferson's Liberty");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"Thomas Jefferson’s Liberty"});
             values.clear();
 
-            values.put("coinIdentifier", "Andrew Jackson's Liberty");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"Andrew Jackson’s Liberty"});
+            values.put(COL_COIN_IDENTIFIER, "Andrew Jackson's Liberty");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"Andrew Jackson’s Liberty"});
             values.clear();
 
-            values.put("coinIdentifier", "Martin Van Buren's Liberty");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"Martin Van Buren’s Liberty"});
+            values.put(COL_COIN_IDENTIFIER, "Martin Van Buren's Liberty");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"Martin Van Buren’s Liberty"});
             values.clear();
 
-            values.put("coinIdentifier", "James Buchanan's Liberty");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"James Buchanan’s Liberty"});
+            values.put(COL_COIN_IDENTIFIER, "James Buchanan's Liberty");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"James Buchanan’s Liberty"});
             values.clear();
 
         }

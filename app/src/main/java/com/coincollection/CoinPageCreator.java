@@ -20,8 +20,10 @@
 
 package com.coincollection;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -42,7 +44,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -53,28 +54,27 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
-import static com.coincollection.MainActivity.createAndShowHelpDialog;
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
  * Activity responsible for managing the collection creation page
  */
-public class CoinPageCreator extends AppCompatActivity {
+public class CoinPageCreator extends BaseActivity {
+
+    public final static String EXISTING_COLLECTION_EXTRA = "existing-collection";
 
     /** mCoinTypeIndex The index of the currently selected coin type in the
      *                 MainApplication.COLLECTION_TYPES list. */
-    private int mCoinTypeIndex;
+    public int mCoinTypeIndex;
 
     /** mCollectionObj The CollectionInfo object associated with this index. */
-    private CollectionInfo mCollectionObj;
+    public CollectionInfo mCollectionObj;
 
     /** mParameters The HashMap that is used to keep track of the changes that
      *              the user has requested (via the UI) to the default
      *              collection settings. */
-    private HashMap<String, Object> mParameters;
+    public HashMap<String, Object> mParameters;
 
     /** mDefaults The default parameters provided from a call to the current
      *             mCollectionObj getCreationParameters method. */
@@ -82,24 +82,13 @@ public class CoinPageCreator extends AppCompatActivity {
 
     /** mCoinList Upon selecting to create a collection, gets populated with coin identifiers
      *            and mint marks */
-    private final ArrayList<CoinSlot> mCoinList = new ArrayList<>();
-
-    /** mTask Holds the AsyncTask that we use to interact with the database (so that our database
-     *        activity doesn't run on the main thread and trigger an Application Not Responding
-     *        error.)  If we change screen orientation and our activity is going to be destroyed,
-     *        we have to save this off and pass it to the new activity. */
-    private AsyncProgressTask mTask = null;
-
-    /** mProgressDialog Holds the dialog that we display when the AsyncTask is running to update
-     *                  the database.
-     *                  TODO There are some issues with how we handle this dialog during the screen
-     *                  orientation change case. See other TODOs below and get this working
-     *                  correctly if it is indeed broken! */
-    private ProgressDialog mProgressDialog = null;
+    public ArrayList<CoinSlot> mCoinList = new ArrayList<>();
 
     /* Internal keys to use for passing data via saved instance state */
     private final static String _COIN_TYPE_INDEX = "CoinTypeIndex";
     private final static String _PARAMETERS = "Parameters";
+
+    public CollectionListInfo mExistingCollection = null;
 
     /** These are the options supported in the parameter HashMaps.  In general,
      *  this is how they work:
@@ -170,30 +159,28 @@ public class CoinPageCreator extends AppCompatActivity {
      *    to the checkbox (Ex: R.string.show_territories in the U.S. Coin
      *    Collection app)
      */
+
     public final static String OPT_SHOW_MINT_MARKS = "ShowMintMarks";
+    public final static String OPT_EDIT_DATE_RANGE = "EditDateRange";
+    public final static String OPT_START_YEAR = "StartYear";
+    public final static String OPT_STOP_YEAR = "StopYear";
+
     public final static String OPT_SHOW_MINT_MARK_1 = "ShowMintMark1";
     public final static String OPT_SHOW_MINT_MARK_2 = "ShowMintMark2";
     public final static String OPT_SHOW_MINT_MARK_3 = "ShowMintMark3";
     public final static String OPT_SHOW_MINT_MARK_4 = "ShowMintMark4";
     public final static String OPT_SHOW_MINT_MARK_5 = "ShowMintMark5";
-    public final static String OPT_EDIT_DATE_RANGE = "EditDateRange";
-    public final static String OPT_START_YEAR = "StartYear";
-    public final static String OPT_STOP_YEAR = "StopYear";
-    public final static String OPT_CHECKBOX_1 = "ShowCheckbox1";
-    public final static String OPT_CHECKBOX_2 = "ShowCheckbox2";
-    private final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
-    private final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
-    private final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
-
-    // TODO Is there a better way to pass this info?  Maybe we can
-    // store default values in each app's MainApplication and use
-    // those if not specified?
     public final static String OPT_SHOW_MINT_MARK_1_STRING_ID = "ShowMintMark1StringId";
     public final static String OPT_SHOW_MINT_MARK_2_STRING_ID = "ShowMintMark2StringId";
     public final static String OPT_SHOW_MINT_MARK_3_STRING_ID = "ShowMintMark3StringId";
     public final static String OPT_SHOW_MINT_MARK_4_STRING_ID = "ShowMintMark4StringId";
     public final static String OPT_SHOW_MINT_MARK_5_STRING_ID = "ShowMintMark5StringId";
 
+    public final static String OPT_CHECKBOX_1 = "ShowCheckbox1";
+    public final static String OPT_CHECKBOX_2 = "ShowCheckbox2";
+    private final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
+    private final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
+    private final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
     public final static String OPT_CHECKBOX_1_STRING_ID = "ShowCheckbox1StringId";
     public final static String OPT_CHECKBOX_2_STRING_ID = "ShowCheckbox2StringId";
     private final static String OPT_CHECKBOX_3_STRING_ID = "ShowCheckbox3StringId";
@@ -233,54 +220,38 @@ public class CoinPageCreator extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Set the actionbar so that clicking the icon takes you back (SO 1010877)
-        ActionBar actionBar = this.getSupportActionBar();
-        if (actionBar != null) {
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if (mActionBar != null) {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         setContentView(R.layout.collection_creation_page);
 
-        // NOTE: the UI is not fully inflated at this point (specifically, some
-        // of the checkboxes which are added programmatically have not been
-        // instantiated yet.)
+        // Get the existing collection info if provided
+        mExistingCollection = mCallingIntent.getParcelableExtra(EXISTING_COLLECTION_EXTRA);
 
         // Initialize our instance variables
-        if(savedInstanceState != null)
-        {
-            // Pull in enough of the saved state to initialize the UI
+        if (savedInstanceState != null) {
+            // Screen rotated - Load the previous settings
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
                     (HashMap<String, Object>) savedInstanceState.getSerializable(_PARAMETERS));
-
+        } else if (mExistingCollection != null) {
+            // Updating collection - Setup the parameters based on the existing collection
+            setInternalStateFromCollectionIndex(
+                    mExistingCollection.getCollectionTypeIndex(),
+                    getParametersFromCollectionListInfo(mExistingCollection));
         } else {
-            // Initialize mCoinTypeIndex and related internal state to index 0
+            // New collection - Setup default options
             setInternalStateFromCollectionIndex(0, null);
         }
 
-        // If we have an AsyncProgressTask already running, inherit it
-        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
+        // Restore the progress dialog if the previous task was running
+        if(mPreviousTask != null){
+            asyncProgressOnPreExecute();
+        }
 
-        // TODO If there is a screen orientation change, it looks like a mProgressDialog gets leaked. :(
-        if(check != null){
-            mTask = check;
-            // Change the task's listener to be the new activity. See note above AsyncTask
-            // definition for more info.
-            mTask.mListener = new AsyncProgressInterface() {
-                @Override
-                public void asyncProgressDoInBackground() {
-                    // Not needed here
-        }
-                @Override
-                public void asyncProgressOnPreExecute() {
-                    // Not needed here
-                }
-                @Override
-                public void asyncProgressOnPostExecute() {
-                    completeProgressDialogAndFinishActivity();
-                }
-            };
-            createProgressDialog();
-        }
+        // At this point the UI is ready to handle any async callbacks
+        setActivityReadyForAsyncCallbacks();
 
         // Next, we will finish setting up the various UI elements (creating
         // adapters, listeners, etc..  We won't set any of the values yet -
@@ -288,9 +259,7 @@ public class CoinPageCreator extends AppCompatActivity {
 
         // Prepare the Spinner that gets what type of collection they want to make
         ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-
-        for(int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++)
-        {
+        for(int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++) {
             spinnerAdapter.add(MainApplication.COLLECTION_TYPES[i].getCoinType());
         }
 
@@ -331,7 +300,6 @@ public class CoinPageCreator extends AppCompatActivity {
         // trigger this listener.
         //
         // Has worked on all the devices I've tested on (which are all Samsung devices)
-
         OnKeyListener hideKeyboardListener = new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 // If the event is a key-down event on the "enter" button
@@ -351,10 +319,13 @@ public class CoinPageCreator extends AppCompatActivity {
         // Set the OnKeyListener for the EditText
         final EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
         nameEditText.setOnKeyListener(hideKeyboardListener);
-
         // Make a filter to block out bad characters
         InputFilter nameFilter = getCollectionNameFilter();
         nameEditText.setFilters(new InputFilter[]{nameFilter});
+        // Set the name if editing an existing collection
+        if (mExistingCollection != null && savedInstanceState == null) {
+            nameEditText.setText(mExistingCollection.getName());
+        }
 
         // Set the listener for the show mint mark checkbox
         final CheckBox showMintMarkCheckBox = findViewById(R.id.check_show_mint_mark);
@@ -422,12 +393,8 @@ public class CoinPageCreator extends AppCompatActivity {
             }
         };
 
-        // Instantiate a LayoutParams for the simple checkboxes
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        LinearLayout showMintMarksContainer = findViewById(R.id.show_mint_mark_checkbox_container);
-
         // Create the ShowMintMark Checkboxes (even if they aren't needed right now)
+        LinearLayout showMintMarksContainer = findViewById(R.id.show_mint_mark_checkbox_container);
         for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             // Instantiate a checkbox in the UI for this option
             CheckBox box = showMintMarksContainer.findViewWithTag(optName);
@@ -436,7 +403,6 @@ public class CoinPageCreator extends AppCompatActivity {
 
         // Add any stand-alone, customizable checkboxes
         LinearLayout customizableCheckboxContainer = findViewById(R.id.customizable_checkbox_container);
-
         for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
             // Instantiate a checkbox in the UI for this option
             CheckBox box = customizableCheckboxContainer.findViewWithTag(optName);
@@ -458,14 +424,12 @@ public class CoinPageCreator extends AppCompatActivity {
 
         // Make a filter limiting the year text fields to 4 characters
         InputFilter yearLengthFilter = new InputFilter.LengthFilter(4);
-
         InputFilter[] yearEditTextFilters = new InputFilter[]{digitFilter, yearLengthFilter};
 
         // Set the OnKeyListener and InputFilters for the EditText
         final EditText startYearEditText = findViewById(R.id.edit_start_year);
         startYearEditText.setOnKeyListener(hideKeyboardListener);
         startYearEditText.setFilters(yearEditTextFilters);
-
         startYearEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
@@ -487,7 +451,6 @@ public class CoinPageCreator extends AppCompatActivity {
         final EditText stopYearEditText = findViewById(R.id.edit_stop_year);
         stopYearEditText.setOnKeyListener(hideKeyboardListener);
         stopYearEditText.setFilters(yearEditTextFilters);
-
         stopYearEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
@@ -506,89 +469,22 @@ public class CoinPageCreator extends AppCompatActivity {
         });
 
         final Button makeCollectionButton = findViewById(R.id.create_page);
+        if (mExistingCollection != null) {
+            makeCollectionButton.setText(R.string.update_page);
+        }
         makeCollectionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //Go ahead and grab what is in the EditText
-                final String collectionName = nameEditText.getText().toString();
-
-                // Perform action on click
-                if(collectionName.equals("")){
-                    Toast.makeText(CoinPageCreator.this, "Please enter a name for the collection", Toast.LENGTH_SHORT).show();
-                    return;
+                if (mExistingCollection == null) {
+                    // Create new collections right away without displaying any warnings
+                    performCreateOrUpdateCollection();
+                } else {
+                    showUpdateCollectionsWarning();
                 }
-
-                // Validate the last year in the collection, if necessary
-                if(mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
-                        mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE){
-
-                    boolean result = validateStartAndStopYears();
-                    if(!result){
-                        // The function will have already displayed a toast, so return
-                        return;
-                    }
-                }
-
-                // Ensure that at least one mint mark is selected
-                if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
-                        mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
-
-                    boolean atLeastOneMintMarkSelected = false;
-                    for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
-                        if (mParameters.containsKey(optName) && mParameters.get(optName) == Boolean.TRUE) {
-                            atLeastOneMintMarkSelected = true;
-                            break;
-                        }
-                    }
-
-                    if(!atLeastOneMintMarkSelected){
-
-                        Toast.makeText(CoinPageCreator.this, "Please select at least one mint to collect coins from", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    // Otherwise, good to go
-                }
-
-                //Get a list of all the database tables
-
-                // TODO Move this into the AsyncTask so that we don't have to do two calls
-                // to open the db
-                // Open it again.  This one shouldn't take long
-                DatabaseAdapter dbAdapter = new DatabaseAdapter(CoinPageCreator.this);
-                dbAdapter.open();
-                String checkNameResult = dbAdapter.checkCollectionName(collectionName);
-                if(!checkNameResult.equals("")){
-                    Toast.makeText(CoinPageCreator.this, checkNameResult, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                final int newDisplayOrder = dbAdapter.getNextDisplayOrder();
-                dbAdapter.close();
-
-                //Now actually set up the mIdentifierList and mMintList
-                populateCollectionArrays();
-                mTask = new AsyncProgressTask(new AsyncProgressInterface() {
-                    @Override
-                    public void asyncProgressDoInBackground() {
-                        // Create the table in the database
-                        final String aCoinType = mCollectionObj.getCoinType();
-                        createNewTable(collectionName, aCoinType, mCoinList, newDisplayOrder);
-                    }
-                    @Override
-                    public void asyncProgressOnPreExecute() {
-                        createProgressDialog();
-                    }
-                    @Override
-                    public void asyncProgressOnPostExecute() {
-                        completeProgressDialogAndFinishActivity();
-                    }
-                });
-                mTask.execute();
-
-                // Wait for it to finish and trigger the callback method
             }
         });
 
         // Create help dialog to create a new collection
-        createAndShowHelpDialog("first_Time_screen2", R.string.tutorial_select_coin_and_create, this);
+        createAndShowHelpDialog("first_Time_screen2", R.string.tutorial_select_coin_and_create);
 
         // Finally, update the UI element values and display state
         // (VISIBLE vs. GONE) of the UI from the internal state.
@@ -597,7 +493,161 @@ public class CoinPageCreator extends AppCompatActivity {
         if(BuildConfig.DEBUG) {
             Log.d(APP_NAME, "Finished in onCreate");
         }
+    }
 
+    /**
+     * Show a warning (if needed) before updating an existing collection
+     */
+    void showUpdateCollectionsWarning() {
+
+        int warningResId = -1;
+        // Show a warning if trying to change an existing collection's type
+        if (mExistingCollection.getCollectionTypeIndex() != mCoinTypeIndex) {
+            warningResId = R.string.warning_collection_type_change;
+        }
+
+        // Show a warning if changing the dates would remove some coins
+        if (warningResId == -1 &&
+                CollectionListInfo.doesCollectionTypeUseDates(mExistingCollection.getType())) {
+            Integer newStartYear = (Integer) mParameters.get(OPT_START_YEAR);
+            Integer newStopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
+            if (newStartYear == null || newStopYear == null) {
+                return;
+            } else if (  (mExistingCollection.getStartYear() < newStartYear)
+                      || (mExistingCollection.getEndYear() > newStopYear)) {
+                warningResId = R.string.warning_collection_dates_change;
+            }
+        }
+
+        // Show a warning if changing the mint marks would remove some coins
+        if (warningResId == -1) {
+            int mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
+            int checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
+            if (mExistingCollection.checkIfNewFlagsRemoveCoins(mintMarkFlags, checkboxFlags)) {
+                warningResId = R.string.warning_collection_options_changed;
+            }
+        }
+
+        if (warningResId != -1) {
+            // Display a warning before updating
+            mBuilder = new AlertDialog.Builder(this);
+            mBuilder.setMessage(mRes.getString(warningResId))
+                    .setCancelable(false)
+                    .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Update collection
+                            performCreateOrUpdateCollection();
+                        }
+                    })
+                    .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Abort
+                            dialog.cancel();
+                        }
+                    });
+            showAlert();
+        } else {
+            // Update without displaying a warning
+            performCreateOrUpdateCollection();
+        }
+    }
+
+    /**
+     * Performs the create or update collection
+     * - Run this after displaying any warnings to the user
+     */
+    void performCreateOrUpdateCollection() {
+
+        // Go ahead and grab what is in the EditText
+        EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
+        String collectionName = nameEditText.getText().toString();
+
+        // Perform action on click
+        if(collectionName.equals("")){
+            Toast.makeText(CoinPageCreator.this,
+                    mRes.getString(R.string.error_missing_name),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate the last year in the collection, if necessary
+        if(mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
+                mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE){
+
+            if(!validateStartAndStopYears()){
+                // The function will have already displayed a toast, so return
+                return;
+            }
+        }
+
+        // Ensure that at least one mint mark is selected
+        if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
+                mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
+
+            boolean atLeastOneMintMarkSelected = false;
+            for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
+                if (mParameters.containsKey(optName) && mParameters.get(optName) == Boolean.TRUE) {
+                    atLeastOneMintMarkSelected = true;
+                    break;
+                }
+            }
+
+            if(!atLeastOneMintMarkSelected){
+                Toast.makeText(CoinPageCreator.this,
+                        mRes.getString(R.string.error_no_mint_selected),
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        // Make sure the collection name is good to use
+        int checkNameResult = mDbAdapter.checkCollectionName(collectionName);
+
+        // Allow updates to the same collection name
+        boolean allowExistingNameForUpdate = (mExistingCollection != null) &&
+                (checkNameResult == R.string.collection_name_exists) &&
+                (collectionName.equals(mExistingCollection.getName()));
+
+        if (checkNameResult != -1 && !allowExistingNameForUpdate) {
+            Toast.makeText(CoinPageCreator.this,
+                    mRes.getString(checkNameResult),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Passed all checks - start the creation/update and wait for callbacks to be called
+        kickOffAsyncProgressTask(TASK_CREATE_UPDATE_COLLECTION);
+    }
+
+    @Override
+    public int asyncProgressDoInBackground() {
+
+        // Go ahead and grab what is in the EditText
+        EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
+        String collectionName = nameEditText.getText().toString();
+
+        // Get the new display order for new collections (display order is preserved
+        // for existing collections)
+        int newDisplayOrder = (mExistingCollection == null) ?
+                mDbAdapter.getNextDisplayOrder() : 0;
+
+        // Create the coin list or update the existing list
+        createOrUpdateCoinListForAsyncThread();
+
+        // Create or modify the database
+        CollectionListInfo collectionListInfo = getCollectionInfoFromParameters(collectionName);
+        return asyncCreateOrUpdateCollection(collectionListInfo, mCoinList, newDisplayOrder);
+    }
+
+    @Override
+    public void asyncProgressOnPreExecute() {
+        createProgressDialog(mRes.getString(R.string.creating_collection));
+    }
+
+    @Override
+    public void asyncProgressOnPostExecute(int errorResId) {
+        super.asyncProgressOnPostExecute(errorResId);
+        completeProgressDialogAndFinishActivity();
     }
 
     /** Returns an input filter for sanitizing collection names
@@ -625,7 +675,7 @@ public class CoinPageCreator extends AppCompatActivity {
      *                   values based on the new collection type.
      *
      */
-    private void setInternalStateFromCollectionIndex(int index, HashMap<String, Object> parameters){
+    private void setInternalStateFromCollectionIndex(int index, HashMap<String, Object> parameters) {
 
         mCoinTypeIndex = index;
 
@@ -638,7 +688,6 @@ public class CoinPageCreator extends AppCompatActivity {
         if (parameters == null) {
             mParameters = new HashMap<>();
             mCollectionObj.getCreationParameters(mParameters);
-
         } else {
             // Allow the parameters to be passed in for things like testing and on screen rotation
             mParameters = parameters;
@@ -781,9 +830,8 @@ public class CoinPageCreator extends AppCompatActivity {
         if(stopYear > maxStartYear){
 
             Toast.makeText(CoinPageCreator.this,
-                "Highest possible ending year is " + maxStartYear +
-                        ".  Note, new years will automatically be added as they come.",
-                Toast.LENGTH_LONG).show();
+                    mRes.getString(R.string.error_ending_year_too_high, maxStartYear),
+                    Toast.LENGTH_LONG).show();
 
             mParameters.put(OPT_STOP_YEAR, maxStartYear);
             editStopYear.setText(String.valueOf(maxStartYear));
@@ -792,9 +840,8 @@ public class CoinPageCreator extends AppCompatActivity {
         if(stopYear < minStartYear){
 
             Toast.makeText(CoinPageCreator.this,
-                "Ending year can't be less than the collection starting year (" + minStartYear +
-                        ")",
-                Toast.LENGTH_SHORT).show();
+                    mRes.getString(R.string.error_ending_year_too_low, minStartYear),
+                    Toast.LENGTH_SHORT).show();
 
             mParameters.put(OPT_STOP_YEAR, maxStartYear);
             editStopYear.setText(String.valueOf(maxStartYear));
@@ -804,8 +851,8 @@ public class CoinPageCreator extends AppCompatActivity {
         if(startYear < minStartYear){
 
             Toast.makeText(CoinPageCreator.this,
-                "Lowest possible starting year is " + minStartYear,
-                Toast.LENGTH_LONG).show();
+                    mRes.getString(R.string.error_starting_year_too_low, minStartYear),
+                    Toast.LENGTH_LONG).show();
 
             mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(String.valueOf(minStartYear));
@@ -814,9 +861,8 @@ public class CoinPageCreator extends AppCompatActivity {
         } else if(startYear > maxStartYear){
 
             Toast.makeText(CoinPageCreator.this,
-                "Starting year can't be greater than the collection ending year (" + maxStartYear +
-                        ")",
-                Toast.LENGTH_SHORT).show();
+                    mRes.getString(R.string.error_starting_year_too_high, maxStartYear),
+                    Toast.LENGTH_SHORT).show();
 
             mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(String.valueOf(minStartYear));
@@ -825,7 +871,9 @@ public class CoinPageCreator extends AppCompatActivity {
 
         // Finally, validate them with respect to each other
         if(startYear > stopYear){
-            Toast.makeText(CoinPageCreator.this, "Starting year can't be greater than the ending year", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CoinPageCreator.this,
+                    mRes.getString(R.string.error_start_gt_end_year),
+                    Toast.LENGTH_SHORT).show();
 
             mParameters.put(OPT_START_YEAR, minStartYear);
             editStartYear.setText(String.valueOf(minStartYear));
@@ -842,9 +890,180 @@ public class CoinPageCreator extends AppCompatActivity {
      *  Helper function to call the make collection method corresponding to the creation parameters
      *  NOTE: This is public so we can use it with our current test bench
      */
-    private void populateCollectionArrays(){
-
+    public void createOrUpdateCoinListForAsyncThread() {
         mCollectionObj.populateCollectionLists(mParameters, mCoinList);
+        if (mExistingCollection != null && mExistingCollection.getCollectionTypeIndex() == mCoinTypeIndex) {
+            // If the user is modifying a collection and has selected the same type of coin,
+            // preserve any data they may have already entered
+            ArrayList<CoinSlot> existingCoinList = mDbAdapter.getCoinList(
+                    mExistingCollection.getName(), true);
+            for (int i = 0; i < mCoinList.size(); i++) {
+                for (int j = 0; j < existingCoinList.size(); j++) {
+                    CoinSlot existingCoin = existingCoinList.get(j);
+                    if (mCoinList.get(i).equals(existingCoin)) {
+                        mCoinList.set(i, existingCoin);
+                        existingCoinList.remove(j);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns mint mark flags based on the parameters
+     * @param parameters the user-selected parameters
+     * @return mint mark flags
+     */
+    public static int getMintMarkFlagsFromParameters(HashMap<String, Object> parameters) {
+        int mintMarkFlags = 0;
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+            Boolean optionValue = (Boolean) parameters.get(optName);
+            Integer optionStrId = (Integer) parameters.get(stringIdOptName);
+            if (optionValue == null || optionStrId == null) {
+                continue;
+            }
+            if (optionValue) {
+                if (optionStrId.equals(R.string.include_p)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_P;
+                } else if (optionStrId.equals(R.string.include_d)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_D;
+                } else if (optionStrId.equals(R.string.include_s)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_S;
+                } else if (optionStrId.equals(R.string.include_o)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_O;
+                } else if (optionStrId.equals(R.string.include_cc)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_CC;
+                }
+            }
+        }
+        // Show mint marks is included in mint mark flags as well
+        Boolean optMintMarks = (Boolean) parameters.get(OPT_SHOW_MINT_MARKS);
+        if(optMintMarks != null && optMintMarks){
+            mintMarkFlags |= CollectionListInfo.SHOW_MINT_MARKS;
+        }
+        return mintMarkFlags;
+    }
+
+    /**
+     * Returns checkbox flags based on the parameters
+     * @param parameters the user-selected parameters
+     * @return checkbox flags
+     */
+    public static int getCheckboxFlagsFromParameters(HashMap<String, Object> parameters) {
+        int checkboxFlags = 0;
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+            Boolean optionValue = (Boolean) parameters.get(optName);
+            Integer optionStrId = (Integer) parameters.get(stringIdOptName);
+            if (optionValue == null || optionStrId == null) {
+                continue;
+            }
+            if (optionValue) {
+                if (optionStrId.equals(R.string.check_show_burnished_eagles)) {
+                    checkboxFlags |= CollectionListInfo.BURNISHED;
+                } else if (optionStrId.equals(R.string.show_territories)) {
+                    checkboxFlags |= CollectionListInfo.TERRITORIES;
+                }
+            }
+        }
+        // Custom dates is included in checkbox flags as well
+        Boolean optEditDateRange = (Boolean) parameters.get(OPT_EDIT_DATE_RANGE);
+        if(optEditDateRange != null && optEditDateRange){
+            checkboxFlags |= CollectionListInfo.CUSTOM_DATES;
+        }
+        return checkboxFlags;
+    }
+
+    /**
+     * Returns a new CollectionListInfo object populated based on parameters and existing collection
+     * @param collectionName the new or modified collection name
+     * @return the CollectionListInfo object
+     */
+    public CollectionListInfo getCollectionInfoFromParameters(String collectionName){
+        int totalCollected = 0;
+        for (CoinSlot coinSlot : mCoinList) {
+            totalCollected += coinSlot.isInCollectionInt();
+        }
+        int mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
+        int checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
+        int displayType = (mExistingCollection != null)
+                ? mExistingCollection.getDisplayType() : SIMPLE_DISPLAY;
+        Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
+        Integer stopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
+        return new CollectionListInfo(
+                collectionName,
+                mCoinList.size(),
+                totalCollected,
+                mCoinTypeIndex,
+                displayType,
+                (startYear != null) ? startYear : 0,
+                (stopYear != null) ? stopYear : 0,
+                mintMarkFlags,
+                checkboxFlags);
+    }
+
+    /**
+     * Returns a parameters HashMap based on an existing collection
+     * @param existingCollection the existing collection
+     * @return HashMap containing parameters
+     */
+    public static HashMap<String, Object> getParametersFromCollectionListInfo(CollectionListInfo existingCollection) {
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        existingCollection.getCollectionObj().getCreationParameters(parameters);
+        if (parameters.containsKey(OPT_SHOW_MINT_MARKS)) {
+            parameters.put(OPT_SHOW_MINT_MARKS, existingCollection.hasMintMarks());
+        }
+        if (parameters.containsKey(OPT_EDIT_DATE_RANGE)) {
+            parameters.put(OPT_EDIT_DATE_RANGE, existingCollection.hasCustomDates());
+        }
+        if (parameters.containsKey(OPT_START_YEAR)) {
+            parameters.put(OPT_START_YEAR, existingCollection.getStartYear());
+        }
+        if (parameters.containsKey(OPT_STOP_YEAR)) {
+            parameters.put(OPT_STOP_YEAR, existingCollection.getEndYear());
+        }
+        // Mint marks
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            if (!parameters.containsKey(optName)) {
+                continue;
+            }
+            String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+            Integer optionStrId = (Integer) parameters.get(stringIdOptName);
+            if (optionStrId == null) {
+                continue;
+            }
+            if (optionStrId.equals(R.string.include_p)) {
+                parameters.put(optName, existingCollection.hasPMintMarks());
+            } else if (optionStrId.equals(R.string.include_d)) {
+                parameters.put(optName, existingCollection.hasDMintMarks());
+            } else if (optionStrId.equals(R.string.include_s)) {
+                parameters.put(optName, existingCollection.hasSMintMarks());
+            } else if (optionStrId.equals(R.string.include_o)) {
+                parameters.put(optName, existingCollection.hasOMintMarks());
+            } else if (optionStrId.equals(R.string.include_cc)) {
+                parameters.put(optName, existingCollection.hasCCMintMarks());
+            }
+        }
+        // Checkboxes
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+            if (!parameters.containsKey(optName)) {
+                continue;
+            }
+            String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
+            Integer optionStrId = (Integer) parameters.get(stringIdOptName);
+            if (optionStrId == null) {
+                continue;
+            }
+            if (optionStrId.equals(R.string.check_show_burnished_eagles)) {
+                parameters.put(optName, existingCollection.hasBurnishedCoins());
+            } else if (optionStrId.equals(R.string.show_territories)) {
+                parameters.put(optName, existingCollection.hasTerritoryCoins());
+            }
+        }
+        return parameters;
     }
 
     @Override
@@ -857,73 +1076,26 @@ public class CoinPageCreator extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
         }
     }
-    
-    @Override
-    public Object onRetainCustomNonConfigurationInstance(){
-
-        if(mProgressDialog != null && mProgressDialog.isShowing()){
-            mProgressDialog.dismiss();
-            return mTask;
-        } else {
-            // No dialog showing, do nothing
-            return null;
-        }
-    }
-
-    @Override
-    public void onDestroy(){
-
-        // TODO Not a perfect solution, but assuming this gets called, we should cut down on the
-        // race condition inherent in how we do our AsyncTask
-        if(mTask != null) {
-            mTask.mListener = null;
-        }
-        super.onDestroy();
-
-    }
 
     /**
      * Create a database table for a new collection
-     * @param tableName Name of the table
-     * @param coinType Type of coin
+     * @param collectionListInfo The collection details
      * @param coinList List of coin slots
      * @param displayOrder Display order of the collection
+     * @return -1 if successful, otherwise an error resource ID
      */
-    public void createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList,
-                                      int displayOrder){
-        // Open it again.  This one shouldn't take long
-        DatabaseAdapter dbAdapter = new DatabaseAdapter(this);
-        dbAdapter.open();
-        dbAdapter.createNewTable(tableName, coinType, coinList, displayOrder);
-        dbAdapter.close();
-    }
-
-    /**
-     * Create a new progress dialog for initial collection creation
-     */
-    private void createProgressDialog(){
-        if (mProgressDialog != null){
-            // Progress bar already being displayed
-            return;
-        }
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage("Creating Collection...");
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setProgress(0);
-        mProgressDialog.show();
-    }
-
-    /**
-     * Hide the dialog and finish the activity
-     */
-    private void completeProgressDialogAndFinishActivity(){
-        if(mProgressDialog != null) {
-            if (mProgressDialog.isShowing()) {
-                mProgressDialog.dismiss();
+    public int asyncCreateOrUpdateCollection(CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinList,
+                                             int displayOrder){
+        try {
+            if (mExistingCollection == null) {
+                mDbAdapter.createAndPopulateNewTable(collectionListInfo, displayOrder, coinList);
+            } else {
+                String oldTableName = mExistingCollection.getName();
+                mDbAdapter.updateExistingCollection(oldTableName, collectionListInfo, coinList);
             }
-            mProgressDialog = null;
+        } catch (SQLException e) {
+            return R.string.error_creating_database;
         }
-        this.finish();
+        return -1;
     }
 }

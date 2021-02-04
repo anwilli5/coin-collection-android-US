@@ -23,7 +23,21 @@ package com.coincollection;
  * Interface used for AsyncProgressTask to communicate with activity
  */
 public interface AsyncProgressInterface {
-    void asyncProgressDoInBackground();
+    /**
+     * Method to perform on the async thread
+     * @return -1 if successful, otherwise an error resource id to display
+     */
+    int asyncProgressDoInBackground();
+
+    /**
+     * Method to perform on the UI thread ahead of the async task
+     */
     void asyncProgressOnPreExecute();
-    void asyncProgressOnPostExecute();
+
+    /**
+     * Method to perform on the UI thread after of the async task
+     * This method should check the
+     * @param errorResId error resource id if != -1
+     */
+    void asyncProgressOnPostExecute(int errorResId);
 }

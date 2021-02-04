@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.coincollection.helper.ItemTouchHelperAdapter;
-import com.coincollection.helper.OnStartDragListener;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -42,12 +41,10 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
         implements ItemTouchHelperAdapter {
     private final ArrayList<CollectionListInfo> mItems;
-    private final OnStartDragListener mDragStartListener;
 
-    ReorderAdapter(ArrayList<CollectionListInfo> items, OnStartDragListener dragStartListener) {
+    ReorderAdapter(ArrayList<CollectionListInfo> items) {
         super();
         mItems = items;
-        mDragStartListener = dragStartListener;
     }
 
     @Override

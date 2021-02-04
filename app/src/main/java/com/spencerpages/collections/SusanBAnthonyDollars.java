@@ -24,16 +24,19 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
-import com.spencerpages.MainApplication;
-import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
+import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 public class SusanBAnthonyDollars extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Susan B. Anthony Dollars";
+    public static final String COLLECTION_TYPE = "Susan B. Anthony Dollars";
 
     private static final Integer START_YEAR = 1979;
     private static final Integer STOP_YEAR = 1999;
@@ -43,14 +46,18 @@ public class SusanBAnthonyDollars extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.rev_susan_b_anthony_unc;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -72,6 +79,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -107,18 +115,31 @@ public class SusanBAnthonyDollars extends CollectionInfo {
             }
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+
+    @Override
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return START_YEAR;
+    }
+
+    @Override
+    public int getStopYear() {
+        return STOP_YEAR;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
         int total = 0;
 
         if(oldVersion <= 2) {
             // Remove 1982 Susan B Anthony's
-            int value = db.delete(tableName, "coinIdentifier=?", new String[]{"1982"});
-            total = total - value;
+            total -= runSqlDelete(db, tableName, COL_COIN_IDENTIFIER + "=?", new String[]{"1982"});
         }
 
         return total;

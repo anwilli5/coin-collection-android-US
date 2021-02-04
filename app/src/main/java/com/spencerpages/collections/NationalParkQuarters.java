@@ -26,16 +26,19 @@ import android.database.sqlite.SQLiteDatabase;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseHelper;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
 public class NationalParkQuarters extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "National Park Quarters";
+    public static final String COLLECTION_TYPE = "National Park Quarters";
 
     private static final Object[][] PARKS_IMAGE_IDENTIFIERS = {
             {"Hot Springs",           R.drawable.parks_2010_hot_springs_unc,            R.drawable.parks_2010_hot_springs_unc_25},
@@ -110,10 +113,13 @@ public class NationalParkQuarters extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.parks_2010_grand_canyon_unc;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = PARKS_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -124,6 +130,7 @@ public class NationalParkQuarters extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
@@ -139,6 +146,7 @@ public class NationalParkQuarters extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
@@ -161,13 +169,26 @@ public class NationalParkQuarters extends CollectionInfo {
             }
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+
+    @Override
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
-                                           int oldVersion, int newVersion) {
+    @Override
+    public int getStartYear() {
+        return 0;
+    }
 
+    @Override
+    public int getStopYear() {
+        return 0;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                           int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
         int total = 0;
 
         if(oldVersion <= 2) {
@@ -180,7 +201,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Denali");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if(oldVersion <= 3) {
@@ -193,7 +214,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Mount Rushmore");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 4) {
@@ -207,7 +228,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Everglades");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 6) {
@@ -221,7 +242,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Saratoga");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 7) {
@@ -235,7 +256,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Fort Moultrie");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 8) {
@@ -249,7 +270,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("George Rogers Clark");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if(oldVersion <= 10){
@@ -257,12 +278,12 @@ public class NationalParkQuarters extends CollectionInfo {
             ContentValues values = new ContentValues();
 
             // Replace all the ’ characters with ' characters
-            values.put("coinIdentifier", "Perry's Victory");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"Perry’s Victory"});
+            values.put(COL_COIN_IDENTIFIER, "Perry's Victory");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"Perry’s Victory"});
             values.clear();
 
-            values.put("coinIdentifier", "Harper's Ferry");
-            db.update(tableName, values, "coinIdentifier=?", new String[]{"Harper’s Ferry"});
+            values.put(COL_COIN_IDENTIFIER, "Harper's Ferry");
+            runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"Harper’s Ferry"});
             values.clear();
         }
 
@@ -277,7 +298,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Block Island");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 12) {
@@ -291,7 +312,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("River of No Return");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         if (oldVersion <= 13) {
@@ -305,7 +326,7 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Tallgrass Prairie");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         return total;
