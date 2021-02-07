@@ -192,7 +192,7 @@ public class CoinPageCreator extends BaseActivity {
      *
      * TODO Make this easier to maintain, but make sure it doesn't break database
      *      upgrade functionality */
-    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2020;
+    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2021;
 
 
     private final static HashMap<String,String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
@@ -675,7 +675,7 @@ public class CoinPageCreator extends BaseActivity {
      *                   values based on the new collection type.
      *
      */
-    private void setInternalStateFromCollectionIndex(int index, HashMap<String, Object> parameters) {
+    public void setInternalStateFromCollectionIndex(int index, HashMap<String, Object> parameters) {
 
         mCoinTypeIndex = index;
 
@@ -811,7 +811,7 @@ public class CoinPageCreator extends BaseActivity {
      *        vars so that we can use this before the listeners have been created (or if no
      *        listeners will be created, in the case of testing.)
      */
-    private boolean validateStartAndStopYears(){
+    public boolean validateStartAndStopYears(){
 
         EditText editStartYear = findViewById(R.id.edit_start_year);
         EditText editStopYear = findViewById(R.id.edit_stop_year);

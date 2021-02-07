@@ -42,6 +42,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.spencerpages.BuildConfig;
@@ -55,12 +61,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import static com.coincollection.CollectionListInfo.COL_NAME;
 import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
@@ -243,25 +243,7 @@ public class MainActivity extends BaseActivity {
                             handleExportCollectionsPart1();
                             break;
                         case REORDER_COLLECTIONS:
-
-                            if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-
-                            // Get a list that excludes the spacers
-                            List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
-                            ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
-
-                            ReorderCollections fragment = new ReorderCollections();
-                            fragment.setCollectionList(collections);
-
-                            // Show the fragment used for reordering collections
-                            getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.main_activity_frame, fragment, REORDER_COLLECTION)
-                                    .addToBackStack(null)
-                                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                    .commit();
+                            launchReorderFragment();
                             break;
                         case ABOUT:
 
@@ -407,6 +389,10 @@ public class MainActivity extends BaseActivity {
         switch (mTask.mAsyncTaskId) {
             case TASK_OPEN_DATABASE: {
                 updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+                // If the collection has coins then show the more options help (if not yet shown)
+                if (mCollectionListEntries.size() > 0) {
+                    createAndShowHelpDialog("first_Time_screen4", R.string.tutorial_more_options);
+                }
                 break;
             }
             case TASK_IMPORT_COLLECTIONS: {
@@ -420,12 +406,14 @@ public class MainActivity extends BaseActivity {
     /**
      * Launches the collection page for a collection list entry
      * @param listEntry The collection to view
+     * @return Intent (used for testing)
      */
-    private void launchCoinPageActivity(CollectionListInfo listEntry) {
+    public Intent launchCoinPageActivity(CollectionListInfo listEntry) {
         Intent intent = new Intent(mContext, CollectionPage.class);
         intent.putExtra(CollectionPage.COLLECTION_NAME, listEntry.getName());
         intent.putExtra(CollectionPage.COLLECTION_TYPE_INDEX, listEntry.getCollectionTypeIndex());
         startActivity(intent);
+        return intent;
     }
 
     /**
@@ -438,6 +426,33 @@ public class MainActivity extends BaseActivity {
             intent.putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, existingCollection);
         }
         startActivity(intent);
+    }
+
+    /**
+     * Launch the reorder fragment
+     * @return ReorderCollections (used for testing)
+     */
+    public ReorderCollections launchReorderFragment() {
+
+        if(mNumberOfCollections == 0){
+            Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // Get a list that excludes the spacers
+        List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
+        ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
+
+        ReorderCollections fragment = new ReorderCollections();
+        fragment.setCollectionList(collections);
+
+        // Show the fragment used for reordering collections
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_activity_frame, fragment, REORDER_COLLECTION)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+        return fragment;
     }
 
     /**
@@ -1262,7 +1277,7 @@ public class MainActivity extends BaseActivity {
      * Construct the attribution string for the info text
      * @return info text string
      */
-    private String buildInfoText(){
+    public String buildInfoText(){
         HashSet<String> attributions = new HashSet<>();
         for(CollectionInfo collection : MainApplication.COLLECTION_TYPES){
             int attributionResId = collection.getAttributionResId();

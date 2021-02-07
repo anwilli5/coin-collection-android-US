@@ -37,25 +37,23 @@ public class AmericanInnovationDollars extends CollectionInfo {
     public static final String COLLECTION_TYPE = "American Innovation Dollars";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            { "Introductory", R.drawable.innovation_2018_introductory_unc, R.drawable.innovation_2018_introductory_unc_25},
-            { "Delaware",     R.drawable.innovation_2019_delaware_unc, R.drawable.innovation_2019_delaware_unc_25},
-            { "Pennsylvania", R.drawable.innovation_2019_pennsylvania_unc, R.drawable.innovation_2019_pennsylvania_unc_25},
-            { "New Jersey",   R.drawable.innovation_2019_new_jersey_unc, R.drawable.innovation_2019_new_jersey_unc_25},
-            { "Georgia",      R.drawable.innovation_2019_georgia_unc, R.drawable.innovation_2019_georgia_unc_25},
-            /*
+            { "Introductory",   R.drawable.innovation_2018_introductory_unc, R.drawable.innovation_2018_introductory_unc_25},
+            { "Delaware",       R.drawable.innovation_2019_delaware_unc, R.drawable.innovation_2019_delaware_unc_25},
+            { "Pennsylvania",   R.drawable.innovation_2019_pennsylvania_unc, R.drawable.innovation_2019_pennsylvania_unc_25},
+            { "New Jersey",     R.drawable.innovation_2019_new_jersey_unc, R.drawable.innovation_2019_new_jersey_unc_25},
+            { "Georgia",        R.drawable.innovation_2019_georgia_unc, R.drawable.innovation_2019_georgia_unc_25},
             { "Connecticut",    R.drawable.innovation_2020_connecticut_unc, R.drawable.innovation_2020_connecticut_unc_25},
             { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc, R.drawable.innovation_2020_massachusetts_unc_25},
             { "Maryland",       R.drawable.innovation_2020_maryland_unc, R.drawable.innovation_2020_maryland_unc_25},
             { "South Carolina", R.drawable.innovation_2020_south_carolina_unc, R.drawable.innovation_2020_south_carolina_unc_25}
-             */
     };
 
-    private static final HashMap<String, Integer[]> COIN_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the COIN_INFO HashMap for quick image ID lookups later
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_INFO.put((String) coinData[0],
+            COIN_MAP.put((String) coinData[0],
                     new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
@@ -70,7 +68,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
@@ -102,7 +100,6 @@ public class AmericanInnovationDollars extends CollectionInfo {
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
         for(Object[] coinData : COIN_IDENTIFIERS){
-
             String identifier = (String) coinData[0];
 
             if(showMintMarks){
@@ -144,6 +141,18 @@ public class AmericanInnovationDollars extends CollectionInfo {
             newCoinIdentifiers.add("Pennsylvania");
             newCoinIdentifiers.add("New Jersey");
             newCoinIdentifiers.add("Georgia");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2020 coins if applicable
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Connecticut");
+            newCoinIdentifiers.add("Massachusetts");
+            newCoinIdentifiers.add("Maryland");
+            newCoinIdentifiers.add("South Carolina");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);

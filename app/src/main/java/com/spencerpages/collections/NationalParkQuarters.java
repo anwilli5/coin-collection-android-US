@@ -40,7 +40,7 @@ public class NationalParkQuarters extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "National Park Quarters";
 
-    private static final Object[][] PARKS_IMAGE_IDENTIFIERS = {
+    private static final Object[][] COIN_IDENTIFIERS = {
             {"Hot Springs",           R.drawable.parks_2010_hot_springs_unc,            R.drawable.parks_2010_hot_springs_unc_25},
             {"Yellowstone",           R.drawable.parks_2010_yellowstone_unc,            R.drawable.parks_2010_yellowstone_unc_25},
             {"Yosemite",              R.drawable.parks_2010_yosemite_unc,               R.drawable.parks_2010_yosemite_unc_25},
@@ -96,17 +96,15 @@ public class NationalParkQuarters extends CollectionInfo {
             {"Salt River Bay",        R.drawable.parks_2020_salt_river_bay_unc,         R.drawable.parks_2020_salt_river_bay_unc_25},
             {"Marsh-Billings-Rockefeller", R.drawable.parks_2020_marsh_billings_rockefeller_unc, R.drawable.parks_2020_marsh_billings_rockefeller_unc_25},
             {"Tallgrass Prairie",     R.drawable.parks_2020_tallgrass_prairie_unc,      R.drawable.parks_2020_tallgrass_prairie_unc_25},
-            /*
             {"Tuskegee Airmen",       R.drawable.parks_2021_tuskegee_airmen_unc,        R.drawable.parks_2021_tuskegee_airmen_unc_25},
-             */
     };
 
-    private static final HashMap<String, Integer[]> PARKS_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the PARKS_INFO HashMap for quick image ID lookups later
-        for (Object[] coinData : PARKS_IMAGE_IDENTIFIERS){
-            PARKS_INFO.put((String) coinData[0],
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
                     new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
@@ -121,12 +119,12 @@ public class NationalParkQuarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = PARKS_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
         } else {
-            return inCollection ? (int) PARKS_IMAGE_IDENTIFIERS[0][1] : (int) PARKS_IMAGE_IDENTIFIERS[0][2];
+            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
         }
     }
 
@@ -153,8 +151,7 @@ public class NationalParkQuarters extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
 
-        for (Object[] parksImageIdentifier : PARKS_IMAGE_IDENTIFIERS) {
-
+        for (Object[] parksImageIdentifier : COIN_IDENTIFIERS) {
             String identifier = (String) parksImageIdentifier[0];
 
             if (showMintMarks) {
@@ -324,6 +321,16 @@ public class NationalParkQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Salt River Bay");
             newCoinIdentifiers.add("Marsh-Billings-Rockefeller");
             newCoinIdentifiers.add("Tallgrass Prairie");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 16) {
+            // Add in 2021 National Park Quarters
+
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Tuskegee Airmen");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);

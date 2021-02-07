@@ -118,6 +118,7 @@
     <string name="app_name">Coin Collection</string>
     <string name="create_new_collection">New Collection</string>
     <string name="intro_message">Thanks for downloading Coin Collection!\nTo get started, select \'New Collection\'</string>
+    <string name="tutorial_more_options">Press and hold on a collection to view, edit, copy, and more!</string>
     <string name="delete_collection">Delete Collection</string>
     <string name="import_collection">Import Collection</string>
     <string name="export_collection">Export Collection</string>

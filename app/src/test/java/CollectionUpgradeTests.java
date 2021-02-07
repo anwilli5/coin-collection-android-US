@@ -21,6 +21,8 @@
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
@@ -57,8 +59,6 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import androidx.test.core.app.ApplicationProvider;
 
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
@@ -920,7 +920,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         String coinType = "Quarters";
         String collectionName = coinType + " Upgrade";
         int startYear = 1932;
-        int endYear = 1998;
+        int endYear = 2021;
 
         // Create V1 database and run upgrade
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
@@ -930,7 +930,12 @@ public class CollectionUpgradeTests extends BaseTestCase {
             if(i == 1933 || i == 1975){
                 continue;
             }
-            if(i == 1976){
+            if(i > 1998 && i < 2021) {
+                continue;
+            }
+            if(i == 2021){
+                coinList.add(new Object[]{"Crossing the Delaware", "", 0});
+            } else if(i == 1976){
                 coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});

@@ -84,7 +84,7 @@ public class CoinSlot implements Parcelable {
         mMint = mint;
     }
 
-    void setInCollection (boolean inCollection) {
+    public void setInCollection (boolean inCollection) {
         mInCollection = inCollection;
     }
 
@@ -128,15 +128,15 @@ public class CoinSlot implements Parcelable {
         return mAdvancedNotes;
     }
 
-    void setAdvancedGrades(Integer advancedGrades) {
+    public void setAdvancedGrades(Integer advancedGrades) {
         this.mAdvancedGrades = advancedGrades;
     }
 
-    void setAdvancedQuantities(Integer advancedQuantities) {
+    public void setAdvancedQuantities(Integer advancedQuantities) {
         this.mAdvancedQuantities = advancedQuantities;
     }
 
-    void setAdvancedNotes(String advancedNotes) {
+    public void setAdvancedNotes(String advancedNotes) {
         this.mAdvancedNotes = advancedNotes;
     }
 

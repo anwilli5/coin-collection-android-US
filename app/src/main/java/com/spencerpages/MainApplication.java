@@ -141,8 +141,9 @@ public class MainApplication extends Application {
      *                   Version 13 - Used in Version 2.3.4 of the app
      *                   Version 14 - Used in Version 2.3.5 of the app
      *                   Version 15 - Used in Version 3.0.0 of the app
+     *                   Version 16 - Used in Version 3.1.0 of the app
      */
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 16;
 
     /**
      * Performs any database updates that are needed at an application level

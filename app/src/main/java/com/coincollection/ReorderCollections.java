@@ -36,13 +36,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.coincollection.helper.OnStartDragListener;
-import com.coincollection.helper.SimpleItemTouchHelperCallback;
-import com.spencerpages.BuildConfig;
-import com.spencerpages.R;
-
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -50,6 +43,13 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.coincollection.helper.OnStartDragListener;
+import com.coincollection.helper.SimpleItemTouchHelperCallback;
+import com.spencerpages.BuildConfig;
+import com.spencerpages.R;
+
+import java.util.ArrayList;
 
 /**
  * Fragment utilizing a RecyclerView to implement a collection re-ordering capability
@@ -61,6 +61,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     private ItemTouchHelper mItemTouchHelper;
     private ArrayList<CollectionListInfo> mItems = null;
     private Boolean mUnsavedChanges = false;
+    public ReorderAdapter mAdapter;
 
     public void setCollectionList(ArrayList<CollectionListInfo> items) {
         mItems = items;
@@ -123,7 +124,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set up the adapter that provides the collection entries
-        ReorderAdapter mAdapter = new ReorderAdapter(mItems);
+        mAdapter = new ReorderAdapter(mItems);
         mRecyclerView.setAdapter(mAdapter);
 
         // Register the ItemTouchHelper Callback so that we can allow reordering

@@ -26,21 +26,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.coincollection.helper.ItemTouchHelperAdapter;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 /**
  * RecyclerView.Adapter that supports reordering the coin collections
  */
 public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
         implements ItemTouchHelperAdapter {
-    private final ArrayList<CollectionListInfo> mItems;
+    public final ArrayList<CollectionListInfo> mItems;
 
     ReorderAdapter(ArrayList<CollectionListInfo> items) {
         super();

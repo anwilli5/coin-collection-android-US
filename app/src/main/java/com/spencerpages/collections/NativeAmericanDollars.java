@@ -36,7 +36,7 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Sacagawea/Native American Dollars"; // Was: Sacagawea Dollars
 
-    private static final Object[][] NATIVE_IMAGE_IDENTIFIERS = {
+    private static final Object[][] COIN_IDENTIFIERS = {
             {"2009", R.drawable.native_2009_unc,       R.drawable.native_2009_unc_25},
             {"2010", R.drawable.native_2010_unc,       R.drawable.native_2010_unc_25},
             {"2011", R.drawable.native_2011_unc,       R.drawable.native_2011_unc_25},
@@ -49,14 +49,15 @@ public class NativeAmericanDollars extends CollectionInfo {
             {"2018", R.drawable.native_2018_unc,       R.drawable.native_2018_unc_25},
             {"2019", R.drawable.native_2019_unc,       R.drawable.native_2019_unc_25},
             {"2020", R.drawable.native_2020_unc,       R.drawable.native_2020_unc_25},
+            {"2021", R.drawable.native_2021_unc,       R.drawable.native_2021_unc_25},
     };
 
-    private static final HashMap<String, Integer[]> NATIVE_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the NATIVE_INFO HashMap for quick image ID lookups later
-        for (Object[] coinData : NATIVE_IMAGE_IDENTIFIERS){
-            NATIVE_INFO.put((String) coinData[0],
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
                     new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
@@ -77,7 +78,7 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = NATIVE_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
@@ -188,6 +189,11 @@ public class NativeAmericanDollars extends CollectionInfo {
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2021 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
         }
 
         return total;
