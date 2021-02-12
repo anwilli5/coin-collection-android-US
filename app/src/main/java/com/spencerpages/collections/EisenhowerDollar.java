@@ -24,15 +24,20 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 public class EisenhowerDollar extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Eisenhower Dollars";
+    public static final String COLLECTION_TYPE = "Eisenhower Dollars";
 
     private static final Integer START_YEAR = 1971;
     private static final Integer STOP_YEAR = 1978;
@@ -44,20 +49,24 @@ public class EisenhowerDollar extends CollectionInfo {
 
     // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Obverse.jpg
     // https://commons.wikimedia.org/wiki/File:1974S_Eisenhower_Reverse.jpg
-    private static final String ATTRIBUTION = "Eisenhower Dollar images courtesy of Brandon Grossardt via Wikimedia";
+    private static final int ATTRIBUTION = R.string.attr_eisenhower_dollars;
 
+    @Override
     public String getCoinType() {
         return COLLECTION_TYPE;
     }
 
+    @Override
     public int getCoinImageIdentifier() {
         return REVERSE_IMAGE;
     }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot) {
         return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -75,6 +84,7 @@ public class EisenhowerDollar extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -111,25 +121,36 @@ public class EisenhowerDollar extends CollectionInfo {
         }
     }
 
-    public String getAttributionString() {
+    @Override
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return START_YEAR;
+    }
+
+    @Override
+    public int getStopYear() {
+        return STOP_YEAR;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
         int total = 0;
 
         if (oldVersion <= 2) {
 
             // Take out Eisenhower dollars > 1978
             for (int i = 1979; i <= 2012; i++) {
-                int value = db.delete(tableName, "coinIdentifier=?", new String[]{String.valueOf(i)});
-                total -= value;
+                total -= runSqlDelete(db, tableName, COL_COIN_IDENTIFIER + "=?", new String[]{String.valueOf(i)});
             }
 
             // Take out Eisenhower dollars with S marks
-            int value = db.delete(tableName, "coinMint=?", new String[]{"S"});
-            total -= value;
+            total -= runSqlDelete(db, tableName, COL_COIN_MINT + "=?", new String[]{"S"});
         }
 
         return total;

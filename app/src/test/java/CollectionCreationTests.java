@@ -64,8 +64,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_AmericanEagleSilverDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        AmericanEagleSilverDollars activity = new AmericanEagleSilverDollars();
-        activity.getCreationParameters(parameters);
+        AmericanEagleSilverDollars coinClass = new AmericanEagleSilverDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Burnished, Expected Result
         Object[][] tests = {
@@ -76,8 +76,10 @@ public class CollectionCreationTests extends BaseTestCase {
         for(Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_CHECKBOX_2, test[0]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[1], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -89,8 +91,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_AmericanInnovationDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        AmericanInnovationDollars activity = new AmericanInnovationDollars();
-        activity.getCreationParameters(parameters);
+        AmericanInnovationDollars coinClass = new AmericanInnovationDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -107,8 +109,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -120,8 +124,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_BarberDimesCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        BarberDimes activity = new BarberDimes();
-        activity.getCreationParameters(parameters);
+        BarberDimes coinClass = new BarberDimes();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
@@ -142,8 +146,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[5], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -155,8 +161,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_BarberHalfDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        BarberHalfDollars activity = new BarberHalfDollars();
-        activity.getCreationParameters(parameters);
+        BarberHalfDollars coinClass = new BarberHalfDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
@@ -177,8 +183,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[5], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -190,8 +198,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_BarberQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        BarberQuarters activity = new BarberQuarters();
-        activity.getCreationParameters(parameters);
+        BarberQuarters coinClass = new BarberQuarters();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
@@ -212,8 +220,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[5], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -225,8 +235,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_BuffaloNickelsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        BuffaloNickels activity = new BuffaloNickels();
-        activity.getCreationParameters(parameters);
+        BuffaloNickels coinClass = new BuffaloNickels();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -245,8 +255,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -258,8 +270,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_EisenhowerDollarCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        EisenhowerDollar activity = new EisenhowerDollar();
-        activity.getCreationParameters(parameters);
+        EisenhowerDollar coinClass = new EisenhowerDollar();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -276,8 +288,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
 
         // Test special case of start year 1975/1976
@@ -285,8 +299,10 @@ public class CollectionCreationTests extends BaseTestCase {
         for(int year : years)
         parameters.put(CoinPageCreator.OPT_START_YEAR, year);
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        activity.populateCollectionLists(parameters, coinList);
+        coinClass.populateCollectionLists(parameters, coinList);
         assertEquals(6, coinList.size());
+
+        checkCreationParamsFromCoinList(coinList, coinClass);
     }
 
     /**
@@ -297,12 +313,14 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_FirstSpouseGoldCoinsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        FirstSpouseGoldCoins activity = new FirstSpouseGoldCoins();
-        activity.getCreationParameters(parameters);
+        FirstSpouseGoldCoins coinClass = new FirstSpouseGoldCoins();
+        coinClass.getCreationParameters(parameters);
 
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        activity.populateCollectionLists(parameters, coinList);
+        coinClass.populateCollectionLists(parameters, coinList);
         assertEquals(41, coinList.size());
+
+        checkCreationParamsFromCoinList(coinList, coinClass);
     }
 
     /**
@@ -313,8 +331,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_FranklinHalfDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        FranklinHalfDollars activity = new FranklinHalfDollars();
-        activity.getCreationParameters(parameters);
+        FranklinHalfDollars coinClass = new FranklinHalfDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -333,8 +351,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -346,8 +366,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_IndianHeadCentsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        IndianHeadCents activity = new IndianHeadCents();
-        activity.getCreationParameters(parameters);
+        IndianHeadCents coinClass = new IndianHeadCents();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, S, Expected Result
         Object[][] tests = {
@@ -364,8 +384,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -377,8 +399,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_JeffersonNickelsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        JeffersonNickels activity = new JeffersonNickels();
-        activity.getCreationParameters(parameters);
+        JeffersonNickels coinClass = new JeffersonNickels();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -397,8 +419,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -410,8 +434,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_KennedyHalfDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        KennedyHalfDollars activity = new KennedyHalfDollars();
-        activity.getCreationParameters(parameters);
+        KennedyHalfDollars coinClass = new KennedyHalfDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -428,8 +452,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
 
         // Test special case of start year 1975/1976
@@ -437,8 +463,10 @@ public class CollectionCreationTests extends BaseTestCase {
         for(int year : years)
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        activity.populateCollectionLists(parameters, coinList);
+        coinClass.populateCollectionLists(parameters, coinList);
         assertEquals(90, coinList.size());
+
+        checkCreationParamsFromCoinList(coinList, coinClass);
     }
 
     /**
@@ -449,8 +477,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_LibertyHeadNickelsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        LibertyHeadNickels activity = new LibertyHeadNickels();
-        activity.getCreationParameters(parameters);
+        LibertyHeadNickels coinClass = new LibertyHeadNickels();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -469,8 +497,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -482,8 +512,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_LincolnCentsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        LincolnCents activity = new LincolnCents();
-        activity.getCreationParameters(parameters);
+        LincolnCents coinClass = new LincolnCents();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -502,8 +532,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -515,8 +547,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_MercuryDimesCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        MercuryDimes activity = new MercuryDimes();
-        activity.getCreationParameters(parameters);
+        MercuryDimes coinClass = new MercuryDimes();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -535,8 +567,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -548,8 +582,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_MorganDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        MorganDollars activity = new MorganDollars();
-        activity.getCreationParameters(parameters);
+        MorganDollars coinClass = new MorganDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, O, CC, Expected Result
         Object[][] tests = {
@@ -572,8 +606,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[6], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -585,8 +621,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_NationalParkQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        NationalParkQuarters activity = new NationalParkQuarters();
-        activity.getCreationParameters(parameters);
+        NationalParkQuarters coinClass = new NationalParkQuarters();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -603,8 +639,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -616,8 +654,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_NativeAmericanDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        NativeAmericanDollars activity = new NativeAmericanDollars();
-        activity.getCreationParameters(parameters);
+        NativeAmericanDollars coinClass = new NativeAmericanDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -634,8 +672,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -647,8 +687,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_PeaceDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        PeaceDollars activity = new PeaceDollars();
-        activity.getCreationParameters(parameters);
+        PeaceDollars coinClass = new PeaceDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -667,8 +707,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -680,8 +722,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_PresidentialDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        PresidentialDollars activity = new PresidentialDollars();
-        activity.getCreationParameters(parameters);
+        PresidentialDollars coinClass = new PresidentialDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
@@ -698,8 +740,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -711,8 +755,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_RooseveltDimesCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        RooseveltDimes activity = new RooseveltDimes();
-        activity.getCreationParameters(parameters);
+        RooseveltDimes coinClass = new RooseveltDimes();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -731,8 +775,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -744,8 +790,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_StandingLibertyQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        StandingLibertyQuarters activity = new StandingLibertyQuarters();
-        activity.getCreationParameters(parameters);
+        StandingLibertyQuarters coinClass = new StandingLibertyQuarters();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -764,8 +810,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -777,8 +825,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_StateQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        StateQuarters activity = new StateQuarters();
-        activity.getCreationParameters(parameters);
+        StateQuarters coinClass = new StateQuarters();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Show Territories, Expected Result
         Object[][] tests = {
@@ -798,8 +846,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_CHECKBOX_1, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -811,8 +861,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_SusanBAnthonyDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        SusanBAnthonyDollars activity = new SusanBAnthonyDollars();
-        activity.getCreationParameters(parameters);
+        SusanBAnthonyDollars coinClass = new SusanBAnthonyDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -831,8 +881,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -844,8 +896,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_WalkingLibertyHalfDollarsCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        WalkingLibertyHalfDollars activity = new WalkingLibertyHalfDollars();
-        activity.getCreationParameters(parameters);
+        WalkingLibertyHalfDollars coinClass = new WalkingLibertyHalfDollars();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -864,8 +916,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }
 
@@ -877,8 +931,8 @@ public class CollectionCreationTests extends BaseTestCase {
     public void test_WashingtonQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new HashMap<>();
-        WashingtonQuarters activity = new WashingtonQuarters();
-        activity.getCreationParameters(parameters);
+        WashingtonQuarters coinClass = new WashingtonQuarters();
+        coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
@@ -897,8 +951,10 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
-            activity.populateCollectionLists(parameters, coinList);
+            coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
         }
 
         // Test special case of start year 1975/1976
@@ -906,7 +962,9 @@ public class CollectionCreationTests extends BaseTestCase {
         for(int year : years)
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        activity.populateCollectionLists(parameters, coinList);
+        coinClass.populateCollectionLists(parameters, coinList);
         assertEquals(46, coinList.size());
+
+        checkCreationParamsFromCoinList(coinList, coinClass);
     }
 }

@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
 import com.coincollection.CollectionInfo;
 
@@ -32,7 +33,7 @@ import java.util.HashMap;
 
 public class MercuryDimes extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Mercury Dimes";
+    public static final String COLLECTION_TYPE = "Mercury Dimes";
 
     private static final Integer START_YEAR = 1916;
     private static final Integer STOP_YEAR = 1945;
@@ -44,16 +45,20 @@ public class MercuryDimes extends CollectionInfo {
 
     // https://commons.wikimedia.org/wiki/File:1943D_Mercury_Dime_obverse.jpg
     // https://commons.wikimedia.org/wiki/File:1943D_Mercury_Dime_reverse.jpg
-    private static final String ATTRIBUTION = "Mercury Dime images courtesy of Brandon Grossardt via Wikimedia";
+    private static final int ATTRIBUTION = R.string.attr_mercury_dimes;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -75,6 +80,7 @@ public class MercuryDimes extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -109,11 +115,23 @@ public class MercuryDimes extends CollectionInfo {
         }
     }
 
-    public String getAttributionString(){
+    @Override
+    public int getAttributionResId(){
         return ATTRIBUTION;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return START_YEAR;
+    }
+
+    @Override
+    public int getStopYear() {
+        return STOP_YEAR;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
         return 0;
     }

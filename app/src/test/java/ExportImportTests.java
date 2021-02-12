@@ -23,6 +23,8 @@ import android.content.Intent;
 import android.os.Build;
 
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseAdapter;
 import com.coincollection.MainActivity;
 import com.spencerpages.collections.NativeAmericanDollars;
 
@@ -44,9 +46,12 @@ import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;
 import static com.coincollection.MainActivity.EXPORT_DB_VERSION_FILE;
 import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -132,7 +137,6 @@ public class ExportImportTests extends BaseTestCase {
                     when(activitySpy.getExportFolderName()).thenReturn(v1DbDir.getAbsolutePath());
 
                     // Run import and check results
-                    activitySpy.setupOnCreateAsyncTasks();
                     activitySpy.handleImportCollectionsPart1();
                     ArrayList<String> afterCollectionNames = getCollectionNames(activitySpy);
                     assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
@@ -204,6 +208,20 @@ public class ExportImportTests extends BaseTestCase {
                     assertEquals(beforeCollectionNames, afterCollectionNames);
                 }
             });
+        }
+    }
+
+    /**
+     * Test that running the collection list info export -> import work
+     */
+    @Test
+    public void test_exportImportMethods() {
+        for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS){
+            DatabaseAdapter fakeDbAdapter = mock(DatabaseAdapter.class);
+            when(fakeDbAdapter.fetchTableDisplay(anyString())).thenReturn(info.getDisplayType());
+            String[] export = info.getCsvExportProperties(fakeDbAdapter);
+            CollectionListInfo checkInfo = new CollectionListInfo(export);
+            compareCollectionListInfos(info, checkInfo);
         }
     }
 }

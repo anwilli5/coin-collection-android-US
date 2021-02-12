@@ -191,16 +191,12 @@ class CoinSlotAdapter extends BaseAdapter {
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
 
         imageView.setOnClickListener(new OnClickListener() {
-
             public void onClick(View v) {
                 // Need to check whether the collection is locked
                 if(mDisplayIsLocked){
                     // Collection is locked
-                    Context context = mContext.getApplicationContext();
-                    CharSequence text = "Collection is currently locked, hit 'Menu' and then 'Unlock Collection' to unlock";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
+                    String text = mRes.getString(R.string.collection_locked);
+                    Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
                     // Collection is unlocked, update value
@@ -281,6 +277,7 @@ class CoinSlotAdapter extends BaseAdapter {
                     }
                 }
                 public void onNothingSelected(AdapterView<?> parent) {}
+
             };
         }
         gradeSelector.setOnItemSelectedListener(mGradeOnItemSelectedListener);
@@ -290,7 +287,7 @@ class CoinSlotAdapter extends BaseAdapter {
         quantitySelector.setTag(positionObj);
 
         if(mQuantityArrayAdapter == null){
-            mQuantityArrayAdapter = ArrayAdapter.createFromResource(
+            mQuantityArrayAdapter = ArrayAdapter.createFromResource (
                 mContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
             mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         }
@@ -400,6 +397,5 @@ class CoinSlotAdapter extends BaseAdapter {
         // Make the edittext scrollable
         // TODO Get scrolling working all the way
         // notesEditText.setMovementMethod(new ScrollingMovementMethod());
-
     }
 }

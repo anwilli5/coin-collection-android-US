@@ -25,8 +25,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseHelper;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 
 public class NativeAmericanDollars extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "Sacagawea/Native American Dollars"; // Was: Sacagawea Dollars
+    public static final String COLLECTION_TYPE = "Sacagawea/Native American Dollars"; // Was: Sacagawea Dollars
 
     private static final Object[][] NATIVE_IMAGE_IDENTIFIERS = {
             {"2009", R.drawable.native_2009_unc,       R.drawable.native_2009_unc_25},
@@ -69,10 +69,13 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.rev_sacagawea_unc;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = NATIVE_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -83,6 +86,7 @@ public class NativeAmericanDollars extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -100,6 +104,7 @@ public class NativeAmericanDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -123,61 +128,66 @@ public class NativeAmericanDollars extends CollectionInfo {
             }
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+
+    @Override
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return START_YEAR;
+    }
+
+    @Override
+    public int getStopYear() {
+        return STOP_YEAR;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
 
         int total = 0;
 
         if(oldVersion <= 3) {
             // Add in new 2013 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2013");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
         }
 
         if (oldVersion <= 4) {
             // Add in new 2014 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2014");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);
         }
 
         if (oldVersion <= 6) {
             // Add in new 2015 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2015");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);
         }
 
         if (oldVersion <= 7) {
             // Add in new 2016 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2016");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);
         }
 
         if (oldVersion <= 8) {
             // Add in new 2017 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2017");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);
         }
 
         if (oldVersion <= 11) {
             // Add in new 2018 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2018");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);
         }
 
         if (oldVersion <= 12) {
             // Add in new 2019 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2019");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);
         }
 
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
-            int value = DatabaseHelper.addFromYear(db, tableName, "2020");
-            total += value;
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
         }
 
         return total;

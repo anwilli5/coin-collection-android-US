@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.spencerpages.MainApplication;
+import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,17 @@ import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
+import static com.coincollection.CollectionListInfo.COL_END_YEAR;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_START_YEAR;
+import static com.coincollection.CollectionListInfo.COL_TOTAL;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
+import static com.coincollection.DatabaseHelper.simpleQueryForLong;
 import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;
 
 /**
@@ -49,15 +61,7 @@ import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;
 public class DatabaseAdapter {
 
     private final DatabaseHelper mDbHelper;
-    private SQLiteDatabase mDb;
-
-    final static String TBL_COLLECTION_INFO = "collection_info";
-
-    public final static String COL_NAME = "name";
-    final static String COL_COIN_TYPE = "coinType";
-    final static String COL_TOTAL = "total";
-    final static String COL_DISPLAY_ORDER = "displayOrder";
-    final static String COL_DISPLAY = "display";
+    private SQLiteDatabase mDb = null;
 
     /**
      * Record any internal DB names here!
@@ -84,56 +88,40 @@ public class DatabaseAdapter {
      * Open the database. If it cannot be opened, try to create a new
      * instance of the database. If it cannot be created, throw an exception to
      * signal the failure
-     *
-     * @throws SQLException if the database could be neither opened or created
+     * @throws SQLException if the database cannot be opened
      */
     public void open() throws SQLException {
-        mDb = mDbHelper.getWritableDatabase();
-    }
-
-    // Clean up a bit if we no longer need this DatabaseAdapter
-    public void close() {
-        mDbHelper.close();
+        if (mDb == null || !mDb.isOpen()) {
+            mDb = mDbHelper.getWritableDatabase();
+        }
     }
 
     /**
-     * Get the total number of coins in the collection
-     *
-     * @param tableName String that identifiers which table to query
-     * @return int with the total number of coins in the collection
+     * Close the current database connection
      */
-    int fetchTotalCollected(String tableName) {
-        String select_sqlStatement = "SELECT COUNT(_id) FROM [" + tableName + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
-        SQLiteStatement compiledStatement;
-
-        compiledStatement = mDb.compileStatement(select_sqlStatement);
-        // TODO May generate a SQLITE_SCHEMA error (17) after just deleting a table, doesn't appear to break things though
-
-        int result = (int) compiledStatement.simpleQueryForLong();
-
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result;
+    public void close() {
+        if (mDb != null && mDb.isOpen()) {
+            mDb.close();
+            mDb = null;
+        }
     }
 
     /**
      * Returns whether a coinIdentifier and coinMint has been marked as collected in a given
      * collection.
-     *
      * @param tableName The collection of interest
      * @param coinSlot The coin we want to retrieve data for
      * @return 0 if item is in the collection, 1 otherwise
-     * @throws SQLException if coin could not be found (Shouldn't happen???)
+     * @throws SQLException if coin could not be found (shouldn't happen)
      */
-    // TODO Rename
     // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
     // instead have one query that returns all of the info.
     private int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
-        String select_sqlStatement = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_WHERE_CLAUSE + " LIMIT 1";
-        SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
+        String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_WHERE_CLAUSE + " LIMIT 1";
+        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, coinSlot.getIdentifier());
         compiledStatement.bindString(2, coinSlot.getMint());
-        int result = (int) compiledStatement.simpleQueryForLong();
+        int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
         compiledStatement.close();
         return result;
@@ -144,18 +132,15 @@ public class DatabaseAdapter {
      *
      * @param tableName The name of the collection of interest
      * @param coinSlot The coin we want to retrieve data for
-     * @return true if the value was successfully updated, false otherwise
+     * @throws SQLException if the database update was not successful
      */
-
-    boolean toggleInCollection(String tableName, CoinSlot coinSlot) {
+    void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         int result = fetchIsInCollection(tableName, coinSlot);
         int newValue = (result + 1) % 2;
         ContentValues args = new ContentValues();
         args.put(COL_IN_COLLECTION, newValue);
-
-        // TODO Should we do something if update fails?
         String[] whereValues = new String[] {coinSlot.getIdentifier(), coinSlot.getMint()};
-        return mDb.update("[" + tableName + "]", args, COIN_SLOT_WHERE_CLAUSE, whereValues) > 0;
+        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_WHERE_CLAUSE, whereValues);
     }
 
     /**
@@ -165,15 +150,12 @@ public class DatabaseAdapter {
      * @return which display we should show.  See MainApplication for the types
      * @throws SQLException if an SQL-related error occurs
      */
-    int fetchTableDisplay(String tableName) throws SQLException {
-
+    public int fetchTableDisplay(String tableName) throws SQLException {
         // The database will only be set up this way in this case
-        String select_sqlStatement = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE name=? LIMIT 1";
-        SQLiteStatement compiledStatement = mDb.compileStatement(select_sqlStatement);
-
+        String sqlCmd = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE name=? LIMIT 1";
+        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, tableName);
-        int result = (int) compiledStatement.simpleQueryForLong();
-
+        int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
         compiledStatement.close();
         return result;
@@ -184,16 +166,12 @@ public class DatabaseAdapter {
      *
      * @param tableName - Used to know which table to update
      * @param displayType - New display type to store for this table
-     * @return 0 on update success, 1 otherwise
-     * @throws SQLException if an SQL-related error occurs
+     * @throws SQLException if the database update was not successful
      */
-    boolean updateTableDisplay(String tableName, int displayType) throws SQLException {
-
+    void updateTableDisplay(String tableName, int displayType) throws SQLException {
         ContentValues args = new ContentValues();
         args.put(COL_DISPLAY, displayType);
-
-        // TODO Should we do something if update fails?
-        return mDb.update(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName }) > 0;
+        runSqlUpdateAndCheck(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName });
     }
 
     /**
@@ -201,15 +179,12 @@ public class DatabaseAdapter {
      *
      * @param tableName - Used to know which table to update
      * @param displayOrder - New displayOrder to store for this table
-     * @return 0 if the update was successful, 1 otherwise
-     * @throws SQLException if an SQL-related error occurs
+     * @throws SQLException if the database update was not successful
      */
-    boolean updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
-
+    void updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
         ContentValues args = new ContentValues();
         args.put(COL_DISPLAY_ORDER, displayOrder);
-        // TODO Should we do something if update fails?
-        return mDb.update(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName }) > 0;
+        runSqlUpdateAndCheck(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName });
     }
 
     /**
@@ -218,27 +193,27 @@ public class DatabaseAdapter {
      * notes) in addition to whether it is inc the collection.
      * @param tableName The collection name
      * @param coinSlot Coin slot
-     * @return 1 on success, 0 otherwise
+     * @throws SQLException if the database update was not successful
      */
-    int updateAdvInfo(String tableName, CoinSlot coinSlot) {
-
+    void updateAdvInfo(String tableName, CoinSlot coinSlot) throws SQLException {
         ContentValues args = new ContentValues();
         args.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
         args.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
         args.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
         args.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
         String[] whereValues = new String[] {coinSlot.getIdentifier(), coinSlot.getMint()};
-        return mDb.update("[" + tableName + "]", args, COIN_SLOT_WHERE_CLAUSE, whereValues);
+        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_WHERE_CLAUSE, whereValues);
     }
 
     /**
      * Helper function to issue the SQL needed when creating a new database table for a collection
      * @param tableName The collection name
+     * @throws SQLException if the database error occurs
      */
-    private void createNewTable(String tableName){
+    private void createCollectionTable(String tableName) throws SQLException {
         // v2.2.1 - Until this point all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-        String DATABASE_CREATE = "CREATE TABLE [" + tableName
+        String sqlCmd = "CREATE TABLE [" + tableName
         + "] (_id integer primary key,"
         + " " + COL_COIN_IDENTIFIER + " text not null,"
         + " " + COL_COIN_MINT + " text,"
@@ -246,238 +221,100 @@ public class DatabaseAdapter {
         + " " + COL_ADV_GRADE_INDEX + " integer default 0,"
         + " " + COL_ADV_QUANTITY_INDEX + " integer default 0,"
         + " " + COL_ADV_NOTES + " text default \"\");";
-
-        mDb.execSQL(DATABASE_CREATE);
-    }
-
-    /**
-     * Helper function to rename a collection
-     * @param oldName The original collection name
-     * @param newName The new collection name
-     * @return true if the value was successfully updated, false otherwise
-     */
-    boolean updateCollectionName(String oldName, String newName){
-        String alterDbSqlStr = "ALTER TABLE [" + oldName + "] RENAME TO [" + newName + "]";
-        mDb.execSQL(alterDbSqlStr);
-
-        ContentValues args = new ContentValues();
-        args.put(COL_NAME, newName);
-
-        // TODO Should we do something if update fails?
-        return mDb.update(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { oldName }) > 0;
+        mDb.execSQL(sqlCmd);
     }
 
     /**
      * Handles adding everything needed for a collection to store it's data in the database.
-     * This is used for creating new collections, and will initialize everything to a blank state.
-     *
-     * @param tableName The collection tableName
-     * @param coinType The collection type
-     * @param coinList A list of the identifiers for the coins in this collection (Ex: 2009)
-     * @param displayOrder The position in the list of collections in which this should be displayed
-     *                     TODO maybe make this not an argument, and determine this internally?
-     * @return 1 TODO
-     */
-    // TODO Rename, since we aren't just creating a new table
-    public int createNewTable(String tableName, String coinType, ArrayList<CoinSlot> coinList, int displayOrder) {
-
-        // Actually make the table
-        createNewTable(tableName);
-
-        // We have the list of identifiers, now set them correctly
-        for(int j = 0; j < coinList.size(); j++){
-            CoinSlot coinSlot = coinList.get(j);
-            ContentValues initialValues = new ContentValues();
-            initialValues.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
-            initialValues.put(COL_COIN_MINT, coinSlot.getMint());
-            initialValues.put(COL_IN_COLLECTION, 0);
-            // Advanced info gets added automatically, if the columns are there
-
-            long value = mDb.insert("[" + tableName + "]", null, initialValues);
-            // TODO Do something if insert fails?
-        }
-
-        // We also need to add the table to the list of tables
-        addEntryToCollectionInfoTable(tableName, coinType, coinList.size(), CollectionPage.SIMPLE_DISPLAY, displayOrder);
-
-        return 1;
-    }
-
-    /**
-     * Helper function to add a collection into the global list of collections
-     * @param tableName Collection name
-     * @param coinType Type of collection
-     * @param total Number of coins in collection
-     * @param display Type of display
-     * @param displayOrder Display order of this collection
-     */
-    private void addEntryToCollectionInfoTable(String tableName, String coinType, int total, int display, int displayOrder){
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, tableName);
-        values.put(COL_COIN_TYPE, coinType);
-        values.put(COL_TOTAL, total);
-        values.put(COL_DISPLAY_ORDER, displayOrder);
-        values.put(COL_DISPLAY, display);
-
-        long value = mDb.insert(TBL_COLLECTION_INFO, null, values);
-        // TODO Do something if insert fails?
-        // TODO It'd be great if there was a way to clear the prepared SQL Statement cache so that
-        // we don't get SQL 17 Errors
-    }
-
-    /**
-     * Handles adding everything needed for a collection to store it's data in the database.
-     * This also allows the data to be pre-populated in the database. This is used for importing
-     * collections
-     * @param tableName The collection name
-     * @param coinType The collection type
-     * @param total The total number of coins in the collection (TODO I think)
-     * @param display The display type of this collection
-     * @param displayOrder The order that this collection should appear in the list of collections
+     * This also allows the data to be pre-populated in the database.
+     * @param collectionListInfo The collection info
      * @param coinData The data that should be put into the backing database once it is created
-     * @return 1 TODO
+     * @throws SQLException if the database update was not successful
      */
-    // TODO Rename, since we aren't just creating a new table
-    int createNewTable(String tableName, String coinType, int total, int display, int displayOrder, ArrayList<CoinSlot> coinData) {
+    public void createAndPopulateNewTable(CollectionListInfo collectionListInfo, int displayOrder, ArrayList<CoinSlot> coinData) throws SQLException {
 
         // Actually make the table
-        createNewTable(tableName);
+        String tableName = collectionListInfo.getName();
+        createCollectionTable(tableName);
 
         // We have the list of identifiers, now set them correctly
-        for (CoinSlot coinSlot : coinData) {
-
-            // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
-            ContentValues initialValues = new ContentValues();
-            initialValues.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
-            initialValues.put(COL_COIN_MINT, coinSlot.getMint());
-            initialValues.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
-            initialValues.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
-            initialValues.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
-            initialValues.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
-
-            long value = mDb.insert("[" + tableName + "]", null, initialValues);
-            // TODO Do something if insert fails?
+        if (coinData != null) {
+            for (CoinSlot coinSlot : coinData) {
+                ContentValues values = new ContentValues();
+                values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
+                values.put(COL_COIN_MINT, coinSlot.getMint());
+                values.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
+                values.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
+                values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
+                values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
+                runSqlInsert(tableName, values);
+            }
         }
 
         // We also need to add the table to the list of tables
-        addEntryToCollectionInfoTable(tableName, coinType, total, display, displayOrder);
-        return 1;
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, collectionListInfo.getName());
+        values.put(COL_COIN_TYPE, collectionListInfo.getType());
+        values.put(COL_TOTAL, collectionListInfo.getMax());
+        values.put(COL_DISPLAY_ORDER, displayOrder);
+        values.put(COL_DISPLAY, collectionListInfo.getDisplayType());
+        values.put(COL_START_YEAR, collectionListInfo.getStartYear());
+        values.put(COL_END_YEAR, collectionListInfo.getEndYear());
+        values.put(COL_SHOW_MINT_MARKS, collectionListInfo.getMintMarkFlags());
+        values.put(COL_SHOW_CHECKBOXES, collectionListInfo.getCheckboxFlags());
+        runSqlInsert(TBL_COLLECTION_INFO, values);
     }
 
     /**
      * Handles removing a collection from the database
-     *
      * @param tableName The collection name
+     * @throws SQLException if a database error occurs
      */
-    // TODO Rename, since it does more than just drop a table
-    public void dropTable(String tableName){
-        String DATABASE_DROP = "DROP TABLE [" + tableName + "];";
-        mDb.execSQL(DATABASE_DROP);
-
-        int value = mDb.delete(TBL_COLLECTION_INFO, COL_NAME + "=?", new String[] { tableName });
-        // TODO Do something if insert fails?
-        // TODO It be great if there was a way to clear the prepared SQL Statement cache so that
-        // we don't get SQL 17 Errors
-        // ^^^ Not sure if this is still an issue
+    public void dropCollectionTable(String tableName) throws SQLException {
+        String dropTableCmd = "DROP TABLE [" + tableName + "];";
+        mDb.execSQL(dropTableCmd);
+        runSqlDeleteAndCheck(TBL_COLLECTION_INFO, COL_NAME + "=?", new String[] { tableName });
     }
 
     /**
      * Deletes the table of metadata about all the current collections
+     * @throws SQLException if a database error occurs
      */
-    void dropCollectionInfoTable(){
-
-        String DATABASE_DROP = "DROP TABLE [" + TBL_COLLECTION_INFO + "];";
-        mDb.execSQL(DATABASE_DROP);
-    }
-
-    /**
-     * Creates the table of metadata for all the current collections
-     */
-    void createCollectionInfoTable(){
-
-        // I would put the functionality here and call it from within the mDbHelper,
-        // but I couldn't figure out how to get this working.  :(
-        mDbHelper._createCollectionInfoTable(mDb);
+    void dropCollectionInfoTable() throws SQLException {
+        String dropTableCmd = "DROP TABLE [" + TBL_COLLECTION_INFO + "];";
+        mDb.execSQL(dropTableCmd);
     }
 
     /**
      * Return a Cursor that gives the names of all of the defined collections
-     *
-     * @return Cursor
+     * @return Cursor to iterate over
      */
     public Cursor getAllCollectionNames() {
-
         return mDb.query(TBL_COLLECTION_INFO, new String[] {COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
-    }
-
-    /**
-     * Return a Cursor that gives information about each of the collections
-     *
-     * @return Cursor
-     */
-    public Cursor getAllTables() {
-
-        return mDb.query(TBL_COLLECTION_INFO, new String[] {COL_NAME, COL_COIN_TYPE,
-        COL_TOTAL}, null, null, null, null, COL_DISPLAY_ORDER);
     }
 
     /**
      * Get the list of identifiers for each collection
      *
      * @param tableName The name of the collection
-     * @return Cursor over all coins in the collection
+     * @return List of all coins in the collection
      */
-    public Cursor getAllIdentifiers(String tableName) {
+    public ArrayList<CoinSlot> getAllIdentifiers(String tableName) {
 
-        return mDb.query("[" + tableName + "]", new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT},
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        Cursor cursor = mDb.query("[" + tableName + "]",
+                new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT},
                 null, null, null, null, "_id");
-    }
-
-    /**
-     * Get the basic coin information
-     *
-     * @param tableName The name of the collection
-     * @return Cursor over identifier, mint, and in collection
-     */
-    Cursor getBasicCoinInfo(String tableName) {
-
-        return mDb.query("[" + tableName + "]", new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION},
-                null, null, null, null, "_id");
-    }
-
-    /**
-     * Get whether each coin is in the collection
-     *
-     * @return Cursor over all coins in the collection
-     */
-    Cursor getInCollectionInfo(String tableName) {
-        return mDb.query("[" + tableName + "]", new String[] {COL_IN_COLLECTION},
-                    null, null, null, null, "_id");
-    }
-
-
-    /**
-     * Get the advanced info associated with each coin in the collection
-     *
-     * @param tableName The collection name
-     * @return Cursor over all coins in the collection
-     */
-    Cursor getAdvInfo(String tableName) {
-
-        return mDb.query("[" + tableName + "]", new String[] {COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES},
-                null, null, null, null, "_id");
-    }
-
-    /**
-     * Get all collection info (for exporting)
-     *
-     * @param tableName The collection name
-     * @return Cursor over all coins in the collection
-     */
-    Cursor getAllCollectionInfo(String tableName) {
-
-        return mDb.query("[" + tableName + "]", new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION, COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES},
-                null, null, null, null, "_id");
+        if (cursor.moveToFirst()){
+            do {
+                coinList.add(new CoinSlot(
+                        cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
+                        cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
+                        false));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        return coinList;
     }
 
     /**
@@ -487,55 +324,157 @@ public class DatabaseAdapter {
      * @param fromImport true if the upgrade is part of a database import
      */
     void upgradeCollections(int oldVersion, boolean fromImport) {
-        mDbHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, fromImport);
+        DatabaseHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, fromImport);
     }
 
     /**
      * Check if a name can be used for a new/renamed collection
      * @param tableName The collection name
-     * @return Empty string if name is valid, otherwise a reason why the name can't be used
+     * @return -1 if successful otherwise a resource id corresponding to an error message
      */
-    String checkCollectionName(String tableName) {
+    int checkCollectionName(String tableName) {
 
         // Make sure the name isn't in the reserved list
         if (mReservedDbNames.contains(tableName)) {
-            return "Collection name is reserved, please choose a different name";
+            return R.string.collection_name_reserved;
         }
 
         // By the time the user is able to click this mDbAdapter should not be NULL anymore
-        Cursor resultCursor = this.getAllCollectionNames();
-        if(resultCursor == null){
-            return "Failed to get list of current collections, low on memory perhaps?";
-        }
-        // THanks! http://stackoverflow.com/questions/2810615/how-to-retrieve-data-from-cursor-class
-        if (resultCursor.moveToFirst()){
+        Cursor cursor = this.getAllCollectionNames();
+        if (cursor.moveToFirst()){
             do {
                 Locale defaultLocale = Locale.getDefault();
-                if(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))){
-                    resultCursor.close();
-                    return "A collection with this name already exists, please choose a different name";
+                if(cursor.getString(cursor.getColumnIndex(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))){
+                    cursor.close();
+                    return R.string.collection_name_exists;
                 }
 
-            } while(resultCursor.moveToNext());
+            } while(cursor.moveToNext());
         }
-        resultCursor.close();
-        return "";
+        cursor.close();
+        return -1;
     }
 
     /**
      * Get the next display order for a new collection
      * @return The next display order to use
+     * @throws SQLException if a database error occurred
      */
-    int getNextDisplayOrder() {
-        String select_sqlStatement = "SELECT MAX(" + COL_DISPLAY_ORDER + ") FROM " + TBL_COLLECTION_INFO;
-        SQLiteStatement compiledStatement;
-
-        compiledStatement = mDb.compileStatement(select_sqlStatement);
-        int result = (int) compiledStatement.simpleQueryForLong();
-
+    int getNextDisplayOrder() throws SQLException {
+        String sqlCmd = "SELECT MAX(" + COL_DISPLAY_ORDER + ") FROM " + TBL_COLLECTION_INFO;
+        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
+        int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
         compiledStatement.close();
-
         return result + 1;
+    }
+
+    /**
+     * Copy collection
+     * @param sourceCollectionListInfo Source table info
+     * @param newTableName Name of the new table to create
+     * @param insertIndex index to place the new collection at
+     * @throws SQLException if a database error occurs
+     * @return the newly created CollectionListInfo
+     */
+    CollectionListInfo createCollectionCopy(CollectionListInfo sourceCollectionListInfo, String newTableName, int insertIndex) throws SQLException {
+
+        // Add the new table but don't populate
+        CollectionListInfo newCollectionListInfo = sourceCollectionListInfo.copy(newTableName);
+        createAndPopulateNewTable(newCollectionListInfo, insertIndex, null);
+
+        // Populate the contents use SQL commands
+        String sourceTableName = sourceCollectionListInfo.getName();
+        String populateDbCmd = "INSERT INTO [" + newTableName + "] SELECT * FROM [" + sourceTableName + "];";
+        mDb.execSQL(populateDbCmd);
+
+        // Return the newly created object
+        return newCollectionListInfo;
+    }
+
+    /**
+     * Helper function to rename a collection
+     * @param oldName The original collection name
+     * @param newName The new collection name
+     * @throws SQLException if the database update was not successful
+     */
+    void updateCollectionName(String oldName, String newName) throws SQLException {
+        DatabaseHelper.updateCollectionName(mDb, oldName, newName);
+    }
+
+    /**
+     * Update database info for an existing collection
+     * @param oldTableName the original collection name
+     * @param collectionListInfo new collection info
+     * @param coinData new coin data
+     * @throws SQLException if a database error occurs
+     */
+    void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
+        DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData);
+    }
+
+
+    /**
+     * Creates the table of metadata for all the current collections
+     * @throws SQLException if a database error occurs
+     */
+    void createCollectionInfoTable() throws SQLException {
+        DatabaseHelper.createCollectionInfoTable(mDb);
+    }
+
+    /**
+     * Returns a list of all collections in the database
+     * @throws SQLException if a database error occurs
+     */
+    public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
+        DatabaseHelper.getAllTables(mDb, collectionListEntries);
+    }
+
+    /**
+     * Get the basic coin information
+     *
+     * @param tableName The name of the collection
+     * @param populateAdvInfo If true, includes advanced attributes
+     * @return CoinSlot list
+     */
+    ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo) {
+        return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo);
+    }
+
+    /**
+     * Executes the SQL insert command and returns false if an error occurs
+     * @param tableName The table to insert into
+     * @param values Values to insert into the table
+     * @throws SQLException if an insert error occurred
+     */
+    void runSqlInsert(String tableName, ContentValues values) throws SQLException {
+        DatabaseHelper.runSqlInsert(mDb, tableName, values);
+    }
+
+    /**
+     * Executes the SQL update command and returns false if an error occurs
+     * @param tableName Table to update
+     * @param values Values to update
+     * @param whereClause Where clause
+     * @param whereArgs Where args
+     * @throws SQLException if the update did not affect any rows
+     */
+    void runSqlUpdateAndCheck(String tableName, ContentValues values, String whereClause, String[] whereArgs) throws SQLException {
+        if (DatabaseHelper.runSqlUpdate(mDb, tableName, values, whereClause, whereArgs) <= 0) {
+            throw new SQLException();
+        }
+    }
+
+    /**
+     * Wrapper for delete
+     * @param table Table to update
+     * @param whereClause Where clause
+     * @param whereArgs Where args
+     * @throws SQLException if the delete did not affect any rows
+     */
+    void runSqlDeleteAndCheck(String table, String whereClause, String[] whereArgs) throws SQLException {
+        if (DatabaseHelper.runSqlDelete(mDb, table, whereClause, whereArgs) <= 0) {
+            throw new SQLException();
+        }
     }
 }

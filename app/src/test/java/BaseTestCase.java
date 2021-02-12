@@ -28,10 +28,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
+import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
+import com.coincollection.CollectionPage;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.MainActivity;
+import com.spencerpages.MainApplication;
+import com.spencerpages.SharedTest;
+
+import junit.framework.TestCase;
 
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowApplication;
@@ -45,7 +52,11 @@ import androidx.test.core.app.ApplicationProvider;
 
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.DatabaseAdapter.COL_NAME;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_TOTAL;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
 import static com.spencerpages.MainApplication.DATABASE_NAME;
 import static org.junit.Assert.assertEquals;
@@ -55,6 +66,24 @@ import static org.junit.Assert.assertTrue;
 public class BaseTestCase {
 
     public final static int VERSION_1_YEAR = 2013;
+
+    /**
+     * Gets a minimally populated CollectionListInfo
+     * @param name collection name
+     * @param collectionInfo associated CollectionInfo object
+     * @param coinList (optional) list of coins
+     * @return CollectionListInfo object
+     */
+    public CollectionListInfo getCollectionListInfo(String name, CollectionInfo collectionInfo,
+                                                    ArrayList<CoinSlot> coinList) {
+        return new CollectionListInfo(
+                name,
+                (coinList != null ? coinList.size() : 0),
+                0,
+                MainApplication.getIndexFromCollectionNameStr(collectionInfo.getCoinType()),
+                CollectionPage.SIMPLE_DISPLAY,
+                0, 0, 0, 0);
+    }
 
     /**
      * Enable storage read/write permission
@@ -82,7 +111,11 @@ public class BaseTestCase {
             collectionInfo.getCreationParameters(parameters);
             ArrayList<CoinSlot> newCoinList = new ArrayList<>();
             collectionInfo.populateCollectionLists(parameters, newCoinList);
-            createNewTable(activity, collectionInfo.getCoinType(), collectionInfo.getCoinType(), newCoinList, displayOrder++);
+            CollectionListInfo collectionListInfo = getCollectionListInfo(
+                    collectionInfo.getCoinType(),
+                    collectionInfo,
+                    newCoinList);
+            createNewTable(activity, collectionListInfo, newCoinList, displayOrder++);
         }
         return true;
     }
@@ -101,23 +134,26 @@ public class BaseTestCase {
             collectionInfo.getCreationParameters(parameters);
             ArrayList<CoinSlot> newCoinList = new ArrayList<>();
             collectionInfo.populateCollectionLists(parameters, newCoinList);
-            createNewTable(activity, collectionName, collectionInfo.getCoinType(), newCoinList, displayOrder++);
+            CollectionListInfo collectionListInfo = getCollectionListInfo(
+                    collectionName,
+                    collectionInfo,
+                    newCoinList);
+            createNewTable(activity, collectionListInfo, newCoinList, displayOrder++);
         }
         return true;
     }
 
     /**
      * Create a database table for a new collection
-     * @param tableName Name of the table
-     * @param coinType Type of coin
+     * @param collectionListInfo Collection info
      * @param coinList List of coin slots
      * @param displayOrder Display order of the collection
      */
-    public void createNewTable(Activity activity, String tableName, String coinType,
+    public void createNewTable(Activity activity, CollectionListInfo collectionListInfo,
                         ArrayList<CoinSlot> coinList, int displayOrder) {
         DatabaseAdapter dbAdapter = new DatabaseAdapter(activity);
         dbAdapter.open();
-        dbAdapter.createNewTable(tableName, coinType, coinList, displayOrder);
+        dbAdapter.createAndPopulateNewTable(collectionListInfo, displayOrder, coinList);
         dbAdapter.close();
     }
 
@@ -132,7 +168,7 @@ public class BaseTestCase {
         assertNotNull(resultCursor);
         if (resultCursor.moveToFirst()){
             do{
-                dbAdapter.dropTable(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)));
+                dbAdapter.dropCollectionTable(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)));
             } while(resultCursor.moveToNext());
         }
         resultCursor.close();
@@ -198,17 +234,17 @@ public class BaseTestCase {
 
         for(Object[] coinInfo : coinList){
             ContentValues initialValues = new ContentValues();
-            initialValues.put("coinIdentifier", (String) coinInfo[0]);
-            initialValues.put("coinMint", (String) coinInfo[1]);
-            initialValues.put("inCollection", (int) coinInfo[2]);
+            initialValues.put(COL_COIN_IDENTIFIER, (String) coinInfo[0]);
+            initialValues.put(COL_COIN_MINT, (String) coinInfo[1]);
+            initialValues.put(COL_IN_COLLECTION, (int) coinInfo[2]);
             db.insert("[" + collectionName + "]", null, initialValues);
         }
 
         ContentValues values = new ContentValues();
-        values.put("name", collectionName);
-        values.put("coinType", coinType);
-        values.put("total", coinList.size());
-        db.insert("collection_info", null, values);
+        values.put(COL_NAME, collectionName);
+        values.put(COL_COIN_TYPE, coinType);
+        values.put(COL_TOTAL, coinList.size());
+        db.insert(TBL_COLLECTION_INFO, null, values);
     }
 
     /**
@@ -243,18 +279,8 @@ public class BaseTestCase {
 
                     // Get coins from the updated database
                     activity.mDbAdapter.open();
-                    Cursor resultCursor = activity.mDbAdapter.getAllIdentifiers(collectionName);
-                    assertNotNull(resultCursor);
-                    ArrayList<CoinSlot> dbCoinList = new ArrayList<>();
-                    if (resultCursor.moveToFirst()){
-                        do {
-                            dbCoinList.add(new CoinSlot(
-                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                                    resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_MINT)),
-                                    false));
-                        } while(resultCursor.moveToNext());
-                    }
-                    resultCursor.close();
+                    ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
+                    assertNotNull(dbCoinList);
                     activity.mDbAdapter.close();
 
                     // Make sure coin lists match
@@ -266,21 +292,48 @@ public class BaseTestCase {
 
                     // Make sure total matches
                     activity.mDbAdapter.open();
-                    resultCursor = activity.mDbAdapter.getAllTables();
+                    ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                    activity.mDbAdapter.getAllTables(collectionListEntries);
+                    assertNotNull(collectionListEntries);
                     boolean foundTable = false;
-                    if (resultCursor.moveToFirst()){
-                        do{
-                            if(collectionName.equals(resultCursor.getString(resultCursor.getColumnIndex("name")))){
-                                foundTable = true;
-                                assertEquals(newCoinList.size(), resultCursor.getInt(resultCursor.getColumnIndex("total")));
-                            }
-                        } while(resultCursor.moveToNext());
+                    for (CollectionListInfo collectionListInfo : collectionListEntries) {
+                        if (collectionName.equals(collectionListInfo.getName())) {
+                            foundTable = true;
+                            assertEquals(newCoinList.size(), collectionListInfo.getMax());
+                            break;
+                        }
                     }
-                    resultCursor.close();
                     activity.mDbAdapter.close();
                     assertTrue(foundTable);
                 }
             });
         }
+    }
+
+    /**
+     * Checks that the collection can be recreated based solely on the coin data
+     * @param coinList coin list to analyze
+     * @param coinClass type of coin
+     */
+    void checkCreationParamsFromCoinList(ArrayList<CoinSlot> coinList, CollectionInfo coinClass) {
+        // Note: Skips configurations resulting in 0 coins, as there's no way to recreate these.
+        //       In this case, editing the collection will reset back to the original start/year
+        if (coinList.size() != 0) {
+            CollectionListInfo collectionListInfo = getCollectionListInfo("X", coinClass, coinList);
+            collectionListInfo.setCreationParametersFromCoinData(coinList);
+            HashMap<String, Object> checkParameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
+            ArrayList<CoinSlot> coinListFromDerivedParams = new ArrayList<>();
+            coinClass.populateCollectionLists(checkParameters, coinListFromDerivedParams);
+            TestCase.assertEquals(coinList, coinListFromDerivedParams);
+        }
+    }
+
+    /**
+     * Compare two CollectionListInfo classes to ensure they're the same
+     * @param base CollectionListInfo
+     * @param check CollectionListInfo
+     */
+    void compareCollectionListInfos(CollectionListInfo base, CollectionListInfo check) {
+        assertTrue(SharedTest.compareCollectionListInfos(base, check));
     }
 }

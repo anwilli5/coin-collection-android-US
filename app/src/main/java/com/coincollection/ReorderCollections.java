@@ -20,20 +20,11 @@
 
 package com.coincollection;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,19 +36,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.spencerpages.BuildConfig;
-import com.spencerpages.R;
 import com.coincollection.helper.OnStartDragListener;
 import com.coincollection.helper.SimpleItemTouchHelperCallback;
+import com.spencerpages.BuildConfig;
+import com.spencerpages.R;
 
 import java.util.ArrayList;
 
-import static com.coincollection.MainActivity.createAndShowHelpDialog;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Fragment utilizing a RecyclerView to implement a collection re-ordering capability
  */
 public class ReorderCollections extends Fragment implements OnStartDragListener {
+
+    public final static String REORDER_COLLECTION = "ReorderFragment";
 
     private ItemTouchHelper mItemTouchHelper;
     private ArrayList<CollectionListInfo> mItems = null;
@@ -75,9 +74,16 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Show help to reorder the collection
-        Activity activity = getActivity();
+        MainActivity activity = (MainActivity) getActivity();
         if(activity != null){
-            createAndShowHelpDialog("reorder_help1", R.string.tutorial_reorder_collections, activity);
+            activity.createAndShowHelpDialog("reorder_help1", R.string.tutorial_reorder_collections);
+
+            // Setup the actionbar for the reorder page
+            if(activity.mActionBar != null){
+                activity.mActionBar.setTitle(activity.mRes.getString(R.string.reorder_collection));
+                activity.mActionBar.setDisplayHomeAsUpEnabled(true);
+                activity.mActionBar.setHomeButtonEnabled(true);
+            }
         }
 
         return inflater.inflate(R.layout.activity_reorder_collections, container, false);
@@ -117,7 +123,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set up the adapter that provides the collection entries
-        ReorderAdapter mAdapter = new ReorderAdapter(mItems, this);
+        ReorderAdapter mAdapter = new ReorderAdapter(mItems);
         mRecyclerView.setAdapter(mAdapter);
 
         // Register the ItemTouchHelper Callback so that we can allow reordering
@@ -137,7 +143,11 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
                     Log.d("onItemRangeMoved", fromPosition + " " + toPosition + " " + itemCount);
                 }
 
-                ReorderCollections fragment = (ReorderCollections) getFragmentManager().findFragmentByTag("ReorderFragment");
+                FragmentManager fragmentManager = getFragmentManager();
+                if (fragmentManager == null) return;
+
+                ReorderCollections fragment = (ReorderCollections) fragmentManager.findFragmentByTag(REORDER_COLLECTION);
+                if (fragment == null) return;
 
                 fragment.setUnsavedChanges(true);
                 fragment.showUnsavedTextView();
@@ -197,17 +207,18 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             return true;
         } else if (itemId == R.id.save_reordered_collections) {
             MainActivity activity = (MainActivity) getActivity();
-            Resources res = activity.getResources();
+            if (activity != null) {
+                Resources res = activity.getResources();
 
-            activity.handleCollectionsReordered(mItems);
+                activity.handleCollectionsReordered(mItems);
 
-            Context context = activity.getApplicationContext();
-            CharSequence text = res.getString(R.string.changes_saved);
-            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-            toast.show();
+                CharSequence text = res.getString(R.string.changes_saved);
+                Toast toast = Toast.makeText(activity, text, Toast.LENGTH_SHORT);
+                toast.show();
 
-            this.hideUnsavedTextView();
-            this.setUnsavedChanges(false);
+                this.hideUnsavedTextView();
+                this.setUnsavedChanges(false);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -229,17 +240,27 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         mItemTouchHelper.startDrag(viewHolder);
     }
 
+    /**
+     * Shows the unsaved TextView
+     */
     private void showUnsavedTextView() {
 
-        TextView unsavedMessageView = getView().findViewById(R.id.unsaved_message_textview_reorder);
+        View view = getView();
+        if (view == null) return;
 
+        TextView unsavedMessageView = view.findViewById(R.id.unsaved_message_textview_reorder);
         unsavedMessageView.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Hides the unsaved TextView
+     */
     private void hideUnsavedTextView() {
 
-        TextView unsavedMessageView = getView().findViewById(R.id.unsaved_message_textview_reorder);
+        View view = getView();
+        if (view == null) return;
 
+        TextView unsavedMessageView = view.findViewById(R.id.unsaved_message_textview_reorder);
         unsavedMessageView.setVisibility(View.GONE);
     }
 
@@ -247,11 +268,11 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
      * Show an alert that changes aren't saved before exiting fragment
      */
     private void showUnsavedChangesAlertAndExitFragment(){
-        Activity activity = getActivity();
+        MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            activity.mBuilder = new AlertDialog.Builder(activity);
             Resources res = activity.getResources();
-            builder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
+            activity.mBuilder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
                     .setCancelable(false)
                     .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -263,8 +284,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
                             dialog.cancel();
                         }
                     });
-            AlertDialog alert = builder.create();
-            alert.show();
+            activity.showAlert();
         }
     }
 }

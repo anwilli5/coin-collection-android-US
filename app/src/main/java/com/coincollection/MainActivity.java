@@ -21,16 +21,14 @@
 package com.coincollection;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -38,7 +36,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -60,55 +57,33 @@ import java.util.HashSet;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
  * The main Activity for the app.  Implements a ListView which lets the user view a previously
  * created collection or add/delete/reorder/export/import collections
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     public final ArrayList<CollectionListInfo> mCollectionListEntries = new ArrayList<>();
-    private final Context mContext = this;
     private FrontAdapter mListAdapter;
-    public final DatabaseAdapter mDbAdapter = new DatabaseAdapter(this);
-    private Resources mRes;
-
-    // Data from caller intent
-    public static final String UNIT_TEST_USE_ASYNC_TASKS = "unit-test-use-async-tasks";
-    private boolean mUseAsyncTasks = true;
 
     // The number of actual collections in mCollectionListEntries
-    public int mNumberOfCollections;
-
-    // To be used with a simple cancel-able alert.  For more complicated alerts use a different one
-    private AlertDialog.Builder mBuilder = null;
-
+    public int mNumberOfCollections = 0;
 
     // Used for the Update Database functionality
-    private ProgressDialog mProgressDialog = null;
-    private AsyncProgressTask mTask = null;
-    private AsyncProgressInterface mImportInterface;
-    private static final int ASYNC_TASK_OPEN_ID = 1;
-    private static final int ASYNC_TASK_IMPORT_ID = 2;
-    private boolean mDatabaseHasBeenOpened = false;
     private boolean mIsImportingCollection = false;
-
-    // See notes in onCreate below.  Used to handle the case where we are importing collections and
-    // the screen orientation changes
-    private boolean mShouldFinishViewSetupToo = false;
 
     // These are used to support importing the collection data.  After we have read everything in,
     // we save the info here while we ask the user whether they really want to delete all of their
     // existing collections.
-    // TODO Rename this to indicated that they are associated with importing
     private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
     private ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
     private int mDatabaseVersion = -1;
@@ -144,72 +119,41 @@ public class MainActivity extends AppCompatActivity {
     private final static int IMPORT_PERMISSIONS_REQUEST = 0;
     private final static int EXPORT_PERMISSIONS_REQUEST = 1;
 
+    // Action menu items
+    private final static int NUM_ACTIONS = 4;
+    private final static int ACTIONS_VIEW = 0;
+    private final static int ACTIONS_EDIT = 1;
+    private final static int ACTIONS_COPY = 2;
+    private final static int ACTIONS_DELETE = 3;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Don't have BaseActivity open the database - this activity will call that on an async
+        // task the first time so the upgrade happens off of the UI thread.
+        mOpenDbAdapterInOnCreate = false;
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity_layout);
-
-        mBuilder = new AlertDialog.Builder(this);
-        mRes = getResources();
-        Intent callingIntent = getIntent();
-        mUseAsyncTasks = callingIntent.getBooleanExtra(UNIT_TEST_USE_ASYNC_TASKS, true);
 
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
         // until they made it to the create collection screen.  That isn't necessary anymore, but
         // if they are upgrading from that don't show them the help screen if first_Time_screen1
         // isn't set
-        createAndShowHelpDialog("first_Time_screen1", R.string.intro_message, this);
+        createAndShowHelpDialog("first_Time_screen1", R.string.intro_message);
 
-        // Set up the asynchronous portion of onCreate()
-        setupOnCreateAsyncTasks();
-    }
-
-    /**
-     * Performs the async portion of the onCreate process
-     */
-    public void setupOnCreateAsyncTasks() {
-
-        AsyncProgressInterface openInterface = new AsyncProgressInterface() {
-            @Override
-            public void asyncProgressDoInBackground() {
-                DatabaseAdapter dbAdapter = new DatabaseAdapter(MainActivity.this);
-                dbAdapter.open();
-                // Now just close it, since the database will have updated and
-                // that's really all we need this AsyncTask for
-                dbAdapter.close();
-            }
-            @Override
-            public void asyncProgressOnPreExecute() {
-                createProgressDialog("Opening Databases...");
-            }
-            @Override
-            public void asyncProgressOnPostExecute() {
-                completeProgressDialogAndFinishViewSetup();
-            }
-        };
-
-        // TODO If there is a screen orientation change, it looks like a ProgressDialog gets leaked. :(
-        AsyncProgressTask check = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
-        if(check == null){
+        if(mPreviousTask == null){
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
             // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
             // a long time.
-            kickOffAsyncProgressTask(openInterface, ASYNC_TASK_OPEN_ID);
-            // The AsyncProgressTask will call finishViewSetup once the database has been opened
-            // for the first time
+            kickOffAsyncProgressTask(TASK_OPEN_DATABASE);
+            // The AsyncProgressTask will update mDbAdapter once the database has been opened
         } else {
             if(BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "Taking over existing mTask");
             }
-            // An AsyncProgressTask is running, make a new dialog to show it
-            mTask = check;
-            // Change the task's listener the new activity will be the listener. See note above AsyncTask
-            // definition for more info.
-            mTask.mListener = openInterface;
 
             // There's two possible AsyncProgressTask's that could be running:
             //     - The one to open the database for the first time
@@ -218,37 +162,176 @@ public class MainActivity extends AppCompatActivity {
             // screen.  For the latter case, we still need something to call finishViewSetup, and
             // we don't want to call it here bc it will try to use the database too early.  Instead,
             // set a flag that will have that AsyncProgressTask call finishViewSetup for us as well.
-            if(mProgressDialog != null && mProgressDialog.isShowing()){
-                mProgressDialog.dismiss();
-            }
+            asyncProgressOnPreExecute();
 
-            // Make a new dialog
-            if(mTask.mAsyncTaskId == ASYNC_TASK_OPEN_ID) {
-                createProgressDialog("Opening Databases...");
-            } else if(mTask.mAsyncTaskId == ASYNC_TASK_IMPORT_ID){
-                mDatabaseHasBeenOpened = true; // This has to have happened at this point
+            // If we were in the middle of importing, the DB adapter may now be closed
+            if(mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS){
+                openDbAdapterForUIThread();
                 mIsImportingCollection = true;
-                mShouldFinishViewSetupToo = true;
-                createProgressDialog("Importing Collections...");
             }
         }
 
-        // Interface for kicking off collection import
-        mImportInterface = new AsyncProgressInterface() {
-            @Override
-            public void asyncProgressDoInBackground() {
-                // Start doing all of the file reading and database importing
-                handleImportCollectionsPart2();
+        // Instantiate the FrontAdapter
+        mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
+        ListView lv = findViewById(R.id.main_activity_listview);
+        lv.setAdapter(mListAdapter);
+        // TODO Not sure what this does?
+        lv.setTextFilterEnabled(true); // Typing narrows down the list
+
+        // At this point the UI is ready to handle any async callbacks
+        setActivityReadyForAsyncCallbacks();
+
+        // For when we use fragments, listen to the back stack so we can transition back here from
+        // the fragment
+        getSupportFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+                    public void onBackStackChanged() {
+
+                        if(0 == getSupportFragmentManager().getBackStackEntryCount()){
+
+                            // We are back at this activity, so restore the ActionBar
+                            if(mActionBar != null){
+                                mActionBar.setTitle(mRes.getString(R.string.app_name));
+                                mActionBar.setDisplayHomeAsUpEnabled(false);
+                                mActionBar.setHomeButtonEnabled(false);
+                            }
+
+                            // The collections may have been re-ordered, so update them here.
+                            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+                        }
+                    }
+                });
+
+        // Now set the onItemClickListener to perform a certain action based on what's clicked
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                // See whether it was one of the special list entries (Add collection, delete
+                // collection, etc.)
+                if(position >= mNumberOfCollections){
+                    int newPosition = position - mNumberOfCollections;
+                    switch(newPosition){
+                        case ADD_COLLECTION:
+                            launchCoinPageCreatorActivity(null);
+                            break;
+                        case REMOVE_COLLECTION:
+
+                            if(mNumberOfCollections == 0){
+                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
+                                break;
+                            }
+                            // Thanks!
+                            // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
+                            CharSequence[] names = new CharSequence[mNumberOfCollections];
+                            for(int i = 0; i < mNumberOfCollections; i++){
+                                names[i] = mCollectionListEntries.get(i).getName();
+                            }
+
+                            mBuilder = new AlertDialog.Builder(MainActivity.this);
+                            mBuilder.setTitle(mRes.getString(R.string.select_collection_delete));
+                            mBuilder.setItems(names, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int item) {
+                                    showDeleteConfirmation(mCollectionListEntries.get(item).getName());
+                                }
+                            });
+                            showAlert();
+                            break;
+                        case IMPORT_COLLECTIONS:
+                            handleImportCollectionsPart1();
+                            break;
+                        case EXPORT_COLLECTIONS:
+                            handleExportCollectionsPart1();
+                            break;
+                        case REORDER_COLLECTIONS:
+
+                            if(mNumberOfCollections == 0){
+                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
+                                break;
+                            }
+
+                            // Get a list that excludes the spacers
+                            List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
+                            ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
+
+                            ReorderCollections fragment = new ReorderCollections();
+                            fragment.setCollectionList(collections);
+
+                            // Show the fragment used for reordering collections
+                            getSupportFragmentManager().beginTransaction()
+                                    .add(R.id.main_activity_frame, fragment, REORDER_COLLECTION)
+                                    .addToBackStack(null)
+                                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                    .commit();
+                            break;
+                        case ABOUT:
+
+                            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+                            View layout = inflater.inflate(R.layout.info_popup,
+                                    (ViewGroup) findViewById(R.id.info_layout_root));
+
+                            mBuilder = new AlertDialog.Builder(MainActivity.this);
+                            mBuilder.setView(layout);
+
+                            TextView tv = layout.findViewById(R.id.info_textview);
+                            tv.setText(buildInfoText());
+
+                            showAlert();
+                            break;
+                    }
+
+                    return;
+                }
+                // If it gets here, the user has selected a collection
+                launchCoinPageActivity(mCollectionListEntries.get(position));
             }
+        });
+
+        // Add long-press handler for additional actions
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void asyncProgressOnPreExecute() {
-                createProgressDialog("Importing Collections...");
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position < mNumberOfCollections) {
+                    // For each collection item, populate a menu of actions for the collection
+                    mBuilder = new AlertDialog.Builder(MainActivity.this);
+                    mBuilder.setTitle(mRes.getString(R.string.collection_actions));
+                    CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
+                    actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
+                    actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
+                    actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
+                    actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
+                    final int actionPosition = position;
+                    mBuilder.setItems(actionsList, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+                            switch (item) {
+                                case ACTIONS_VIEW: {
+                                    // Launch collection page
+                                    launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
+                                    break;
+                                }
+                                case ACTIONS_EDIT: {
+                                    // Launch edit view
+                                    launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
+                                    break;
+                                }
+                                case ACTIONS_COPY: {
+                                    // Perform copy
+                                    copyCollection(mCollectionListEntries.get(actionPosition).getName());
+                                    break;
+                                }
+                                case ACTIONS_DELETE: {
+                                    // Perform delete
+                                    showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                    showAlert();
+                    return true;
+                }
+                return false;
             }
-            @Override
-            public void asyncProgressOnPostExecute() {
-                completeProgressDialogAndFinishViewSetup();
-            }
-        };
+        });
 
         // HISTORIC - no longer the case:
         //
@@ -279,167 +362,82 @@ public class MainActivity extends AppCompatActivity {
         // is required, but just open and close the database regularly as needed after that.
     }
 
-    /**
-     * Finishes setting up the view once the database has been opened.
-     */
-    private void finishViewSetup(){
-
-        // Called from the AsyncProgressTask after the database has been successfully
-        // opened for the first time.  Now we can be fairly sure that future
-        // open's won't trigger an ANR issue.
-
-        if(BuildConfig.DEBUG) {
-            Log.v("mainActivity", "finishViewSetup");
+    @Override
+    public void onDestroy() {
+        // Only MainActivity closes the DB adapter, as it's shared between all activities
+        if (mDbAdapter != null) {
+            mDbAdapter.close();
         }
+        // Don't try and stop any tasks, as they could be in the middle of a DB upgrade
+        super.onDestroy();
+    }
 
-        // Populate mCollectionListEntries with the data from the database
-        updateCollectionListFromDatabase();
-
-        // Instantiate the FrontAdapter
-        mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
-
-        ListView lv = findViewById(R.id.main_activity_listview);
-
-        lv.setAdapter(mListAdapter);
-
-        // TODO Not sure what this does?
-        lv.setTextFilterEnabled(true); // Typing narrows down the list
-
-        // For when we use fragments, listen to the back stack so we can transition back here from
-        // the fragment
-
-        getSupportFragmentManager().addOnBackStackChangedListener(
-                new FragmentManager.OnBackStackChangedListener() {
-                    public void onBackStackChanged() {
-
-                        if(0 == getSupportFragmentManager().getBackStackEntryCount()){
-
-                            // We are back at this activity, so restore the ActionBar
-                            ActionBar actionBar = getSupportActionBar();
-                            if(actionBar != null){
-                                actionBar.setTitle(mRes.getString(R.string.app_name));
-                                actionBar.setDisplayHomeAsUpEnabled(false);
-                                actionBar.setHomeButtonEnabled(false);
-                            }
-
-                            // The collections may have been re-ordered, so update them here.
-                            updateCollectionListFromDatabase();
-
-                            // Change it out with the new list
-                            mListAdapter.items = mCollectionListEntries;
-                            mListAdapter.numberOfCollections = mNumberOfCollections;
-                            mListAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
-
-        // Now set the onItemClickListener to perform a certain action based on what's clicked
-        lv.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                // See whether it was one of the special list entries (Add collection, delete
-                // collection, etc.)
-                if(position >= mNumberOfCollections){
-
-                    int newPosition = position - mNumberOfCollections;
-                    Intent intent;
-
-                    switch(newPosition){
-                        case ADD_COLLECTION:
-                            intent = new Intent(mContext, CoinPageCreator.class);
-                            startActivity(intent);
-                            break;
-                        case REMOVE_COLLECTION:
-
-                            if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-                            // Thanks!
-                            // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
-                            CharSequence[] names = new CharSequence[mNumberOfCollections];
-                            for(int i = 0; i < mNumberOfCollections; i++){
-                                names[i] = mCollectionListEntries.get(i).getName();
-                            }
-
-                            AlertDialog.Builder delete_builder = new AlertDialog.Builder(mContext);
-                            delete_builder.setTitle(mRes.getString(R.string.select_collection_delete));
-                            delete_builder.setItems(names, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int item) {
-                                    showDeleteConfirmation(mCollectionListEntries.get(item).getName());
-                                }
-                            });
-                            AlertDialog alert = delete_builder.create();
-                            alert.show();
-                            break;
-                        case IMPORT_COLLECTIONS:
-                            handleImportCollectionsPart1();
-                            break;
-                        case EXPORT_COLLECTIONS:
-                            handleExportCollectionsPart1();
-                            break;
-                        case REORDER_COLLECTIONS:
-
-                            if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-
-                            // Get a list that excludes the spacers
-                            List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
-                            ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
-
-                            ReorderCollections fragment = new ReorderCollections();
-                            fragment.setCollectionList(collections);
-
-                            // Show the fragment used for reordering collections
-                            getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.main_activity_frame, fragment, "ReorderFragment")
-                                    .addToBackStack(null)
-                                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                    .commit();
-
-                            // Setup the actionbar for the reorder page
-                            // TODO Check for NULL
-                            ActionBar actionBar = getSupportActionBar();
-                            if(actionBar != null){
-                                actionBar.setTitle(mRes.getString(R.string.reorder_collection));
-                                actionBar.setDisplayHomeAsUpEnabled(true);
-                                actionBar.setHomeButtonEnabled(true);
-                            }
-
-                            break;
-                        case ABOUT:
-
-                            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-                            View layout = inflater.inflate(R.layout.info_popup,
-                                                           (ViewGroup) findViewById(R.id.info_layout_root));
-
-                            AlertDialog.Builder info_builder = new AlertDialog.Builder(mContext);
-                            info_builder.setView(layout);
-
-                            TextView tv = layout.findViewById(R.id.info_textview);
-                            tv.setText(buildInfoText());
-
-                            AlertDialog alertDialog = info_builder.create();
-                            alertDialog.show();
-                            break;
-                    }
-
-                    return;
-                }
-                // If it gets here, the user has selected a collection
-
-                Intent intent = new Intent(mContext, CollectionPage.class);
-
-                CollectionListInfo listEntry = mCollectionListEntries.get(position);
-
-                intent.putExtra(CollectionPage.COLLECTION_NAME, listEntry.getName());
-                intent.putExtra(CollectionPage.COLLECTION_TYPE_INDEX, listEntry.getCollectionTypeIndex());
-
-                startActivity(intent);
+    @Override
+    public int asyncProgressDoInBackground() {
+        switch (mTask.mAsyncTaskId) {
+            case TASK_OPEN_DATABASE: {
+                return openDbAdapterForAsyncThread();
             }
-        });
+            case TASK_IMPORT_COLLECTIONS: {
+                // Start doing all of the database importing
+                return asyncHandleImportCollectionsPart2();
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public void asyncProgressOnPreExecute() {
+        switch (mTask.mAsyncTaskId) {
+            case TASK_OPEN_DATABASE: {
+                createProgressDialog(mRes.getString(R.string.opening_database));
+                break;
+            }
+            case TASK_IMPORT_COLLECTIONS: {
+                createProgressDialog(mRes.getString(R.string.importing_collections));
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void asyncProgressOnPostExecute(int errorResId) {
+        super.asyncProgressOnPostExecute(errorResId);
+        dismissProgressDialog();
+        switch (mTask.mAsyncTaskId) {
+            case TASK_OPEN_DATABASE: {
+                updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+                break;
+            }
+            case TASK_IMPORT_COLLECTIONS: {
+                mIsImportingCollection = false;
+                updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Launches the collection page for a collection list entry
+     * @param listEntry The collection to view
+     */
+    private void launchCoinPageActivity(CollectionListInfo listEntry) {
+        Intent intent = new Intent(mContext, CollectionPage.class);
+        intent.putExtra(CollectionPage.COLLECTION_NAME, listEntry.getName());
+        intent.putExtra(CollectionPage.COLLECTION_TYPE_INDEX, listEntry.getCollectionTypeIndex());
+        startActivity(intent);
+    }
+
+    /**
+     * Launches the collection creation page, either for creating a new collection or for editing
+     * @param existingCollection if null, creates a new collection otherwise edits an existing one
+     */
+    private void launchCoinPageCreatorActivity(CollectionListInfo existingCollection) {
+        Intent intent = new Intent(mContext, CoinPageCreator.class);
+        if (existingCollection != null) {
+            intent.putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, existingCollection);
+        }
+        startActivity(intent);
     }
 
     /**
@@ -497,7 +495,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if(-1 == mDatabaseVersion){
+        if(mDatabaseVersion == -1){
             showCancelableAlert(mRes.getString(R.string.error_db_version));
             return;
         }
@@ -517,63 +515,24 @@ public class MainActivity extends AppCompatActivity {
             String[] items;
 
             // TODO Raise an error if in.readNext returns null
-            while(null != (items = in.readNext())){
+            while (null != (items = in.readNext())) {
 
-                // Perform some sanity checks here
-                if(items.length != 4 && items.length != 5){
-                    errorOccurred = true;
-                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 1));
-                    break;
-                }
+                CollectionListInfo info = new CollectionListInfo(items);
 
-                String name = items[0];
-                String type = items[1];
-                int totalCollected = Integer.parseInt(items[2]);
-                int total = Integer.parseInt(items[3]);
-                int displayType = (items.length > 4) ? Integer.parseInt(items[4]) : 0;
-
-                // Strip out all bad characters.  They shouldn't be there anyway ;)
-                name = name.replace('[', ' ');
-                name = name.replace(']', ' ');
-
-                // Must be a valid coin type
-                int i;
-                for(i = 0; i < MainApplication.COLLECTION_TYPES.length; i++){
-
-                    if(MainApplication.COLLECTION_TYPES[i].getCoinType().equals(type)){
-                        break;
-                    } else if(MainApplication.COLLECTION_TYPES.length == i + 1){
-                        errorOccurred = true;
-                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 2));
-                        break;
-                    }
-                }
-
-                int coinTypeIndex = i;
-
-                if(errorOccurred){
+                if (info.getCollectionTypeIndex() == -1) {
+                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 2));
                     break;
                 }
 
                 // Must have a positive number collected and a positive max
-                if(totalCollected < 0 || total < 0){
+                if (info.getMax() < 0 || info.getCollected() < 0) {
                     errorOccurred = true;
                     showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 3));
                     break;
                 }
 
-                // Must not have a name that is the same as a previous one
-                for(i = 0; i < collectionInfo.size(); i++){
-
-                    CollectionListInfo previousCollectionListInfo = collectionInfo.get(i);
-                    if(name.equals(previousCollectionListInfo.getName())){
-                        errorOccurred = true;
-                        showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 4));
-                        break;
-                    }
-                }
-
-                if(displayType != CollectionPage.SIMPLE_DISPLAY && displayType != CollectionPage.ADVANCED_DISPLAY){
+                if (info.getDisplayType() != CollectionPage.SIMPLE_DISPLAY &&
+                        info.getDisplayType() != CollectionPage.ADVANCED_DISPLAY) {
                     errorOccurred = true;
                     showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 5));
                     break;
@@ -582,10 +541,6 @@ public class MainActivity extends AppCompatActivity {
                 if(errorOccurred){
                     break;
                 }
-
-                // Everything checks out, so create a new CollectionListInfo
-                // for this
-                CollectionListInfo info = new CollectionListInfo(name, total, totalCollected, coinTypeIndex, displayType);
 
                 // Good to go, add it to the list
                 collectionInfo.add(info);
@@ -684,9 +639,9 @@ public class MainActivity extends AppCompatActivity {
         mImportedCollectionListInfos = collectionInfo;
         mCollectionContents = collectionContents;
 
-        if(0 == mNumberOfCollections){
+        if(mNumberOfCollections == 0){
             // Finish the import by kicking off an AsyncTask to do the heavy lifting
-            kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
+            kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
         } else {
             showImportConfirmation();
         }
@@ -703,52 +658,52 @@ public class MainActivity extends AppCompatActivity {
      * Finishes strong with some heavy lifting (putting the imported data into the database.)  This
      * should be done from an AsyncTask, since it could cause an ANR error if done on the main
      * thread!
+     * @return -1 if successful, otherwise an error resource ID to display
      */
-    public void handleImportCollectionsPart2(){
+    public int asyncHandleImportCollectionsPart2() {
 
         // Take the data we've stored and replace what's in the database with it
 
         // NOTE We can't use the showCancelableAlert here because this doesn't get
         // executed on the main thread.
 
-        mDbAdapter.open();
+        try {
+            // Drop existing tables
+            for (int i = 0; i < mNumberOfCollections; i++) {
+                CollectionListInfo info = mCollectionListEntries.get(i);
+                mDbAdapter.dropCollectionTable(info.getName());
+            }
+            mDbAdapter.dropCollectionInfoTable();
 
-        // TODO Consider how to make this more robust to failures
-        for(int i = 0; i < mNumberOfCollections; i++){
+            // Add new collections
+            mDbAdapter.createCollectionInfoTable();
+            for (int i = 0; i < mImportedCollectionListInfos.size(); i++) {
+                CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
+                ArrayList<CoinSlot> collectionContents = mCollectionContents.get(i);
 
-            CollectionListInfo info = mCollectionListEntries.get(i);
-            mDbAdapter.dropTable(info.getName());
+                // Check for duplicate or illegal names
+                int checkName = mDbAdapter.checkCollectionName(collectionListInfo.getName());
+                if (checkName != -1) {
+                    return R.string.error_import;
+                }
+                mDbAdapter.createAndPopulateNewTable(collectionListInfo, i, collectionContents);
+            }
+
+            // Release the memory associated with the collection info we read in
+            mImportedCollectionListInfos = null;
+            mCollectionContents = null;
+
+            // Update any imported tables, if necessary
+            if (mDatabaseVersion != MainApplication.DATABASE_VERSION) {
+                mDbAdapter.upgradeCollections(mDatabaseVersion, true);
+            }
+            mDatabaseVersion = -1;
+        } catch (SQLException e) {
+            // Report an import error message to display on the UI thread
+            return R.string.error_import;
         }
 
-        mDbAdapter.dropCollectionInfoTable();
-
-        mDbAdapter.createCollectionInfoTable();
-
-        for(int i = 0; i < mImportedCollectionListInfos.size(); i++){
-            CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
-            ArrayList<CoinSlot> collectionContents = mCollectionContents.get(i);
-
-            String name = collectionListInfo.getName();
-            String coinType = collectionListInfo.getCollectionObj().getCoinType();
-            int total = collectionListInfo.getMax();
-            int displayType = collectionListInfo.getDisplayType();
-
-            mDbAdapter.createNewTable(name, coinType, total, displayType, i, collectionContents);
-        }
-
-        // Release the memory associated with the collection info we read in
-        mImportedCollectionListInfos = null;
-        mCollectionContents = null;
-
-        // Update any imported tables, if necessary
-        if(mDatabaseVersion != MainApplication.DATABASE_VERSION) {
-            mDbAdapter.upgradeCollections(mDatabaseVersion, true);
-        }
-        mDatabaseVersion = -1;
-
-        mDbAdapter.close();
-
-        // Looks like the view gets reloaded automatically... Hooray!
+        return -1;
     }
 
     /**
@@ -818,56 +773,27 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        boolean errorOccurred = false;
-
         // Write out the collection_info table
         File outputFile = new File(dir, EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
         CSVWriter out = openFileForWriting(outputFile);
         if(out == null) return;
 
-        mDbAdapter.open();
-
         // Iterate through the list of collections and write the files
         for(int i = 0; i < mNumberOfCollections; i++){
-            // name, coinType, total, max, display
-
             CollectionListInfo item = mCollectionListEntries.get(i);
-
-            String name = item.getName();
-            String type = item.getType();
-            String totalCollected = String.valueOf(item.getCollected());
-            String total = String.valueOf(item.getMax());
-
-            // NOTE For display, don't use item.getDisplayType bc I don't
-            // think we populate that value except when importing...
-            // TODO Update the code so that this value is used instead
-            // of the separate fetchTableDisplay calls
-            String display = String.valueOf(mDbAdapter.fetchTableDisplay(name));
-
-            String [] values = new String[] {name, type, totalCollected, total, display};
-
-            out.writeNext(values);
+            out.writeNext(item.getCsvExportProperties(mDbAdapter));
         }
 
-        if(!closeOutputFile(out, outputFile)){
-            return;
-        }
-
-        if(errorOccurred){
-            return;
-        }
+        if(!closeOutputFile(out, outputFile)) return;
 
         // Write out the database version
         outputFile = new File(dir, EXPORT_DB_VERSION_FILE);
         out = openFileForWriting(outputFile);
-        if(out == null) return;
+        if (out == null) return;
 
         String[] version = new String[] { String.valueOf(MainApplication.DATABASE_VERSION) };
         out.writeNext(version);
-
-        if(!closeOutputFile(out, outputFile)){
-            return;
-        }
+        if(!closeOutputFile(out, outputFile)) return;
 
         // Write out all of the other tables
         for(int i = 0; i < mNumberOfCollections; i++){
@@ -880,41 +806,24 @@ public class MainActivity extends AppCompatActivity {
 
             outputFile = new File(dir, cleanName + ".csv");
             out = openFileForWriting(outputFile);
-            if(out == null) return;
+            if (out == null) return;
 
             // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
-            Cursor resultCursor = mDbAdapter.getAllCollectionInfo(name);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String coinIdentifier = resultCursor.getString(resultCursor.getColumnIndex("coinIdentifier"));
-                    String coinMint = resultCursor.getString(resultCursor.getColumnIndex("coinMint"));
-                    String inCollection = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("inCollection")));
-                    String advGradeIndex = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advGradeIndex")));
-                    String advQuantityIndex = String.valueOf(resultCursor.getInt(resultCursor.getColumnIndex("advQuantityIndex")));
-                    String advNotes = resultCursor.getString(resultCursor.getColumnIndex("advNotes"));
-
-                    String[] values = new String[] {coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes};
-
-                    out.writeNext(values);
-
-                } while(resultCursor.moveToNext());
+            ArrayList<CoinSlot> coinList = mDbAdapter.getCoinList(name, true);
+            for (CoinSlot coinSlot : coinList) {
+                String[] values = new String[] {
+                        coinSlot.getIdentifier(),
+                        coinSlot.getMint(),
+                        String.valueOf(coinSlot.isInCollectionInt()),
+                        String.valueOf(coinSlot.getAdvancedGrades()),
+                        String.valueOf(coinSlot.getAdvancedQuantities()),
+                        coinSlot.getAdvancedNotes()};
+                out.writeNext(values);
             }
-            resultCursor.close();
 
-            if(!closeOutputFile(out, outputFile)){
-                return;
-            }
+            if(!closeOutputFile(out, outputFile)) return;
         }
-
-        mDbAdapter.close();
-
         showCancelableAlert(mRes.getString(R.string.success_export, EXPORT_FOLDER_NAME));
-    }
-
-    private void showCancelableAlert(String text) {
-        mBuilder.setMessage(text).setCancelable(true);
-        AlertDialog alert = mBuilder.create();
-        alert.show();
     }
 
     private CSVReader openFileForReading(File file){
@@ -1067,7 +976,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            if(1 == viewType){
+            if(viewType == 1){
                 // Set up the non-collection views
                 ImageView image = view.findViewById(R.id.navImageView);
                 TextView text = view.findViewById(R.id.navTextView);
@@ -1123,19 +1032,12 @@ public class MainActivity extends AppCompatActivity {
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
 
-        if(hasFocus && mDatabaseHasBeenOpened && !mIsImportingCollection){
-
+        if (hasFocus && !mIsImportingCollection){
             // Only do this if the database has been opened with the AsyncTask first
             // and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
 
-            updateCollectionListFromDatabase();
-
-            // Change it out with the new list
-            mListAdapter.items = mCollectionListEntries;
-            mListAdapter.numberOfCollections = mNumberOfCollections;
-            mListAdapter.notifyDataSetChanged();
-
+            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
         }
     }
 
@@ -1145,46 +1047,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public void updateCollectionListFromDatabase(){
 
-        // Get rid of the other items in the list (if any)
-        mCollectionListEntries.clear();
-
-        // Open the database.  The "big" open should have been called already.
-        mDbAdapter.open();
-
         //Get a list of all the database tables
-        Cursor resultCursor = mDbAdapter.getAllTables();
-
-        if (resultCursor.moveToFirst()){
-            do{
-                CollectionListInfo listEntry = new CollectionListInfo();
-
-                String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-                String coinType = resultCursor.getString(resultCursor.getColumnIndex("coinType"));
-                int total = resultCursor.getInt(resultCursor.getColumnIndex("total"));
-
-                // Figure out what collection type maps to this
-                // TODO Not the best way to do this, find a better one
-                int index;
-                for(index = 0; index < MainApplication.COLLECTION_TYPES.length; index++){
-                    if(MainApplication.COLLECTION_TYPES[index].getCoinType().equals(coinType)){
-                        break;
-                    }
-                }
-                // TODO Consider adding error check in case we didn't find the name in typeOfCoins...
-                // This is pretty unlikely, though
-                listEntry.setName(name);
-                listEntry.setMax(total);
-                listEntry.setCollected(mDbAdapter.fetchTotalCollected(name));
-                listEntry.setCollectionTypeIndex(index);
-
-                // Add it to the list of collections
-                mCollectionListEntries.add(listEntry);
-
-            } while(resultCursor.moveToNext());
+        try {
+            mDbAdapter.getAllTables(mCollectionListEntries);
+        } catch (SQLException e){
+            showCancelableAlert(mRes.getString(R.string.error_reading_database));
         }
-        resultCursor.close();
-
-        mDbAdapter.close();
 
         // Record the actual number of collections before spacers are added
         mNumberOfCollections = mCollectionListEntries.size();
@@ -1198,12 +1066,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Reloads the collection list from the database and updates the list adapter. This method
+     * should only be called from the UI Thread
+     */
+    public void updateCollectionListFromDatabaseAndUpdateViewForUIThread() {
+
+        // mDbAdapter may be null in some corner cases where this method gets called
+        // before the DB has been opened or after it has closed - ignore the update
+        // in that case
+        try {
+            // Refresh mCollectionListEntries and mNumberOfCollections from the database
+            updateCollectionListFromDatabase();
+        } catch (NullPointerException e) {
+            if(BuildConfig.DEBUG) {
+                Log.e(APP_NAME, "Called updateCollectionListFromDatabaseAndUpdateViewForUIThread() before mDbAdapter initialized ");
+            }
+            return;
+        }
+
+        // Update the list view adapter
+        if (mListAdapter != null) {
+            mListAdapter.items = mCollectionListEntries;
+            mListAdapter.numberOfCollections = mNumberOfCollections;
+            mListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
      * Show dialog for user to confirm export
      */
     private void showExportConfirmation(){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(mRes.getString(R.string.export_warning))
+        mBuilder = new AlertDialog.Builder(this);
+        mBuilder.setMessage(mRes.getString(R.string.export_warning))
                .setCancelable(false)
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
@@ -1216,8 +1111,7 @@ public class MainActivity extends AppCompatActivity {
                         dialog.cancel();
                    }
                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        showAlert();
     }
 
     /**
@@ -1225,14 +1119,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showImportConfirmation(){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(mRes.getString(R.string.import_warning))
+        mBuilder = new AlertDialog.Builder(this);
+        mBuilder.setMessage(mRes.getString(R.string.import_warning))
                .setCancelable(false)
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
                        mIsImportingCollection = true;
-                       kickOffAsyncProgressTask(mImportInterface, ASYNC_TASK_IMPORT_ID);
+                       kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
                    }
                })
                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1241,8 +1135,7 @@ public class MainActivity extends AppCompatActivity {
                         handleImportCollectionsCancel();
                    }
                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        showAlert();
     }
 
     /**
@@ -1251,29 +1144,33 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showDeleteConfirmation(final String name){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(mRes.getString(R.string.delete_warning, name))
+        mBuilder = new AlertDialog.Builder(this);
+        mBuilder.setMessage(mRes.getString(R.string.delete_warning, name))
                .setCancelable(false)
                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        //Do the deleting
-                       mDbAdapter.open();
-                       mDbAdapter.dropTable(name);
-
-                       //Get a list of all the database tables
-                       Cursor resultCursor = mDbAdapter.getAllCollectionNames();
-                       int i = 0;
-                       if (resultCursor.moveToFirst()){
-                           do{
-                               String name = resultCursor.getString(resultCursor.getColumnIndex("name"));
-                               // Fix up the displayOrder
-                               mDbAdapter.updateDisplayOrder(name,i);
-                               i++;
-                           }while(resultCursor.moveToNext());
+                       Cursor cursor = null;
+                       try {
+                           mDbAdapter.dropCollectionTable(name);
+                           //Get a list of all the database tables
+                           cursor = mDbAdapter.getAllCollectionNames();
+                           int i = 0;
+                           if (cursor.moveToFirst()) {
+                               do {
+                                   String name = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                                   // Fix up the displayOrder
+                                   mDbAdapter.updateDisplayOrder(name, i);
+                                   i++;
+                               } while(cursor.moveToNext());
+                           }
+                           cursor.close();
+                       } catch (SQLException e) {
+                           showCancelableAlert(mRes.getString(R.string.error_delete_database));
+                           if (cursor != null) {
+                               cursor.close();
+                           }
                        }
-                       resultCursor.close();
-
-                       mDbAdapter.close();
                    }
                })
                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1281,216 +1178,117 @@ public class MainActivity extends AppCompatActivity {
                         dialog.cancel();
                    }
                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        showAlert();
     }
 
-    // https://raw.github.com/commonsguy/cw-android/master/Rotation/RotationAsync/src/com/commonsware/android/rotation/async/RotationAsync.java
-    // TODO Consider only using one of onSaveInstanceState and onRetainNonConfigurationInstanceState
-    // TODO Also, read the notes on this better and make sure we are using it correctly
-    @Override
-    public Object onRetainCustomNonConfigurationInstance(){
+    /**
+     * Makes a copy of the collection specified by tableName
+     * @param tableName The collection name to make a copy of
+     */
+    public void copyCollection(String tableName) {
 
-        if(mProgressDialog != null && mProgressDialog.isShowing()){
-            mProgressDialog.dismiss();
-            return mTask;
-        } else {
-            // No dialog showing, do nothing
-            return null;
+        // Get the source collection details
+        CollectionListInfo sourceCollectionListInfo = null;
+        int insertIndex = 0;
+        for(int i = 0; i < mNumberOfCollections; i++){
+            if (mCollectionListEntries.get(i).getName().equals(tableName)) {
+                sourceCollectionListInfo = mCollectionListEntries.get(i);
+                insertIndex = i + 1;
+                break;
+            }
         }
-    }
+        if (sourceCollectionListInfo == null) {
+            showCancelableAlert(mRes.getString(R.string.error_copying_database));
+            return;
+        }
 
-    @Override
-    public void onDestroy(){
-        // TODO Not a perfect solution, but assuming this gets called, we should cut down on the
-        // race condition inherent in how we do our AsyncTask
-        if(mTask != null) {
-            mTask.mListener = null;
+        // If this is a copy of a copy, reduce down to the base name
+        String baseNewTableName = tableName;
+        String suffixBase = mRes.getString(R.string.copy_name_suffix);
+        int copySuffixMatch = tableName.lastIndexOf(suffixBase);
+        if (copySuffixMatch != -1) {
+            String remainingChars = tableName.substring(copySuffixMatch + suffixBase.length());
+            if (remainingChars.matches("^\\d*$")) {
+                baseNewTableName = tableName.substring(0, copySuffixMatch);
+            }
         }
-        super.onDestroy();
+
+        // Pick a new table name
+        String newTableName;
+        int checkNameResult;
+        int attemptNumber = 0;
+        do {
+            String suffixIndex = (attemptNumber == 0) ?  "" : Integer.toString(attemptNumber);
+            newTableName = baseNewTableName + mRes.getString(R.string.copy_name_suffix) + suffixIndex;
+            checkNameResult = mDbAdapter.checkCollectionName(newTableName);
+            attemptNumber++;
+        } while(checkNameResult != -1);
+
+        // Create the new table
+        CollectionListInfo newCollectionListInfo;
+        try {
+            newCollectionListInfo = mDbAdapter.createCollectionCopy(sourceCollectionListInfo, newTableName, insertIndex);
+        } catch (SQLException e){
+            showCancelableAlert(mRes.getString(R.string.error_copying_database));
+            return;
+        }
+
+        // Insert into the collection list and update the database sort order
+        mCollectionListEntries.add(insertIndex, newCollectionListInfo);
+        mNumberOfCollections += 1;
+        handleCollectionsReordered(new ArrayList<>(mCollectionListEntries.subList(0, mNumberOfCollections)));
     }
 
     /**
      * Takes the reordered list of collections in from the ReorderCollections fragment and updates
      * the ordering in the database.
-     *
      * @param reorderedList The reordered list of collections
      */
     public void handleCollectionsReordered(ArrayList<CollectionListInfo> reorderedList){
 
-        mDbAdapter.open();
         for(int i = 0; i < reorderedList.size(); i++){
             CollectionListInfo info = reorderedList.get(i);
-            mDbAdapter.updateDisplayOrder(info.getName(),i);
+            try {
+                mDbAdapter.updateDisplayOrder(info.getName(), i);
+            } catch (SQLException e) {
+                showCancelableAlert(mRes.getString(R.string.error_reordering_databases));
+                return;
+            }
             mCollectionListEntries.set(i, info);
         }
-        mDbAdapter.close();
     }
 
+    /**
+     * Construct the attribution string for the info text
+     * @return info text string
+     */
     private String buildInfoText(){
         HashSet<String> attributions = new HashSet<>();
         for(CollectionInfo collection : MainApplication.COLLECTION_TYPES){
-            String attribution = collection.getAttributionString();
-
-            if(attribution.equals("")){
+            int attributionResId = collection.getAttributionResId();
+            if (attributionResId == -1 || attributionResId == R.string.attr_mint) {
+                // US mint attribution is included at the end
                 continue;
             }
-
-            attributions.add(attribution);
+            String attributionStr = mRes.getString(attributionResId);
+            if(attributionStr.equals("")){
+                continue;
+            }
+            attributions.add(attributionStr);
         }
 
         StringBuilder builder = new StringBuilder();
-
         builder.append(mRes.getString(R.string.info_overview));
         builder.append("\n\n");
         for(String attribution : attributions){
             builder.append(attribution);
             builder.append("\n\n");
         }
-        builder.append(mRes.getString(R.string.info_icons));
+        builder.append(mRes.getString(R.string.attr_mint));
+        builder.append("\n\n");
+        builder.append(mRes.getString(R.string.attr_icons));
 
         return builder.toString();
-    }
-
-    /**
-     * Create a new progress dialog for initial collection creation
-     */
-    private void createProgressDialog(String message){
-        if (mProgressDialog != null){
-            // Progress bar already being displayed
-            return;
-        }
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage(message);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setProgress(0);
-        mProgressDialog.show();
-    }
-
-    /**
-     * Hide the dialog and finish view setup
-     */
-    private void completeProgressDialogAndFinishViewSetup(){
-
-        if(mProgressDialog != null) {
-            if (mProgressDialog.isShowing()) {
-                mProgressDialog.dismiss();
-            }
-            mProgressDialog = null;
-        }
-        if(mTask.mAsyncTaskId == ASYNC_TASK_OPEN_ID){
-            mDatabaseHasBeenOpened = true;
-            finishViewSetup();
-        } else if (mTask.mAsyncTaskId == ASYNC_TASK_IMPORT_ID){
-            mIsImportingCollection = false;
-            // If we've rotated and need to finish setting up the view, do it
-            if(mShouldFinishViewSetupToo) {
-                finishViewSetup();
-                mShouldFinishViewSetupToo = false;
-            }
-        }
-    }
-
-    /**
-     * Builds the list element for displaying collections
-     * @param item Collection list info item
-     * @param view view that needs to be populated
-     * @param res Used to access project string values
-     */
-    public static void buildListElement(CollectionListInfo item, View view, Resources res){
-
-        String tableName = item.getName();
-
-        int total = item.getCollected();
-        if (tableName != null) {
-
-            ImageView image = view.findViewById(R.id.coinImageView);
-            if (image != null) {
-                image.setBackgroundResource(item.getCoinImageIdentifier());
-            }
-
-            TextView nameTextView = view.findViewById(R.id.collectionNameTextView);
-            if (nameTextView != null) {
-                nameTextView.setText(tableName);
-            }
-
-            TextView progressTextView = view.findViewById(R.id.progressTextView);
-            if(progressTextView != null){
-                progressTextView.setText(res.getString(R.string.collection_completion_template, total, item.getMax()));
-            }
-
-            TextView completionTextView = view.findViewById(R.id.completeTextView);
-            if(total >= item.getMax()){
-                // The collection is complete
-                if(completionTextView != null){
-                    completionTextView.setText(res.getString(R.string.collection_complete));
-                }
-            } else {
-                completionTextView.setText("");
-            }
-        }
-    }
-
-    /**
-     * Create a help dialog to show the user how to do something
-     * @param helpStrKey key uniquely identifying this boolean key
-     * @param helpStrId Help message to display
-     * @param activity activity reference
-     */
-    public static void createAndShowHelpDialog (final String helpStrKey, int helpStrId, Activity activity){
-        final SharedPreferences mainPreferences = activity.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-        final Resources res = activity.getResources();
-        if(mainPreferences.getBoolean(helpStrKey, true)){
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(res.getString(helpStrId))
-                    .setCancelable(false)
-                    .setPositiveButton(res.getString(R.string.okay_exp), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            SharedPreferences.Editor editor = mainPreferences.edit();
-                            editor.putBoolean(helpStrKey, false);
-                            editor.apply();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
-    }
-
-    /**
-     * Show an alert that changes aren't saved before changing views
-     */
-    public static void showUnsavedChangesAlertViewChange(Resources res, final Activity activity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
-                .setCancelable(false)
-                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Nothing to do, just a warning
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-    /**
-     * Show an alert that changes aren't saved before exiting activity
-     */
-    public static void showUnsavedChangesAlertAndExitActivity(Resources res, final Activity activity){
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
-                .setCancelable(false)
-                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        activity.finish();
-                    }})
-                .setNegativeButton(res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }});
-        AlertDialog alert = builder.create();
-        alert.show();
     }
 
     /**
@@ -1500,25 +1298,5 @@ public class MainActivity extends AppCompatActivity {
     public String getExportFolderName(){
         File sdCard = Environment.getExternalStorageDirectory();
         return sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
-    }
-
-    /**
-     * Create and kick-off an async task to finish long-running tasks
-     * @param asyncInterface caller interface
-     * @param taskId type of task
-     */
-    public void kickOffAsyncProgressTask(AsyncProgressInterface asyncInterface, int taskId){
-        if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
-            mTask = new AsyncProgressTask(asyncInterface);
-            mTask.mAsyncTaskId = taskId;
-            mTask.execute();
-        } else {
-            // Call the tasks on the current thread (used for unit tests)
-            mTask = new AsyncProgressTask(asyncInterface);
-            mTask.mAsyncTaskId = taskId;
-            asyncInterface.asyncProgressOnPreExecute();
-            asyncInterface.asyncProgressDoInBackground();
-            asyncInterface.asyncProgressOnPostExecute();
-        }
     }
 }

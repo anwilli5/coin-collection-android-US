@@ -25,8 +25,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseHelper;
-import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 
 public class AmericanInnovationDollars extends CollectionInfo {
 
-    private static final String COLLECTION_TYPE = "American Innovation Dollars";
+    public static final String COLLECTION_TYPE = "American Innovation Dollars";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             { "Introductory", R.drawable.innovation_2018_introductory_unc, R.drawable.innovation_2018_introductory_unc_25},
@@ -62,10 +62,13 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     private static final int REVERSE_IMAGE = R.drawable.innovation_2018_introductory_unc;
 
+    @Override
     public String getCoinType() { return COLLECTION_TYPE; }
 
+    @Override
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
+    @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
         Integer[] slotImages = COIN_INFO.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
@@ -76,6 +79,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
         }
     }
 
+    @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
@@ -90,6 +94,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
     }
 
     // TODO Perform validation and throw exception
+    @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
@@ -112,11 +117,22 @@ public class AmericanInnovationDollars extends CollectionInfo {
             }
         }
     }
-    public String getAttributionString(){
-        return MainApplication.DEFAULT_ATTRIBUTION;
+    public int getAttributionResId(){
+        return R.string.attr_mint;
     }
 
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, String tableName,
+    @Override
+    public int getStartYear() {
+        return 0;
+    }
+
+    @Override
+    public int getStopYear() {
+        return 0;
+    }
+
+    @Override
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
 
         int total = 0;
@@ -130,7 +146,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
             newCoinIdentifiers.add("Georgia");
 
             // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, tableName, newCoinIdentifiers);
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
         return total;

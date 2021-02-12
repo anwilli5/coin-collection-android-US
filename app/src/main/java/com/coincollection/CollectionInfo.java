@@ -114,23 +114,35 @@ public abstract class CollectionInfo {
      * contains metadata about each of the collections.)
      *
      * @param db the SQLiteDatabase db object to use when making updates
-     * @param tableName the name of the table to make updates to
+     * @param collectionListInfo information about the collection to update
      * @param oldVersion the previous database version
      * @param newVersion the new database version
      * @return the total number of collections added or removed from the collection
      */
     abstract public int onCollectionDatabaseUpgrade(
             SQLiteDatabase db,
-            String tableName,
+            CollectionListInfo collectionListInfo,
             int oldVersion,
             int newVersion);
 
     /**
-     * Returns an attribution string that should be printed on the info page.
+     * Returns an attribution resource id that should be printed on the info page.
      * Most commonly the coin pictures will need attribution to the author.
      * If no attribution is required, an empty string can be returned.
      *
      * @return the attribution string to display
      */
-    abstract public String getAttributionString();
+    abstract public int getAttributionResId();
+
+    /**
+     * Gets the starting year of the coin series
+     * @return Returns 0 if start/stop years aren't used by this series
+     */
+    abstract public int getStartYear();
+
+    /**
+     * Gets the last year of the coin series
+     * @return Returns 0 if start/stop years aren't used by this series
+     */
+    abstract public int getStopYear();
 }
