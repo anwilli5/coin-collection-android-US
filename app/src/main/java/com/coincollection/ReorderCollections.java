@@ -20,7 +20,6 @@
 
 package com.coincollection;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -269,14 +268,15 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
      * Show an alert that changes aren't saved before exiting fragment
      */
     private void showUnsavedChangesAlertAndExitFragment(){
-        MainActivity activity = (MainActivity) getActivity();
+        final MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
-            activity.mBuilder = new AlertDialog.Builder(activity);
             Resources res = activity.getResources();
-            activity.mBuilder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
+            activity.showAlert(activity.newBuilder()
+                    .setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
                     .setCancelable(false)
                     .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
                             closeFragment();
                         }
                     })
@@ -284,8 +284,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.cancel();
                         }
-                    });
-            activity.showAlert();
+                    }));
         }
     }
 }

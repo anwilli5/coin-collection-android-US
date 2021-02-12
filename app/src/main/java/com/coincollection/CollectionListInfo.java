@@ -25,7 +25,6 @@ import android.os.Parcelable;
 
 import com.spencerpages.MainApplication;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
-import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -108,7 +107,6 @@ public class CollectionListInfo implements Parcelable {
     // Collections in this list use the start/end years
     private final static ArrayList<String> HAS_DATE_RANGE = new ArrayList<>(Arrays.asList(
             AmericanEagleSilverDollars.COLLECTION_TYPE,
-            AmericanInnovationDollars.COLLECTION_TYPE,
             BarberDimes.COLLECTION_TYPE,
             BarberHalfDollars.COLLECTION_TYPE,
             BarberQuarters.COLLECTION_TYPE,
@@ -467,11 +465,9 @@ public class CollectionListInfo implements Parcelable {
      */
     public boolean checkIfNewFlagsRemoveCoins(int mintMarkFlags, int checkboxFlags) {
         // Return true if:
-        // - The mint mark is toggled in either direction
         // - A mint mark that is set is unset
         // - a checkbox option that is set is unset (ignores custom dates)
-        return (  (mintMarkFlags & ~mMintMarkFlags & SHOW_MINT_MARKS)
-                |  (mMintMarkFlags & ~mintMarkFlags)
+        return (  (mMintMarkFlags & ~mintMarkFlags)
                 |  (mCheckboxFlags & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
     }
 

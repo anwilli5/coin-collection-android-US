@@ -20,7 +20,6 @@
 
 package com.coincollection;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -45,13 +44,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
 
 import static com.coincollection.CoinPageCreator.getCollectionNameFilter;
 import static com.spencerpages.MainApplication.APP_NAME;
@@ -461,7 +460,7 @@ public class CollectionPage extends BaseActivity {
 
                 if (this.doUnsavedChangesExist()) {
 
-                    showUnsavedChangesAlertViewChange(mRes, this);
+                    showUnsavedChangesAlertViewChange(mRes);
                     return true;
                 }
 
@@ -502,7 +501,7 @@ public class CollectionPage extends BaseActivity {
             if (this.doUnsavedChangesExist()) {
                 // If we have unsaved changes, don't go back right away but
                 // instead let the user decide
-                showUnsavedChangesAlertAndExitActivity(mRes, this);
+                showUnsavedChangesAlertAndExitActivity();
             } else {
                 this.onBackPressed();
             }
@@ -567,27 +566,27 @@ public class CollectionPage extends BaseActivity {
         input.setText(mCollectionName);
 
         // Build the alert dialog
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setTitle(mRes.getString(R.string.select_collection_name));
-        mBuilder.setView(input);
-        mBuilder.setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newName = input.getText().toString();
-                if(newName.equals("")){
-                    Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                updateCollectionName(newName);
-            }
-        });
-        mBuilder.setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        showAlert();
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.select_collection_name))
+                .setView(input)
+                .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        String newName = input.getText().toString();
+                        if (newName.equals("")) {
+                            Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        updateCollectionName(newName);
+                    }
+                })
+                .setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }));
     }
     
     private boolean doUnsavedChangesExist(){
@@ -610,7 +609,7 @@ public class CollectionPage extends BaseActivity {
             // If the back key is pressed, we want to warn the user if there are unsaved changes
 
             if(this.doUnsavedChangesExist()){
-                showUnsavedChangesAlertAndExitActivity(mRes, this);
+                showUnsavedChangesAlertAndExitActivity();
                 return true;
             }
         }

@@ -89,6 +89,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -113,6 +114,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         coinList.add(new Object[]{"Introductory", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -141,6 +143,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -169,6 +172,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -197,6 +201,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -228,6 +233,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -263,6 +269,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -307,6 +314,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         coinList.add(new Object[]{"Lucretia Garfield", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -335,6 +343,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -363,6 +372,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -398,6 +408,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -432,6 +443,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -465,6 +477,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -502,6 +515,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -533,6 +547,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -564,6 +579,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -597,6 +613,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         coinList.add(new Object[]{"Chickasaw", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -624,6 +641,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -655,6 +673,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -698,6 +717,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         coinList.add(new Object[]{"James Garfield", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -725,6 +745,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -761,6 +782,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -840,6 +862,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         coinList.add(new Object[]{"Northern Mariana Islands", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
         // Compare against a new database
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
@@ -872,6 +895,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -903,6 +927,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
@@ -943,6 +968,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
+        testDbHelper.close();
 
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);

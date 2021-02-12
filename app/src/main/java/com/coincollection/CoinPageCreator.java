@@ -20,7 +20,6 @@
 
 package com.coincollection;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.SQLException;
@@ -269,22 +268,21 @@ public class CoinPageCreator extends BaseActivity {
         coinTypeSelector.setAdapter(spinnerAdapter);
         coinTypeSelector.setOnItemSelectedListener(new OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
-                    View view, int pos, long id) {
+                                       View view, int position, long id) {
 
                 // No need to do anything if onItemSelected was called but the selected index hasn't
                 // changed since:
                 //  - first activity initialization, or
                 //  - activity initialization from SavedInstanceState
-                if(mCoinTypeIndex == pos) {
+                if(mCoinTypeIndex == position) {
                     return;
                 }
 
                 // When an item is selected, switch our internal state based on the collection type
-                setInternalStateFromCollectionIndex(pos, null);
+                setInternalStateFromCollectionIndex(position, null);
 
                 // Reset the view for the new coin type
                 updateViewFromState();
-
             }
             public void onNothingSelected(AdapterView<?> parent) { }
         });
@@ -530,12 +528,14 @@ public class CoinPageCreator extends BaseActivity {
 
         if (warningResId != -1) {
             // Display a warning before updating
-            mBuilder = new AlertDialog.Builder(this);
-            mBuilder.setMessage(mRes.getString(warningResId))
+            showAlert(newBuilder()
+                    .setTitle(mRes.getString(R.string.warning))
+                    .setMessage(mRes.getString(warningResId))
                     .setCancelable(false)
                     .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Update collection
+                            dialog.dismiss();
                             performCreateOrUpdateCollection();
                         }
                     })
@@ -544,8 +544,7 @@ public class CoinPageCreator extends BaseActivity {
                             // Abort
                             dialog.cancel();
                         }
-                    });
-            showAlert();
+                    }));
         } else {
             // Update without displaying a warning
             performCreateOrUpdateCollection();
@@ -895,15 +894,35 @@ public class CoinPageCreator extends BaseActivity {
         if (mExistingCollection != null && mExistingCollection.getCollectionTypeIndex() == mCoinTypeIndex) {
             // If the user is modifying a collection and has selected the same type of coin,
             // preserve any data they may have already entered
+            boolean hasMintMarks = (getMintMarkFlagsFromParameters(mParameters) & CollectionListInfo.SHOW_MINT_MARKS) != 0;
             ArrayList<CoinSlot> existingCoinList = mDbAdapter.getCoinList(
                     mExistingCollection.getName(), true);
             for (int i = 0; i < mCoinList.size(); i++) {
                 for (int j = 0; j < existingCoinList.size(); j++) {
+                    CoinSlot newCoin = mCoinList.get(i);
                     CoinSlot existingCoin = existingCoinList.get(j);
-                    if (mCoinList.get(i).equals(existingCoin)) {
-                        mCoinList.set(i, existingCoin);
-                        existingCoinList.remove(j);
-                        break;
+                    if (!mExistingCollection.hasMintMarks() && hasMintMarks) {
+                        // If going from no mint marks to having mint marks, copy the coin progress
+                        // for the existing identifier into each of the coin mints selected.
+                        if (newCoin.getIdentifier().equals(existingCoin.getIdentifier())) {
+                            mCoinList.set(i, existingCoin.copy(newCoin.getIdentifier(), newCoin.getMint()));
+                            break;
+                        }
+                    } else if (mExistingCollection.hasMintMarks() && !hasMintMarks) {
+                        // If going from mint marks to no mint marks, copy at least 1 of the existing
+                        // coin's advanced info and merge the inCollection attribute
+                        if (newCoin.getIdentifier().equals(existingCoin.getIdentifier())) {
+                            existingCoin.setInCollection(existingCoin.isInCollection() || newCoin.isInCollection());
+                            mCoinList.set(i, existingCoin);
+                            // No break here to allow merging across all mints
+                        }
+                    } else {
+                        // In all other cases, copy any coins that match identifier and mint
+                        if (newCoin.equals(existingCoin)) {
+                            mCoinList.set(i, existingCoin);
+                            existingCoinList.remove(j);
+                            break;
+                        }
                     }
                 }
             }

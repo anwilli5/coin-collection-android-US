@@ -196,4 +196,20 @@ public class MainActivityTests extends BaseTestCase {
             });
         }
     }
+
+    /**
+     * Make sure the doesCollectionTypeUseDates method works correctly
+     */
+    @Test
+    public void test_verifyDoesCollectionTypeUseDates() {
+        for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
+            if (CollectionListInfo.doesCollectionTypeUseDates(coinType.getCoinType())) {
+                assertNotEquals(0, coinType.getStartYear());
+                assertNotEquals(0, coinType.getStopYear());
+            } else {
+                assertEquals(0, coinType.getStartYear());
+                assertEquals(0, coinType.getStopYear());
+            }
+        }
+    }
 }

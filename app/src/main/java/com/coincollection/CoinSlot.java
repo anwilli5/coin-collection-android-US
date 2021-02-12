@@ -140,6 +140,22 @@ public class CoinSlot implements Parcelable {
         this.mAdvancedNotes = advancedNotes;
     }
 
+    /**
+     * Creates a copy of the current coin with a different name and mint mark
+     * @param newIdentifier new coin identifier
+     * @param newMint new mint mark
+     * @return the new CoinSlot object
+     */
+    public CoinSlot copy(String newIdentifier, String newMint) {
+        return new CoinSlot(
+                newIdentifier,
+                newMint,
+                mInCollection,
+                mAdvancedGrades,
+                mAdvancedQuantities,
+                mAdvancedNotes);
+    }
+
     /* We make this object Parcelable so that the list can be passed between Activities in the case
      * where a screen orientation change occurs.
      */

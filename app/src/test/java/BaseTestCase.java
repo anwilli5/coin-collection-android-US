@@ -79,9 +79,9 @@ public class BaseTestCase {
      * Class containing all collection details
      */
     static class FullCollection {
-        CollectionListInfo mCollectionListInfo;
-        ArrayList<CoinSlot> mCoinList;
-        int mDisplayOrder;
+        final CollectionListInfo mCollectionListInfo;
+        final ArrayList<CoinSlot> mCoinList;
+        final int mDisplayOrder;
 
         FullCollection(CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinList,
                        int displayOrder) {
@@ -89,6 +89,14 @@ public class BaseTestCase {
             mCoinList = coinList;
             mDisplayOrder = displayOrder;
         }
+    }
+
+    /**
+     * Enables VM policy checking (override to disable)
+     * @return true if the tests support VM policy checking, otherwise false
+     */
+    protected boolean enableVmPolicyChecking() {
+        return true;
     }
 
     /**
@@ -311,10 +319,8 @@ public class BaseTestCase {
                     collectionInfo.populateCollectionLists(parameters, newCoinList);
 
                     // Get coins from the updated database
-                    activity.mDbAdapter.open();
                     ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
                     assertNotNull(dbCoinList);
-                    activity.mDbAdapter.close();
 
                     // Make sure coin lists match
                     assertEquals(newCoinList.size(), dbCoinList.size());
@@ -324,7 +330,6 @@ public class BaseTestCase {
                     }
 
                     // Make sure total matches
-                    activity.mDbAdapter.open();
                     ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
                     activity.mDbAdapter.getAllTables(collectionListEntries);
                     assertNotNull(collectionListEntries);
@@ -336,7 +341,6 @@ public class BaseTestCase {
                             break;
                         }
                     }
-                    activity.mDbAdapter.close();
                     assertTrue(foundTable);
                 }
             });
