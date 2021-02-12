@@ -26,8 +26,7 @@ import android.os.Build;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.RequiresApi;
-
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 /**
  * This class is needed to resolve memory leaks caused by the AlertDialogs
@@ -53,7 +52,7 @@ public final class DetachableDialogAlertOnClickListener implements DialogInterfa
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public void setOnWindowDetachedListener(@NotNull final Dialog dialog) {
+    public void setOnWindowDetachedListener(@NonNull final Dialog dialog) {
         dialog.getWindow()
                 .getDecorView()
                 .getViewTreeObserver()
