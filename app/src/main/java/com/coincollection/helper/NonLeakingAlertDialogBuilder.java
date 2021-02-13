@@ -20,11 +20,12 @@
 
 package com.coincollection.helper;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.view.View;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * This class wraps AlertDialog.Builder to prevent memory leaks

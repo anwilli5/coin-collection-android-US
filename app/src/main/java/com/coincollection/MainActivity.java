@@ -132,6 +132,11 @@ public class MainActivity extends BaseActivity {
         mOpenDbAdapterInOnCreate = false;
         super.onCreate(savedInstanceState);
 
+        if (BuildConfig.DEBUG && mActionBar != null) {
+            // Update the title indicating this is a debug build, for easier identification
+            mActionBar.setTitle(mActionBar.getTitle() + " [DEBUG]");
+        }
+
         setContentView(R.layout.main_activity_layout);
 
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
