@@ -172,25 +172,23 @@ public class MainActivityTests extends BaseTestCase {
             scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
                 @Override
                 public void perform(MainActivity activity) {
-                    // Create some collections
-                    ArrayList<CollectionListInfo> allCollections = new ArrayList<>();
                     for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
                         for (FullCollection scenario : getRandomTestScenarios(activity, coinType, 1)) {
                             // Create the collection in the database
                             activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
                                     scenario.mDisplayOrder, scenario.mCoinList);
-                            allCollections.add(scenario.mCollectionListInfo);
-                        }
-                    }
-                    activity.updateCollectionListFromDatabase();
+                            activity.updateCollectionListFromDatabase();
 
-                    // Launch the collections
-                    for (CollectionListInfo collectionListInfo : allCollections) {
-                        Intent intent = activity.launchCoinPageActivity(collectionListInfo);
-                        assertNotNull(intent);
-                        CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
-                        assertNotNull(coinActivity);
-                        coinActivity.onCreate(null);
+                            // Launch the collection
+                            Intent intent = activity.launchCoinPageActivity(scenario.mCollectionListInfo);
+                            assertNotNull(intent);
+                            CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
+                            assertNotNull(coinActivity);
+                            coinActivity.onCreate(null);
+
+                            // Clean up
+                            activity.deleteDatabase(scenario.mCollectionListInfo.getName());
+                        }
                     }
                 }
             });

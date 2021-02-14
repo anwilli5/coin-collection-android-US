@@ -68,7 +68,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.all {
-            jvmArgs "-Xmx512m"
             testLogging {
                 events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
                 exceptionFormat "full"
