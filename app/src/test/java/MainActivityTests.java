@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
-import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
 import com.coincollection.ReorderAdapter;
 import com.coincollection.ReorderCollections;
@@ -34,7 +33,6 @@ import com.spencerpages.MainApplication;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -155,40 +153,6 @@ public class MainActivityTests extends BaseTestCase {
                     for (int i = 0; i < collectionListEntries.size(); i++) {
                         compareCollectionListInfos(collectionListEntries.get(i),
                                 COLLECTION_LIST_INFO_SCENARIOS[indexPositions.get(i)]);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Test launching collections
-     */
-    @Test
-    public void test_launchCoinPage() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
-                        for (FullCollection scenario : getRandomTestScenarios(activity, coinType, 1)) {
-                            // Create the collection in the database
-                            activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
-                                    scenario.mDisplayOrder, scenario.mCoinList);
-                            activity.updateCollectionListFromDatabase();
-
-                            // Launch the collection
-                            Intent intent = activity.launchCoinPageActivity(scenario.mCollectionListInfo);
-                            assertNotNull(intent);
-                            CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
-                            assertNotNull(coinActivity);
-                            coinActivity.onCreate(null);
-
-                            // Clean up
-                            activity.deleteDatabase(scenario.mCollectionListInfo.getName());
-                        }
                     }
                 }
             });
