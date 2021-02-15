@@ -170,28 +170,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Add coins for the new year for the "P", "D", and "" mint marks
      * @param db database
      * @param collectionListInfo the collection info
+     * @param previousYear previous year to look for to know if this coin should be added
+     * @param year coin year
+     * @param identifier identifier of the coin to add
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                  int previousYear, int year, String identifier) {
+        ArrayList<String> mintList = new ArrayList<>(Arrays.asList("P", "D"));
+        return addFromYear(db, collectionListInfo, previousYear, year, identifier, mintList);
+    }
+
+    /**
+     * Add coins for the new year for the "P", "D", and "" mint marks
+     * @param db database
+     * @param collectionListInfo the collection info
      * @param year coin year
      * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
         ArrayList<String> mintList = new ArrayList<>(Arrays.asList("P", "D"));
-        return addFromYear(db, collectionListInfo, year, mintList);
+        return addFromYear(db, collectionListInfo, year-1, year, String.valueOf(year), mintList);
     }
 
     /**
      * Add coins for the new year, based on the collection parameters
      * @param db database
      * @param collectionListInfo the collection info
+     * @param previousYear previous year to look for to know if this coin should be added
      * @param year coin year
+     * @param identifier identifier of the coin to add
      * @param mintsToAdd list of the mint marks to add
      * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                  int year, ArrayList<String> mintsToAdd) {
+                                  int previousYear, int year, String identifier,
+                                  ArrayList<String> mintsToAdd) {
         int total = 0;
 
         // Skip adding if the collection has an earlier end date
-        int previousYear = year - 1;
         if (previousYear != collectionListInfo.getEndYear()) {
             return total;
         }
@@ -206,7 +223,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 if (mintFlag != null && ((collectionListInfo.getMintMarkFlags() & mintFlag) != 0)) {
                     ContentValues insertValues = new ContentValues();
-                    insertValues.put(COL_COIN_IDENTIFIER, String.valueOf(year));
+                    insertValues.put(COL_COIN_IDENTIFIER, identifier);
                     insertValues.put(COL_IN_COLLECTION, 0);
                     insertValues.put(COL_COIN_MINT, flagStr);
                     if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
@@ -216,7 +233,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         } else {
             ContentValues insertValues = new ContentValues();
-            insertValues.put(COL_COIN_IDENTIFIER, String.valueOf(year));
+            insertValues.put(COL_COIN_IDENTIFIER, identifier);
             insertValues.put(COL_IN_COLLECTION, 0);
             insertValues.put(COL_COIN_MINT, "");
             if (db.insert("[" + tableName + "]", null, insertValues) != -1) {

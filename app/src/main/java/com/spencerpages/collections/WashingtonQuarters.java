@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -38,8 +39,23 @@ public class WashingtonQuarters extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Quarters";
 
+    private static final Object[][] COIN_IDENTIFIERS = {
+            {"1776-1976",             R.drawable.rev_1976_washington_quarter_unc,        R.drawable.rev_1976_washington_quarter_unc_25},
+            {"Crossing the Delaware", R.drawable.rev_2021_crossing_delaware_quarter_unc, R.drawable.rev_2021_crossing_delaware_quarter_unc_25},
+    };
+
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+
+    static {
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+        }
+    }
+
     private static final Integer START_YEAR = 1932;
-    private static final Integer STOP_YEAR = 1998;
+    private static final Integer STOP_YEAR = 2021;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
     private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
@@ -55,7 +71,13 @@ public class WashingtonQuarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
+        boolean inCollection = coinSlot.isInCollection();
+        if(slotImages != null){
+            return slotImages[inCollection ? 0 : 1];
+        } else {
+            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
+        }
     }
 
     @Override
@@ -97,6 +119,11 @@ public class WashingtonQuarters extends CollectionInfo {
             }
             if(i == 1933 || (i == 1976 && startYear != 1976))
                 continue;
+            if(i > 1998 && i < 2021)
+                continue;
+            if(i == 2021){
+                newValue = "Crossing the Delaware";
+            }
 
             if(showMintMarks){
                 if(showP){
@@ -148,6 +175,11 @@ public class WashingtonQuarters extends CollectionInfo {
             total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1965", "D"});
             total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1966", "D"});
             total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1967", "D"});
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2021 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 1998, 2021, "Crossing the Delaware");
         }
 
         return total;

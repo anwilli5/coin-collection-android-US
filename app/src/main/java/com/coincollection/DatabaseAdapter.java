@@ -116,7 +116,7 @@ public class DatabaseAdapter {
      */
     // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
     // instead have one query that returns all of the info.
-    private int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
+    public int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_WHERE_CLAUSE + " LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, coinSlot.getIdentifier());
@@ -134,7 +134,7 @@ public class DatabaseAdapter {
      * @param coinSlot The coin we want to retrieve data for
      * @throws SQLException if the database update was not successful
      */
-    void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
+    public void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         int result = fetchIsInCollection(tableName, coinSlot);
         int newValue = (result + 1) % 2;
         ContentValues args = new ContentValues();
@@ -168,7 +168,7 @@ public class DatabaseAdapter {
      * @param displayType - New display type to store for this table
      * @throws SQLException if the database update was not successful
      */
-    void updateTableDisplay(String tableName, int displayType) throws SQLException {
+    public void updateTableDisplay(String tableName, int displayType) throws SQLException {
         ContentValues args = new ContentValues();
         args.put(COL_DISPLAY, displayType);
         runSqlUpdateAndCheck(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName });
@@ -181,7 +181,7 @@ public class DatabaseAdapter {
      * @param displayOrder - New displayOrder to store for this table
      * @throws SQLException if the database update was not successful
      */
-    void updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
+    public void updateDisplayOrder(String tableName, int displayOrder) throws SQLException {
         ContentValues args = new ContentValues();
         args.put(COL_DISPLAY_ORDER, displayOrder);
         runSqlUpdateAndCheck(TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { tableName });
@@ -332,7 +332,7 @@ public class DatabaseAdapter {
      * @param tableName The collection name
      * @return -1 if successful otherwise a resource id corresponding to an error message
      */
-    int checkCollectionName(String tableName) {
+    public int checkCollectionName(String tableName) {
 
         // Make sure the name isn't in the reserved list
         if (mReservedDbNames.contains(tableName)) {
@@ -360,7 +360,7 @@ public class DatabaseAdapter {
      * @return The next display order to use
      * @throws SQLException if a database error occurred
      */
-    int getNextDisplayOrder() throws SQLException {
+    public int getNextDisplayOrder() throws SQLException {
         String sqlCmd = "SELECT MAX(" + COL_DISPLAY_ORDER + ") FROM " + TBL_COLLECTION_INFO;
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         int result = simpleQueryForLong(compiledStatement);
@@ -398,7 +398,7 @@ public class DatabaseAdapter {
      * @param newName The new collection name
      * @throws SQLException if the database update was not successful
      */
-    void updateCollectionName(String oldName, String newName) throws SQLException {
+    public void updateCollectionName(String oldName, String newName) throws SQLException {
         DatabaseHelper.updateCollectionName(mDb, oldName, newName);
     }
 
@@ -409,7 +409,7 @@ public class DatabaseAdapter {
      * @param coinData new coin data
      * @throws SQLException if a database error occurs
      */
-    void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
+    public void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
         DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData);
     }
 
@@ -437,7 +437,7 @@ public class DatabaseAdapter {
      * @param populateAdvInfo If true, includes advanced attributes
      * @return CoinSlot list
      */
-    ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo) {
+    public ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo) {
         return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo);
     }
 

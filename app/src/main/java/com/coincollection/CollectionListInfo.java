@@ -25,7 +25,6 @@ import android.os.Parcelable;
 
 import com.spencerpages.MainApplication;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
-import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -58,7 +57,7 @@ import java.util.HashMap;
  */
 public class CollectionListInfo implements Parcelable {
     private final String mCollectionName;
-    private final int mTotalCoinsInCollection;
+    private int mTotalCoinsInCollection;
     private int mTotalCoinsCollected;
     private final int mCollectionTypeIndex;
     private final int mDisplayType;
@@ -69,6 +68,7 @@ public class CollectionListInfo implements Parcelable {
     private final CollectionInfo mCollectionInfo;
 
     // Flags for selected mint marks
+    public final static int ALL_MINT_MASK = 0x3F;
     public final static int SHOW_MINT_MARKS = 0x1;
     public final static int MINT_P = 0x2;
     public final static int MINT_D = 0x4;
@@ -77,6 +77,7 @@ public class CollectionListInfo implements Parcelable {
     public final static int MINT_CC = 0x20;
 
     // Flags for show checkboxes options
+    public final static int ALL_CHECKBOXES_MASK = 0x7;
     public final static int CUSTOM_DATES = 0x1;
     public final static int BURNISHED = 0x2;
     public final static int TERRITORIES = 0x4;
@@ -106,7 +107,6 @@ public class CollectionListInfo implements Parcelable {
     // Collections in this list use the start/end years
     private final static ArrayList<String> HAS_DATE_RANGE = new ArrayList<>(Arrays.asList(
             AmericanEagleSilverDollars.COLLECTION_TYPE,
-            AmericanInnovationDollars.COLLECTION_TYPE,
             BarberDimes.COLLECTION_TYPE,
             BarberHalfDollars.COLLECTION_TYPE,
             BarberQuarters.COLLECTION_TYPE,
@@ -162,7 +162,11 @@ public class CollectionListInfo implements Parcelable {
     }
 
     public void setMax(int max) {
-        mTotalCoinsCollected = max;
+        mTotalCoinsInCollection = max;
+    }
+
+    public void setCollected(int numCollected) {
+        mTotalCoinsCollected = numCollected;
     }
 
     public String getName(){
@@ -303,7 +307,7 @@ public class CollectionListInfo implements Parcelable {
                 showBurnished = true;
             }
             if (coinType.equals(StateQuarters.COLLECTION_TYPE) &&
-                    coinId.equals(StateQuarters.DC_AND_TERR_COIN_IDENTIFIERS[0])) {
+                    coinId.equals(StateQuarters.DC_AND_TERR_COIN_IDENTIFIERS[0][0])) {
                 showTerritories = true;
             }
             if (isHideMintMarkSpecialCase(coinType, coinId, mintMark)) {
@@ -461,11 +465,9 @@ public class CollectionListInfo implements Parcelable {
      */
     public boolean checkIfNewFlagsRemoveCoins(int mintMarkFlags, int checkboxFlags) {
         // Return true if:
-        // - The mint mark is toggled in either direction
         // - A mint mark that is set is unset
         // - a checkbox option that is set is unset (ignores custom dates)
-        return (  (mintMarkFlags & ~mMintMarkFlags & SHOW_MINT_MARKS)
-                |  (mMintMarkFlags & ~mintMarkFlags)
+        return (  (mMintMarkFlags & ~mintMarkFlags)
                 |  (mCheckboxFlags & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
     }
 

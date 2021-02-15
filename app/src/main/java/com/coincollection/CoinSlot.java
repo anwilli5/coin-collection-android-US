@@ -84,7 +84,7 @@ public class CoinSlot implements Parcelable {
         mMint = mint;
     }
 
-    void setInCollection (boolean inCollection) {
+    public void setInCollection (boolean inCollection) {
         mInCollection = inCollection;
     }
 
@@ -128,16 +128,32 @@ public class CoinSlot implements Parcelable {
         return mAdvancedNotes;
     }
 
-    void setAdvancedGrades(Integer advancedGrades) {
+    public void setAdvancedGrades(Integer advancedGrades) {
         this.mAdvancedGrades = advancedGrades;
     }
 
-    void setAdvancedQuantities(Integer advancedQuantities) {
+    public void setAdvancedQuantities(Integer advancedQuantities) {
         this.mAdvancedQuantities = advancedQuantities;
     }
 
-    void setAdvancedNotes(String advancedNotes) {
+    public void setAdvancedNotes(String advancedNotes) {
         this.mAdvancedNotes = advancedNotes;
+    }
+
+    /**
+     * Creates a copy of the current coin with a different name and mint mark
+     * @param newIdentifier new coin identifier
+     * @param newMint new mint mark
+     * @return the new CoinSlot object
+     */
+    public CoinSlot copy(String newIdentifier, String newMint) {
+        return new CoinSlot(
+                newIdentifier,
+                newMint,
+                mInCollection,
+                mAdvancedGrades,
+                mAdvancedQuantities,
+                mAdvancedNotes);
     }
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case

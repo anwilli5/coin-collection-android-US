@@ -35,139 +35,79 @@ public class StateQuarters extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "State Quarters";
 
-    private static final String[] STATES_COIN_IDENTIFIERS = {
-            "Delaware",
-            "Pennsylvania",
-            "New Jersey",
-            "Georgia",
-            "Connecticut",
-            "Massachusetts",
-            "Maryland",
-            "South Carolina",
-            "New Hampshire",
-            "Virginia",
-            "New York",
-            "North Carolina",
-            "Rhode Island",
-            "Vermont",
-            "Kentucky",
-            "Tennessee",
-            "Ohio",
-            "Louisiana",
-            "Indiana",
-            "Mississippi",
-            "Illinois",
-            "Alabama",
-            "Maine",
-            "Missouri",
-            "Arkansas",
-            "Michigan",
-            "Florida",
-            "Texas",
-            "Iowa",
-            "Wisconsin",
-            "California",
-            "Minnesota",
-            "Oregon",
-            "Kansas",
-            "West Virginia",
-            "Nevada",
-            "Nebraska",
-            "Colorado",
-            "North Dakota",
-            "South Dakota",
-            "Montana",
-            "Washington",
-            "Idaho",
-            "Wyoming",
-            "Utah",
-            "Oklahoma",
-            "New Mexico",
-            "Arizona",
-            "Alaska",
-            "Hawaii",
+    private static final Object[][] STATES_COIN_IDENTIFIERS = {
+            {"Delaware",       R.drawable.states_1999_delaware_unc,      R.drawable.states_1999_delaware_unc_25},
+            {"Pennsylvania",   R.drawable.states_1999_pennsylvania_unc,  R.drawable.states_1999_pennsylvania_unc_25},
+            {"New Jersey",     R.drawable.states_1999_new_jersey_unc,    R.drawable.states_1999_new_jersey_unc_25},
+            {"Georgia",        R.drawable.states_1999_georgia_unc,       R.drawable.states_1999_georgia_unc_25},
+            {"Connecticut",    R.drawable.states_1999_connecticut_unc,   R.drawable.states_1999_connecticut_unc_25},
+            {"Massachusetts",  R.drawable.states_2000_massachusetts,     R.drawable.states_2000_massachusetts_25},
+            {"Maryland",       R.drawable.states_2000_maryland_unc,      R.drawable.states_2000_maryland_unc_25},
+            {"South Carolina", R.drawable.states_2000_south_carolina_unc,R.drawable.states_2000_south_carolina_unc_25},
+            {"New Hampshire",  R.drawable.states_2000_new_hampshire_unc, R.drawable.states_2000_new_hampshire_unc_25},
+            {"Virginia",       R.drawable.states_2000_virginia_unc,      R.drawable.states_2000_virginia_unc_25},
+            {"New York",       R.drawable.states_2001_new_york_unc,      R.drawable.states_2001_new_york_unc_25},
+            {"North Carolina", R.drawable.states_2001_north_carolina_unc,R.drawable.states_2001_north_carolina_unc_25},
+            {"Rhode Island",   R.drawable.states_2001_rhode_island_unc,  R.drawable.states_2001_rhode_island_unc_25},
+            {"Vermont",        R.drawable.states_2001_vermont_unc,       R.drawable.states_2001_vermont_unc_25},
+            {"Kentucky",       R.drawable.states_2001_kentucky_unc,      R.drawable.states_2001_kentucky_unc_25},
+            {"Tennessee",      R.drawable.states_2002_tennessee_unc,     R.drawable.states_2002_tennessee_unc_25},
+            {"Ohio",           R.drawable.states_2002_ohio_unc,          R.drawable.states_2002_ohio_unc_25},
+            {"Louisiana",      R.drawable.states_2002_louisiana_unc,     R.drawable.states_2002_louisiana_unc_25},
+            {"Indiana",        R.drawable.states_2002_indiana_unc,       R.drawable.states_2002_indiana_unc_25},
+            {"Mississippi",    R.drawable.states_2002_mississippi_unc,   R.drawable.states_2002_mississippi_unc_25},
+            {"Illinois",       R.drawable.states_2003_illinois_unc,      R.drawable.states_2003_illinois_unc_25},
+            {"Alabama",        R.drawable.states_2003_alabama_unc,       R.drawable.states_2003_alabama_unc_25},
+            {"Maine",          R.drawable.states_2003_maine_unc,         R.drawable.states_2003_maine_unc_25},
+            {"Missouri",       R.drawable.states_2003_missouri_unc,      R.drawable.states_2003_missouri_unc_25},
+            {"Arkansas",       R.drawable.states_2003_arkansas_unc,      R.drawable.states_2003_arkansas_unc_25},
+            {"Michigan",       R.drawable.states_2004_michigan_unc,      R.drawable.states_2004_michigan_unc_25},
+            {"Florida",        R.drawable.states_2004_florida_unc,       R.drawable.states_2004_florida_unc_25},
+            {"Texas",          R.drawable.states_2004_texas_unc,         R.drawable.states_2004_texas_unc_25},
+            {"Iowa",           R.drawable.states_2004_iowa_unc,          R.drawable.states_2004_iowa_unc_25},
+            {"Wisconsin",      R.drawable.states_2004_wisconsin_unc,     R.drawable.states_2004_wisconsin_unc_25},
+            {"California",     R.drawable.states_2005_california_unc,    R.drawable.states_2005_california_unc_25},
+            {"Minnesota",      R.drawable.states_2005_minnesota_unc,     R.drawable.states_2005_minnesota_unc_25},
+            {"Oregon",         R.drawable.states_2005_oregon_unc,        R.drawable.states_2005_oregon_unc_25},
+            {"Kansas",         R.drawable.states_2005_kansas_unc,        R.drawable.states_2005_kansas_unc_25},
+            {"West Virginia",  R.drawable.states_2005_west_virginia_unc, R.drawable.states_2005_west_virginia_unc_25},
+            {"Nevada",         R.drawable.states_2006_nevada_unc,        R.drawable.states_2006_nevada_unc_25},
+            {"Nebraska",       R.drawable.states_2006_nebraska_unc,      R.drawable.states_2006_nebraska_unc_25},
+            {"Colorado",       R.drawable.states_2006_colorado_unc,      R.drawable.states_2006_colorado_unc_25},
+            {"North Dakota",   R.drawable.states_2006_north_dakota_unc,  R.drawable.states_2006_north_dakota_unc_25},
+            {"South Dakota",   R.drawable.states_2006_south_dakota_unc,  R.drawable.states_2006_south_dakota_unc_25},
+            {"Montana",        R.drawable.states_2007_montana_unc,       R.drawable.states_2007_montana_unc_25},
+            {"Washington",     R.drawable.states_2007_washington_unc,    R.drawable.states_2007_washington_unc_25},
+            {"Idaho",          R.drawable.states_2007_idaho_unc,         R.drawable.states_2007_idaho_unc_25},
+            {"Wyoming",        R.drawable.states_2007_wyoming_unc,       R.drawable.states_2007_wyoming_unc_25},
+            {"Utah",           R.drawable.states_2007_utah_unc,          R.drawable.states_2007_utah_unc_25},
+            {"Oklahoma",       R.drawable.states_2008_oklahoma_unc,      R.drawable.states_2008_oklahoma_unc_25},
+            {"New Mexico",     R.drawable.states_2008_new_mexico_unc,    R.drawable.states_2008_new_mexico_unc_25},
+            {"Arizona",        R.drawable.states_2008_arizona_unc,       R.drawable.states_2008_arizona_unc_25},
+            {"Alaska",         R.drawable.states_2008_alaska_unc,        R.drawable.states_2008_alaska_unc_25},
+            {"Hawaii",         R.drawable.states_2008_hawaii_unc,        R.drawable.states_2008_hawaii_unc_25},
     };
 
-    private static final Integer[][] STATES_IMAGE_IDENTIFIERS = {
-            { R.drawable.states_1999_delaware_unc,      R.drawable.states_1999_delaware_unc_25},
-            { R.drawable.states_1999_pennsylvania_unc,  R.drawable.states_1999_pennsylvania_unc_25},
-            { R.drawable.states_1999_new_jersey_unc,    R.drawable.states_1999_new_jersey_unc_25},
-            { R.drawable.states_1999_georgia_unc,       R.drawable.states_1999_georgia_unc_25},
-            { R.drawable.states_1999_connecticut_unc,   R.drawable.states_1999_connecticut_unc_25},
-            { R.drawable.states_2000_massachusetts,     R.drawable.states_2000_massachusetts_25},
-            { R.drawable.states_2000_maryland_unc,      R.drawable.states_2000_maryland_unc_25},
-            { R.drawable.states_2000_south_carolina_unc,R.drawable.states_2000_south_carolina_unc_25},
-            { R.drawable.states_2000_new_hampshire_unc, R.drawable.states_2000_new_hampshire_unc_25},
-            { R.drawable.states_2000_virginia_unc,      R.drawable.states_2000_virginia_unc_25},
-            { R.drawable.states_2001_new_york_unc,      R.drawable.states_2001_new_york_unc_25},
-            { R.drawable.states_2001_north_carolina_unc,R.drawable.states_2001_north_carolina_unc_25},
-            { R.drawable.states_2001_rhode_island_unc,  R.drawable.states_2001_rhode_island_unc_25},
-            { R.drawable.states_2001_vermont_unc,       R.drawable.states_2001_vermont_unc_25},
-            { R.drawable.states_2001_kentucky_unc,      R.drawable.states_2001_kentucky_unc_25},
-            { R.drawable.states_2002_tennessee_unc,     R.drawable.states_2002_tennessee_unc_25},
-            { R.drawable.states_2002_ohio_unc,          R.drawable.states_2002_ohio_unc_25},
-            { R.drawable.states_2002_louisiana_unc,     R.drawable.states_2002_louisiana_unc_25},
-            { R.drawable.states_2002_indiana_unc,       R.drawable.states_2002_indiana_unc_25},
-            { R.drawable.states_2002_mississippi_unc,   R.drawable.states_2002_mississippi_unc_25},
-            { R.drawable.states_2003_illinois_unc,      R.drawable.states_2003_illinois_unc_25},
-            { R.drawable.states_2003_alabama_unc,       R.drawable.states_2003_alabama_unc_25},
-            { R.drawable.states_2003_maine_unc,         R.drawable.states_2003_maine_unc_25},
-            { R.drawable.states_2003_missouri_unc,      R.drawable.states_2003_missouri_unc_25},
-            { R.drawable.states_2003_arkansas_unc,      R.drawable.states_2003_arkansas_unc_25},
-            { R.drawable.states_2004_michigan_unc,      R.drawable.states_2004_michigan_unc_25},
-            { R.drawable.states_2004_florida_unc,       R.drawable.states_2004_florida_unc_25},
-            { R.drawable.states_2004_texas_unc,         R.drawable.states_2004_texas_unc_25},
-            { R.drawable.states_2004_iowa_unc,          R.drawable.states_2004_iowa_unc_25},
-            { R.drawable.states_2004_wisconsin_unc,     R.drawable.states_2004_wisconsin_unc_25},
-            { R.drawable.states_2005_california_unc,    R.drawable.states_2005_california_unc_25},
-            { R.drawable.states_2005_minnesota_unc,     R.drawable.states_2005_minnesota_unc_25},
-            { R.drawable.states_2005_oregon_unc,        R.drawable.states_2005_oregon_unc_25},
-            { R.drawable.states_2005_kansas_unc,        R.drawable.states_2005_kansas_unc_25},
-            { R.drawable.states_2005_west_virginia_unc, R.drawable.states_2005_west_virginia_unc_25},
-            { R.drawable.states_2006_nevada_unc,        R.drawable.states_2006_nevada_unc_25},
-            { R.drawable.states_2006_nebraska_unc,      R.drawable.states_2006_nebraska_unc_25},
-            { R.drawable.states_2006_colorado_unc,      R.drawable.states_2006_colorado_unc_25},
-            { R.drawable.states_2006_north_dakota_unc,  R.drawable.states_2006_north_dakota_unc_25},
-            { R.drawable.states_2006_south_dakota_unc,  R.drawable.states_2006_south_dakota_unc_25},
-            { R.drawable.states_2007_montana_unc,       R.drawable.states_2007_montana_unc_25},
-            { R.drawable.states_2007_washington_unc,    R.drawable.states_2007_washington_unc_25},
-            { R.drawable.states_2007_idaho_unc,         R.drawable.states_2007_idaho_unc_25},
-            { R.drawable.states_2007_wyoming_unc,       R.drawable.states_2007_wyoming_unc_25},
-            { R.drawable.states_2007_utah_unc,          R.drawable.states_2007_utah_unc_25},
-            { R.drawable.states_2008_oklahoma_unc,      R.drawable.states_2008_oklahoma_unc_25},
-            { R.drawable.states_2008_new_mexico_unc,    R.drawable.states_2008_new_mexico_unc_25},
-            { R.drawable.states_2008_arizona_unc,       R.drawable.states_2008_arizona_unc_25},
-            { R.drawable.states_2008_alaska_unc,        R.drawable.states_2008_alaska_unc_25},
-            { R.drawable.states_2008_hawaii_unc,        R.drawable.states_2008_hawaii_unc_25},
+    public static final Object[][] DC_AND_TERR_COIN_IDENTIFIERS = {
+            {"District of Columbia",     R.drawable.states_2009_dc_unc,                R.drawable.states_2009_dc_unc_25},
+            {"Puerto Rico",              R.drawable.states_2009_puerto_rico_unc,       R.drawable.states_2009_puerto_rico_unc_25},
+            {"Guam",                     R.drawable.states_2009_guam_unc,              R.drawable.states_2009_guam_unc_25},
+            {"American Samoa",           R.drawable.states_2009_american_samoa_unc,    R.drawable.states_2009_american_samoa_unc_25},
+            {"U.S. Virgin Islands",      R.drawable.states_2009_virgin_islands_unc,    R.drawable.states_2009_virgin_islands_unc_25},
+            {"Northern Mariana Islands", R.drawable.states_2009_northern_mariana_unc,  R.drawable.states_2009_northern_mariana_unc_25},
     };
 
-    public static final String[] DC_AND_TERR_COIN_IDENTIFIERS = {
-            "District of Columbia",
-            "Puerto Rico",
-            "Guam",
-            "American Samoa",
-            "U.S. Virgin Islands",
-            "Northern Mariana Islands",
-    };
-
-    private static final Integer[][] DC_AND_TERR_IMAGE_IDENTIFIERS = {
-            { R.drawable.states_2009_dc_unc,                R.drawable.states_2009_dc_unc_25},
-            { R.drawable.states_2009_puerto_rico_unc,       R.drawable.states_2009_puerto_rico_unc_25},
-            { R.drawable.states_2009_guam_unc,              R.drawable.states_2009_guam_unc_25},
-            { R.drawable.states_2009_american_samoa_unc,    R.drawable.states_2009_american_samoa_unc_25},
-            { R.drawable.states_2009_virgin_islands_unc,    R.drawable.states_2009_virgin_islands_unc_25},
-            { R.drawable.states_2009_northern_mariana_unc,  R.drawable.states_2009_northern_mariana_unc_25},
-    };
-
-    private static final HashMap<String, Integer[]> STATES_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the STATES_INFO HashMap for quick image ID lookups later
-        for (int i = 0; i < STATES_COIN_IDENTIFIERS.length; i++){
-            STATES_INFO.put(STATES_COIN_IDENTIFIERS[i], STATES_IMAGE_IDENTIFIERS[i]);
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : STATES_COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
-        for (int i = 0; i < DC_AND_TERR_COIN_IDENTIFIERS.length; i++){
-            STATES_INFO.put(DC_AND_TERR_COIN_IDENTIFIERS[i], DC_AND_TERR_IMAGE_IDENTIFIERS[i]);
+        for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
 
@@ -184,12 +124,12 @@ public class StateQuarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = STATES_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
         } else {
-            return inCollection ? STATES_IMAGE_IDENTIFIERS[0][0] : STATES_IMAGE_IDENTIFIERS[0][1];
+            return inCollection ? (int) STATES_COIN_IDENTIFIERS[0][1] : (int) STATES_COIN_IDENTIFIERS[0][2];
         }
     }
 
@@ -220,7 +160,8 @@ public class StateQuarters extends CollectionInfo {
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
 
-        for (String identifier : STATES_COIN_IDENTIFIERS) {
+        for(Object[] coinData : STATES_COIN_IDENTIFIERS){
+            String identifier = (String) coinData[0];
 
             if (showMintMarks) {
                 if (showP) {
@@ -235,7 +176,8 @@ public class StateQuarters extends CollectionInfo {
         }
         if(showTerritories){
             // Add those to the list
-            for (String identifier : DC_AND_TERR_COIN_IDENTIFIERS) {
+            for(Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS){
+                String identifier = (String) coinData[0];
 
                 if (showMintMarks) {
                     if (showP) {

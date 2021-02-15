@@ -22,6 +22,9 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
+
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
@@ -37,9 +40,6 @@ import org.robolectric.shadows.ShadowAlertDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
 
 import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_EXT;
 import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;

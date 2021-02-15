@@ -21,7 +21,6 @@
 package com.coincollection;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -42,6 +41,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.spencerpages.BuildConfig;
@@ -55,12 +60,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import static com.coincollection.CollectionListInfo.COL_NAME;
 import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
@@ -132,6 +131,11 @@ public class MainActivity extends BaseActivity {
         // task the first time so the upgrade happens off of the UI thread.
         mOpenDbAdapterInOnCreate = false;
         super.onCreate(savedInstanceState);
+
+        if (BuildConfig.DEBUG && mActionBar != null) {
+            // Update the title indicating this is a debug build, for easier identification
+            mActionBar.setTitle(mActionBar.getTitle() + " [DEBUG]");
+        }
 
         setContentView(R.layout.main_activity_layout);
 
@@ -227,14 +231,14 @@ public class MainActivity extends BaseActivity {
                                 names[i] = mCollectionListEntries.get(i).getName();
                             }
 
-                            mBuilder = new AlertDialog.Builder(MainActivity.this);
-                            mBuilder.setTitle(mRes.getString(R.string.select_collection_delete));
-                            mBuilder.setItems(names, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int item) {
-                                    showDeleteConfirmation(mCollectionListEntries.get(item).getName());
-                                }
-                            });
-                            showAlert();
+                            showAlert(newBuilder()
+                                    .setTitle(mRes.getString(R.string.select_collection_delete))
+                                    .setItems(names, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int item) {
+                                            dialog.dismiss();
+                                            showDeleteConfirmation(mCollectionListEntries.get(item).getName());
+                                        }
+                                    }));
                             break;
                         case IMPORT_COLLECTIONS:
                             handleImportCollectionsPart1();
@@ -243,25 +247,7 @@ public class MainActivity extends BaseActivity {
                             handleExportCollectionsPart1();
                             break;
                         case REORDER_COLLECTIONS:
-
-                            if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-
-                            // Get a list that excludes the spacers
-                            List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
-                            ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
-
-                            ReorderCollections fragment = new ReorderCollections();
-                            fragment.setCollectionList(collections);
-
-                            // Show the fragment used for reordering collections
-                            getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.main_activity_frame, fragment, REORDER_COLLECTION)
-                                    .addToBackStack(null)
-                                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                                    .commit();
+                            launchReorderFragment();
                             break;
                         case ABOUT:
 
@@ -269,13 +255,10 @@ public class MainActivity extends BaseActivity {
                             View layout = inflater.inflate(R.layout.info_popup,
                                     (ViewGroup) findViewById(R.id.info_layout_root));
 
-                            mBuilder = new AlertDialog.Builder(MainActivity.this);
-                            mBuilder.setView(layout);
-
                             TextView tv = layout.findViewById(R.id.info_textview);
                             tv.setText(buildInfoText());
 
-                            showAlert();
+                            showAlert(newBuilder().setView(layout));
                             break;
                     }
 
@@ -292,41 +275,44 @@ public class MainActivity extends BaseActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if(position < mNumberOfCollections) {
                     // For each collection item, populate a menu of actions for the collection
-                    mBuilder = new AlertDialog.Builder(MainActivity.this);
-                    mBuilder.setTitle(mRes.getString(R.string.collection_actions));
                     CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
                     actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
                     actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
                     actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
                     actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
                     final int actionPosition = position;
-                    mBuilder.setItems(actionsList, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
-                            switch (item) {
-                                case ACTIONS_VIEW: {
-                                    // Launch collection page
-                                    launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
-                                    break;
+                    showAlert(newBuilder()
+                            .setTitle(mRes.getString(R.string.collection_actions))
+                            .setItems(actionsList, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int item) {
+                                    switch (item) {
+                                        case ACTIONS_VIEW: {
+                                            // Launch collection page
+                                            dialog.dismiss();
+                                            launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
+                                            break;
+                                        }
+                                        case ACTIONS_EDIT: {
+                                            // Launch edit view
+                                            dialog.dismiss();
+                                            launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
+                                            break;
+                                        }
+                                        case ACTIONS_COPY: {
+                                            // Perform copy
+                                            dialog.dismiss();
+                                            copyCollection(mCollectionListEntries.get(actionPosition).getName());
+                                            break;
+                                        }
+                                        case ACTIONS_DELETE: {
+                                            // Perform delete
+                                            dialog.dismiss();
+                                            showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
+                                            break;
+                                        }
+                                    }
                                 }
-                                case ACTIONS_EDIT: {
-                                    // Launch edit view
-                                    launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
-                                    break;
-                                }
-                                case ACTIONS_COPY: {
-                                    // Perform copy
-                                    copyCollection(mCollectionListEntries.get(actionPosition).getName());
-                                    break;
-                                }
-                                case ACTIONS_DELETE: {
-                                    // Perform delete
-                                    showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
-                                    break;
-                                }
-                            }
-                        }
-                    });
-                    showAlert();
+                            }));
                     return true;
                 }
                 return false;
@@ -360,6 +346,15 @@ public class MainActivity extends BaseActivity {
         // having the app open for a while, database errors would start popping up.  Now, we just
         // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
         // is required, but just open and close the database regularly as needed after that.
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // If the collection has coins then show the more options help (if not yet shown)
+        if (mNumberOfCollections > 0) {
+            createAndShowHelpDialog("first_Time_screen4", R.string.tutorial_more_options);
+        }
     }
 
     @Override
@@ -420,12 +415,14 @@ public class MainActivity extends BaseActivity {
     /**
      * Launches the collection page for a collection list entry
      * @param listEntry The collection to view
+     * @return Intent (used for testing)
      */
-    private void launchCoinPageActivity(CollectionListInfo listEntry) {
+    public Intent launchCoinPageActivity(CollectionListInfo listEntry) {
         Intent intent = new Intent(mContext, CollectionPage.class);
         intent.putExtra(CollectionPage.COLLECTION_NAME, listEntry.getName());
         intent.putExtra(CollectionPage.COLLECTION_TYPE_INDEX, listEntry.getCollectionTypeIndex());
         startActivity(intent);
+        return intent;
     }
 
     /**
@@ -438,6 +435,33 @@ public class MainActivity extends BaseActivity {
             intent.putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, existingCollection);
         }
         startActivity(intent);
+    }
+
+    /**
+     * Launch the reorder fragment
+     * @return ReorderCollections (used for testing)
+     */
+    public ReorderCollections launchReorderFragment() {
+
+        if(mNumberOfCollections == 0){
+            Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // Get a list that excludes the spacers
+        List<CollectionListInfo> tmp = mCollectionListEntries.subList(0, mNumberOfCollections);
+        ArrayList<CollectionListInfo> collections = new ArrayList<>(tmp);
+
+        ReorderCollections fragment = new ReorderCollections();
+        fragment.setCollectionList(collections);
+
+        // Show the fragment used for reordering collections
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_activity_frame, fragment, REORDER_COLLECTION)
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+        return fragment;
     }
 
     /**
@@ -1097,21 +1121,21 @@ public class MainActivity extends BaseActivity {
      */
     private void showExportConfirmation(){
 
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setMessage(mRes.getString(R.string.export_warning))
-               .setCancelable(false)
-               .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       // TODO Maybe use AsyncTask, if necessary
+        showAlert(newBuilder()
+                .setMessage(mRes.getString(R.string.export_warning))
+                .setCancelable(false)
+                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // TODO Maybe use AsyncTask, if necessary
+                        dialog.dismiss();
                         handleExportCollectionsPart2();
-                   }
-               })
-               .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
+                    }
+                })
+                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                   }
-               });
-        showAlert();
+                    }
+                }));
     }
 
     /**
@@ -1119,23 +1143,24 @@ public class MainActivity extends BaseActivity {
      */
     private void showImportConfirmation(){
 
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setMessage(mRes.getString(R.string.import_warning))
-               .setCancelable(false)
-               .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                       mIsImportingCollection = true;
-                       kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
-                   }
-               })
-               .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.warning))
+                .setMessage(mRes.getString(R.string.import_warning))
+                .setCancelable(false)
+                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
+                        dialog.dismiss();
+                        mIsImportingCollection = true;
+                        kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+                    }
+                })
+                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                         handleImportCollectionsCancel();
-                   }
-               });
-        showAlert();
+                    }
+                }));
     }
 
     /**
@@ -1144,41 +1169,42 @@ public class MainActivity extends BaseActivity {
      */
     private void showDeleteConfirmation(final String name){
 
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setMessage(mRes.getString(R.string.delete_warning, name))
-               .setCancelable(false)
-               .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       //Do the deleting
-                       Cursor cursor = null;
-                       try {
-                           mDbAdapter.dropCollectionTable(name);
-                           //Get a list of all the database tables
-                           cursor = mDbAdapter.getAllCollectionNames();
-                           int i = 0;
-                           if (cursor.moveToFirst()) {
-                               do {
-                                   String name = cursor.getString(cursor.getColumnIndex(COL_NAME));
-                                   // Fix up the displayOrder
-                                   mDbAdapter.updateDisplayOrder(name, i);
-                                   i++;
-                               } while(cursor.moveToNext());
-                           }
-                           cursor.close();
-                       } catch (SQLException e) {
-                           showCancelableAlert(mRes.getString(R.string.error_delete_database));
-                           if (cursor != null) {
-                               cursor.close();
-                           }
-                       }
-                   }
-               })
-               .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.warning))
+                .setMessage(mRes.getString(R.string.delete_warning, name))
+                .setCancelable(false)
+                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        //Do the deleting
+                        Cursor cursor = null;
+                        try {
+                            mDbAdapter.dropCollectionTable(name);
+                            //Get a list of all the database tables
+                            cursor = mDbAdapter.getAllCollectionNames();
+                            int i = 0;
+                            if (cursor.moveToFirst()) {
+                                do {
+                                    String name = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                                    // Fix up the displayOrder
+                                    mDbAdapter.updateDisplayOrder(name, i);
+                                    i++;
+                                } while (cursor.moveToNext());
+                            }
+                            cursor.close();
+                        } catch (SQLException e) {
+                            showCancelableAlert(mRes.getString(R.string.error_delete_database));
+                            if (cursor != null) {
+                                cursor.close();
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                   }
-               });
-        showAlert();
+                    }
+                }));
     }
 
     /**
@@ -1262,7 +1288,7 @@ public class MainActivity extends BaseActivity {
      * Construct the attribution string for the info text
      * @return info text string
      */
-    private String buildInfoText(){
+    public String buildInfoText(){
         HashSet<String> attributions = new HashSet<>();
         for(CollectionInfo collection : MainApplication.COLLECTION_TYPES){
             int attributionResId = collection.getAttributionResId();

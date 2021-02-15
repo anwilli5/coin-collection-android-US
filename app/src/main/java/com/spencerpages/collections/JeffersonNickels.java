@@ -39,35 +39,27 @@ public class JeffersonNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Nickels";
 
-    private static final String[] WESTWARD_2004_COIN_IDENTIFIERS = {
-            "Peace Medal",
-            "Keelboat"
+    private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc, R.drawable.westward_2004_louisiana_purchase_unc_25},
+            {"Keelboat",    R.drawable.westward_2004_keelboat_unc,           R.drawable.westward_2004_keelboat_unc_25},
     };
 
-    private static final Integer[][] WESTWARD_2004_IMAGE_IDENTIFIERS = {
-            { R.drawable.westward_2004_louisiana_purchase_unc, R.drawable.westward_2004_louisiana_purchase_unc_25},
-            { R.drawable.westward_2004_keelboat_unc,           R.drawable.westward_2004_keelboat_unc_25},
+    private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
+            {"American Bison", R.drawable.westward_2005_american_bison_unc, R.drawable.westward_2005_american_bison_unc_25},
+            {"Ocean in View!", R.drawable.westward_2005_ocean_in_view_unc, R.drawable.westward_2005_ocean_in_view_unc_25},
     };
 
-    private static final String[] WESTWARD_2005_COIN_IDENTIFIERS = {
-            "American Bison",
-            "Ocean in View!"
-    };
-
-    private static final Integer[][] WESTWARD_2005_IMAGE_IDENTIFIERS = {
-            { R.drawable.westward_2005_american_bison_unc, R.drawable.westward_2005_american_bison_unc_25},
-            { R.drawable.westward_2005_ocean_in_view_unc, R.drawable.westward_2005_ocean_in_view_unc_25},
-    };
-
-    private static final HashMap<String, Integer[]> WESTWARD_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the WESTWARD_INFO HashMap for quick image ID lookups later
-        for (int i = 0; i < WESTWARD_2004_COIN_IDENTIFIERS.length; i++){
-            WESTWARD_INFO.put(WESTWARD_2004_COIN_IDENTIFIERS[i], WESTWARD_2004_IMAGE_IDENTIFIERS[i]);
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
-        for (int i = 0; i < WESTWARD_2005_COIN_IDENTIFIERS.length; i++){
-            WESTWARD_INFO.put(WESTWARD_2005_COIN_IDENTIFIERS[i], WESTWARD_2005_IMAGE_IDENTIFIERS[i]);
+        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
 
@@ -87,7 +79,7 @@ public class JeffersonNickels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = WESTWARD_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
@@ -132,7 +124,8 @@ public class JeffersonNickels extends CollectionInfo {
 
             if(i == 2004){
                 // 2004 Jefferson Presidential Nickels
-                for (String identifier : WESTWARD_2004_COIN_IDENTIFIERS) {
+                for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
+                    String identifier = (String) coinData[0];
 
                     if (showMintMarks) {
                         if (showP) {
@@ -150,7 +143,8 @@ public class JeffersonNickels extends CollectionInfo {
 
             if(i == 2005){
                 // 2005 Jefferson Presidential Nickels
-                for (String identifier : WESTWARD_2005_COIN_IDENTIFIERS) {
+                for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
+                    String identifier = (String) coinData[0];
 
                     if (showMintMarks) {
                         if (showP) {
@@ -266,6 +260,11 @@ public class JeffersonNickels extends CollectionInfo {
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2021 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
         }
 
         return total;

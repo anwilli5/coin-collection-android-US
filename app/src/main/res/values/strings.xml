@@ -113,11 +113,13 @@
     <string name="edit">Edit</string>
     <string name="copy">Copy</string>
     <string name="delete">Delete</string>
+    <string name="warning">Warning!</string>
 
     <!-- Main Activity -->
     <string name="app_name">Coin Collection</string>
     <string name="create_new_collection">New Collection</string>
     <string name="intro_message">Thanks for downloading Coin Collection!\nTo get started, select \'New Collection\'</string>
+    <string name="tutorial_more_options">Press and hold on a collection to view, edit, copy, and more!</string>
     <string name="delete_collection">Delete Collection</string>
     <string name="import_collection">Import Collection</string>
     <string name="export_collection">Export Collection</string>
@@ -156,9 +158,9 @@
     <string name="error_starting_year_too_low">Lowest possible starting year is %1$d</string>
     <string name="error_starting_year_too_high">Starting year can\'t be greater than the collection ending year (%1$d)</string>
     <string name="error_start_gt_end_year">Starting year can\'t be greater than the ending year</string>
-    <string name="warning_collection_type_change">Changing the collection type for an existing collection will delete all progress. Do you want to continue?</string>
-    <string name="warning_collection_dates_change">Changing the collection dates for an existing collection will remove some coin progress. Do you want to continue?</string>
-    <string name="warning_collection_options_changed">Changing the collection options for an existing collection will remove some coin progress. Do you want to continue?</string>
+    <string name="warning_collection_type_change">Changing the collection type for an existing collection will delete all progress! Do you want to continue?</string>
+    <string name="warning_collection_dates_change">Changing the collection dates for an existing collection will delete some coin progress! Do you want to continue?</string>
+    <string name="warning_collection_options_changed">Changing the collection options for an existing collection will delete some coin progress! Do you want to continue?</string>
 
     <!-- Coin Slot Adapter -->
     <string name="coin_text_template">%1$s %2$s</string>

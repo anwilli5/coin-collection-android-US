@@ -20,8 +20,6 @@
 
 package com.coincollection;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,16 +28,19 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.coincollection.helper.NonLeakingAlertDialogBuilder;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Base activity containing shared functions and resources between the activities
@@ -65,12 +66,26 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public DatabaseAdapter mDbAdapter = null;
     protected boolean mOpenDbAdapterInOnCreate = true;
     protected ActionBar mActionBar;
-    protected AlertDialog.Builder mBuilder = null;
-    protected AlertDialog mAlert = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (BuildConfig.DEBUG) {
+            // Set StrictMode policies to help debug potential issues
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .permitDiskReads() // TODO - Fix these and remove
+                    .permitDiskWrites() // TODO - Fix these and remove
+                    .penaltyLog()
+                    //.penaltyDeath() // TODO - Uncomment once fixed
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    //.penaltyDeath() // TODO - Uncomment once fixed
+                    .build());
+        }
 
         // Setup variables used across all activities
         mRes = getResources();
@@ -162,9 +177,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param text The text to be displayed
      */
     public void showCancelableAlert(String text) {
-        mBuilder = new AlertDialog.Builder(this);
-        mBuilder.setMessage(text).setCancelable(true);
-        showAlert();
+        showAlert(newBuilder().setMessage(text).setCancelable(true));
     }
 
     // https://raw.github.com/commonsguy/cw-android/master/Rotation/RotationAsync/src/com/commonsware/android/rotation/async/RotationAsync.java
@@ -174,12 +187,19 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public Object onRetainCustomNonConfigurationInstance(){
 
         if(mProgressDialog != null && mProgressDialog.isShowing()){
-            mProgressDialog.dismiss();
+            dismissProgressDialog();
             return mTask;
         } else {
             // No dialog showing, do nothing
             return null;
         }
+    }
+
+    @Override
+    public void onPause() {
+        // Dismiss any open alerts to prevent memory leaks
+        dismissAllAlerts();
+        super.onPause();
     }
 
     @Override
@@ -190,11 +210,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             mTask.mListener = null;
             mTask = null;
         }
-        // Dismiss any open alert dialogs to prevent memory leaks
-        if (mAlert != null) {
-            mAlert.dismiss();
-            mAlert = null;
-        }
         super.onDestroy();
     }
 
@@ -202,9 +217,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * Create a new progress dialog
      */
     protected void createProgressDialog(String message){
-        if(mProgressDialog != null && mProgressDialog.isShowing()){
-            mProgressDialog.dismiss();
-        }
+        dismissProgressDialog();
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
         mProgressDialog.setMessage(message);
@@ -282,64 +295,78 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         final SharedPreferences mainPreferences = this.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         final Resources res = this.getResources();
         if(mainPreferences.getBoolean(helpStrKey, true)){
-            mBuilder = new AlertDialog.Builder(this);
-            mBuilder.setMessage(res.getString(helpStrId))
+            showAlert(newBuilder()
+                    .setMessage(res.getString(helpStrId))
                     .setCancelable(false)
                     .setPositiveButton(res.getString(R.string.okay_exp), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
+                            dialog.dismiss();
                             SharedPreferences.Editor editor = mainPreferences.edit();
                             editor.putBoolean(helpStrKey, false);
                             editor.apply();
                         }
-                    });
-            showAlert();
+                    }));
         }
     }
 
     /**
      * Show an alert that changes aren't saved before changing views
      */
-    public void showUnsavedChangesAlertViewChange(Resources res, final Activity activity) {
-        mBuilder = new AlertDialog.Builder(activity);
-        mBuilder.setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
+    public void showUnsavedChangesAlertViewChange(Resources res) {
+        showAlert(newBuilder()
+                .setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
                 .setCancelable(false)
                 .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // Nothing to do, just a warning
+                        dialog.dismiss();
                     }
-                });
-        showAlert();
+                }));
     }
 
     /**
      * Show an alert that changes aren't saved before exiting activity
      */
-    public void showUnsavedChangesAlertAndExitActivity(Resources res, final Activity activity){
-        mBuilder = new AlertDialog.Builder(activity);
-        mBuilder.setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
+    public void showUnsavedChangesAlertAndExitActivity(){
+        showAlert(newBuilder()
+                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_exit))
                 .setCancelable(false)
-                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
+                .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        activity.finish();
-                    }})
-                .setNegativeButton(res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        dialog.dismiss();
+                        finish();
+                    }
+                })
+                .setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                    }});
-        showAlert();
+                    }
+                }));
     }
 
     /**
-     * Uses mBuilder to create and show an alert
+     * Creates a new alerter builder and cleans up any previous builders,
+     * to prevent memory leaks
+     * @return new builder object
      */
-    protected void showAlert() {
-        if (mAlert != null) {
-            // Dismiss any previous alerts to prevent memory leaks
-            mAlert.dismiss();
-        }
-        mAlert = mBuilder.create();
-        mAlert.show();
+    protected NonLeakingAlertDialogBuilder newBuilder() {
+        return new NonLeakingAlertDialogBuilder(this);
+    }
+
+    /**
+     * Uses builder to create and show an alert
+     * @param builder to use to create alert
+     */
+    protected void showAlert(NonLeakingAlertDialogBuilder builder) {
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    /**
+     * Cleans up any notifications currently shown to users
+     */
+    protected void dismissAllAlerts() {
+        dismissProgressDialog();
     }
 
     /**

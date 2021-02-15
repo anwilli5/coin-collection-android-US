@@ -42,26 +42,20 @@ public class LincolnCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Pennies";
 
-    private static final String[] BICENT_COIN_IDENTIFIERS = {
-            "Early Childhood",
-            "Formative Years",
-            "Professional Life",
-            "Presidency",
+    private static final Object[][] COIN_IDENTIFIERS = {
+            {"Early Childhood",   R.drawable.bicent_2009_early_childhood_unc,   R.drawable.bicent_2009_early_childhood_unc_25},
+            {"Formative Years",   R.drawable.bicent_2009_formative_years_unc,   R.drawable.bicent_2009_formative_years_unc_25},
+            {"Professional Life", R.drawable.bicent_2009_professional_life_unc, R.drawable.bicent_2009_professional_life_unc_25},
+            {"Presidency",        R.drawable.bicent_2009_presidency_unc,        R.drawable.bicent_2009_presidency_unc_25},
     };
 
-    private static final Integer[][] BICENT_IMAGE_IDENTIFIERS = {
-            { R.drawable.bicent_2009_early_childhood_unc,   R.drawable.bicent_2009_early_childhood_unc_25},
-            { R.drawable.bicent_2009_formative_years_unc,   R.drawable.bicent_2009_formative_years_unc_25},
-            { R.drawable.bicent_2009_professional_life_unc, R.drawable.bicent_2009_professional_life_unc_25},
-            { R.drawable.bicent_2009_presidency_unc,        R.drawable.bicent_2009_presidency_unc_25},
-    };
-
-    private static final HashMap<String, Integer[]> BICENT_INFO = new HashMap<>();
+    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
 
     static {
-        // Populate the BICENT_INFO HashMap for quick image ID lookups later
-        for (int i = 0; i < BICENT_COIN_IDENTIFIERS.length; i++){
-            BICENT_INFO.put(BICENT_COIN_IDENTIFIERS[i], BICENT_IMAGE_IDENTIFIERS[i]);
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS){
+            COIN_MAP.put((String) coinData[0],
+                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
         }
     }
 
@@ -81,7 +75,7 @@ public class LincolnCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = BICENT_INFO.get(coinSlot.getIdentifier());
+        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
         boolean inCollection = coinSlot.isInCollection();
         if(slotImages != null){
             return slotImages[inCollection ? 0 : 1];
@@ -135,7 +129,8 @@ public class LincolnCents extends CollectionInfo {
             if(i == 2009){
 
                 // Add support for 2009 Lincoln Presidential Pennies
-                for (String bicentIdentifier : BICENT_COIN_IDENTIFIERS) {
+                for (Object[] coinData : COIN_IDENTIFIERS){
+                    String bicentIdentifier = (String) coinData[0];
 
                     if (showMintMarks) {
                         if (showP) {
@@ -256,6 +251,11 @@ public class LincolnCents extends CollectionInfo {
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2021 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
         }
 
         return total;
