@@ -132,6 +132,10 @@
     <string name="copy_name_suffix">\ Copy</string>
     <string name="opening_database">Opening Databases…</string>
     <string name="importing_collections">Importing Collections…</string>
+    <string name="exporting_collections">Exporting Collections…</string>
+    <string name="import_place_message">Where would you like to import from?</string>
+    <string name="legacy_storage">Legacy Storage (going away)</string>
+    <string name="pick_backup_file">Pick Back-Up File</string>
 
     <!-- Coin Page Creator -->
     <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit \'Create New Collection!\'</string>
@@ -205,7 +209,7 @@
     <string name="error_unknown_read">An unknown error occurred while trying to read in collection at %1$s</string>
     <string name="cannot_find_input_file">Couldn\'t find collection input file at %1$s</string>
     <string name="error_reading_file">Error when reading input file at %1$s</string>
-    <string name="success_export">Successfully exported collection to \'%1$s\' on the external storage device!</string>
+    <string name="success_export">Successfully exported collection to \'%1$s\'!</string>
     <string name="export_warning">Existing collections found on the external storage. Exporting again will overwrite these. Are you sure you want to do this?</string>
     <string name="import_warning">Importing new collections will delete all existing collections in the App. Are you sure you want to do this?</string>
     <string name="delete_warning">Are you sure you want to delete collection named \'%1$s\'?</string>
@@ -213,6 +217,9 @@
     <string name="export_canceled">Export canceled - storage write permission request denied</string>
     <string name="collection_name_reserved">Collection name is reserved, please choose a different name</string>
     <string name="collection_name_exists">A collection with this name already exists, please choose a different name</string>
+    <string name="error_exporting_collections">The following collections could not be exported due to errors:%1$s</string>
+    <string name="error_exporting">Could not export collections (%1$s)</string>
+    <string name="error_importing">Could not import collections (%1$s)</string>
 
     <!-- Reorder Collections Page -->
     <string name="changes_saved">Saved changes successfully</string>

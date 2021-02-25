@@ -21,6 +21,7 @@
 package com.coincollection;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,8 +29,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,21 +52,24 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
 import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
 import static com.spencerpages.MainApplication.APP_NAME;
 
@@ -79,19 +87,14 @@ public class MainActivity extends BaseActivity {
 
     // Used for the Update Database functionality
     private boolean mIsImportingCollection = false;
+    private boolean mImportExportLegacyCsv = false;
+    private Uri mImportExportFileUri = null;
 
-    // These are used to support importing the collection data.  After we have read everything in,
-    // we save the info here while we ask the user whether they really want to delete all of their
-    // existing collections.
-    private ArrayList<CollectionListInfo> mImportedCollectionListInfos = null;
-    private ArrayList<ArrayList<CoinSlot>> mCollectionContents = null;
-    private int mDatabaseVersion = -1;
-
-    // Export directory path
-    public final static String EXPORT_FOLDER_NAME = "/coin-collection-app-files";
-    public final static String EXPORT_COLLECTION_LIST_FILE_NAME = "list-of-collections";
-    public final static String EXPORT_COLLECTION_LIST_FILE_EXT = ".csv";
-    public final static String EXPORT_DB_VERSION_FILE = "database_version.txt";
+    // App permission requests
+    private final static int IMPORT_PERMISSIONS_REQUEST = 0;
+    private final static int EXPORT_PERMISSIONS_REQUEST = 1;
+    private final static int PICK_IMPORT_FILE = 2;
+    private final static int PICK_EXPORT_FILE = 3;
 
     // Default list item view positions
     //  0. Add Collection
@@ -113,10 +116,6 @@ public class MainActivity extends BaseActivity {
     // mCollectionListEntries.  This tracks the number of those spacers, which we use in several
     // places.
     public final static int NUMBER_OF_COLLECTION_LIST_SPACERS = 6;
-
-    // App permission requests
-    private final static int IMPORT_PERMISSIONS_REQUEST = 0;
-    private final static int EXPORT_PERMISSIONS_REQUEST = 1;
 
     // Action menu items
     private final static int NUM_ACTIONS = 4;
@@ -241,10 +240,10 @@ public class MainActivity extends BaseActivity {
                                     }));
                             break;
                         case IMPORT_COLLECTIONS:
-                            handleImportCollectionsPart1();
+                            promptCsvOrJsonImport();
                             break;
                         case EXPORT_COLLECTIONS:
-                            handleExportCollectionsPart1();
+                            launchExportTask();
                             break;
                         case REORDER_COLLECTIONS:
                             launchReorderFragment();
@@ -333,7 +332,7 @@ public class MainActivity extends BaseActivity {
 
         // After we open it, it must have at least one activity bound to it at all times
         // for it to stay alive.  So, each activity must bind to it on onCreate and
-        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroy's
+        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroys
         // will have been called and the service's onDestroy will then get called, where
         // we close the database
 
@@ -368,17 +367,58 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public int asyncProgressDoInBackground() {
+    public String asyncProgressDoInBackground() {
         switch (mTask.mAsyncTaskId) {
             case TASK_OPEN_DATABASE: {
                 return openDbAdapterForAsyncThread();
             }
             case TASK_IMPORT_COLLECTIONS: {
-                // Start doing all of the database importing
-                return asyncHandleImportCollectionsPart2();
+                ExportImportHelper helper = new ExportImportHelper(mRes, mDbAdapter);
+                if (mImportExportLegacyCsv) {
+                    return helper.importCollectionsFromLegacyCSV(getLegacyExportFolderName());
+                } else {
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = getContentResolver().openInputStream(mImportExportFileUri);
+                        return helper.importCollectionsFromJson(inputStream);
+                    } catch (FileNotFoundException e) {
+                        return mRes.getString(R.string.error_importing, e.getMessage());
+                    } finally {
+                        if (inputStream != null) {
+                            try {
+                                inputStream.close();
+                            } catch (IOException ignored) {
+                                // Can't close the stream for some reason (shouldn't happen - ignore)
+                            }
+                        }
+                    }
+                }
+            }
+            case TASK_EXPORT_COLLECTIONS: {
+                ExportImportHelper helper = new ExportImportHelper(mRes, mDbAdapter);
+                if (mImportExportLegacyCsv) {
+                    return helper.exportCollectionsToLegacyCSV(getLegacyExportFolderName());
+                } else {
+                    OutputStream outputStream = null;
+                    try {
+                        outputStream = getContentResolver().openOutputStream(mImportExportFileUri);
+                        return helper.exportCollectionsToJson(outputStream,
+                                getFileNameFromUri(mImportExportFileUri));
+                    } catch (FileNotFoundException e) {
+                        return mRes.getString(R.string.error_importing, e.getMessage());
+                    } finally {
+                        if (outputStream != null) {
+                            try {
+                                outputStream.close();
+                            } catch (IOException ignored) {
+                                // Can't close the stream for some reason (shouldn't happen - ignore)
+                            }
+                        }
+                    }
+                }
             }
         }
-        return -1;
+        return "";
     }
 
     @Override
@@ -392,24 +432,21 @@ public class MainActivity extends BaseActivity {
                 createProgressDialog(mRes.getString(R.string.importing_collections));
                 break;
             }
+            case TASK_EXPORT_COLLECTIONS: {
+                createProgressDialog(mRes.getString(R.string.exporting_collections));
+                break;
+            }
         }
     }
 
     @Override
-    public void asyncProgressOnPostExecute(int errorResId) {
-        super.asyncProgressOnPostExecute(errorResId);
+    public void asyncProgressOnPostExecute(String resultStr) {
+        super.asyncProgressOnPostExecute(resultStr);
         dismissProgressDialog();
-        switch (mTask.mAsyncTaskId) {
-            case TASK_OPEN_DATABASE: {
-                updateCollectionListFromDatabaseAndUpdateViewForUIThread();
-                break;
-            }
-            case TASK_IMPORT_COLLECTIONS: {
-                mIsImportingCollection = false;
-                updateCollectionListFromDatabaseAndUpdateViewForUIThread();
-                break;
-            }
+        if (mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS) {
+            mIsImportingCollection = false;
         }
+        updateCollectionListFromDatabaseAndUpdateViewForUIThread();
     }
 
     /**
@@ -465,449 +502,94 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Kicks off the import process by reading in the import files into our internal representation.
-     * Once this is complete, it kicks off an AsyncTask to actually store the data in the database.
+     * Handle when the user starts importing a collection
      */
-    public void handleImportCollectionsPart1(){
-
-        // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
-        // hasPermissions() will kick off the permissions request and the handler will re-call
-        // this method after prompting the user.
-        if(!hasPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, IMPORT_PERMISSIONS_REQUEST)){
-            return;
-        }
-
-        // See whether we can read from the external storage
-        String state = Environment.getExternalStorageState();
-        //noinspection StatementWithEmptyBody
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // Should be able to read from it without issue
-        } else if (Environment.MEDIA_SHARED.equals(state)) {
-            // Shared with PC so can't write to it
-            showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_shared));
-            return;
+    private void launchImportTask() {
+        if (!mImportExportLegacyCsv &&
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // The files should preferably be placed in the downloads folder
+                Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+            }
+            startActivityForResult(intent, PICK_IMPORT_FILE);
         } else {
-            // Doesn't exist, so notify user
-            showCancelableAlert(mRes.getString(R.string.cannot_rd_ext_media_state, state));
-            return;
-        }
-
-        String path = getExportFolderName();
-        File dir = new File(path);
-
-        if(!dir.isDirectory()){
-            // The directory doesn't exist, notify the user
-            showCancelableAlert(mRes.getString(R.string.cannot_find_export_dir, path));
-            return;
-        }
-
-        boolean errorOccurred = false;
-
-        // Read the database version
-        File inputFile = new File(dir, EXPORT_DB_VERSION_FILE);
-        CSVReader in = openFileForReading(inputFile);
-        if(in == null) return;
-
-        try {
-            String[] values = in.readNext();
-            if(values == null || values.length != 1){
-                throw new Exception();
-            }
-            mDatabaseVersion = Integer.parseInt(values[0]);
-        } catch (Exception e) {
-            showCancelableAlert(mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath()));
-            return;
-        }
-
-        if(mDatabaseVersion == -1){
-            showCancelableAlert(mRes.getString(R.string.error_db_version));
-            return;
-        }
-
-        if(!closeInputFile(in, inputFile)){
-            return;
-        }
-
-        // Read the collection_info table
-        inputFile = new File(dir, EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
-        in = openFileForReading(inputFile);
-        if(in == null) return;
-
-        ArrayList<CollectionListInfo> collectionInfo = new ArrayList<>();
-
-        try {
-            String[] items;
-
-            // TODO Raise an error if in.readNext returns null
-            while (null != (items = in.readNext())) {
-
-                CollectionListInfo info = new CollectionListInfo(items);
-
-                if (info.getCollectionTypeIndex() == -1) {
-                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 2));
-                    break;
-                }
-
-                // Must have a positive number collected and a positive max
-                if (info.getMax() < 0 || info.getCollected() < 0) {
-                    errorOccurred = true;
-                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 3));
-                    break;
-                }
-
-                if (info.getDisplayType() != CollectionPage.SIMPLE_DISPLAY &&
-                        info.getDisplayType() != CollectionPage.ADVANCED_DISPLAY) {
-                    errorOccurred = true;
-                    showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 5));
-                    break;
-                }
-
-                if(errorOccurred){
-                    break;
-                }
-
-                // Good to go, add it to the list
-                collectionInfo.add(info);
-            }
-        } catch(Exception e){
-            errorOccurred = true;
-            showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
-        }
-
-        // Close the input file.  If we've already shown an error then no
-        // need to show another one if the close fails
-        if(!closeInputFile(in, inputFile, errorOccurred)){
-            return;
-        }
-
-        if(errorOccurred){
-            // Don't continue on
-            return;
-        }
-
-        // The ArrayList will be indexed by collection, the outer String[] will be indexed
-        // by line number, and the inner String[] will be each cell in the row
-        ArrayList<ArrayList<CoinSlot>> collectionContents = new ArrayList<>();
-
-        // We loaded in the collection "metadata" table, so now load in each collection
-        for(int i = 0; i < collectionInfo.size(); i++){
-
-            CollectionListInfo collectionData = collectionInfo.get(i);
-
-            // If any '/''s exist in the collection name, change them to "_SL_" to match
-            // the export logic (used to prevent slashes from being confused as path
-            // delimiters when opening the file.)
-            String collectionFileName = collectionData.getName().replaceAll("/", "_SL_");
-
-            inputFile = new File(dir, collectionFileName + ".csv");
-
-            if(!inputFile.isFile()){
-                showCancelableAlert(mRes.getString(R.string.cannot_find_input_file, inputFile.getAbsolutePath()));
+            // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
+            // hasPermissions() will kick off the permissions request and the handler will re-call
+            // this method after prompting the user.
+            if(checkNoLegacyExternalPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, IMPORT_PERMISSIONS_REQUEST)){
                 return;
             }
 
-            in = openFileForReading(inputFile);
-            if(in == null) return;
-
-            ArrayList<CoinSlot> collectionContent = new ArrayList<>();
-
-            try {
-                String[] items;
-                while(null != (items = in.readNext())){
-
-                    // Perform some sanity checks and clean-up here
-                    CoinSlot coinData = new CoinSlot(
-                            (items.length > 0 ? items[0] : ""),
-                            (items.length > 1 ? items[1] : ""),
-                            (items.length > 2 && (Integer.parseInt(items[2]) != 0)),
-                            (items.length > 3 ? Integer.parseInt(items[3]) : 0),
-                            (items.length > 4 ? Integer.parseInt(items[4]) : 0),
-                            (items.length > 5 ? items[5] : ""));
-
-                    // TODO Maybe add more checks
-                    collectionContent.add(coinData);
-                }
-
-            } catch(Exception e){
-                errorOccurred = true;
-                showCancelableAlert(mRes.getString(R.string.error_unknown_read, inputFile.getAbsolutePath()));
-            }
-
-            if(errorOccurred){
-                // Don't continue on
-                closeInputFile(in, inputFile, true);
-                return;
-            }
-
-            // Verify that we read in the correct number of records
-            if(collectionContent.size() != collectionData.getMax()){
-                errorOccurred = true;
-                showCancelableAlert(mRes.getString(R.string.error_invalid_backup_file, 12));
-            }
-            collectionContents.add(collectionContent);
-
-            if(!closeInputFile(in, inputFile)){
-                return;
-            }
-
-            if(errorOccurred){
-                // Don't continue on
-                return;
+            if(mNumberOfCollections == 0){
+                // Finish the import by kicking off an AsyncTask to do the heavy lifting
+                kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+            } else {
+                showImportConfirmation();
             }
         }
+    }
 
-        // Cool, at this point we've read in the data successfully and we've passed all of
-        // the sanity checks.  We should put this data aside, show the user a message to
-        // have them confirm that they want to do this... Although if they don't have any
-        // collections we can optimize this step out
-        mImportedCollectionListInfos = collectionInfo;
-        mCollectionContents = collectionContents;
+    /**
+     * Handle when the user starts exporting a collection
+     */
+    private void launchExportTask() {
 
         if(mNumberOfCollections == 0){
-            // Finish the import by kicking off an AsyncTask to do the heavy lifting
-            kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
-        } else {
-            showImportConfirmation();
-        }
-    }
-
-    private void handleImportCollectionsCancel(){
-        // Release the memory associated with the collection info we read in
-        this.mImportedCollectionListInfos = null;
-        this.mCollectionContents = null;
-        this.mDatabaseVersion = -1;
-    }
-
-    /**
-     * Finishes strong with some heavy lifting (putting the imported data into the database.)  This
-     * should be done from an AsyncTask, since it could cause an ANR error if done on the main
-     * thread!
-     * @return -1 if successful, otherwise an error resource ID to display
-     */
-    public int asyncHandleImportCollectionsPart2() {
-
-        // Take the data we've stored and replace what's in the database with it
-
-        // NOTE We can't use the showCancelableAlert here because this doesn't get
-        // executed on the main thread.
-
-        try {
-            // Drop existing tables
-            for (int i = 0; i < mNumberOfCollections; i++) {
-                CollectionListInfo info = mCollectionListEntries.get(i);
-                mDbAdapter.dropCollectionTable(info.getName());
-            }
-            mDbAdapter.dropCollectionInfoTable();
-
-            // Add new collections
-            mDbAdapter.createCollectionInfoTable();
-            for (int i = 0; i < mImportedCollectionListInfos.size(); i++) {
-                CollectionListInfo collectionListInfo = mImportedCollectionListInfos.get(i);
-                ArrayList<CoinSlot> collectionContents = mCollectionContents.get(i);
-
-                // Check for duplicate or illegal names
-                int checkName = mDbAdapter.checkCollectionName(collectionListInfo.getName());
-                if (checkName != -1) {
-                    return R.string.error_import;
-                }
-                mDbAdapter.createAndPopulateNewTable(collectionListInfo, i, collectionContents);
-            }
-
-            // Release the memory associated with the collection info we read in
-            mImportedCollectionListInfos = null;
-            mCollectionContents = null;
-
-            // Update any imported tables, if necessary
-            if (mDatabaseVersion != MainApplication.DATABASE_VERSION) {
-                mDbAdapter.upgradeCollections(mDatabaseVersion, true);
-            }
-            mDatabaseVersion = -1;
-        } catch (SQLException e) {
-            // Report an import error message to display on the UI thread
-            return R.string.error_import;
-        }
-
-        return -1;
-    }
-
-    /**
-     * Begins the collection export process by doing some preliminary external media checks and
-     * prompts the user if an export will overwrite previous backup files.
-     */
-    public void handleExportCollectionsPart1(){
-        // TODO Move this function to be more resistant to ANR, if reports show that it is a
-        // problem
-
-        // Check for WRITE_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
-        // hasPermissions() will kick off the permissions request and the handler will re-call
-        // this method after prompting the user.
-        if(!hasPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, EXPORT_PERMISSIONS_REQUEST)){
+            Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // See whether we can write to the external storage
-        String state = Environment.getExternalStorageState();
-        switch (state) {
-            case Environment.MEDIA_MOUNTED:
-                // Should be able to write to it without issue
-                break;
-            case Environment.MEDIA_MOUNTED_READ_ONLY:
-                // Can't write to it, so notify user
-                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_ro));
-                return;
-            case Environment.MEDIA_SHARED:
-                // Shared with PC so can't write to it
-                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_shared));
-                return;
-            default:
-                // Doesn't exist, so notify user
-                showCancelableAlert(mRes.getString(R.string.cannot_wr_ext_media_state, state));
-                return;
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Indicate that we're using the legacy CSV
+            mImportExportLegacyCsv = false;
 
-        String path = getExportFolderName();
-        File dir = new File(path);
-
-        if(dir.isDirectory() || dir.exists()){
-            // Let the user decide whether they want to delete this
-            showExportConfirmation();
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, "coin-collection-" + getTodayDateString() + ".json");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // The files should preferably be placed in the downloads folder
+                Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+            }
+            startActivityForResult(intent, PICK_EXPORT_FILE);
         } else {
-            // Proceed with exporting directly
-            handleExportCollectionsPart2();
-        }
-    }
-
-    /**
-     * Finishes the collection export process (after giving the user a chance to cancel if this will
-     * cause an existing backup to be deleted.)
-     */
-    private void handleExportCollectionsPart2(){
-
-        // At this point we know we can write to storage and the user is ok
-        // if we blow away existing imported files
-
-        // TODO Move this function to be more resistant to ANR, if necessary
-
-        String path = getExportFolderName();
-        File dir = new File(path);
-
-        if(!dir.isDirectory() && !dir.mkdir()){
-            // The directory doesn't exist, notify the user
-            showCancelableAlert(mRes.getString(R.string.failed_mk_dir, path));
-            return;
-        }
-
-        // Write out the collection_info table
-        File outputFile = new File(dir, EXPORT_COLLECTION_LIST_FILE_NAME + EXPORT_COLLECTION_LIST_FILE_EXT);
-        CSVWriter out = openFileForWriting(outputFile);
-        if(out == null) return;
-
-        // Iterate through the list of collections and write the files
-        for(int i = 0; i < mNumberOfCollections; i++){
-            CollectionListInfo item = mCollectionListEntries.get(i);
-            out.writeNext(item.getCsvExportProperties(mDbAdapter));
-        }
-
-        if(!closeOutputFile(out, outputFile)) return;
-
-        // Write out the database version
-        outputFile = new File(dir, EXPORT_DB_VERSION_FILE);
-        out = openFileForWriting(outputFile);
-        if (out == null) return;
-
-        String[] version = new String[] { String.valueOf(MainApplication.DATABASE_VERSION) };
-        out.writeNext(version);
-        if(!closeOutputFile(out, outputFile)) return;
-
-        // Write out all of the other tables
-        for(int i = 0; i < mNumberOfCollections; i++){
-            CollectionListInfo item = mCollectionListEntries.get(i);
-            String name = item.getName();
-
-            // Handle '/''s in the file names (otherwise importing will fail, because the OS will
-            // think the '/' characters are folder delimiters.)  This will be undone when we import.
-            String cleanName = name.replaceAll("/", "_SL_");
-
-            outputFile = new File(dir, cleanName + ".csv");
-            out = openFileForWriting(outputFile);
-            if (out == null) return;
-
-            // coinIdentifier, coinMint, inCollection, advGradeIndex, advQuantityIndex, advNotes
-            ArrayList<CoinSlot> coinList = mDbAdapter.getCoinList(name, true);
-            for (CoinSlot coinSlot : coinList) {
-                String[] values = new String[] {
-                        coinSlot.getIdentifier(),
-                        coinSlot.getMint(),
-                        String.valueOf(coinSlot.isInCollectionInt()),
-                        String.valueOf(coinSlot.getAdvancedGrades()),
-                        String.valueOf(coinSlot.getAdvancedQuantities()),
-                        coinSlot.getAdvancedNotes()};
-                out.writeNext(values);
+            // Check for WRITE_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
+            // hasPermissions() will kick off the permissions request and the handler will re-call
+            // this method after prompting the user.
+            if(checkNoLegacyExternalPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, EXPORT_PERMISSIONS_REQUEST)){
+                return;
             }
 
-            if(!closeOutputFile(out, outputFile)) return;
-        }
-        showCancelableAlert(mRes.getString(R.string.success_export, EXPORT_FOLDER_NAME));
-    }
+            // Indicate that we're using the legacy CSV
+            mImportExportLegacyCsv = true;
 
-    private CSVReader openFileForReading(File file){
-
-        try {
-            // Tell the CSVReader to use the NULL character as the escape
-            // character to effectively allow no escape characters
-            // (otherwise, '\' is the escape character, and it can be
-            // typed by users!)
-            return new CSVReader(new FileReader(file),
-                    CSVWriter.DEFAULT_SEPARATOR,
-                    CSVWriter.DEFAULT_QUOTE_CHARACTER,
-                    '\0');
-        } catch (Exception e) {
-            Log.e(APP_NAME, e.toString());
-            showCancelableAlert(mRes.getString(R.string.error_open_file_reading, file.getAbsolutePath()));
-            return null;
-        }
-    }
-
-    private boolean closeInputFile(CSVReader in, File file){
-        return closeInputFile(in, file, false);
-    }
-
-    private boolean closeInputFile(CSVReader in, File file, boolean silent){
-        try {
-            in.close();
-        } catch (IOException e) {
-            if(!silent){
-                showCancelableAlert(mRes.getString(R.string.error_closing_input_file, file.getAbsolutePath()));
+            // Check to see if the folder exists already
+            File dir = new File(getLegacyExportFolderName());
+            if(dir.isDirectory() || dir.exists()){
+                // Let the user decide whether they want to delete this
+                showExportConfirmation();
+            } else {
+                // Finish the export by kicking off an AsyncTask to do the heavy lifting
+                kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
             }
-            return false;
         }
-        return true;
-    }
-
-    private CSVWriter openFileForWriting(File file){
-
-        try {
-            return new CSVWriter(new FileWriter(file));
-        } catch (Exception e) {
-            Log.e(APP_NAME, e.toString());
-            showCancelableAlert(mRes.getString(R.string.error_open_file_writing, file.getAbsolutePath()));
-            return null;
-        }
-    }
-
-    private boolean closeOutputFile(CSVWriter out, File file){
-        try {
-            out.close();
-        } catch (IOException e) {
-            showCancelableAlert(mRes.getString(R.string.error_closing_output_file, file.getAbsolutePath()));
-            return false;
-        }
-        return true;
     }
 
     // https://developer.android.com/training/permissions/requesting.html
     // Expected: Manifest.permission.{READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}
-    private boolean hasPermissions(String permission, int callbackTag){
+
+    /**
+     * Checks if the user has given external READ/WRITE permission
+     * @param permission read or write permission
+     * @param callbackTag string identifier passed to the callback method
+     * @return true if the user hasn't given permission
+     */
+    private boolean checkNoLegacyExternalPermissions(String permission, int callbackTag){
 
         int permissionState = ContextCompat.checkSelfPermission(this, permission);
         if (permissionState != PackageManager.PERMISSION_GRANTED) {
@@ -917,9 +599,9 @@ public class MainActivity extends BaseActivity {
             // be delivered via a callback.
             ActivityCompat.requestPermissions(this, new String[]{permission}, callbackTag);
 
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -931,12 +613,12 @@ public class MainActivity extends BaseActivity {
             switch (requestCode) {
                 case IMPORT_PERMISSIONS_REQUEST: {
                     // Retry import, now with permissions granted
-                    handleImportCollectionsPart1();
+                    launchImportTask();
                     break;
                 }
                 case EXPORT_PERMISSIONS_REQUEST: {
                     // Retry export, now with permissions granted
-                    handleExportCollectionsPart1();
+                    launchExportTask();
                     break;
                 }
             }
@@ -949,6 +631,36 @@ public class MainActivity extends BaseActivity {
                 }
                 case EXPORT_PERMISSIONS_REQUEST: {
                     showCancelableAlert(mRes.getString(R.string.export_canceled));
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case PICK_EXPORT_FILE: {
+                    if (resultData != null) {
+                        mImportExportFileUri = resultData.getData();
+                        // Finish the export by kicking off an AsyncTask to do the heavy lifting
+                        kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
+                    }
+                    break;
+                }
+                case PICK_IMPORT_FILE: {
+                    if (resultData != null) {
+                        mImportExportFileUri = resultData.getData();
+                        if(mNumberOfCollections != 0){
+                            showImportConfirmation();
+                        } else {
+                            // Finish the import by kicking off an AsyncTask to do the heavy lifting
+                            kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+                        }
+                    }
                     break;
                 }
             }
@@ -1126,9 +838,9 @@ public class MainActivity extends BaseActivity {
                 .setCancelable(false)
                 .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // TODO Maybe use AsyncTask, if necessary
                         dialog.dismiss();
-                        handleExportCollectionsPart2();
+                        // Finish the export by kicking off an AsyncTask to do the heavy lifting
+                        kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
                     }
                 })
                 .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1158,7 +870,6 @@ public class MainActivity extends BaseActivity {
                 .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        handleImportCollectionsCancel();
                     }
                 }));
     }
@@ -1318,11 +1029,70 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Returns the path to the external storage directory
+     * Returns the path to the file storage directory
      * @return path string
      */
-    public String getExportFolderName(){
+    public String getLegacyExportFolderName() {
         File sdCard = Environment.getExternalStorageDirectory();
-        return sdCard.getAbsolutePath() + EXPORT_FOLDER_NAME;
+        return sdCard.getAbsolutePath() + LEGACY_EXPORT_FOLDER_NAME;
+    }
+
+    /**
+     * Returns the display name from a file URI
+     * @param uri file uri
+     * @return string display name or "Unknown" if an error occurs
+     */
+    private String getFileNameFromUri(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            return "Unknown";
+        }
+        int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        cursor.moveToFirst();
+        String fileName = cursor.getString(index);
+        cursor.close();
+        return fileName;
+    }
+
+    /**
+     * Gets a simple date string, for example 012019 for January 20th, 2019
+     * @return date string
+     */
+    private String getTodayDateString() {
+        return new SimpleDateFormat("MMddyy", Locale.getDefault()).format(new Date());
+    }
+
+    /**
+     * For now, allow users to pick between an import file or legacy storage
+     * - Eventually legacy storage won't be an option
+     */
+    private void promptCsvOrJsonImport() {
+
+        // For each collection item, populate a menu of actions for the collection
+        CharSequence[] actionsList = new CharSequence[2];
+        actionsList[0] = mRes.getString(R.string.legacy_storage);
+        actionsList[1] = mRes.getString(R.string.pick_backup_file);
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.import_place_message))
+                .setItems(actionsList, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        switch (item) {
+                            case 0: {
+                                // Legacy Storage
+                                dialog.dismiss();
+                                mImportExportLegacyCsv = true;
+                                launchImportTask();
+                                break;
+                            }
+                            case 1: {
+                                // Pick back-up file
+                                dialog.dismiss();
+                                mImportExportLegacyCsv = false;
+                                launchImportTask();
+                                break;
+                            }
+                        }
+                    }
+                }));
     }
 }

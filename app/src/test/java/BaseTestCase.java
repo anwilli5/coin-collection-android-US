@@ -49,6 +49,13 @@ import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowEnvironment;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -67,6 +74,7 @@ import static com.spencerpages.MainApplication.DATABASE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BaseTestCase {
 
@@ -531,5 +539,59 @@ public class BaseTestCase {
             output.append(chars.charAt(random.nextInt(chars.length())));
         }
         return output.toString();
+    }
+
+    /**
+     * Open an output stream from file
+     * @param file file to open
+     * @return output stream
+     */
+    OutputStream openOutputStream(File file) {
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            fail();
+        }
+        return outputStream;
+    }
+
+    /**
+     * Open an input stream from file
+     * @param file file to open
+     * @return input stream
+     */
+    InputStream openInputStream(File file) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            fail();
+        }
+        return inputStream;
+    }
+
+    /**
+     * Close the output stream
+     * @param stream output stream
+     */
+    void closeStream(OutputStream stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            fail();
+        }
+    }
+
+    /**
+     * Close the input stream
+     * @param stream input stream
+     */
+    void closeStream(InputStream stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            fail();
+        }
     }
 }

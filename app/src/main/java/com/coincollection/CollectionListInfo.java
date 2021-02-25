@@ -22,6 +22,8 @@ package com.coincollection;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 
 import com.spencerpages.MainApplication;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
@@ -47,9 +49,13 @@ import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.coincollection.ExportImportHelper.JSON_COIN_LIST;
 
 /**
  * Object used to represent each collection in the various list of collections
@@ -103,6 +109,7 @@ public class CollectionListInfo implements Parcelable {
     public final static String COL_END_YEAR = "endYear";
     public final static String COL_SHOW_MINT_MARKS = "showMintMarks";
     public final static String COL_SHOW_CHECKBOXES = "showCheckboxes";
+    public final static String JSON_COL_COLLECTED = "collected";
 
     // Collections in this list use the start/end years
     private final static ArrayList<String> HAS_DATE_RANGE = new ArrayList<>(Arrays.asList(
@@ -428,7 +435,7 @@ public class CollectionListInfo implements Parcelable {
      * @param dbAdapter database adapter
      * @return string array with collection data
      */
-    public String[] getCsvExportProperties(DatabaseAdapter dbAdapter) {
+    public String[] getLegacyCsvExportProperties(DatabaseAdapter dbAdapter) {
 
         // NOTE For display, don't use item.getDisplayType bc I don't
         // think we populate that value except when importing...
@@ -472,6 +479,119 @@ public class CollectionListInfo implements Parcelable {
     }
 
     /**
+     * Write out the JSON representation (for exporting)
+     * @param writer JsonWriter to write to
+     * @param dbAdapter database adapter
+     * @param coinList coins associated with the collection
+     * @throws IOException if an error occurred
+     */
+    public void writeToJson(JsonWriter writer, DatabaseAdapter dbAdapter, ArrayList<CoinSlot> coinList) throws IOException {
+
+        // NOTE For display, don't use item.getDisplayType bc I don't
+        // think we populate that value except when importing...
+        // TODO Update the code so that this value is used instead
+        // of the separate fetchTableDisplay calls
+        int displayType = dbAdapter.fetchTableDisplay(mCollectionName);
+
+        writer.beginObject();
+        writer.name(COL_NAME).value(mCollectionName);
+        writer.name(COL_COIN_TYPE).value(getType());
+        writer.name(JSON_COL_COLLECTED).value(mTotalCoinsCollected);
+        writer.name(COL_TOTAL).value(mTotalCoinsInCollection);
+        writer.name(COL_DISPLAY).value(displayType);
+        writer.name(COL_START_YEAR).value(mStartYear);
+        writer.name(COL_END_YEAR).value(mEndYear);
+        writer.name(COL_SHOW_MINT_MARKS).value(mMintMarkFlags);
+        writer.name(COL_SHOW_CHECKBOXES).value(mCheckboxFlags);
+        writer.name(JSON_COIN_LIST);
+        writer.beginArray();
+        for (CoinSlot coinSlot : coinList) {
+            coinSlot.writeToJson(writer);
+        }
+        writer.endArray();
+        writer.endObject();
+    }
+
+    /**
+     * Create a collection list info from imported JSON file
+     * @param reader JsonReader to read from
+     * @throws IOException if an error occurred
+     */
+    public CollectionListInfo(JsonReader reader, ArrayList<CoinSlot> coinList) throws IOException {
+
+        String collectionName = "";
+        int totalCoinsCollected = 0;
+        int totalCoinsInCollection = 0;
+        int displayType = SIMPLE_DISPLAY;
+        int startYear = 0;
+        int endYear = 0;
+        int mintMarkFlags = 0;
+        int checkboxFlags = 0;
+        int collectionTypeIndex = 0;
+
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case COL_NAME:
+                    // Strip out all bad characters.  They shouldn't be there anyway ;)
+                    collectionName = reader.nextString().replace('[', ' ').replace(']', ' ');
+                    break;
+                case JSON_COL_COLLECTED:
+                    totalCoinsCollected = reader.nextInt();
+                    break;
+                case COL_TOTAL:
+                    totalCoinsInCollection = reader.nextInt();
+                    break;
+                case COL_DISPLAY:
+                    displayType = reader.nextInt();
+                    break;
+                case COL_START_YEAR:
+                    startYear = reader.nextInt();
+                    break;
+                case COL_END_YEAR:
+                    endYear = reader.nextInt();
+                    break;
+                case COL_SHOW_MINT_MARKS:
+                    mintMarkFlags = reader.nextInt();
+                    break;
+                case COL_SHOW_CHECKBOXES:
+                    checkboxFlags = reader.nextInt();
+                    break;
+                case COL_COIN_TYPE:
+                    // If the coin type isn't recognized, an error occurred so just choose a safe value
+                    collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(reader.nextString());
+                    collectionTypeIndex = (collectionTypeIndex != -1) ? collectionTypeIndex : 0;
+                    break;
+                case JSON_COIN_LIST:
+                    // Since the coin list is stored inside of the same JSON object, we'll populate the
+                    // list of coinSlot objects here as well and return those to the caller
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        coinList.add(new CoinSlot(reader));
+                    }
+                    reader.endArray();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+        reader.endObject();
+
+        mCollectionName = collectionName;
+        mTotalCoinsCollected = totalCoinsCollected;
+        mTotalCoinsInCollection = totalCoinsInCollection;
+        mDisplayType = displayType;
+        mStartYear = startYear;
+        mEndYear = endYear;
+        mMintMarkFlags = mintMarkFlags;
+        mCheckboxFlags = checkboxFlags;
+        mCollectionTypeIndex = collectionTypeIndex;
+        mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+    }
+
+    /**
      * Create a collection list info from imported string array
      * @param in input String[]
      */
@@ -479,7 +599,6 @@ public class CollectionListInfo implements Parcelable {
 
         // Strip out all bad characters.  They shouldn't be there anyway ;)
         mCollectionName = in[0].replace('[', ' ').replace(']', ' ');
-        mCollectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(in[1]);
         mTotalCoinsCollected = Integer.parseInt(in[2]);
         mTotalCoinsInCollection = Integer.parseInt(in[3]);
         mDisplayType = (in.length > 4) ? Integer.parseInt(in[4]) : 0;
@@ -491,6 +610,9 @@ public class CollectionListInfo implements Parcelable {
         mMintMarkFlags = (in.length > 7) ? Integer.parseInt(in[7]) : 0;
         mCheckboxFlags = (in.length > 8) ? Integer.parseInt(in[8]) : 0;
 
+        // If the coin type isn't recognized, an error occurred so just choose a safe value
+        int collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(in[1]);
+        mCollectionTypeIndex = (collectionTypeIndex != -1) ? collectionTypeIndex : 0;
         mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
 

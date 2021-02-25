@@ -22,8 +22,12 @@ package com.coincollection;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 
 import com.spencerpages.R;
+
+import java.io.IOException;
 
 /**
  * Coin contained in a collection
@@ -138,6 +142,102 @@ public class CoinSlot implements Parcelable {
 
     public void setAdvancedNotes(String advancedNotes) {
         this.mAdvancedNotes = advancedNotes;
+    }
+
+    /**
+     * Get the coin slot parameters to export to CSV
+     * @param dbAdapter database adapter
+     * @return string array with coin slot data
+     */
+    public String[] getLegacyCsvExportProperties(DatabaseAdapter dbAdapter) {
+        return new String[] {
+                mIdentifier,
+                mMint,
+                String.valueOf(isInCollectionInt()),
+                String.valueOf(mAdvancedGrades),
+                String.valueOf(mAdvancedQuantities),
+                mAdvancedNotes};
+    }
+
+    /**
+     * Write out the JSON representation (for exporting)
+     * @param writer JsonWriter to write to
+     * @throws IOException if an error occurred
+     */
+    public void writeToJson(JsonWriter writer) throws IOException {
+
+        writer.beginObject();
+        writer.name(COL_COIN_IDENTIFIER).value(mIdentifier);
+        writer.name(COL_COIN_MINT).value(mMint);
+        writer.name(COL_IN_COLLECTION).value(mInCollection);
+        writer.name(COL_ADV_GRADE_INDEX).value(mAdvancedGrades);
+        writer.name(COL_ADV_QUANTITY_INDEX).value(mAdvancedQuantities);
+        writer.name(COL_ADV_NOTES).value(mAdvancedNotes);
+        writer.endObject();
+    }
+
+    /**
+     * Create a CoinSlot from imported JSON file
+     * @param reader JsonReader to read from
+     * @throws IOException if an error occurred
+     */
+    public CoinSlot(JsonReader reader) throws IOException {
+
+        String identifier = "";
+        String mint = "";
+        boolean inCollection = false;
+        int advancedGrades = 0;
+        int advancedQuantities = 0;
+        String advancedNotes = "";
+
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case COL_COIN_IDENTIFIER:
+                    identifier = reader.nextString();
+                    break;
+                case COL_COIN_MINT:
+                    mint = reader.nextString();
+                    break;
+                case COL_IN_COLLECTION:
+                    inCollection = reader.nextBoolean();
+                    break;
+                case COL_ADV_GRADE_INDEX:
+                    advancedGrades = reader.nextInt();
+                    break;
+                case COL_ADV_QUANTITY_INDEX:
+                    advancedQuantities = reader.nextInt();
+                    break;
+                case COL_ADV_NOTES:
+                    advancedNotes = reader.nextString();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+        reader.endObject();
+
+        mIdentifier = identifier;
+        mMint = mint;
+        mInCollection = inCollection;
+        mAdvancedGrades = advancedGrades;
+        mAdvancedQuantities = advancedQuantities;
+        mAdvancedNotes = advancedNotes;
+    }
+
+    /**
+     * Create a CoinSlot from imported string array
+     * @param in input String[]
+     */
+    public CoinSlot(String[] in) {
+        mIdentifier = (in.length > 0 ? in[0] : "");
+        mMint = (in.length > 1 ? in[1] : "");
+        mInCollection = (in.length > 2 && (Integer.parseInt(in[2]) != 0));
+        mAdvancedGrades = (in.length > 3 ? Integer.parseInt(in[3]) : 0);
+        mAdvancedQuantities = (in.length > 4 ? Integer.parseInt(in[4]) : 0);
+        mAdvancedNotes = (in.length > 5 ? in[5] : "");
     }
 
     /**

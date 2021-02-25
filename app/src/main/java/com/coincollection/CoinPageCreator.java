@@ -619,7 +619,7 @@ public class CoinPageCreator extends BaseActivity {
     }
 
     @Override
-    public int asyncProgressDoInBackground() {
+    public String asyncProgressDoInBackground() {
 
         // Go ahead and grab what is in the EditText
         EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
@@ -644,8 +644,8 @@ public class CoinPageCreator extends BaseActivity {
     }
 
     @Override
-    public void asyncProgressOnPostExecute(int errorResId) {
-        super.asyncProgressOnPostExecute(errorResId);
+    public void asyncProgressOnPostExecute(String resultStr) {
+        super.asyncProgressOnPostExecute(resultStr);
         completeProgressDialogAndFinishActivity();
     }
 
@@ -1101,9 +1101,9 @@ public class CoinPageCreator extends BaseActivity {
      * @param collectionListInfo The collection details
      * @param coinList List of coin slots
      * @param displayOrder Display order of the collection
-     * @return -1 if successful, otherwise an error resource ID
+     * @return "" if successful, otherwise an error string
      */
-    public int asyncCreateOrUpdateCollection(CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinList,
+    public String asyncCreateOrUpdateCollection(CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinList,
                                              int displayOrder){
         try {
             if (mExistingCollection == null) {
@@ -1113,8 +1113,8 @@ public class CoinPageCreator extends BaseActivity {
                 mDbAdapter.updateExistingCollection(oldTableName, collectionListInfo, coinList);
             }
         } catch (SQLException e) {
-            return R.string.error_creating_database;
+            return mRes.getString(R.string.error_creating_database);
         }
-        return -1;
+        return "";
     }
 }
