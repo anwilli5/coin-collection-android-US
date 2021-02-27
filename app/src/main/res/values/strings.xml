@@ -193,8 +193,6 @@
     <string name="cannot_wr_ext_media_state">External media cannot be written to (state: %1$s). Try again later</string>
     <string name="cannot_find_export_dir">Failed to find existing export directory at %1$s</string>
     <string name="error_open_file_reading">Error when opening input file for reading at %1$s</string>
-    <string name="error_open_file_writing">Error when opening output file for writing at %1$s</string>
-    <string name="error_db_version">Invalid database version</string>
     <string name="error_copying_database">An error occurred while trying to copy the collection</string>
     <string name="error_delete_database">An error occurred while trying to delete the database</string>
     <string name="error_opening_database">An error occurred while trying to open the database</string>
@@ -203,10 +201,6 @@
     <string name="error_reordering_databases">An error occurred while trying to reorder collections</string>
     <string name="error_reading_database">An error occurred while trying to read the database</string>
     <string name="error_import">An error occurred while trying to perform import</string>
-    <string name="error_closing_input_file">Error when closing input file at %1$s</string>
-    <string name="error_closing_output_file">Error when closing output file at %1$s</string>
-    <string name="error_invalid_backup_file">Invalid backup file detected (Error %1$d)</string>
-    <string name="error_unknown_read">An unknown error occurred while trying to read in collection at %1$s</string>
     <string name="cannot_find_input_file">Couldn\'t find collection input file at %1$s</string>
     <string name="error_reading_file">Error when reading input file at %1$s</string>
     <string name="success_export">Successfully exported collection to \'%1$s\'!</string>

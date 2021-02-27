@@ -146,10 +146,9 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Get the coin slot parameters to export to CSV
-     * @param dbAdapter database adapter
      * @return string array with coin slot data
      */
-    public String[] getLegacyCsvExportProperties(DatabaseAdapter dbAdapter) {
+    public String[] getLegacyCsvExportProperties() {
         return new String[] {
                 mIdentifier,
                 mMint,

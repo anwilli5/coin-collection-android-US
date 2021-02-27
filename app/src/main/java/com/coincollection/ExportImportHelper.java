@@ -45,8 +45,8 @@ import java.util.ArrayList;
 public class ExportImportHelper {
 
     // Internal state
-    Resources mRes;
-    DatabaseAdapter mDbAdapter;
+    final Resources mRes;
+    final DatabaseAdapter mDbAdapter;
 
     public final static String JSON_CHARSET = "UTF-8";
 
@@ -240,7 +240,7 @@ public class ExportImportHelper {
 
             ArrayList<CoinSlot> coinList = mDbAdapter.getCoinList(name, true);
             for (CoinSlot coinSlot : coinList) {
-                csvOutputLines.add(coinSlot.getLegacyCsvExportProperties(mDbAdapter));
+                csvOutputLines.add(coinSlot.getLegacyCsvExportProperties());
             }
             try {
                 writeToLegacyCsv(outputFile, csvOutputLines);

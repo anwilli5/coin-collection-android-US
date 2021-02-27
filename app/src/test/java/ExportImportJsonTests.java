@@ -65,7 +65,7 @@ public class ExportImportJsonTests extends BaseTestCase {
     }
 
     @Rule
-    public TemporaryFolder mTempFolder = new TemporaryFolder();
+    public final TemporaryFolder mTempFolder = new TemporaryFolder();
 
     /**
      * Get a temporary file with a given name

@@ -235,11 +235,6 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         }
     }
 
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        mItemTouchHelper.startDrag(viewHolder);
-    }
-
     /**
      * Shows the unsaved TextView
      */

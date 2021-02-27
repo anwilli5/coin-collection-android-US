@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
 public class ExportImportTests extends BaseTestCase {
 
     @Rule
-    public TemporaryFolder mTempFolder = new TemporaryFolder();
+    public final TemporaryFolder mTempFolder = new TemporaryFolder();
 
     /**
      * Get a temporary file with a given name
