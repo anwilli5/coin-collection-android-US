@@ -79,6 +79,9 @@ android {
         }
         unitTests.includeAndroidResources = true
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 configurations {
