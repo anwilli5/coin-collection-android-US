@@ -22,7 +22,19 @@ package com.spencerpages;
 
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.helper.ParcelableHashMap;
 
+import static com.coincollection.CoinPageCreator.OPT_CHECKBOX_1;
+import static com.coincollection.CoinPageCreator.OPT_CHECKBOX_2;
+import static com.coincollection.CoinPageCreator.OPT_EDIT_DATE_RANGE;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARKS;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_1;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_2;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_3;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_4;
+import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_5;
+import static com.coincollection.CoinPageCreator.OPT_START_YEAR;
+import static com.coincollection.CoinPageCreator.OPT_STOP_YEAR;
 import static com.spencerpages.MainApplication.getIndexFromCollectionNameStr;
 
 public class SharedTest {
@@ -67,6 +79,43 @@ public class SharedTest {
                     new CoinSlot("Some Coin", "S", false, 11, 11, ""),
             };
 
+    public static final ParcelableHashMap[] PARAMETER_SCENARIOS =
+            {
+                    new ParcelableHashMap(){{
+                        put(OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+                        put(OPT_EDIT_DATE_RANGE, Boolean.TRUE);
+                        put(OPT_START_YEAR, 1990);
+                        put(OPT_STOP_YEAR, 2020);
+                        put(OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+                        put(OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
+                        put(OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+                        put(OPT_SHOW_MINT_MARK_4, Boolean.TRUE);
+                        put(OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
+                        put(OPT_CHECKBOX_1, Boolean.TRUE);
+                        put(OPT_CHECKBOX_2, Boolean.FALSE);
+                    }},
+                    new ParcelableHashMap(){{
+                        put(OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+                        put(OPT_EDIT_DATE_RANGE, Boolean.TRUE);
+                        put(OPT_START_YEAR, 1800);
+                        put(OPT_STOP_YEAR, 1991);
+                        put(OPT_SHOW_MINT_MARK_1, Boolean.FALSE);
+                        put(OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+                        put(OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
+                        put(OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
+                        put(OPT_SHOW_MINT_MARK_5, Boolean.TRUE);
+                        put(OPT_CHECKBOX_1, Boolean.FALSE);
+                        put(OPT_CHECKBOX_2, Boolean.TRUE);
+                    }},
+                    new ParcelableHashMap(){{
+                        put(OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+                        put(OPT_EDIT_DATE_RANGE, Boolean.FALSE);
+                        put(OPT_START_YEAR, 0);
+                        put(OPT_STOP_YEAR, 0);
+                        put(OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+                    }}
+            };
+
     /**
      * Compare two CollectionListInfo objects to ensure they're the same
      * @param base CollectionListInfo
@@ -101,5 +150,25 @@ public class SharedTest {
                 (base.getAdvancedGrades().equals(check.getAdvancedGrades())) &&
                 (base.getAdvancedQuantities().equals(check.getAdvancedQuantities())) &&
                 (base.getAdvancedNotes().equals(check.getAdvancedNotes())));
+    }
+
+    /**
+     * Compare two ParcelableHashMap objects to ensure they're the same
+     * @param base ParcelableHashMap
+     * @param check ParcelableHashMap
+     * @return true if they have the same contents, false otherwise
+     */
+    public static boolean compareParameters(ParcelableHashMap base, ParcelableHashMap check) {
+        // TODO - Not sure how to add assertions here
+        if (base.keySet().size() != check.keySet().size()) {
+            return false;
+        }
+        for (String key : base.keySet()) {
+            Object value = base.get(key);
+            if (value == null || !check.containsKey(key) || !value.equals(check.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

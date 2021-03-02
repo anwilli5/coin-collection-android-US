@@ -25,6 +25,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
@@ -58,7 +59,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
@@ -864,7 +864,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         db.close();
         testDbHelper.close();
         // Compare against a new database
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
         validateUpdatedDb(collection, collectionName, parameters);
     }

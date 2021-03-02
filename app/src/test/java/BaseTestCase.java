@@ -38,6 +38,7 @@ import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.MainActivity;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.spencerpages.SharedTest;
@@ -57,7 +58,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
@@ -156,7 +156,7 @@ public class BaseTestCase {
     public boolean setupOneOfEachCollectionTypes(MainActivity activity) {
         int displayOrder = 0;
         for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
-            HashMap<String, Object> parameters = new HashMap<>();
+            ParcelableHashMap parameters = new ParcelableHashMap();
             collectionInfo.getCreationParameters(parameters);
             ArrayList<CoinSlot> newCoinList = new ArrayList<>();
             collectionInfo.populateCollectionLists(parameters, newCoinList);
@@ -179,7 +179,7 @@ public class BaseTestCase {
         int displayOrder = 0;
         for (String collectionName : collectionNames) {
             CollectionInfo collectionInfo = COLLECTION_TYPES[displayOrder % COLLECTION_TYPES.length];
-            HashMap<String, Object> parameters = new HashMap<>();
+            ParcelableHashMap parameters = new ParcelableHashMap();
             collectionInfo.getCreationParameters(parameters);
             ArrayList<CoinSlot> newCoinList = new ArrayList<>();
             collectionInfo.populateCollectionLists(parameters, newCoinList);
@@ -302,7 +302,7 @@ public class BaseTestCase {
      * @param collectionName collection name
      */
     public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName){
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         validateUpdatedDb(collectionInfo, collectionName, parameters);
     }
 
@@ -313,7 +313,7 @@ public class BaseTestCase {
      * @param parameters setup parameters
      */
     public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
-                                  final HashMap<String, Object> parameters){
+                                  final ParcelableHashMap parameters){
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                 .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
@@ -366,7 +366,7 @@ public class BaseTestCase {
         if (coinList.size() != 0) {
             CollectionListInfo collectionListInfo = getCollectionListInfo("X", coinClass, coinList);
             collectionListInfo.setCreationParametersFromCoinData(coinList);
-            HashMap<String, Object> checkParameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
+            ParcelableHashMap checkParameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
             ArrayList<CoinSlot> coinListFromDerivedParams = new ArrayList<>();
             coinClass.populateCollectionLists(checkParameters, coinListFromDerivedParams);
             TestCase.assertEquals(coinList, coinListFromDerivedParams);
@@ -508,7 +508,7 @@ public class BaseTestCase {
                     random.nextInt() & CollectionListInfo.ALL_CHECKBOXES_MASK);
 
             // Populate coin list
-            HashMap<String, Object> parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
+            ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinType.populateCollectionLists(parameters, coinList);
             int numCollected = 0;

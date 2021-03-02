@@ -20,6 +20,7 @@
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
@@ -69,7 +70,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_AmericanEagleSilverDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         AmericanEagleSilverDollars coinClass = new AmericanEagleSilverDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -96,7 +97,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_AmericanInnovationDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         AmericanInnovationDollars coinClass = new AmericanInnovationDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -129,7 +130,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_BarberDimesCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         BarberDimes coinClass = new BarberDimes();
         coinClass.getCreationParameters(parameters);
 
@@ -166,7 +167,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_BarberHalfDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         BarberHalfDollars coinClass = new BarberHalfDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -203,7 +204,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_BarberQuartersCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         BarberQuarters coinClass = new BarberQuarters();
         coinClass.getCreationParameters(parameters);
 
@@ -240,7 +241,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_BuffaloNickelsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         BuffaloNickels coinClass = new BuffaloNickels();
         coinClass.getCreationParameters(parameters);
 
@@ -275,7 +276,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_EisenhowerDollarCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         EisenhowerDollar coinClass = new EisenhowerDollar();
         coinClass.getCreationParameters(parameters);
 
@@ -318,7 +319,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_FirstSpouseGoldCoinsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         FirstSpouseGoldCoins coinClass = new FirstSpouseGoldCoins();
         coinClass.getCreationParameters(parameters);
 
@@ -336,7 +337,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_FranklinHalfDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         FranklinHalfDollars coinClass = new FranklinHalfDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -371,7 +372,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_IndianHeadCentsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         IndianHeadCents coinClass = new IndianHeadCents();
         coinClass.getCreationParameters(parameters);
 
@@ -404,7 +405,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_JeffersonNickelsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         JeffersonNickels coinClass = new JeffersonNickels();
         coinClass.getCreationParameters(parameters);
 
@@ -439,7 +440,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_KennedyHalfDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         KennedyHalfDollars coinClass = new KennedyHalfDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -482,7 +483,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_LibertyHeadNickelsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         LibertyHeadNickels coinClass = new LibertyHeadNickels();
         coinClass.getCreationParameters(parameters);
 
@@ -517,7 +518,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_LincolnCentsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         LincolnCents coinClass = new LincolnCents();
         coinClass.getCreationParameters(parameters);
 
@@ -552,7 +553,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_MercuryDimesCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         MercuryDimes coinClass = new MercuryDimes();
         coinClass.getCreationParameters(parameters);
 
@@ -587,7 +588,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_MorganDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         MorganDollars coinClass = new MorganDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -626,7 +627,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_NationalParkQuartersCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         NationalParkQuarters coinClass = new NationalParkQuarters();
         coinClass.getCreationParameters(parameters);
 
@@ -659,7 +660,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_NativeAmericanDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         NativeAmericanDollars coinClass = new NativeAmericanDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -692,7 +693,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_PeaceDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         PeaceDollars coinClass = new PeaceDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -727,7 +728,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_PresidentialDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         PresidentialDollars coinClass = new PresidentialDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -760,7 +761,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_RooseveltDimesCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         RooseveltDimes coinClass = new RooseveltDimes();
         coinClass.getCreationParameters(parameters);
 
@@ -795,7 +796,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_StandingLibertyQuartersCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         StandingLibertyQuarters coinClass = new StandingLibertyQuarters();
         coinClass.getCreationParameters(parameters);
 
@@ -830,7 +831,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_StateQuartersCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         StateQuarters coinClass = new StateQuarters();
         coinClass.getCreationParameters(parameters);
 
@@ -866,7 +867,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_SusanBAnthonyDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         SusanBAnthonyDollars coinClass = new SusanBAnthonyDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -901,7 +902,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_WalkingLibertyHalfDollarsCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         WalkingLibertyHalfDollars coinClass = new WalkingLibertyHalfDollars();
         coinClass.getCreationParameters(parameters);
 
@@ -936,7 +937,7 @@ public class CollectionCreationTests extends BaseTestCase {
     @Test
     public void test_WashingtonQuartersCreationCounts() {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        HashMap<String, Object> parameters = new ParcelableHashMap();
         WashingtonQuarters coinClass = new WashingtonQuarters();
         coinClass.getCreationParameters(parameters);
 

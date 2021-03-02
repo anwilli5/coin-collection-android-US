@@ -46,6 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -73,7 +74,7 @@ public class CoinPageCreator extends BaseActivity {
     /** mParameters The HashMap that is used to keep track of the changes that
      *              the user has requested (via the UI) to the default
      *              collection settings. */
-    public HashMap<String, Object> mParameters;
+    public ParcelableHashMap mParameters;
 
     /** mDefaults The default parameters provided from a call to the current
      *             mCollectionObj getCreationParameters method. */
@@ -233,7 +234,7 @@ public class CoinPageCreator extends BaseActivity {
             // Screen rotated - Load the previous settings
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
-                    (HashMap<String, Object>) savedInstanceState.getSerializable(_PARAMETERS));
+                    (ParcelableHashMap) savedInstanceState.getParcelable(_PARAMETERS));
         } else if (mExistingCollection != null) {
             // Updating collection - Setup the parameters based on the existing collection
             setInternalStateFromCollectionIndex(
@@ -674,7 +675,7 @@ public class CoinPageCreator extends BaseActivity {
      *                   values based on the new collection type.
      *
      */
-    public void setInternalStateFromCollectionIndex(int index, HashMap<String, Object> parameters) {
+    public void setInternalStateFromCollectionIndex(int index, ParcelableHashMap parameters) {
 
         mCoinTypeIndex = index;
 
@@ -685,7 +686,7 @@ public class CoinPageCreator extends BaseActivity {
         mCollectionObj.getCreationParameters(mDefaults);
 
         if (parameters == null) {
-            mParameters = new HashMap<>();
+            mParameters = new ParcelableHashMap();
             mCollectionObj.getCreationParameters(mParameters);
         } else {
             // Allow the parameters to be passed in for things like testing and on screen rotation
@@ -1028,9 +1029,9 @@ public class CoinPageCreator extends BaseActivity {
      * @param existingCollection the existing collection
      * @return HashMap containing parameters
      */
-    public static HashMap<String, Object> getParametersFromCollectionListInfo(CollectionListInfo existingCollection) {
+    public static ParcelableHashMap getParametersFromCollectionListInfo(CollectionListInfo existingCollection) {
 
-        HashMap<String, Object> parameters = new HashMap<>();
+        ParcelableHashMap parameters = new ParcelableHashMap();
         existingCollection.getCollectionObj().getCreationParameters(parameters);
         if (parameters.containsKey(OPT_SHOW_MINT_MARKS)) {
             parameters.put(OPT_SHOW_MINT_MARKS, existingCollection.hasMintMarks());
