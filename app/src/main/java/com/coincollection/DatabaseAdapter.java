@@ -50,7 +50,7 @@ import static com.coincollection.CollectionListInfo.COL_START_YEAR;
 import static com.coincollection.CollectionListInfo.COL_TOTAL;
 import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
 import static com.coincollection.DatabaseHelper.simpleQueryForLong;
-import static com.coincollection.MainActivity.EXPORT_COLLECTION_LIST_FILE_NAME;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
 
 /**
  * Adapter based on the Simple Notes Database Access Helper Class on the Android site.
@@ -71,7 +71,7 @@ public class DatabaseAdapter {
      */
     private final List<String> mReservedDbNames = new ArrayList<>(Arrays.asList(
             TBL_COLLECTION_INFO,
-            EXPORT_COLLECTION_LIST_FILE_NAME
+            LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME
     ));
 
     /**

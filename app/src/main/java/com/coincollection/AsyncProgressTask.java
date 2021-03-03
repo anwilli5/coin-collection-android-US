@@ -33,7 +33,7 @@ class AsyncProgressTask extends AsyncTask<Void, Void, Void>
     AsyncProgressInterface mListener;
     int mAsyncTaskId = 0;
     private final static int NUM_DELAY_HALF_SECONDS = 10;
-    int mErrorResId;
+    String mResultString;
 
     AsyncProgressTask(AsyncProgressInterface listener){
         this.mListener = listener;
@@ -43,7 +43,7 @@ class AsyncProgressTask extends AsyncTask<Void, Void, Void>
     {
         for(int i = 0; i < NUM_DELAY_HALF_SECONDS; i++){
             if (mListener != null) {
-                mErrorResId = mListener.asyncProgressDoInBackground();
+                mResultString = mListener.asyncProgressDoInBackground();
                 break;
             }
             try {
@@ -76,7 +76,7 @@ class AsyncProgressTask extends AsyncTask<Void, Void, Void>
         super.onPostExecute(result);
         for(int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
             if (mListener != null) {
-                mListener.asyncProgressOnPostExecute(mErrorResId);
+                mListener.asyncProgressOnPostExecute(mResultString);
                 break;
             }
             try {

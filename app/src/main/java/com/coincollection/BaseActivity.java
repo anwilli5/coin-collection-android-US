@@ -57,11 +57,12 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public static final int TASK_OPEN_DATABASE = 0;
     public static final int TASK_IMPORT_COLLECTIONS = 1;
     public static final int TASK_CREATE_UPDATE_COLLECTION = 2;
+    public static final int TASK_EXPORT_COLLECTIONS = 3;
 
     // Common activity variables
     protected final Context mContext = this;
     protected ProgressDialog mProgressDialog;
-    protected Resources mRes;
+    public Resources mRes;
     protected Intent mCallingIntent;
     public DatabaseAdapter mDbAdapter = null;
     protected boolean mOpenDbAdapterInOnCreate = true;
@@ -125,24 +126,24 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * This method should be called when mDbAdapter can be opened on the UI thread
      * @return An error message if the open failed, otherwise -1
      */
-    public int openDbAdapterForAsyncThread() {
+    public String openDbAdapterForAsyncThread() {
         try {
             mDbAdapter = ((MainApplication) getApplication()).getDbAdapter();
             mDbAdapter.open();
         } catch (SQLException e) {
-            return R.string.error_opening_database;
+            return mRes.getString(R.string.error_opening_database);
         }
-        return -1;
+        return "";
     }
 
     /**
      * This should be overridden by Activities that use the AsyncTask
      * - This is method contains the work that needs to be performed on the async task
-     * @return returns -1 if successful, otherwise an error resource id
+     * @return a string result to display, or "" if no result
      */
     @Override
-    public int asyncProgressDoInBackground() {
-        return -1;
+    public String asyncProgressDoInBackground() {
+        return "";
     }
 
     /**
@@ -156,11 +157,12 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * This should be overridden by Activities that use the AsyncTask
      * - This is method is called on the UI thread after executing DoInBackground
      * - Activities should call super.asyncProgressOnPostExecute to display the error
+     * @param resultStr a string result to display, or "" if no result
      */
     @Override
-    public void asyncProgressOnPostExecute(int errorResId) {
-        if (errorResId != -1) {
-            showCancelableAlert(mRes.getString(errorResId));
+    public void asyncProgressOnPostExecute(String resultStr) {
+        if (!resultStr.equals("")) {
+            showCancelableAlert(resultStr);
         }
     }
 
@@ -381,8 +383,8 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         } else {
             // Call the tasks on the current thread (used for unit tests)
             asyncProgressOnPreExecute();
-            int errorResId = asyncProgressDoInBackground();
-            asyncProgressOnPostExecute(errorResId);
+            String resultStr = asyncProgressDoInBackground();
+            asyncProgressOnPostExecute(resultStr);
         }
     }
 }

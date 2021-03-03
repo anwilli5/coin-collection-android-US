@@ -25,9 +25,9 @@ package com.coincollection;
 public interface AsyncProgressInterface {
     /**
      * Method to perform on the async thread
-     * @return -1 if successful, otherwise an error resource id to display
+     * @return a string result to display, or "" if no result
      */
-    int asyncProgressDoInBackground();
+    String asyncProgressDoInBackground();
 
     /**
      * Method to perform on the UI thread ahead of the async task
@@ -37,7 +37,7 @@ public interface AsyncProgressInterface {
     /**
      * Method to perform on the UI thread after of the async task
      * This method should check the
-     * @param errorResId error resource id if != -1
+     * @param resultStr a string result to display, or "" if no result
      */
-    void asyncProgressOnPostExecute(int errorResId);
+    void asyncProgressOnPostExecute(String resultStr);
 }

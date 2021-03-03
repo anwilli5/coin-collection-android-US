@@ -27,6 +27,7 @@ import androidx.test.core.app.ApplicationProvider;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.SharedTest;
 
 import org.junit.Test;
@@ -60,7 +61,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
                     // Set up collections
                     for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
                         activity.mCoinList = new ArrayList<>();
-                        HashMap<String, Object> parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
+                        ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
                         int index = info.getCollectionTypeIndex();
                         activity.setInternalStateFromCollectionIndex(index, parameters);
                         activity.createOrUpdateCoinListForAsyncThread();

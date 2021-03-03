@@ -20,23 +20,25 @@
 
 package com.spencerpages;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.RemoteException;
+
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.filters.LargeTest;
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+import androidx.test.uiautomator.UiDevice;
 
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.MainActivity;
+import com.coincollection.helper.ParcelableHashMap;
 
 import junit.framework.TestCase;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.filters.LargeTest;
-import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
-import androidx.test.uiautomator.UiDevice;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -164,6 +166,20 @@ public class AndroidUITests extends TestCase {
     }
 
     /**
+     * Test that ParcelableHashMap parcelable implementation works
+     */
+    @Test
+    public void test_ParcelableParameters() {
+        for (ParcelableHashMap parameters : SharedTest.PARAMETER_SCENARIOS){
+            Parcel testParcel = Parcel.obtain();
+            parameters.writeToParcel(testParcel, parameters.describeContents());
+            testParcel.setDataPosition(0);
+            ParcelableHashMap checkInfo = ParcelableHashMap.CREATOR.createFromParcel(testParcel);
+            assertTrue(SharedTest.compareParameters(parameters, checkInfo));
+        }
+    }
+
+    /**
      * Test export and rotate
      */
     @Test
@@ -172,8 +188,10 @@ public class AndroidUITests extends TestCase {
         scrollAllTheWayDown();
         onView(withText(R.string.export_collection)).perform(click());
         onView(withText(R.string.yes)).perform(click());
-        setOrientationLeft();
-        scrollAllTheWayDown();
-        setOrientationNatural();
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            setOrientationLeft();
+            scrollAllTheWayDown();
+            setOrientationNatural();
+        }
     }
 }

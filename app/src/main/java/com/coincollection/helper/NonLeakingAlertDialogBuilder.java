@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 /**
@@ -40,6 +41,7 @@ public class NonLeakingAlertDialogBuilder extends AlertDialog.Builder {
         super(context);
     }
 
+    @NonNull
     @Override
     public AlertDialog create() {
         AlertDialog alertDialog = super.create();
