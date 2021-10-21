@@ -69,13 +69,13 @@ The current version only supports U.S. currency, specifically:
 - :twisted_rightwards_arrows: Reorder Collection
 
 ## Contributions
-All types of contributions are welcome here. If you are a beginner refer to [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/Contributing.md) for successfull contribution.
+All types of contributions are welcome here. If you are a beginner refer to [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/Contributing.md) for successful contribution.
 
-Further , you can browse the [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues) to fix an issue in the app.
+Further, you can browse the [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues) to fix an issue in the app.
 
 If you found a bug or wish to add a new feature you are welcome to [Create a new Issue](https://github.com/anwilli5/coin-collection-android-US/issues/new?assignees=&labels=&template=issue_template.yaml&title=Issue%3A+)
 
-**Please adhere to this project's [Code Of Counduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
+**Please adhere to this project's [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
 
 ## Development/Building
 For information about accessing & building the app, unit testing, and other helpful links, refer to
@@ -91,4 +91,4 @@ For information about accessing & building the app, unit testing, and other help
 - **[Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
 
 ## Licensing
-This Project is licensed under **GNU General Public License v3.0** (Refer to [LICENSE](https://github.com/anwilli5/coin-collection-android-US/blob/master/LICENSE)) and the Material Icons used in this app are under **Google LLC 2020 Copyright** which is Licenced under **Apache License, Version 2.0** (Refere to [NOTICE](https://github.com/anwilli5/coin-collection-android-US/blob/master/NOTICE)).
+This Project is licensed under **GNU General Public License v3.0** (Refer to [LICENSE](https://github.com/anwilli5/coin-collection-android-US/blob/master/LICENSE)) and the Material Icons used in this app are under **Google LLC 2020 Copyright** which is licensed under **Apache License, Version 2.0** (Refer to [NOTICE](https://github.com/anwilli5/coin-collection-android-US/blob/master/NOTICE)).
