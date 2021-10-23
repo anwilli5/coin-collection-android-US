@@ -1,8 +1,8 @@
-# How to contribute?
+# How to contribute
 
 If you want to make a contribution to the repository, follow these steps :
 
-*-- Please follow the [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md) of this project strictly and keep this in mind while contributing --*
+*-- Please follow the [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md) of this project and keep this in mind while contributing --*
 
   1) **Fork this repository** to your own Github account by clicking the Fork button on the top right corner.
  
@@ -32,7 +32,7 @@ Now, stage your changes using the below command.
 
 Finally, commit your changes and add a commit message using the following command.
 
-        > git commit -m 'commit-message'
+        > git commit -m 'describe your changes here'
         
   7) **Push the changes**
 
@@ -51,9 +51,9 @@ Click on that and you will have to give the title and description of the changes
 /*-- If you don't find the above option you can come [here](https://github.com/anwilli5/coin-collection-android-US/pulls) and click on **New pull request** then select the **compare across forks button** and select your repo and branch to the base branch and click on **Create pull request**. --*/ 
 
 </br>
-<b>Thats It you have successfully made your contribution 🎉</b/>
+<b>That's it! You have successfully made your contribution 🎉</b/>
 </br>
 </br>
 </br>
 
-*-- Note : If you want to request for a new feature or report any bug in the project feel free to raise an issue --*
+*-- Note : If you want to request for a new feature or report any bug in the project, feel free to [report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose) --*
