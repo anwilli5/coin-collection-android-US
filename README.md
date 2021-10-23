@@ -69,7 +69,7 @@ The current version only supports U.S. currency, specifically:
 - :twisted_rightwards_arrows: Reorder Collection
 
 ## Contributions
-All types of contributions are welcome here. If you are a beginner refer to [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/Contributing.md) for successful contribution.
+All types of contributions are welcome here. If you are a beginner refer to [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md) for successful contribution.
 
 Further, you can browse the [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues) to fix an issue in the app.
 
@@ -85,7 +85,7 @@ For information about accessing & building the app, unit testing, and other help
 - **[Google Play](https://play.google.com/store/apps/details?id=com.spencerpages)**
 - **[Issues](https://github.com/anwilli5/coin-collection-android-US/issues)**
 - **[Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)**
-- **[Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/Contributing.md)**
+- **[Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md)**
 - **[License](https://github.com/anwilli5/coin-collection-android-US/blob/master/LICENSE)**
 - **[Notice](https://github.com/anwilli5/coin-collection-android-US/blob/master/NOTICE)**
 - **[Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
