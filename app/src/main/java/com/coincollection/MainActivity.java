@@ -20,6 +20,11 @@
 
 package com.coincollection;
 
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
+import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
+import static com.spencerpages.MainApplication.APP_NAME;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -67,11 +72,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-
-import static com.coincollection.CollectionListInfo.COL_NAME;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
-import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
-import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
  * The main Activity for the app.  Implements a ListView which lets the user view a previously
