@@ -21,7 +21,8 @@
         android:fullBackupContent="@xml/backup_descriptor">
         <activity
             android:name="com.coincollection.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +32,8 @@
         <activity
             android:name="com.coincollection.CollectionPage"
             android:label="Collection Page"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false">
             <!-- Regarding android:windowSoftInputMode="adjustPan"
 
                  Since we have editText's inside the listview in the advance case,
@@ -45,7 +47,8 @@
         </activity>
         <activity
             android:name="com.coincollection.CoinPageCreator"
-            android:label="Collection Page Creator" >
+            android:label="Collection Page Creator"
+            android:exported="false">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

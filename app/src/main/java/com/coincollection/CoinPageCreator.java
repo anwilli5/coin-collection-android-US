@@ -234,7 +234,7 @@ public class CoinPageCreator extends BaseActivity {
             // Screen rotated - Load the previous settings
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
-                    (ParcelableHashMap) savedInstanceState.getParcelable(_PARAMETERS));
+                    savedInstanceState.getParcelable(_PARAMETERS));
         } else if (mExistingCollection != null) {
             // Updating collection - Setup the parameters based on the existing collection
             setInternalStateFromCollectionIndex(
