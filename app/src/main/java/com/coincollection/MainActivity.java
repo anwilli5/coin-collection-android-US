@@ -252,7 +252,7 @@ public class MainActivity extends BaseActivity {
 
                             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
                             View layout = inflater.inflate(R.layout.info_popup,
-                                    (ViewGroup) findViewById(R.id.info_layout_root));
+                                    findViewById(R.id.info_layout_root));
 
                             TextView tv = layout.findViewById(R.id.info_textview);
                             tv.setText(buildInfoText());
