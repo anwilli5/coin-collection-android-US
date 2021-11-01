@@ -192,40 +192,37 @@ public class ExportImportTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Set up collections
-                    //assertTrue(waitForMainActivitySetup(activity));
-                    assertTrue(setEnabledPermissions(activity));
-                    assertTrue(setupOneOfEachCollectionTypes(activity));
-                    activity.updateCollectionListFromDatabase();
-                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+            scenario.onActivity(activity -> {
+                // Set up collections
+                //assertTrue(waitForMainActivitySetup(activity));
+                assertTrue(setEnabledPermissions(activity));
+                assertTrue(setupOneOfEachCollectionTypes(activity));
+                activity.updateCollectionListFromDatabase();
+                ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
 
-                    // Export and check output
-                    File exportFile = getTempFile("csv-export.csv");
-                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                    OutputStream outputStream = openOutputStream(exportFile);
-                    assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
-                            helper.exportCollectionsToSingleCSV(outputStream, LEGACY_EXPORT_FOLDER_NAME));
-                    assertTrue(exportFile.exists());
-                    closeStream(outputStream);
+                // Export and check output
+                File exportFile = getTempFile("csv-export.csv");
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                OutputStream outputStream = openOutputStream(exportFile);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToSingleCSV(outputStream, LEGACY_EXPORT_FOLDER_NAME));
+                assertTrue(exportFile.exists());
+                closeStream(outputStream);
 
-                    // Delete all collections
-                    deleteAllCollections(activity);
-                    activity.updateCollectionListFromDatabase();
-                    assertEquals(getCollectionNames(activity).size(), 0);
-                    assertEquals(activity.mNumberOfCollections, 0);
-                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                // Delete all collections
+                deleteAllCollections(activity);
+                activity.updateCollectionListFromDatabase();
+                assertEquals(getCollectionNames(activity).size(), 0);
+                assertEquals(activity.mNumberOfCollections, 0);
+                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
 
-                    // Run import and check results
-                    InputStream inputStream = openInputStream(exportFile);
-                    assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
-                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
-                    assertEquals(beforeCollectionNames, afterCollectionNames);
-                    closeStream(inputStream);
-                }
+                // Run import and check results
+                InputStream inputStream = openInputStream(exportFile);
+                assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
+                ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                assertEquals(beforeCollectionNames, afterCollectionNames);
+                closeStream(inputStream);
             });
         }
     }
