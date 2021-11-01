@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static org.junit.Assert.assertNotNull;
+
 import android.content.Intent;
 import android.os.Build;
 
@@ -37,8 +39,6 @@ import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
@@ -64,25 +64,22 @@ public class LaunchCoinPageTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    for (FullCollection scenario : getRandomTestScenarios(activity, mCoinTypeObj, 1)) {
-                        // Create the collection in the database
-                        activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
-                                scenario.mDisplayOrder, scenario.mCoinList);
-                        activity.updateCollectionListFromDatabase();
+            scenario.onActivity(activity -> {
+                for (FullCollection scenario1 : getRandomTestScenarios(activity, mCoinTypeObj, 1)) {
+                    // Create the collection in the database
+                    activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
+                            scenario1.mDisplayOrder, scenario1.mCoinList);
+                    activity.updateCollectionListFromDatabase();
 
-                        // Launch the collection
-                        Intent intent = activity.launchCoinPageActivity(scenario.mCollectionListInfo);
-                        assertNotNull(intent);
-                        CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
-                        assertNotNull(coinActivity);
-                        coinActivity.onCreate(null);
+                    // Launch the collection
+                    Intent intent = activity.launchCoinPageActivity(scenario1.mCollectionListInfo);
+                    assertNotNull(intent);
+                    CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
+                    assertNotNull(coinActivity);
+                    coinActivity.onCreate(null);
 
-                        // Clean up
-                        activity.deleteDatabase(scenario.mCollectionListInfo.getName());
-                    }
+                    // Clean up
+                    activity.deleteDatabase(scenario1.mCollectionListInfo.getName());
                 }
             });
         }

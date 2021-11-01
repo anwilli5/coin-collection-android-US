@@ -22,7 +22,6 @@ package com.coincollection;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -33,8 +32,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.coincollection.helper.NonLeakingAlertDialogBuilder;
@@ -300,13 +299,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             showAlert(newBuilder()
                     .setMessage(res.getString(helpStrId))
                     .setCancelable(false)
-                    .setPositiveButton(res.getString(R.string.okay_exp), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            SharedPreferences.Editor editor = mainPreferences.edit();
-                            editor.putBoolean(helpStrKey, false);
-                            editor.apply();
-                        }
+                    .setPositiveButton(res.getString(R.string.okay_exp), (dialog, id) -> {
+                        dialog.dismiss();
+                        SharedPreferences.Editor editor = mainPreferences.edit();
+                        editor.putBoolean(helpStrKey, false);
+                        editor.apply();
                     }));
         }
     }
@@ -318,11 +315,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         showAlert(newBuilder()
                 .setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
                 .setCancelable(false)
-                .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Nothing to do, just a warning
-                        dialog.dismiss();
-                    }
+                .setPositiveButton(res.getString(R.string.okay), (dialog, id) -> {
+                    // Nothing to do, just a warning
+                    dialog.dismiss();
                 }));
     }
 
@@ -333,17 +328,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         showAlert(newBuilder()
                 .setMessage(mRes.getString(R.string.dialog_unsaved_changes_exit))
                 .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                        finish();
-                    }
+                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
+                    dialog.dismiss();
+                    finish();
                 })
-                .setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                }));
+                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
     }
 
     /**

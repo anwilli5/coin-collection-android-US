@@ -20,13 +20,14 @@
 
 package com.coincollection;
 
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.spencerpages.MainApplication.APP_NAME;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,7 +40,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -53,9 +53,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
-import static com.spencerpages.MainApplication.APP_NAME;
 
 /**
  * Activity responsible for managing the collection creation page
@@ -299,20 +296,18 @@ public class CoinPageCreator extends BaseActivity {
         // trigger this listener.
         //
         // Has worked on all the devices I've tested on (which are all Samsung devices)
-        OnKeyListener hideKeyboardListener = new OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP)) {
-                    // This should hide the keyboard
-                    // Thanks! http://stackoverflow.com/questions/1109022/how-to-close-hide-the-android-soft-keyboard
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    // Returning true prevents the action that would ordinarily have happened from taking place
-                    return keyCode == KeyEvent.KEYCODE_ENTER;
-                }
-                return false;
+        OnKeyListener hideKeyboardListener = (v, keyCode, event) -> {
+            // If the event is a key-down event on the "enter" button
+            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP)) {
+                // This should hide the keyboard
+                // Thanks! http://stackoverflow.com/questions/1109022/how-to-close-hide-the-android-soft-keyboard
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                // Returning true prevents the action that would ordinarily have happened from taking place
+                return keyCode == KeyEvent.KEYCODE_ENTER;
             }
+            return false;
         };
 
         // Set the OnKeyListener for the EditText
@@ -328,68 +323,59 @@ public class CoinPageCreator extends BaseActivity {
 
         // Set the listener for the show mint mark checkbox
         final CheckBox showMintMarkCheckBox = findViewById(R.id.check_show_mint_mark);
-        showMintMarkCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        showMintMarkCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+            // Don't take any action if the value isn't changing - needed to prevent
+            // loops that would get created by the call to updateViewFromState()
+            Boolean optMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
+            if(optMintMarks != null && optMintMarks == isChecked){
+                return;
+            }
 
-                // Don't take any action if the value isn't changing - needed to prevent
-                // loops that would get created by the call to updateViewFromState()
-                Boolean optMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
-                if(optMintMarks != null && optMintMarks == isChecked){
-                    return;
-                }
+            mParameters.put(OPT_SHOW_MINT_MARKS, isChecked);
 
-                mParameters.put(OPT_SHOW_MINT_MARKS, isChecked);
-
-                // Restore defaults for all of the mint mark checkboxes when this is unchecked
-                if(!isChecked) {
-                    for (String key : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
-                        if (mParameters.containsKey(key)) {
-                            mParameters.put(key, mDefaults.get(key));
-                        }
+            // Restore defaults for all of the mint mark checkboxes when this is unchecked
+            if(!isChecked) {
+                for (String key : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
+                    if (mParameters.containsKey(key)) {
+                        mParameters.put(key, mDefaults.get(key));
                     }
                 }
-
-                // Refresh the UI so that the individual mint mark checkboxes are either
-                // hidden or displayed
-                updateViewFromState();
             }
+
+            // Refresh the UI so that the individual mint mark checkboxes are either
+            // hidden or displayed
+            updateViewFromState();
         });
 
         // Set the listener for the edit date range
         final CheckBox editDateRangeCheckBox = findViewById(R.id.check_edit_date_range);
-        editDateRangeCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        editDateRangeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
-
-                // Don't take any action if the value isn't changing - needed to prevent
-                // loops that would get created by the call to updateViewFromState()
-                Boolean optEditDateRange = (Boolean)mParameters.get(OPT_EDIT_DATE_RANGE);
-                if(optEditDateRange != null && optEditDateRange == isChecked){
-                    return;
-                }
-
-                mParameters.put(OPT_EDIT_DATE_RANGE, isChecked);
-
-                // Reset the start/stop year when the field is unchecked
-                if(!isChecked) {
-                    mParameters.put(OPT_START_YEAR, mDefaults.get(OPT_START_YEAR));
-                    mParameters.put(OPT_STOP_YEAR, mDefaults.get(OPT_STOP_YEAR));
-                }
-
-                // Refresh the UI so that the start/stop year EditTexts are hidden or displayed
-                updateViewFromState();
+            // Don't take any action if the value isn't changing - needed to prevent
+            // loops that would get created by the call to updateViewFromState()
+            Boolean optEditDateRange = (Boolean)mParameters.get(OPT_EDIT_DATE_RANGE);
+            if(optEditDateRange != null && optEditDateRange == isChecked){
+                return;
             }
+
+            mParameters.put(OPT_EDIT_DATE_RANGE, isChecked);
+
+            // Reset the start/stop year when the field is unchecked
+            if(!isChecked) {
+                mParameters.put(OPT_START_YEAR, mDefaults.get(OPT_START_YEAR));
+                mParameters.put(OPT_STOP_YEAR, mDefaults.get(OPT_STOP_YEAR));
+            }
+
+            // Refresh the UI so that the start/stop year EditTexts are hidden or displayed
+            updateViewFromState();
         });
 
         // Instantiate an onCheckedChangeListener for use by all the simple checkboxes
-        OnCheckedChangeListener checkboxChangeListener = new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                // The tag store the OPT_NAME associated with the button
-                String optName = (String) compoundButton.getTag();
-                mParameters.put(optName, isChecked);
-            }
+        OnCheckedChangeListener checkboxChangeListener = (compoundButton, isChecked) -> {
+            // The tag store the OPT_NAME associated with the button
+            String optName = (String) compoundButton.getTag();
+            mParameters.put(optName, isChecked);
         };
 
         // Create the ShowMintMark Checkboxes (even if they aren't needed right now)
@@ -409,16 +395,14 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Make a filter to block out non-numeric characters
-        InputFilter digitFilter = new InputFilter() {
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                for (int i = start; i < end; i++) {
-                    if (source.charAt(i) < '0' || source.charAt(i) > '9') {
-                        // Don't allow these characters
-                        return "";
-                    }
+        InputFilter digitFilter = (source, start, end, dest, dstart, dend) -> {
+            for (int i = start; i < end; i++) {
+                if (source.charAt(i) < '0' || source.charAt(i) > '9') {
+                    // Don't allow these characters
+                    return "";
                 }
-                return null;
             }
+            return null;
         };
 
         // Make a filter limiting the year text fields to 4 characters
@@ -471,14 +455,12 @@ public class CoinPageCreator extends BaseActivity {
         if (mExistingCollection != null) {
             makeCollectionButton.setText(R.string.update_page);
         }
-        makeCollectionButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mExistingCollection == null) {
-                    // Create new collections right away without displaying any warnings
-                    performCreateOrUpdateCollection();
-                } else {
-                    showUpdateCollectionsWarning();
-                }
+        makeCollectionButton.setOnClickListener(v -> {
+            if (mExistingCollection == null) {
+                // Create new collections right away without displaying any warnings
+                performCreateOrUpdateCollection();
+            } else {
+                showUpdateCollectionsWarning();
             }
         });
 
@@ -533,18 +515,14 @@ public class CoinPageCreator extends BaseActivity {
                     .setTitle(mRes.getString(R.string.warning))
                     .setMessage(mRes.getString(warningResId))
                     .setCancelable(false)
-                    .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // Update collection
-                            dialog.dismiss();
-                            performCreateOrUpdateCollection();
-                        }
+                    .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
+                        // Update collection
+                        dialog.dismiss();
+                        performCreateOrUpdateCollection();
                     })
-                    .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // Abort
-                            dialog.cancel();
-                        }
+                    .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> {
+                        // Abort
+                        dialog.cancel();
                     }));
         } else {
             // Update without displaying a warning
@@ -654,16 +632,14 @@ public class CoinPageCreator extends BaseActivity {
      * @return The input filter
      */
     static InputFilter getCollectionNameFilter() {
-        return new InputFilter() {
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                for (int i = start; i < end; i++) {
-                    if (source.charAt(i) == '[' || source.charAt(i) == ']') {
-                        // Don't allow these characters as they break the sql queries
-                        return "";
-                    }
+        return (source, start, end, dest, dstart, dend) -> {
+            for (int i = start; i < end; i++) {
+                if (source.charAt(i) == '[' || source.charAt(i) == ']') {
+                    // Don't allow these characters as they break the sql queries
+                    return "";
                 }
-                return null;
             }
+            return null;
         };
     }
 

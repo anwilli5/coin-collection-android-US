@@ -58,32 +58,29 @@ public class DatabaseAccessTests extends BaseTestCase {
         try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<CoinPageCreator>() {
-                @Override
-                public void perform(CoinPageCreator activity) {
+            scenario.onActivity(activity -> {
 
-                    for (FullCollection scenario : getRandomTestScenarios(activity, mCoinTypeObj, 20)) {
-                        String collectionName = scenario.mCollectionListInfo.getName();
+                for (FullCollection scenario1 : getRandomTestScenarios(activity, mCoinTypeObj, 20)) {
+                    String collectionName = scenario1.mCollectionListInfo.getName();
 
-                        // Create the collection in the database
-                        activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
-                                scenario.mDisplayOrder, scenario.mCoinList);
+                    // Create the collection in the database
+                    activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
+                            scenario1.mDisplayOrder, scenario1.mCoinList);
 
-                        // Check that the collection was made correctly in the database
-                        compareCollectionWithDb(activity, scenario.mCollectionListInfo,
-                                scenario.mCoinList, scenario.mDisplayOrder);
+                    // Check that the collection was made correctly in the database
+                    compareCollectionWithDb(activity, scenario1.mCollectionListInfo,
+                            scenario1.mCoinList, scenario1.mDisplayOrder);
 
-                        // Update the collection in the database
-                        activity.mDbAdapter.updateExistingCollection(collectionName,
-                                scenario.mCollectionListInfo, scenario.mCoinList);
+                    // Update the collection in the database
+                    activity.mDbAdapter.updateExistingCollection(collectionName,
+                            scenario1.mCollectionListInfo, scenario1.mCoinList);
 
-                        // Check that the collection was updated correctly in the database
-                        compareCollectionWithDb(activity, scenario.mCollectionListInfo,
-                                scenario.mCoinList, scenario.mDisplayOrder);
+                    // Check that the collection was updated correctly in the database
+                    compareCollectionWithDb(activity, scenario1.mCollectionListInfo,
+                            scenario1.mCoinList, scenario1.mDisplayOrder);
 
-                        // Delete the collection from the database
-                        activity.mDbAdapter.dropCollectionTable(collectionName);
-                    }
+                    // Delete the collection from the database
+                    activity.mDbAdapter.dropCollectionTable(collectionName);
                 }
             });
         }

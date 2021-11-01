@@ -18,6 +18,22 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.coincollection.ExportImportHelper.JSON_CHARSET;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_DB_VERSION_FILE;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
+import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
+import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.content.Intent;
 import android.os.Build;
 import android.util.JsonReader;
@@ -26,7 +42,6 @@ import android.util.JsonWriter;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
-import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
@@ -50,22 +65,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import static com.coincollection.ExportImportHelper.JSON_CHARSET;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_DB_VERSION_FILE;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
-import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
-import static com.spencerpages.MainApplication.COLLECTION_TYPES;
-import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
@@ -97,50 +96,47 @@ public class ExportImportTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Set up collections
-                    //assertTrue(waitForMainActivitySetup(activity));
-                    assertTrue(setEnabledPermissions(activity));
-                    assertTrue(setupOneOfEachCollectionTypes(activity));
-                    activity.updateCollectionListFromDatabase();
-                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+            scenario.onActivity(activity -> {
+                // Set up collections
+                //assertTrue(waitForMainActivitySetup(activity));
+                assertTrue(setEnabledPermissions(activity));
+                assertTrue(setupOneOfEachCollectionTypes(activity));
+                activity.updateCollectionListFromDatabase();
+                ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
 
-                    // Export and check output
-                    File exportDir = new File(activity.getLegacyExportFolderName());
-                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                    assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
-                            helper.exportCollectionsToLegacyCSV(activity.getLegacyExportFolderName()));
-                    assertTrue(exportDir.exists());
-                    File dbVersionFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_DB_VERSION_FILE);
-                    File collectionListFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME + LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT);
-                    assertTrue(dbVersionFile.exists());
-                    assertTrue(collectionListFile.exists());
-                    for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
-                        assertNotNull(collectionInfo);
-                        File collectionFile;
-                        if(collectionInfo instanceof NativeAmericanDollars){
-                            collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
-                        } else {
-                            collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
-                        }
-                        assertTrue(collectionFile.exists());
+                // Export and check output
+                File exportDir = new File(activity.getLegacyExportFolderName());
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToLegacyCSV(activity.getLegacyExportFolderName()));
+                assertTrue(exportDir.exists());
+                File dbVersionFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_DB_VERSION_FILE);
+                File collectionListFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME + LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT);
+                assertTrue(dbVersionFile.exists());
+                assertTrue(collectionListFile.exists());
+                for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
+                    assertNotNull(collectionInfo);
+                    File collectionFile;
+                    if(collectionInfo instanceof NativeAmericanDollars){
+                        collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
+                    } else {
+                        collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
                     }
-
-                    // Delete all collections
-                    deleteAllCollections(activity);
-                    activity.updateCollectionListFromDatabase();
-                    assertEquals(getCollectionNames(activity).size(), 0);
-                    assertEquals(activity.mNumberOfCollections, 0);
-                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
-
-                    // Run import and check results
-                    assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
-                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
-                    assertEquals(beforeCollectionNames, afterCollectionNames);
+                    assertTrue(collectionFile.exists());
                 }
+
+                // Delete all collections
+                deleteAllCollections(activity);
+                activity.updateCollectionListFromDatabase();
+                assertEquals(getCollectionNames(activity).size(), 0);
+                assertEquals(activity.mNumberOfCollections, 0);
+                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+
+                // Run import and check results
+                assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
+                ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                assertEquals(beforeCollectionNames, afterCollectionNames);
             });
         }
     }
@@ -153,40 +149,37 @@ public class ExportImportTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Set up collections
-                    //assertTrue(waitForMainActivitySetup(activity));
-                    assertTrue(setEnabledPermissions(activity));
-                    assertTrue(setupOneOfEachCollectionTypes(activity));
-                    activity.updateCollectionListFromDatabase();
-                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+            scenario.onActivity(activity -> {
+                // Set up collections
+                //assertTrue(waitForMainActivitySetup(activity));
+                assertTrue(setEnabledPermissions(activity));
+                assertTrue(setupOneOfEachCollectionTypes(activity));
+                activity.updateCollectionListFromDatabase();
+                ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
 
-                    // Export and check output
-                    File exportFile = getTempFile("json-export.json");
-                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                    OutputStream outputStream = openOutputStream(exportFile);
-                    assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
-                            helper.exportCollectionsToJson(outputStream, LEGACY_EXPORT_FOLDER_NAME));
-                    assertTrue(exportFile.exists());
-                    closeStream(outputStream);
+                // Export and check output
+                File exportFile = getTempFile("json-export.json");
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                OutputStream outputStream = openOutputStream(exportFile);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToJson(outputStream, LEGACY_EXPORT_FOLDER_NAME));
+                assertTrue(exportFile.exists());
+                closeStream(outputStream);
 
-                    // Delete all collections
-                    deleteAllCollections(activity);
-                    activity.updateCollectionListFromDatabase();
-                    assertEquals(getCollectionNames(activity).size(), 0);
-                    assertEquals(activity.mNumberOfCollections, 0);
-                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                // Delete all collections
+                deleteAllCollections(activity);
+                activity.updateCollectionListFromDatabase();
+                assertEquals(getCollectionNames(activity).size(), 0);
+                assertEquals(activity.mNumberOfCollections, 0);
+                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
 
-                    // Run import and check results
-                    InputStream inputStream = openInputStream(exportFile);
-                    assertEquals("", helper.importCollectionsFromJson(inputStream));
-                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
-                    assertEquals(beforeCollectionNames, afterCollectionNames);
-                    closeStream(inputStream);
-                }
+                // Run import and check results
+                InputStream inputStream = openInputStream(exportFile);
+                assertEquals("", helper.importCollectionsFromJson(inputStream));
+                ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                assertEquals(beforeCollectionNames, afterCollectionNames);
+                closeStream(inputStream);
             });
         }
     }
@@ -199,19 +192,16 @@ public class ExportImportTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    File v1DbDir = new File("src/test/data/v1-coin-collection-files");
-                    assertTrue(setEnabledPermissions(activity));
+            scenario.onActivity(activity -> {
+                File v1DbDir = new File("src/test/data/v1-coin-collection-files");
+                assertTrue(setEnabledPermissions(activity));
 
-                    // Run import and check results
-                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                    assertEquals("", helper.importCollectionsFromLegacyCSV(v1DbDir.getAbsolutePath()));
-                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
-                    //assertEquals(beforeCollectionNames, afterCollectionNames);
-                }
+                // Run import and check results
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                assertEquals("", helper.importCollectionsFromLegacyCSV(v1DbDir.getAbsolutePath()));
+                ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                //assertEquals(beforeCollectionNames, afterCollectionNames);
             });
         }
     }
@@ -240,45 +230,42 @@ public class ExportImportTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Set up collections
-                    assertTrue(setEnabledPermissions(activity));
-                    assertTrue(setupCollectionsWithNames(activity, namesToTest));
-                    activity.updateCollectionListFromDatabase();
-                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+            scenario.onActivity(activity -> {
+                // Set up collections
+                assertTrue(setEnabledPermissions(activity));
+                assertTrue(setupCollectionsWithNames(activity, namesToTest));
+                activity.updateCollectionListFromDatabase();
+                ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
 
-                    // Export and check output
-                    File exportDir = new File(activity.getLegacyExportFolderName());
-                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                    assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
-                            helper.exportCollectionsToLegacyCSV(activity.getLegacyExportFolderName()));
-                    assertTrue(exportDir.exists());
-                    File dbVersionFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_DB_VERSION_FILE);
-                    File collectionListFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME + LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT);
-                    assertTrue(dbVersionFile.exists());
-                    assertTrue(collectionListFile.exists());
-                    for (String inputCollectionName : namesToTest) {
-                        File collectionFile;
-                        String comparisonName = inputCollectionName.replace("/", "_SL_");
-                        collectionFile = new File(activity.getLegacyExportFolderName(), comparisonName + ".csv");
-                        assertTrue(collectionFile.exists());
-                    }
-
-                    // Delete all collections
-                    deleteAllCollections(activity);
-                    activity.updateCollectionListFromDatabase();
-                    assertEquals(getCollectionNames(activity).size(), 0);
-                    assertEquals(activity.mNumberOfCollections, 0);
-                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
-
-                    // Run import and check results
-                    assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
-                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                    assertEquals(afterCollectionNames.size(), namesToTest.size());
-                    assertEquals(beforeCollectionNames, afterCollectionNames);
+                // Export and check output
+                File exportDir = new File(activity.getLegacyExportFolderName());
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToLegacyCSV(activity.getLegacyExportFolderName()));
+                assertTrue(exportDir.exists());
+                File dbVersionFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_DB_VERSION_FILE);
+                File collectionListFile = new File(activity.getLegacyExportFolderName(), LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME + LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT);
+                assertTrue(dbVersionFile.exists());
+                assertTrue(collectionListFile.exists());
+                for (String inputCollectionName : namesToTest) {
+                    File collectionFile;
+                    String comparisonName = inputCollectionName.replace("/", "_SL_");
+                    collectionFile = new File(activity.getLegacyExportFolderName(), comparisonName + ".csv");
+                    assertTrue(collectionFile.exists());
                 }
+
+                // Delete all collections
+                deleteAllCollections(activity);
+                activity.updateCollectionListFromDatabase();
+                assertEquals(getCollectionNames(activity).size(), 0);
+                assertEquals(activity.mNumberOfCollections, 0);
+                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+
+                // Run import and check results
+                assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
+                ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                assertEquals(afterCollectionNames.size(), namesToTest.size());
+                assertEquals(beforeCollectionNames, afterCollectionNames);
             });
         }
     }
@@ -311,14 +298,14 @@ public class ExportImportTests extends BaseTestCase {
             try {
                 // Write the JSON file
                 JsonWriter writer = new JsonWriter(new OutputStreamWriter(outputStream, JSON_CHARSET));
-                info.writeToJson(writer, fakeDbAdapter, new ArrayList<CoinSlot>());
+                info.writeToJson(writer, fakeDbAdapter, new ArrayList<>());
                 writer.close();
                 closeStream(outputStream);
 
                 // Read the JSON file
                 InputStream inputStream = openInputStream(exportFile);
                 JsonReader reader = new JsonReader(new InputStreamReader(inputStream, JSON_CHARSET));
-                CollectionListInfo checkInfo = new CollectionListInfo(reader, new ArrayList<CoinSlot>());
+                CollectionListInfo checkInfo = new CollectionListInfo(reader, new ArrayList<>());
                 reader.close();
                 closeStream(inputStream);
 

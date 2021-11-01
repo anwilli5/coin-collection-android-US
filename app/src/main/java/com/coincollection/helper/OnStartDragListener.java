@@ -19,8 +19,6 @@
 
 package com.coincollection.helper;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 /**
  * Listener for manual initiation of a drag.
  */

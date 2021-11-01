@@ -18,6 +18,22 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_TOTAL;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
+import static com.coincollection.CollectionPage.ADVANCED_DISPLAY;
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.MainApplication.DATABASE_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
@@ -59,22 +75,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
-import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
-import static com.coincollection.CollectionListInfo.COL_NAME;
-import static com.coincollection.CollectionListInfo.COL_TOTAL;
-import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
-import static com.coincollection.CollectionPage.ADVANCED_DISPLAY;
-import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
-import static com.spencerpages.MainApplication.COLLECTION_TYPES;
-import static com.spencerpages.MainApplication.DATABASE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class BaseTestCase {
 
@@ -317,40 +317,37 @@ public class BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                 .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
+            scenario.onActivity(activity -> {
 
-                    // Create a new database from scratch
-                    collectionInfo.getCreationParameters(parameters);
-                    ArrayList<CoinSlot> newCoinList = new ArrayList<>();
-                    collectionInfo.populateCollectionLists(parameters, newCoinList);
+                // Create a new database from scratch
+                collectionInfo.getCreationParameters(parameters);
+                ArrayList<CoinSlot> newCoinList = new ArrayList<>();
+                collectionInfo.populateCollectionLists(parameters, newCoinList);
 
-                    // Get coins from the updated database
-                    ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
-                    assertNotNull(dbCoinList);
+                // Get coins from the updated database
+                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
+                assertNotNull(dbCoinList);
 
-                    // Make sure coin lists match
-                    assertEquals(newCoinList.size(), dbCoinList.size());
-                    for(int i = 0; i < newCoinList.size(); i++){
-                        assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
-                        assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
-                    }
-
-                    // Make sure total matches
-                    ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
-                    activity.mDbAdapter.getAllTables(collectionListEntries);
-                    assertNotNull(collectionListEntries);
-                    boolean foundTable = false;
-                    for (CollectionListInfo collectionListInfo : collectionListEntries) {
-                        if (collectionName.equals(collectionListInfo.getName())) {
-                            foundTable = true;
-                            assertEquals(newCoinList.size(), collectionListInfo.getMax());
-                            break;
-                        }
-                    }
-                    assertTrue(foundTable);
+                // Make sure coin lists match
+                assertEquals(newCoinList.size(), dbCoinList.size());
+                for(int i = 0; i < newCoinList.size(); i++){
+                    assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
+                    assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
                 }
+
+                // Make sure total matches
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                assertNotNull(collectionListEntries);
+                boolean foundTable = false;
+                for (CollectionListInfo collectionListInfo : collectionListEntries) {
+                    if (collectionName.equals(collectionListInfo.getName())) {
+                        foundTable = true;
+                        assertEquals(newCoinList.size(), collectionListInfo.getMax());
+                        break;
+                    }
+                }
+                assertTrue(foundTable);
             });
         }
     }
