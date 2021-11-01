@@ -134,6 +134,9 @@
     <string name="importing_collections">Importing Collections…</string>
     <string name="exporting_collections">Exporting Collections…</string>
     <string name="import_place_message">Where would you like to import from?</string>
+    <string name="export_format_message">Select an export file format:</string>
+    <string name="json_file">JSON file</string>
+    <string name="csv_file">CSV file (table format)</string>
     <string name="legacy_storage">Legacy Storage (going away)</string>
     <string name="pick_backup_file">Pick Back-Up File</string>
 

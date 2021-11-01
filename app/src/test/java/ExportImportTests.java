@@ -18,6 +18,22 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.coincollection.ExportImportHelper.JSON_CHARSET;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_DB_VERSION_FILE;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
+import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
+import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.content.Intent;
 import android.os.Build;
 import android.util.JsonReader;
@@ -51,22 +67,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.coincollection.ExportImportHelper.JSON_CHARSET;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_DB_VERSION_FILE;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
-import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
-import static com.spencerpages.MainApplication.COLLECTION_TYPES;
-import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
 @Config(sdk = Build.VERSION_CODES.P)
@@ -90,10 +90,10 @@ public class ExportImportTests extends BaseTestCase {
     }
 
     /**
-     * Test exporting one of each collection type
+     * Test exporting one of each collection type using legacy CSV format
      */
     @Test
-    public void test_csvExportOneOfEachCollection() {
+    public void test_legacyCsvExportOneOfEachCollection() {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
@@ -146,7 +146,7 @@ public class ExportImportTests extends BaseTestCase {
     }
 
     /**
-     * Test exporting one of each collection type
+     * Test exporting one of each collection type using JSON file format
      */
     @Test
     public void test_jsonExportOneOfEachCollection() {
@@ -182,6 +182,52 @@ public class ExportImportTests extends BaseTestCase {
                     // Run import and check results
                     InputStream inputStream = openInputStream(exportFile);
                     assertEquals("", helper.importCollectionsFromJson(inputStream));
+                    ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                    assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                    assertEquals(beforeCollectionNames, afterCollectionNames);
+                    closeStream(inputStream);
+                }
+            });
+        }
+    }
+
+    /**
+     * Test exporting one of each collection type using single-file CSV format
+     */
+    @Test
+    public void test_csvExportOneOfEachCollection() {
+        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
+                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+                @Override
+                public void perform(MainActivity activity) {
+                    // Set up collections
+                    //assertTrue(waitForMainActivitySetup(activity));
+                    assertTrue(setEnabledPermissions(activity));
+                    assertTrue(setupOneOfEachCollectionTypes(activity));
+                    activity.updateCollectionListFromDatabase();
+                    ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+
+                    // Export and check output
+                    File exportFile = getTempFile("csv-export.csv");
+                    ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+                    OutputStream outputStream = openOutputStream(exportFile);
+                    assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                            helper.exportCollectionsToSingleCSV(outputStream, LEGACY_EXPORT_FOLDER_NAME));
+                    assertTrue(exportFile.exists());
+                    closeStream(outputStream);
+
+                    // Delete all collections
+                    deleteAllCollections(activity);
+                    activity.updateCollectionListFromDatabase();
+                    assertEquals(getCollectionNames(activity).size(), 0);
+                    assertEquals(activity.mNumberOfCollections, 0);
+                    assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+
+                    // Run import and check results
+                    InputStream inputStream = openInputStream(exportFile);
+                    assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
                     ArrayList<String> afterCollectionNames = getCollectionNames(activity);
                     assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                     assertEquals(beforeCollectionNames, afterCollectionNames);
@@ -291,7 +337,7 @@ public class ExportImportTests extends BaseTestCase {
         for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS){
             DatabaseAdapter fakeDbAdapter = mock(DatabaseAdapter.class);
             when(fakeDbAdapter.fetchTableDisplay(anyString())).thenReturn(info.getDisplayType());
-            String[] export = info.getLegacyCsvExportProperties(fakeDbAdapter);
+            String[] export = info.getCsvExportProperties(fakeDbAdapter);
             CollectionListInfo checkInfo = new CollectionListInfo(export);
             compareCollectionListInfos(info, checkInfo);
         }
