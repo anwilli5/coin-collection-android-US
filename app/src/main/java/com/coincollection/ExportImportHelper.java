@@ -55,6 +55,29 @@ public class ExportImportHelper {
     public final static String JSON_COLLECTIONS = "collections";
     public final static String JSON_COIN_LIST = "coinList";
 
+    // CSV keys
+    public final static String CSV_SEPARATOR = "-----";
+    public enum SectionType {
+        DATABASE_VERSION(JSON_DB_VERSION),
+        COLLECTIONS(JSON_COLLECTIONS),
+        COIN_LIST(JSON_COIN_LIST),
+        UNKNOWN("unknown");
+
+        public final String label;
+        SectionType(String label) {
+            this.label = label;
+        }
+
+        public static SectionType fromLabel (String label) {
+            for (SectionType sectionType : values()) {
+                if (sectionType.label.equals(label)) {
+                    return sectionType;
+                }
+            }
+            return UNKNOWN;
+        }
+    }
+
     // Legacy export file/directory name
     public final static String LEGACY_EXPORT_FOLDER_NAME = "/coin-collection-app-files";
     public final static String LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME = "list-of-collections";
@@ -207,7 +230,7 @@ public class ExportImportHelper {
         // Iterate through the list of collections and write the files
         for(int i = 0; i < collectionListEntries.size(); i++){
             CollectionListInfo item = collectionListEntries.get(i);
-            csvOutputLines.add(item.getLegacyCsvExportProperties(mDbAdapter));
+            csvOutputLines.add(item.getCsvExportProperties(mDbAdapter));
         }
         try {
             writeToLegacyCsv(outputFile, csvOutputLines);
@@ -261,15 +284,8 @@ public class ExportImportHelper {
         int importDatabaseVersion = 0;
         ArrayList<CollectionListInfo> importedCollectionInfoList = new ArrayList<>();
         ArrayList<ArrayList<CoinSlot>> importedCollectionContents = new ArrayList<>();
-        JsonReader reader;
 
-        try {
-            reader = new JsonReader(new InputStreamReader(inputStream, JSON_CHARSET));
-        } catch (UnsupportedEncodingException e) {
-            return mRes.getString(R.string.error_importing, e.getMessage());
-        }
-
-        try {
+        try (JsonReader reader = new JsonReader(new InputStreamReader(inputStream, JSON_CHARSET))) {
             // Parse the JSON file
             reader.beginObject();
             while (reader.hasNext()) {
@@ -296,14 +312,10 @@ public class ExportImportHelper {
             // All data has been parsed from CSV files so perform the DB steps to import
             return updateDatabaseFromImport(importDatabaseVersion, importedCollectionInfoList,
                     importedCollectionContents);
+        } catch (UnsupportedEncodingException e) {
+            return mRes.getString(R.string.error_importing, e.getMessage());
         } catch (IOException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException ignored) {
-                // Can't close the file for some reason (shouldn't happen - ignore)
-            }
         }
     }
 
@@ -368,14 +380,7 @@ public class ExportImportHelper {
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         mDbAdapter.getAllTables(collectionListEntries);
 
-        JsonWriter writer;
-        try {
-            writer = new JsonWriter(new OutputStreamWriter(outputStream, JSON_CHARSET));
-        } catch (UnsupportedEncodingException e) {
-            return mRes.getString(R.string.error_exporting, e.getMessage());
-        }
-
-        try {
+        try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(outputStream, JSON_CHARSET))) {
             writer.beginObject();
             writer.name(JSON_DB_VERSION).value(MainApplication.DATABASE_VERSION);
             writer.name(JSON_COLLECTIONS).beginArray();
@@ -388,14 +393,10 @@ public class ExportImportHelper {
             writer.endArray();
             writer.endObject();
             return mRes.getString(R.string.success_export, filePath);
+        } catch (UnsupportedEncodingException e) {
+            return mRes.getString(R.string.error_exporting, e.getMessage());
         } catch (IOException e) {
             return mRes.getString(R.string.error_exporting, e.getMessage());
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException ignored) {
-                // Can't close the file for some reason (shouldn't happen - ignore)
-            }
         }
     }
 
@@ -416,7 +417,7 @@ public class ExportImportHelper {
                 '\0');
         ArrayList<String[]> lineList = new ArrayList<>();
         String[] lineValues;
-        while (null != (lineValues = csvReader.readNext())){
+        while (null != (lineValues = csvReader.readNext())) {
             lineList.add(lineValues);
         }
         csvReader.close();
@@ -435,5 +436,103 @@ public class ExportImportHelper {
             csvWriter.writeNext(fileLine);
         }
         csvWriter.close();
+    }
+
+    /**
+     * This method imports collections from a single CSV file
+     * @param inputStream input stream to read from
+     * @return "" if successful, otherwise an error message to display
+     */
+    public String importCollectionsFromSingleCSV(InputStream inputStream) {
+
+        int importDatabaseVersion = 0;
+        ArrayList<CollectionListInfo> importedCollectionInfoList = new ArrayList<>();
+        ArrayList<ArrayList<CoinSlot>> importedCollectionContents = new ArrayList<>();
+
+        SectionType currSectionType = SectionType.UNKNOWN;
+        String[] lineValues;
+        ArrayList<CoinSlot> currCoinList = new ArrayList<>();
+
+        // Tell the CSVReader to use the NULL character as the escape
+        // character to effectively allow no escape characters
+        // (otherwise, '\' is the escape character, and it can be
+        // typed by users!)
+        try (CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream),
+                CSVWriter.DEFAULT_SEPARATOR,
+                CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                '\0')) {
+
+            while (null != (lineValues = csvReader.readNext())) {
+
+                if (lineValues.length == 0) {
+                    // Ignore empty lines
+                    continue;
+                } else if ((lineValues.length == 2) && lineValues[0].equals(CSV_SEPARATOR)) {
+                    // Look for CSV separators which we're using to put multiple files in a single CSV
+                    currSectionType = SectionType.fromLabel(lineValues[1]);
+                    continue;
+                }
+
+                switch (currSectionType) {
+                    case DATABASE_VERSION:
+                        importDatabaseVersion = Integer.parseInt(lineValues[0]);
+                        break;
+                    case COLLECTIONS:
+                        importedCollectionInfoList.add(new CollectionListInfo(lineValues));
+                        currCoinList = new ArrayList<>();
+                        importedCollectionContents.add(currCoinList);
+                        break;
+                    case COIN_LIST:
+                        currCoinList.add(new CoinSlot(lineValues));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            return mRes.getString(R.string.error_importing, e.getMessage());
+        }
+
+        // All data has been parsed from the CSV file so perform the DB steps to import
+        return updateDatabaseFromImport(importDatabaseVersion, importedCollectionInfoList,
+                importedCollectionContents);
+    }
+
+    /**
+     * Exports the collection information to a single CSV file
+     * @param outputStream output stream to write to
+     * @param filePath file path being written to
+     * @return A message to be displayed to the user, whether successful or not
+     */
+    public String exportCollectionsToSingleCSV(OutputStream outputStream, String filePath){
+
+        // Get all collection lists from the database
+        ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+        mDbAdapter.getAllTables(collectionListEntries);
+
+        try (CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream))) {
+
+            // Write database version
+            csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.DATABASE_VERSION.label});
+            csvWriter.writeNext(new String[]{String.valueOf(MainApplication.DATABASE_VERSION)});
+
+            // Write collections
+            for (int i = 0; i < collectionListEntries.size(); i++) {
+                // Get the collection and coin info
+                CollectionListInfo collectionListInfo = collectionListEntries.get(i);
+                ArrayList<CoinSlot> coinList = mDbAdapter.getCoinList(collectionListInfo.getName(), true);
+
+                csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.COLLECTIONS.label});
+                csvWriter.writeNext(collectionListInfo.getCsvExportProperties(mDbAdapter));
+
+                csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.COIN_LIST.label});
+                for (CoinSlot coinSlot : coinList) {
+                    csvWriter.writeNext(coinSlot.getLegacyCsvExportProperties());
+                }
+            }
+            return mRes.getString(R.string.success_export, filePath);
+        } catch (IOException e) {
+            return mRes.getString(R.string.error_exporting, e.getMessage());
+        }
     }
 }

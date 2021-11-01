@@ -20,6 +20,9 @@
 
 package com.coincollection;
 
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.coincollection.ExportImportHelper.JSON_COIN_LIST;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonReader;
@@ -53,9 +56,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
-import static com.coincollection.ExportImportHelper.JSON_COIN_LIST;
 
 /**
  * Object used to represent each collection in the various list of collections
@@ -435,7 +435,7 @@ public class CollectionListInfo implements Parcelable {
      * @param dbAdapter database adapter
      * @return string array with collection data
      */
-    public String[] getLegacyCsvExportProperties(DatabaseAdapter dbAdapter) {
+    public String[] getCsvExportProperties(DatabaseAdapter dbAdapter) {
 
         // NOTE For display, don't use item.getDisplayType bc I don't
         // think we populate that value except when importing...
@@ -515,6 +515,7 @@ public class CollectionListInfo implements Parcelable {
     /**
      * Create a collection list info from imported JSON file
      * @param reader JsonReader to read from
+     * @param coinList List of coins with collection populated
      * @throws IOException if an error occurred
      */
     public CollectionListInfo(JsonReader reader, ArrayList<CoinSlot> coinList) throws IOException {

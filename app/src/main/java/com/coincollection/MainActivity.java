@@ -85,6 +85,7 @@ public class MainActivity extends BaseActivity {
     // Used for the Update Database functionality
     private boolean mIsImportingCollection = false;
     private boolean mImportExportLegacyCsv = false;
+    private boolean mExportSingleFileCsv = false;
     private Uri mImportExportFileUri = null;
 
     // App permission requests
@@ -211,7 +212,6 @@ public class MainActivity extends BaseActivity {
                         launchCoinPageCreatorActivity(null);
                         break;
                     case REMOVE_COLLECTION:
-
                         if(mNumberOfCollections == 0){
                             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                             break;
@@ -234,7 +234,7 @@ public class MainActivity extends BaseActivity {
                         promptCsvOrJsonImport();
                         break;
                     case EXPORT_COLLECTIONS:
-                        launchExportTask();
+                        promptCsvOrJsonExport();
                         break;
                     case REORDER_COLLECTIONS:
                         launchReorderFragment();
@@ -362,20 +362,17 @@ public class MainActivity extends BaseActivity {
                 if (mImportExportLegacyCsv) {
                     return helper.importCollectionsFromLegacyCSV(getLegacyExportFolderName());
                 } else {
-                    InputStream inputStream = null;
-                    try {
-                        inputStream = getContentResolver().openInputStream(mImportExportFileUri);
-                        return helper.importCollectionsFromJson(inputStream);
+                    try (InputStream inputStream = getContentResolver().openInputStream(mImportExportFileUri)) {
+                        String fileName = getFileNameFromUri(mImportExportFileUri);
+                        if (fileName.endsWith(".csv")) {
+                            return helper.importCollectionsFromSingleCSV(inputStream);
+                        } else {
+                            return helper.importCollectionsFromJson(inputStream);
+                        }
                     } catch (FileNotFoundException e) {
                         return mRes.getString(R.string.error_importing, e.getMessage());
-                    } finally {
-                        if (inputStream != null) {
-                            try {
-                                inputStream.close();
-                            } catch (IOException ignored) {
-                                // Can't close the stream for some reason (shouldn't happen - ignore)
-                            }
-                        }
+                    } catch (IOException e) {
+                        return mRes.getString(R.string.error_importing, e.getMessage());
                     }
                 }
             }
@@ -384,21 +381,17 @@ public class MainActivity extends BaseActivity {
                 if (mImportExportLegacyCsv) {
                     return helper.exportCollectionsToLegacyCSV(getLegacyExportFolderName());
                 } else {
-                    OutputStream outputStream = null;
-                    try {
-                        outputStream = getContentResolver().openOutputStream(mImportExportFileUri);
-                        return helper.exportCollectionsToJson(outputStream,
-                                getFileNameFromUri(mImportExportFileUri));
-                    } catch (FileNotFoundException e) {
-                        return mRes.getString(R.string.error_importing, e.getMessage());
-                    } finally {
-                        if (outputStream != null) {
-                            try {
-                                outputStream.close();
-                            } catch (IOException ignored) {
-                                // Can't close the stream for some reason (shouldn't happen - ignore)
-                            }
+                    try (OutputStream outputStream = getContentResolver().openOutputStream(mImportExportFileUri)) {
+                        String fileName = getFileNameFromUri(mImportExportFileUri);
+                        if (fileName.endsWith(".csv")) {
+                            return helper.exportCollectionsToSingleCSV(outputStream, fileName);
+                        } else {
+                            return helper.exportCollectionsToJson(outputStream, fileName);
                         }
+                    } catch (FileNotFoundException e) {
+                        return mRes.getString(R.string.error_exporting, e.getMessage());
+                    } catch (IOException e) {
+                        return mRes.getString(R.string.error_exporting, e.getMessage());
                     }
                 }
             }
@@ -494,7 +487,9 @@ public class MainActivity extends BaseActivity {
                 android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json");
+            intent.setType("*/*");
+            String[] mimeTypes = {"text/comma-separated-values", "text/csv", "application/json"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // The files should preferably be placed in the downloads folder
                 Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
@@ -529,13 +524,18 @@ public class MainActivity extends BaseActivity {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Indicate that we're using the legacy CSV
+            // Indicate that we're not using the legacy CSV
             mImportExportLegacyCsv = false;
 
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json");
-            intent.putExtra(Intent.EXTRA_TITLE, "coin-collection-" + getTodayDateString() + ".json");
+            if (mExportSingleFileCsv) {
+                intent.setType("text/csv");
+                intent.putExtra(Intent.EXTRA_TITLE, "coin-collection-" + getTodayDateString() + ".csv");
+            } else {
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE, "coin-collection-" + getTodayDateString() + ".json");
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // The files should preferably be placed in the downloads folder
                 Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
@@ -1056,6 +1056,46 @@ public class MainActivity extends BaseActivity {
                             mImportExportLegacyCsv = false;
                             launchImportTask();
                             break;
+                        }
+                    }
+                }));
+    }
+
+    /**
+     * Allow users to pick between an export file format
+     */
+    private void promptCsvOrJsonExport() {
+
+        if(mNumberOfCollections == 0){
+            Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Populate a menu of actions for export
+        CharSequence[] actionsList = new CharSequence[2];
+        actionsList[0] = mRes.getString(R.string.json_file);
+        actionsList[1] = mRes.getString(R.string.csv_file);
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.export_format_message))
+                .setItems(actionsList, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        switch (item) {
+                            case 0: {
+                                // JSON file
+                                dialog.dismiss();
+                                mImportExportLegacyCsv = false;
+                                mExportSingleFileCsv = false;
+                                launchExportTask();
+                                break;
+                            }
+                            case 1: {
+                                // CSV file (single-file)
+                                dialog.dismiss();
+                                mImportExportLegacyCsv = false;
+                                mExportSingleFileCsv = true;
+                                launchExportTask();
+                                break;
+                            }
                         }
                     }
                 }));
