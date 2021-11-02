@@ -1077,25 +1077,23 @@ public class MainActivity extends BaseActivity {
         actionsList[1] = mRes.getString(R.string.csv_file);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.export_format_message))
-                .setItems(actionsList, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        switch (item) {
-                            case 0: {
-                                // JSON file
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = false;
-                                mExportSingleFileCsv = false;
-                                launchExportTask();
-                                break;
-                            }
-                            case 1: {
-                                // CSV file (single-file)
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = false;
-                                mExportSingleFileCsv = true;
-                                launchExportTask();
-                                break;
-                            }
+                .setItems(actionsList, (dialog, item) -> {
+                    switch (item) {
+                        case 0: {
+                            // JSON file
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = false;
+                            mExportSingleFileCsv = false;
+                            launchExportTask();
+                            break;
+                        }
+                        case 1: {
+                            // CSV file (single-file)
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = false;
+                            mExportSingleFileCsv = true;
+                            launchExportTask();
+                            break;
                         }
                     }
                 }));
