@@ -27,9 +27,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -37,9 +37,10 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
+
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
+
 import java.util.ArrayList;
 
 /**
@@ -190,30 +191,29 @@ class CoinSlotAdapter extends BaseAdapter {
 
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
 
-        imageView.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                // Need to check whether the collection is locked
-                if(mDisplayIsLocked){
-                    // Collection is locked
-                    String text = mRes.getString(R.string.collection_locked);
-                    Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    // Collection is unlocked, update value
-                    //mDbAdapter.toggleInCollection(mTableName, mIdentifierList.get(position), mMintList.get(position));
+        imageView.setOnClickListener(v -> {
+            // Need to check whether the collection is locked
+            if(mDisplayIsLocked){
+                // Collection is locked
+                String text = mRes.getString(R.string.collection_locked);
+                Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                // Collection is unlocked, update value
+                //mDbAdapter.toggleInCollection(mTableName, mIdentifierList.get(position), mMintList.get(position));
 
-                    // Tie the update to the save button
-                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(position);
-                    boolean oldValue = coinSlot.isInCollection();
-                    coinSlot.setInCollection(!oldValue);
-                    coinSlot.setIndexChanged(true);
+                // Tie the update to the save button
+                CoinSlot coinSlot1 = CoinSlotAdapter.this.mCoinList.get(position);
+                boolean oldValue = coinSlot1.isInCollection();
+                coinSlot1.setInCollection(!oldValue);
+                coinSlot1.setIndexChanged(true);
 
-                    CoinSlotAdapter.this.notifyDataSetChanged();
+                CoinSlotAdapter.this.notifyDataSetChanged();
 
-                    CollectionPage collectionPage = (CollectionPage) mContext;
-                    collectionPage.showUnsavedTextView();
-                }
-            }});
+                CollectionPage collectionPage = (CollectionPage) mContext;
+                collectionPage.showUnsavedTextView();
+            }
+        });
 
         // Everything below here is specific to whether the collection is locked or not.
         // Take care of the locked case first, since it is easier.

@@ -20,7 +20,6 @@
 
 package com.coincollection;
 
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -161,19 +160,16 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         //http://stackoverflow.com/questions/7992216/android-fragment-handle-back-button-press
         view.setFocusableInTouchMode(true);
         view.requestFocus();
-        view.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                    if(mUnsavedChanges){
-                        showUnsavedChangesAlertAndExitFragment();
-                    } else {
-                        closeFragment();
-                    }
-                    return true;
+        view.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                if(mUnsavedChanges){
+                    showUnsavedChangesAlertAndExitFragment();
+                } else {
+                    closeFragment();
                 }
-                return false;
+                return true;
             }
+            return false;
         });
     }
 
@@ -269,17 +265,11 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             activity.showAlert(activity.newBuilder()
                     .setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
                     .setCancelable(false)
-                    .setPositiveButton(res.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            closeFragment();
-                        }
+                    .setPositiveButton(res.getString(R.string.okay), (dialog, id) -> {
+                        dialog.dismiss();
+                        closeFragment();
                     })
-                    .setNegativeButton(res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    }));
+                    .setNegativeButton(res.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
         }
     }
 }

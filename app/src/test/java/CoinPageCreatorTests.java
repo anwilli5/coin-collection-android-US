@@ -18,6 +18,9 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertTrue;
+
 import android.content.Intent;
 import android.os.Build;
 
@@ -38,9 +41,6 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
 @Config(sdk = Build.VERSION_CODES.P)
@@ -55,20 +55,17 @@ public class CoinPageCreatorTests extends BaseTestCase {
         try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<CoinPageCreator>() {
-                @Override
-                public void perform(CoinPageCreator activity) {
-                    // Set up collections
-                    for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
-                        activity.mCoinList = new ArrayList<>();
-                        ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
-                        int index = info.getCollectionTypeIndex();
-                        activity.setInternalStateFromCollectionIndex(index, parameters);
-                        activity.createOrUpdateCoinListForAsyncThread();
-                        CollectionListInfo checkInfo = activity.getCollectionInfoFromParameters(info.getName());
-                        assertTrue(SharedTest.compareCollectionListInfos(info, checkInfo));
-                        assertTrue(activity.validateStartAndStopYears());
-                    }
+            scenario.onActivity(activity -> {
+                // Set up collections
+                for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
+                    activity.mCoinList = new ArrayList<>();
+                    ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
+                    int index = info.getCollectionTypeIndex();
+                    activity.setInternalStateFromCollectionIndex(index, parameters);
+                    activity.createOrUpdateCoinListForAsyncThread();
+                    CollectionListInfo checkInfo = activity.getCollectionInfoFromParameters(info.getName());
+                    assertTrue(SharedTest.compareCollectionListInfos(info, checkInfo));
+                    assertTrue(activity.validateStartAndStopYears());
                 }
             });
         }
@@ -84,22 +81,19 @@ public class CoinPageCreatorTests extends BaseTestCase {
                     new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                             .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false)
                             .putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, info))) {
-                scenario.onActivity(new ActivityScenario.ActivityAction<CoinPageCreator>() {
-                    @Override
-                    public void perform(CoinPageCreator activity) {
-                        // Create the collection in the DB before testing
-                        HashMap<String, Object> parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
-                        ArrayList<CoinSlot> coinList = new ArrayList<>();
-                        info.getCollectionObj().populateCollectionLists(parameters, coinList);
-                        activity.mDbAdapter.createAndPopulateNewTable(info, 0, coinList);
+                scenario.onActivity(activity -> {
+                    // Create the collection in the DB before testing
+                    HashMap<String, Object> parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
+                    ArrayList<CoinSlot> coinList = new ArrayList<>();
+                    info.getCollectionObj().populateCollectionLists(parameters, coinList);
+                    activity.mDbAdapter.createAndPopulateNewTable(info, 0, coinList);
 
-                        // Perform the update and check the result
-                        activity.createOrUpdateCoinListForAsyncThread();
-                        compareCollectionWithDb(activity, info, null, 0);
+                    // Perform the update and check the result
+                    activity.createOrUpdateCoinListForAsyncThread();
+                    compareCollectionWithDb(activity, info, null, 0);
 
-                        // Delete the collection for the next test
-                        activity.mDbAdapter.dropCollectionTable(info.getName());
-                    }
+                    // Delete the collection for the next test
+                    activity.mDbAdapter.dropCollectionTable(info.getName());
                 });
             }
         }

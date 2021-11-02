@@ -18,6 +18,10 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.coincollection.ExportImportHelper.JSON_CHARSET;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import android.content.Intent;
 import android.os.Build;
 import android.util.JsonReader;
@@ -48,10 +52,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.coincollection.ExportImportHelper.JSON_CHARSET;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
@@ -94,43 +94,40 @@ public class ExportImportJsonTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    for (FullCollection scenario : getRandomTestScenarios(activity, mCoinTypeObj, 1)) {
-                        // Create the collection in the database
-                        activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
-                                scenario.mDisplayOrder, scenario.mCoinList);
-                        activity.updateCollectionListFromDatabase();
+            scenario.onActivity(activity -> {
+                for (FullCollection scenario1 : getRandomTestScenarios(activity, mCoinTypeObj, 1)) {
+                    // Create the collection in the database
+                    activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
+                            scenario1.mDisplayOrder, scenario1.mCoinList);
+                    activity.updateCollectionListFromDatabase();
 
-                        File exportFile = getTempFile("coin-collection-" + random.nextInt() + ".json");
-                        OutputStream outputStream = openOutputStream(exportFile);
-                        try {
-                            // Write the JSON file
-                            JsonWriter writer = new JsonWriter(new OutputStreamWriter(outputStream, JSON_CHARSET));
-                            scenario.mCollectionListInfo.writeToJson(writer, activity.mDbAdapter, scenario.mCoinList);
-                            writer.close();
-                            closeStream(outputStream);
+                    File exportFile = getTempFile("coin-collection-" + random.nextInt() + ".json");
+                    OutputStream outputStream = openOutputStream(exportFile);
+                    try {
+                        // Write the JSON file
+                        JsonWriter writer = new JsonWriter(new OutputStreamWriter(outputStream, JSON_CHARSET));
+                        scenario1.mCollectionListInfo.writeToJson(writer, activity.mDbAdapter, scenario1.mCoinList);
+                        writer.close();
+                        closeStream(outputStream);
 
-                            // Read the JSON file
-                            InputStream inputStream = openInputStream(exportFile);
-                            JsonReader reader = new JsonReader(new InputStreamReader(inputStream, JSON_CHARSET));
-                            ArrayList<CoinSlot> checkCoinList = new ArrayList<>();
-                            CollectionListInfo checkInfo = new CollectionListInfo(reader, checkCoinList);
-                            reader.close();
-                            closeStream(inputStream);
+                        // Read the JSON file
+                        InputStream inputStream = openInputStream(exportFile);
+                        JsonReader reader = new JsonReader(new InputStreamReader(inputStream, JSON_CHARSET));
+                        ArrayList<CoinSlot> checkCoinList = new ArrayList<>();
+                        CollectionListInfo checkInfo = new CollectionListInfo(reader, checkCoinList);
+                        reader.close();
+                        closeStream(inputStream);
 
-                            // Compare the results
-                            compareCollectionListInfos(scenario.mCollectionListInfo, checkInfo);
-                            assertEquals(scenario.mCoinList, checkCoinList);
+                        // Compare the results
+                        compareCollectionListInfos(scenario1.mCollectionListInfo, checkInfo);
+                        assertEquals(scenario1.mCoinList, checkCoinList);
 
-                        } catch (Exception ignored) {
-                            fail();
-                        }
-
-                        // Clean up
-                        activity.deleteDatabase(scenario.mCollectionListInfo.getName());
+                    } catch (Exception ignored) {
+                        fail();
                     }
+
+                    // Clean up
+                    activity.deleteDatabase(scenario1.mCollectionListInfo.getName());
                 }
             });
         }

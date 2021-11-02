@@ -28,7 +28,6 @@ import static com.spencerpages.MainApplication.APP_NAME;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -44,7 +43,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -54,7 +52,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.spencerpages.BuildConfig;
@@ -187,136 +184,123 @@ public class MainActivity extends BaseActivity {
 
         // For when we use fragments, listen to the back stack so we can transition back here from
         // the fragment
-        getSupportFragmentManager().addOnBackStackChangedListener(
-                new FragmentManager.OnBackStackChangedListener() {
-                    public void onBackStackChanged() {
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
 
-                        if(0 == getSupportFragmentManager().getBackStackEntryCount()){
+                    if(0 == getSupportFragmentManager().getBackStackEntryCount()){
 
-                            // We are back at this activity, so restore the ActionBar
-                            if(mActionBar != null){
-                                mActionBar.setTitle(mRes.getString(R.string.app_name));
-                                mActionBar.setDisplayHomeAsUpEnabled(false);
-                                mActionBar.setHomeButtonEnabled(false);
-                            }
-
-                            // The collections may have been re-ordered, so update them here.
-                            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+                        // We are back at this activity, so restore the ActionBar
+                        if(mActionBar != null){
+                            mActionBar.setTitle(mRes.getString(R.string.app_name));
+                            mActionBar.setDisplayHomeAsUpEnabled(false);
+                            mActionBar.setHomeButtonEnabled(false);
                         }
+
+                        // The collections may have been re-ordered, so update them here.
+                        updateCollectionListFromDatabaseAndUpdateViewForUIThread();
                     }
                 });
 
         // Now set the onItemClickListener to perform a certain action based on what's clicked
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        lv.setOnItemClickListener((parent, view, position, id) -> {
 
-                // See whether it was one of the special list entries (Add collection, delete
-                // collection, etc.)
-                if(position >= mNumberOfCollections){
-                    int newPosition = position - mNumberOfCollections;
-                    switch(newPosition){
-                        case ADD_COLLECTION:
-                            launchCoinPageCreatorActivity(null);
+            // See whether it was one of the special list entries (Add collection, delete
+            // collection, etc.)
+            if(position >= mNumberOfCollections){
+                int newPosition = position - mNumberOfCollections;
+                switch(newPosition){
+                    case ADD_COLLECTION:
+                        launchCoinPageCreatorActivity(null);
+                        break;
+                    case REMOVE_COLLECTION:
+                        if(mNumberOfCollections == 0){
+                            Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                             break;
-                        case REMOVE_COLLECTION:
+                        }
+                        // Thanks!
+                        // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
+                        CharSequence[] names = new CharSequence[mNumberOfCollections];
+                        for(int i = 0; i < mNumberOfCollections; i++){
+                            names[i] = mCollectionListEntries.get(i).getName();
+                        }
 
-                            if(mNumberOfCollections == 0){
-                                Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-                                break;
-                            }
-                            // Thanks!
-                            // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
-                            CharSequence[] names = new CharSequence[mNumberOfCollections];
-                            for(int i = 0; i < mNumberOfCollections; i++){
-                                names[i] = mCollectionListEntries.get(i).getName();
-                            }
+                        showAlert(newBuilder()
+                                .setTitle(mRes.getString(R.string.select_collection_delete))
+                                .setItems(names, (dialog, item) -> {
+                                    dialog.dismiss();
+                                    showDeleteConfirmation(mCollectionListEntries.get(item).getName());
+                                }));
+                        break;
+                    case IMPORT_COLLECTIONS:
+                        promptCsvOrJsonImport();
+                        break;
+                    case EXPORT_COLLECTIONS:
+                        promptCsvOrJsonExport();
+                        break;
+                    case REORDER_COLLECTIONS:
+                        launchReorderFragment();
+                        break;
+                    case ABOUT:
 
-                            showAlert(newBuilder()
-                                    .setTitle(mRes.getString(R.string.select_collection_delete))
-                                    .setItems(names, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int item) {
-                                            dialog.dismiss();
-                                            showDeleteConfirmation(mCollectionListEntries.get(item).getName());
-                                        }
-                                    }));
-                            break;
-                        case IMPORT_COLLECTIONS:
-                            promptCsvOrJsonImport();
-                            break;
-                        case EXPORT_COLLECTIONS:
-                            promptCsvOrJsonExport();
-                            break;
-                        case REORDER_COLLECTIONS:
-                            launchReorderFragment();
-                            break;
-                        case ABOUT:
+                        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+                        View layout = inflater.inflate(R.layout.info_popup,
+                                findViewById(R.id.info_layout_root));
 
-                            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-                            View layout = inflater.inflate(R.layout.info_popup,
-                                    findViewById(R.id.info_layout_root));
+                        TextView tv = layout.findViewById(R.id.info_textview);
+                        tv.setText(buildInfoText());
 
-                            TextView tv = layout.findViewById(R.id.info_textview);
-                            tv.setText(buildInfoText());
-
-                            showAlert(newBuilder().setView(layout));
-                            break;
-                    }
-
-                    return;
+                        showAlert(newBuilder().setView(layout));
+                        break;
                 }
-                // If it gets here, the user has selected a collection
-                launchCoinPageActivity(mCollectionListEntries.get(position));
+
+                return;
             }
+            // If it gets here, the user has selected a collection
+            launchCoinPageActivity(mCollectionListEntries.get(position));
         });
 
         // Add long-press handler for additional actions
-        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if(position < mNumberOfCollections) {
-                    // For each collection item, populate a menu of actions for the collection
-                    CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
-                    actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
-                    actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
-                    actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
-                    actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
-                    final int actionPosition = position;
-                    showAlert(newBuilder()
-                            .setTitle(mRes.getString(R.string.collection_actions))
-                            .setItems(actionsList, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int item) {
-                                    switch (item) {
-                                        case ACTIONS_VIEW: {
-                                            // Launch collection page
-                                            dialog.dismiss();
-                                            launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
-                                            break;
-                                        }
-                                        case ACTIONS_EDIT: {
-                                            // Launch edit view
-                                            dialog.dismiss();
-                                            launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
-                                            break;
-                                        }
-                                        case ACTIONS_COPY: {
-                                            // Perform copy
-                                            dialog.dismiss();
-                                            copyCollection(mCollectionListEntries.get(actionPosition).getName());
-                                            break;
-                                        }
-                                        case ACTIONS_DELETE: {
-                                            // Perform delete
-                                            dialog.dismiss();
-                                            showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
-                                            break;
-                                        }
-                                    }
+        lv.setOnItemLongClickListener((parent, view, position, id) -> {
+            if(position < mNumberOfCollections) {
+                // For each collection item, populate a menu of actions for the collection
+                CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
+                actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
+                actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
+                actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
+                actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
+                final int actionPosition = position;
+                showAlert(newBuilder()
+                        .setTitle(mRes.getString(R.string.collection_actions))
+                        .setItems(actionsList, (dialog, item) -> {
+                            switch (item) {
+                                case ACTIONS_VIEW: {
+                                    // Launch collection page
+                                    dialog.dismiss();
+                                    launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
+                                    break;
                                 }
-                            }));
-                    return true;
-                }
-                return false;
+                                case ACTIONS_EDIT: {
+                                    // Launch edit view
+                                    dialog.dismiss();
+                                    launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
+                                    break;
+                                }
+                                case ACTIONS_COPY: {
+                                    // Perform copy
+                                    dialog.dismiss();
+                                    copyCollection(mCollectionListEntries.get(actionPosition).getName());
+                                    break;
+                                }
+                                case ACTIONS_DELETE: {
+                                    // Perform delete
+                                    dialog.dismiss();
+                                    showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
+                                    break;
+                                }
+                            }
+                        }));
+                return true;
             }
+            return false;
         });
 
         // HISTORIC - no longer the case:
@@ -837,18 +821,12 @@ public class MainActivity extends BaseActivity {
         showAlert(newBuilder()
                 .setMessage(mRes.getString(R.string.export_warning))
                 .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                        // Finish the export by kicking off an AsyncTask to do the heavy lifting
-                        kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
-                    }
+                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
+                    dialog.dismiss();
+                    // Finish the export by kicking off an AsyncTask to do the heavy lifting
+                    kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
                 })
-                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                }));
+                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
 
     /**
@@ -860,19 +838,13 @@ public class MainActivity extends BaseActivity {
                 .setTitle(mRes.getString(R.string.warning))
                 .setMessage(mRes.getString(R.string.import_warning))
                 .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                        dialog.dismiss();
-                        mIsImportingCollection = true;
-                        kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
-                    }
+                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
+                    // Finish the import by kicking off an AsyncTask to do the heavy lifting
+                    dialog.dismiss();
+                    mIsImportingCollection = true;
+                    kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
                 })
-                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                }));
+                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
 
     /**
@@ -885,38 +857,32 @@ public class MainActivity extends BaseActivity {
                 .setTitle(mRes.getString(R.string.warning))
                 .setMessage(mRes.getString(R.string.delete_warning, name))
                 .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                        //Do the deleting
-                        Cursor cursor = null;
-                        try {
-                            mDbAdapter.dropCollectionTable(name);
-                            //Get a list of all the database tables
-                            cursor = mDbAdapter.getAllCollectionNames();
-                            int i = 0;
-                            if (cursor.moveToFirst()) {
-                                do {
-                                    String name = cursor.getString(cursor.getColumnIndex(COL_NAME));
-                                    // Fix up the displayOrder
-                                    mDbAdapter.updateDisplayOrder(name, i);
-                                    i++;
-                                } while (cursor.moveToNext());
-                            }
+                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
+                    dialog.dismiss();
+                    //Do the deleting
+                    Cursor cursor = null;
+                    try {
+                        mDbAdapter.dropCollectionTable(name);
+                        //Get a list of all the database tables
+                        cursor = mDbAdapter.getAllCollectionNames();
+                        int i = 0;
+                        if (cursor.moveToFirst()) {
+                            do {
+                                String name1 = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                                // Fix up the displayOrder
+                                mDbAdapter.updateDisplayOrder(name1, i);
+                                i++;
+                            } while (cursor.moveToNext());
+                        }
+                        cursor.close();
+                    } catch (SQLException e) {
+                        showCancelableAlert(mRes.getString(R.string.error_delete_database));
+                        if (cursor != null) {
                             cursor.close();
-                        } catch (SQLException e) {
-                            showCancelableAlert(mRes.getString(R.string.error_delete_database));
-                            if (cursor != null) {
-                                cursor.close();
-                            }
                         }
                     }
                 })
-                .setNegativeButton(mRes.getString(R.string.no), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                }));
+                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
 
     /**
@@ -1075,23 +1041,21 @@ public class MainActivity extends BaseActivity {
         actionsList[1] = mRes.getString(R.string.pick_backup_file);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.import_place_message))
-                .setItems(actionsList, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        switch (item) {
-                            case 0: {
-                                // Legacy Storage
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = true;
-                                launchImportTask();
-                                break;
-                            }
-                            case 1: {
-                                // Pick back-up file
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = false;
-                                launchImportTask();
-                                break;
-                            }
+                .setItems(actionsList, (dialog, item) -> {
+                    switch (item) {
+                        case 0: {
+                            // Legacy Storage
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = true;
+                            launchImportTask();
+                            break;
+                        }
+                        case 1: {
+                            // Pick back-up file
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = false;
+                            launchImportTask();
+                            break;
                         }
                     }
                 }));
@@ -1113,25 +1077,23 @@ public class MainActivity extends BaseActivity {
         actionsList[1] = mRes.getString(R.string.csv_file);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.export_format_message))
-                .setItems(actionsList, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        switch (item) {
-                            case 0: {
-                                // JSON file
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = false;
-                                mExportSingleFileCsv = false;
-                                launchExportTask();
-                                break;
-                            }
-                            case 1: {
-                                // CSV file (single-file)
-                                dialog.dismiss();
-                                mImportExportLegacyCsv = false;
-                                mExportSingleFileCsv = true;
-                                launchExportTask();
-                                break;
-                            }
+                .setItems(actionsList, (dialog, item) -> {
+                    switch (item) {
+                        case 0: {
+                            // JSON file
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = false;
+                            mExportSingleFileCsv = false;
+                            launchExportTask();
+                            break;
+                        }
+                        case 1: {
+                            // CSV file (single-file)
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = false;
+                            mExportSingleFileCsv = true;
+                            launchExportTask();
+                            break;
                         }
                     }
                 }));

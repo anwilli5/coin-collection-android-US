@@ -20,8 +20,10 @@
 
 package com.coincollection;
 
+import static com.coincollection.CoinPageCreator.getCollectionNameFilter;
+import static com.spencerpages.MainApplication.APP_NAME;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -36,8 +38,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
@@ -51,9 +51,6 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
-
-import static com.coincollection.CoinPageCreator.getCollectionNameFilter;
-import static com.spencerpages.MainApplication.APP_NAME;
 
 /** Activity for managing each collection page
  *
@@ -223,32 +220,30 @@ public class CollectionPage extends BaseActivity {
             gridview.setOnScrollListener(scrollListener);
 
             // Set the onClick listener that will handle changing the coin state
-            gridview.setOnItemClickListener(new OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    // Need to check whether the collection is locked
-                    SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+            gridview.setOnItemClickListener((parent, v, position, id) -> {
+                // Need to check whether the collection is locked
+                SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 
-                    if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
-                        // Collection is locked
-                        showLockedMessage();
-                    } else {
-                        // Preference doesn't exist or Collection is unlocked
+                if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+                    // Collection is locked
+                    showLockedMessage();
+                } else {
+                    // Preference doesn't exist or Collection is unlocked
 
-                        CoinSlot coinSlot = mCoinList.get(position);
-                        try {
-                            mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
-                        } catch (SQLException e) {
-                            showCancelableAlert(mRes.getString(R.string.error_updating_database));
-                        }
-
-                        // Update the mCoinSlotAdapters copy of the coins in this collection
-                        boolean oldValue = coinSlot.isInCollection();
-                        coinSlot.setInCollection(!oldValue);
-
-                        // And have the adapter redraw with this new info
-
-                        mCoinSlotAdapter.notifyDataSetChanged();
+                    CoinSlot coinSlot = mCoinList.get(position);
+                    try {
+                        mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
+                    } catch (SQLException e) {
+                        showCancelableAlert(mRes.getString(R.string.error_updating_database));
                     }
+
+                    // Update the mCoinSlotAdapters copy of the coins in this collection
+                    boolean oldValue = coinSlot.isInCollection();
+                    coinSlot.setInCollection(!oldValue);
+
+                    // And have the adapter redraw with this new info
+
+                    mCoinSlotAdapter.notifyDataSetChanged();
                 }
             });
 
@@ -266,14 +261,12 @@ public class CollectionPage extends BaseActivity {
             // Set the onClick listener for the whole view to provide a notice
             // to users if the collection is locked. There's also a onClick listener
             // on the imageView in CoinSlotAdapter
-            listview.setOnItemClickListener(new OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                    // Need to check whether the collection is locked
-                    SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-                    if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
-                        // Collection is locked
-                        showLockedMessage();
-                    }
+            listview.setOnItemClickListener((parent, v, position, id) -> {
+                // Need to check whether the collection is locked
+                SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+                if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+                    // Collection is locked
+                    showLockedMessage();
                 }
             });
 
@@ -569,24 +562,16 @@ public class CollectionPage extends BaseActivity {
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.select_collection_name))
                 .setView(input)
-                .setPositiveButton(mRes.getString(R.string.okay), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        String newName = input.getText().toString();
-                        if (newName.equals("")) {
-                            Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        updateCollectionName(newName);
+                .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
+                    dialog.dismiss();
+                    String newName = input.getText().toString();
+                    if (newName.equals("")) {
+                        Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    updateCollectionName(newName);
                 })
-                .setNegativeButton(mRes.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }));
+                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
     }
     
     private boolean doUnsavedChangesExist(){

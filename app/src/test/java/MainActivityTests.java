@@ -18,6 +18,11 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
 import android.content.Intent;
 import android.os.Build;
 
@@ -39,11 +44,6 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-
 @RunWith(RobolectricTestRunner.class)
 // TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
 @Config(sdk = Build.VERSION_CODES.P)
@@ -58,12 +58,7 @@ public class MainActivityTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    assertNotEquals("", activity.buildInfoText());
-                }
-            });
+            scenario.onActivity(activity -> assertNotEquals("", activity.buildInfoText()));
         }
     }
 
@@ -75,33 +70,30 @@ public class MainActivityTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
-                        for (FullCollection scenario : getRandomTestScenarios(activity, coinType, 2)) {
-                            String collectionName = scenario.mCollectionListInfo.getName();
+            scenario.onActivity(activity -> {
+                for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
+                    for (FullCollection scenario1 : getRandomTestScenarios(activity, coinType, 2)) {
+                        String collectionName = scenario1.mCollectionListInfo.getName();
 
-                            // Create the collection in the database
-                            activity.mDbAdapter.createAndPopulateNewTable(scenario.mCollectionListInfo,
-                                    scenario.mDisplayOrder, scenario.mCoinList);
-                            activity.updateCollectionListFromDatabase();
+                        // Create the collection in the database
+                        activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
+                                scenario1.mDisplayOrder, scenario1.mCoinList);
+                        activity.updateCollectionListFromDatabase();
 
-                            // Make a copy
-                            String newDbName = collectionName + " Copy";
-                            activity.copyCollection(collectionName);
-                            CollectionListInfo copiedCollectionListInfo = scenario.mCollectionListInfo.copy(newDbName);
+                        // Make a copy
+                        String newDbName = collectionName + " Copy";
+                        activity.copyCollection(collectionName);
+                        CollectionListInfo copiedCollectionListInfo = scenario1.mCollectionListInfo.copy(newDbName);
 
-                            // Drop the original
-                            activity.mDbAdapter.dropCollectionTable(collectionName);
+                        // Drop the original
+                        activity.mDbAdapter.dropCollectionTable(collectionName);
 
-                            // Check that the copied collection was made correctly in the database
-                            compareCollectionWithDb(activity, copiedCollectionListInfo,
-                                    scenario.mCoinList, scenario.mDisplayOrder);
+                        // Check that the copied collection was made correctly in the database
+                        compareCollectionWithDb(activity, copiedCollectionListInfo,
+                                scenario1.mCoinList, scenario1.mDisplayOrder);
 
-                            // Delete the collection from the database
-                            activity.mDbAdapter.dropCollectionTable(newDbName);
-                        }
+                        // Delete the collection from the database
+                        activity.mDbAdapter.dropCollectionTable(newDbName);
                     }
                 }
             });
@@ -117,43 +109,40 @@ public class MainActivityTests extends BaseTestCase {
         try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
-            scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
-                @Override
-                public void perform(MainActivity activity) {
-                    // Add collections to the database
-                    ArrayList<Integer> indexPositions = new ArrayList<>();
-                    for (int i = 0; i < COLLECTION_LIST_INFO_SCENARIOS.length; i++) {
-                        CollectionListInfo info = COLLECTION_LIST_INFO_SCENARIOS[i];
-                        activity.mDbAdapter.createAndPopulateNewTable(info, i, null);
-                        indexPositions.add(i);
-                    }
-                    activity.updateCollectionListFromDatabase();
+            scenario.onActivity(activity -> {
+                // Add collections to the database
+                ArrayList<Integer> indexPositions = new ArrayList<>();
+                for (int i = 0; i < COLLECTION_LIST_INFO_SCENARIOS.length; i++) {
+                    CollectionListInfo info = COLLECTION_LIST_INFO_SCENARIOS[i];
+                    activity.mDbAdapter.createAndPopulateNewTable(info, i, null);
+                    indexPositions.add(i);
+                }
+                activity.updateCollectionListFromDatabase();
 
-                    // Launch the reorder fragment
-                    ReorderCollections reorderFragment = activity.launchReorderFragment();
-                    assertNotNull(reorderFragment);
-                    activity.getSupportFragmentManager().executePendingTransactions();
+                // Launch the reorder fragment
+                ReorderCollections reorderFragment = activity.launchReorderFragment();
+                assertNotNull(reorderFragment);
+                activity.getSupportFragmentManager().executePendingTransactions();
 
-                    // Perform a few reorders
-                    ReorderAdapter adapter = reorderFragment.mAdapter;
-                    assertNotNull(adapter);
-                    for (int i = 0; i < 20; i++) {
-                        int fromIndex = random.nextInt(COLLECTION_LIST_INFO_SCENARIOS.length);
-                        int toIndex = random.nextInt(COLLECTION_LIST_INFO_SCENARIOS.length);
-                        adapter.onItemMove(fromIndex, toIndex);
-                        Collections.swap(indexPositions, fromIndex, toIndex);
-                    }
-                    activity.handleCollectionsReordered(adapter.mItems);
+                // Perform a few reorders
+                ReorderAdapter adapter = reorderFragment.mAdapter;
+                assertNotNull(adapter);
+                for (int i = 0; i < 20; i++) {
+                    int fromIndex = random.nextInt(COLLECTION_LIST_INFO_SCENARIOS.length);
+                    int toIndex = random.nextInt(COLLECTION_LIST_INFO_SCENARIOS.length);
+                    adapter.onItemMove(fromIndex, toIndex);
+                    Collections.swap(indexPositions, fromIndex, toIndex);
+                }
+                activity.handleCollectionsReordered(adapter.mItems);
 
-                    // Check the order
-                    ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
-                    activity.mDbAdapter.getAllTables(collectionListEntries);
-                    assertNotNull(collectionListEntries);
-                    assertEquals(collectionListEntries.size(), COLLECTION_LIST_INFO_SCENARIOS.length);
-                    for (int i = 0; i < collectionListEntries.size(); i++) {
-                        compareCollectionListInfos(collectionListEntries.get(i),
-                                COLLECTION_LIST_INFO_SCENARIOS[indexPositions.get(i)]);
-                    }
+                // Check the order
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                assertNotNull(collectionListEntries);
+                assertEquals(collectionListEntries.size(), COLLECTION_LIST_INFO_SCENARIOS.length);
+                for (int i = 0; i < collectionListEntries.size(); i++) {
+                    compareCollectionListInfos(collectionListEntries.get(i),
+                            COLLECTION_LIST_INFO_SCENARIOS[indexPositions.get(i)]);
                 }
             });
         }
