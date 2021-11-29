@@ -162,8 +162,9 @@ public class ExportImportHelper {
             ArrayList<CoinSlot> collectionContent = new ArrayList<>();
             try {
                 ArrayList<String[]> fileContents = getCsvFileContents(inputFile);
+                int coinIndex = 0;
                 for (String[] items : fileContents) {
-                    collectionContent.add(new CoinSlot(items));
+                    collectionContent.add(new CoinSlot(items, coinIndex++));
                 }
             } catch (IOException ignored) {
                 collectionErrorMessages.add(mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath()));
@@ -452,6 +453,7 @@ public class ExportImportHelper {
         SectionType currSectionType = SectionType.UNKNOWN;
         String[] lineValues;
         ArrayList<CoinSlot> currCoinList = new ArrayList<>();
+        int coinIndex = 0;
 
         // Tell the CSVReader to use the NULL character as the escape
         // character to effectively allow no escape characters
@@ -470,6 +472,7 @@ public class ExportImportHelper {
                 } else if ((lineValues.length == 2) && lineValues[0].equals(CSV_SEPARATOR)) {
                     // Look for CSV separators which we're using to put multiple files in a single CSV
                     currSectionType = SectionType.fromLabel(lineValues[1]);
+                    coinIndex = 0;
                     continue;
                 }
 
@@ -483,7 +486,7 @@ public class ExportImportHelper {
                         importedCollectionContents.add(currCoinList);
                         break;
                     case COIN_LIST:
-                        currCoinList.add(new CoinSlot(lineValues));
+                        currCoinList.add(new CoinSlot(lineValues, coinIndex++));
                         break;
                     default:
                         break;
@@ -527,7 +530,7 @@ public class ExportImportHelper {
 
                 csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.COIN_LIST.label});
                 for (CoinSlot coinSlot : coinList) {
-                    csvWriter.writeNext(coinSlot.getLegacyCsvExportProperties());
+                    csvWriter.writeNext(coinSlot.getCsvExportProperties());
                 }
             }
             return mRes.getString(R.string.success_export, filePath);

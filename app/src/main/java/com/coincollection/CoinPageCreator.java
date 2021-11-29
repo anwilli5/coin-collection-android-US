@@ -314,7 +314,7 @@ public class CoinPageCreator extends BaseActivity {
         final EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
         nameEditText.setOnKeyListener(hideKeyboardListener);
         // Make a filter to block out bad characters
-        InputFilter nameFilter = getCollectionNameFilter();
+        InputFilter nameFilter = getCollectionOrCoinNameFilter();
         nameEditText.setFilters(new InputFilter[]{nameFilter});
         // Set the name if editing an existing collection
         if (mExistingCollection != null && savedInstanceState == null) {
@@ -631,7 +631,7 @@ public class CoinPageCreator extends BaseActivity {
     /** Returns an input filter for sanitizing collection names
      * @return The input filter
      */
-    static InputFilter getCollectionNameFilter() {
+    static InputFilter getCollectionOrCoinNameFilter() {
         return (source, start, end, dest, dstart, dend) -> {
             for (int i = start; i < end; i++) {
                 if (source.charAt(i) == '[' || source.charAt(i) == ']') {

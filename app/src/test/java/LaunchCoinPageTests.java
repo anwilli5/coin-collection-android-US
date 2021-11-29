@@ -65,7 +65,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
-                for (FullCollection scenario1 : getRandomTestScenarios(activity, mCoinTypeObj, 1)) {
+                for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
                     // Create the collection in the database
                     activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
                             scenario1.mDisplayOrder, scenario1.mCoinList);

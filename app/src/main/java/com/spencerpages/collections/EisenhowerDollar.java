@@ -20,20 +20,20 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.DatabaseHelper.runSqlDelete;
 
 public class EisenhowerDollar extends CollectionInfo {
 
@@ -92,6 +92,7 @@ public class EisenhowerDollar extends CollectionInfo {
         Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
             String newValue = Integer.toString(i);
@@ -103,13 +104,13 @@ public class EisenhowerDollar extends CollectionInfo {
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, ""));
+                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
                 if (showD) {
-                    coinList.add(new CoinSlot(newValue, "D"));
+                    coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, ""));
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
 
             //if(i < 1973){

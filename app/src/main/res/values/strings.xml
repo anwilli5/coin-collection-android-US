@@ -110,6 +110,7 @@
     <string name="collection_complete">Collection Complete!</string>
     <string name="select_collection_name">Select a new collection name</string>
     <string name="view">View</string>
+    <string name="toggle_collected">Toggle Collected</string>
     <string name="edit">Edit</string>
     <string name="copy">Copy</string>
     <string name="delete">Delete</string>
@@ -129,6 +130,7 @@
     <string name="info_overview">This App is meant to help you keep track of which coins you have already come across and saved in your collection. To help keep your collection organized, we recommend purchasing a coin album specific to each type of coin.\n\nThe mint marking on most coins can be found near the date that appears on the face of the coin. If no mint mark is present, it typically symbolizes that this coin was produced at the Philadelphia (P) mint. Other possible mint marks include that of the Denver mint (D) and the San Francisco mint (S), although the San Francisco mint has not produced coins for circulation for some time now. Also, for some older coins, the mint marks of the Carson City mint (CC) and the New Orleans mint (O) can be found, and special coins like the American Eagle Silver Dollars may carry the West Point mint mark (W). For more information, feel free to check out the website of the U.S. Mint.\n\nIf you have any suggestions or questions about the app, feel free to send an email to andrew27379091@gmail.com.\n\nThis app is not endorsed by the United States Mint.</string>
     <string name="select_collection_delete">Select a collection to delete</string>
     <string name="collection_actions">Collection Actions</string>
+    <string name="coin_actions">Coin Actions</string>
     <string name="copy_name_suffix">\ Copy</string>
     <string name="opening_database">Opening Databases…</string>
     <string name="importing_collections">Importing Collections…</string>
@@ -181,10 +183,15 @@
 
     <!-- Collection Page -->
     <string name="dialog_enter_collection_name">Please enter a name for the collection</string>
+    <string name="dialog_enter_coin_name">Please enter a name for the coin</string>
     <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above its year or name.  Also, you can prevent accidental changes using the \'LOCK\' action</string>
     <string name="dialog_unsaved_changes_change_views">This collection has unsaved changes, please save before changing views.</string>
     <string name="dialog_unsaved_changes_exit">Leaving this page will erase your unsaved changes, are you sure you want to exit?</string>
     <string name="collection_locked">Collection is currently locked, hit the \'Edit\' action to unlock</string>
+    <string name="edit_coin_info">Edit coin details</string>
+    <string name="name_label">Name:</string>
+    <string name="mint_label">Mint:</string>
+    <string name="tutorial_edit_copy_delete_coins">Press and hold on a coin image to edit, copy, or delete!</string>
 
     <!-- Error and Status Messages -->
     <string name="failed_mk_dir">Failed to make/find directory at %1$s</string>
@@ -197,7 +204,10 @@
     <string name="cannot_find_export_dir">Failed to find existing export directory at %1$s</string>
     <string name="error_open_file_reading">Error when opening input file for reading at %1$s</string>
     <string name="error_copying_database">An error occurred while trying to copy the collection</string>
+    <string name="error_copying_coin">An error occurred while trying to copy the coin</string>
     <string name="error_delete_database">An error occurred while trying to delete the database</string>
+    <string name="error_delete_coin">An error occurred while trying to delete the coin</string>
+    <string name="error_updating_coin">An error occurred while trying to update the coin</string>
     <string name="error_opening_database">An error occurred while trying to open the database</string>
     <string name="error_creating_database">An error occurred while trying to create the database</string>
     <string name="error_updating_database">An error occurred while trying to update the database</string>

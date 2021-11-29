@@ -20,6 +20,9 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -32,9 +35,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.DatabaseHelper.runSqlUpdate;
 
 public class NationalParkQuarters extends CollectionInfo {
 
@@ -150,19 +150,20 @@ public class NationalParkQuarters extends CollectionInfo {
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int coinIndex = 0;
 
         for (Object[] parksImageIdentifier : COIN_IDENTIFIERS) {
             String identifier = (String) parksImageIdentifier[0];
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(identifier, "P"));
+                    coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                 }
                 if (showD) {
-                    coinList.add(new CoinSlot(identifier, "D"));
+                    coinList.add(new CoinSlot(identifier, "D", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(identifier, ""));
+                coinList.add(new CoinSlot(identifier, "", coinIndex++));
             }
         }
     }

@@ -89,6 +89,7 @@ public class PeaceDollars extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
 
@@ -100,20 +101,20 @@ public class PeaceDollars extends CollectionInfo {
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, ""));
+                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {
-                        coinList.add(new CoinSlot(newValue, "D"));
+                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i != 1921) {
-                        coinList.add(new CoinSlot(newValue, "S"));
+                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, ""));
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
         }
     }

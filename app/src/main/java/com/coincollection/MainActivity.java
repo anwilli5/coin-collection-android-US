@@ -590,10 +590,10 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
-
-        if(  (grantResults.length > 0)
-          && (grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if ((grantResults.length > 0)
+                && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             // Request Granted!
             switch (requestCode) {
                 case IMPORT_PERMISSIONS_REQUEST: {

@@ -1,5 +1,29 @@
 package com.coincollection;
 
+import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
+import static com.coincollection.CoinSlot.COL_ADV_NOTES;
+import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_COIN_ID;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CoinSlot.COL_SORT_ORDER;
+import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
+import static com.coincollection.CollectionListInfo.COL_END_YEAR;
+import static com.coincollection.CollectionListInfo.COL_ID;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_START_YEAR;
+import static com.coincollection.CollectionListInfo.COL_TOTAL;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.spencerpages.MainApplication.APP_NAME;
+import static com.spencerpages.MainApplication.DATABASE_NAME;
+import static com.spencerpages.MainApplication.DATABASE_VERSION;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,27 +39,6 @@ import com.spencerpages.MainApplication;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
-import static com.coincollection.CoinSlot.COL_ADV_NOTES;
-import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
-import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
-import static com.coincollection.CollectionListInfo.COL_END_YEAR;
-import static com.coincollection.CollectionListInfo.COL_NAME;
-import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
-import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
-import static com.coincollection.CollectionListInfo.COL_START_YEAR;
-import static com.coincollection.CollectionListInfo.COL_TOTAL;
-import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
-import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
-import static com.spencerpages.MainApplication.APP_NAME;
-import static com.spencerpages.MainApplication.DATABASE_NAME;
-import static com.spencerpages.MainApplication.DATABASE_VERSION;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -58,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // v2.2.1 - Until this version all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-        String makeCollectionInfoTable = "CREATE TABLE " + TBL_COLLECTION_INFO + " (_id integer primary key,"
+        String makeCollectionInfoTable = "CREATE TABLE " + TBL_COLLECTION_INFO + " ("
+                + " " + COL_ID + " integer primary key,"
                 + " " + COL_NAME + " text not null,"
                 + " " + COL_COIN_TYPE + " text not null,"
                 + " " + COL_TOTAL + " integer,"
@@ -79,6 +83,181 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Performs any database updates that are needed at an application level
+     * (Ex: renaming a collection type, adding fields to existing databases
+     * as required for new functionality.)  Any collection-specific changes
+     * should be performed in that collections onCollectionDatabaseUpgrade
+     * instead of here.
+     *
+     * @param db the SQLiteDatabase db object to use when making updates
+     * @param oldVersion the previous database version
+     * @param newVersion the new database version
+     * @param fromImport true if the upgrade is part of a database import
+     */
+    private static void upgradeDbStructure(
+        SQLiteDatabase db,
+        int oldVersion,
+        int newVersion,
+        boolean fromImport){
+
+        // Skip if importing, since the database will be created with the latest structure
+        if (oldVersion <= 5 && !fromImport) {
+
+            // We need to add in columns to support the new advanced view
+            db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY + " INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
+            if (resultCursor.moveToFirst()) {
+                do {
+
+                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_GRADE_INDEX + " INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_QUANTITY_INDEX + " INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_NOTES + " TEXT DEFAULT \"\"");
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+
+        if (oldVersion <= 7) {
+
+            if (!fromImport) {
+                // Add another column for the display order
+                db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY_ORDER + " INTEGER");
+            }
+
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_COIN_TYPE},
+                    null, null, null, null, COL_COIN_ID);
+
+            int i = 0;  // Used to set the display order
+
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                    String coinType = resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_TYPE));
+
+                    ContentValues values = new ContentValues();
+
+                    // Since we added the displayOrder column, populate that.
+                    // In the import case this may get done twice (in the case of going from
+                    // an imported 7 DB to the latest version.
+                    values.put(COL_DISPLAY_ORDER, i);
+
+                    runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=? AND " + COL_COIN_TYPE + "=?", new String[]{name, coinType});
+                    i++;
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+
+        if (oldVersion <= 9) {
+
+            ContentValues values = new ContentValues();
+
+            // We changed the name that we use for Sacagawea gold coin collections a while back,
+            // but since we now use this name to determine the backing CollectionInfo obj, we
+            // need to change it in the database (we should have done this to begin with!)
+            values.put(COL_COIN_TYPE, "Sacagawea/Native American Dollars");
+            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_COIN_TYPE + "=?", new String[]{"Sacagawea Dollars"});
+            values.clear();
+
+            // Remove the space from mint marks so that this field's value is less confusing
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+
+                    values.put(COL_COIN_MINT, "P");
+                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" P"});
+                    values.clear();
+
+                    values.put(COL_COIN_MINT, "D");
+                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" D"});
+                    values.clear();
+
+                    values.put(COL_COIN_MINT, "S");
+                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" S"});
+                    values.clear();
+
+                    values.put(COL_COIN_MINT, "O");
+                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" O"});
+                    values.clear();
+
+                    values.put(COL_COIN_MINT, "CC");
+                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" CC"});
+                    values.clear();
+
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+
+            //TODO Change buffalo nickels mint marks to remove space
+            //TODO Change indian head cent mint marks to remove space
+            //TODO Change walking liberty half dollar mint marks to remove space
+        }
+
+        if (oldVersion <= 14) {
+
+            if (!fromImport) {
+                // Add columns that keep track of the creation parameters (so these can be changed later)
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_START_YEAR + " INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_END_YEAR + " INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_MINT_MARKS + " INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES + " INTEGER DEFAULT 0");
+            }
+
+            // Determine the collection parameters for each existing collection
+            for (CollectionListInfo collectionListInfo : DatabaseHelper.getLegacyCollectionParams(db)) {
+                DatabaseHelper.updateExistingCollection(db, collectionListInfo.getName(), collectionListInfo, null);
+            }
+        }
+
+        // Add sort order to coins in each collection
+        // - Skip if importing, since the database will be created with the latest structure
+        if (oldVersion <= 16 && !fromImport) {
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_SORT_ORDER + " INTEGER DEFAULT 0");
+
+                    // Set the sort order to the IDs, as a starting point
+                    db.execSQL("UPDATE [" + name + "] SET " + COL_SORT_ORDER + " = " + COL_COIN_ID);
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+    }
+
+    /**
+     * Get the next sort order for a new coin
+     * @param db the database to access
+     * @param tableName the collection name to access
+     * @return The next display order to use
+     * @throws SQLException if a database error occurred
+     */
+    public static int getNextCoinSortOrder(SQLiteDatabase db, String tableName) throws SQLException {
+        String sqlCmd = "SELECT MAX(" + COL_SORT_ORDER + ") FROM [" + tableName + "]";
+        SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
+        int result = simpleQueryForLong(compiledStatement);
+        compiledStatement.clearBindings();
+        compiledStatement.close();
+        return result + 1;
+    }
+
+    /**
      * Upgrades the database
      *
      * @param db the database to upgrade
@@ -94,7 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // First call the MainApplication's onDatabaseUpgrade to ensure that any changes necessary
         // for the app to work are done.
-        MainApplication.onDatabaseUpgrade(db, oldVersion, newVersion, fromImport);
+        upgradeDbStructure(db, oldVersion, newVersion, fromImport);
 
         // Now get a list of the collections and call each one's onCollectionDatabaseUpgrade method
         ArrayList<CollectionListInfo> collectionList = new ArrayList<>();
@@ -139,6 +318,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                        ArrayList<String> values) {
         int total = 0;
         String tableName = collectionListInfo.getName();
+        int newSortOrder = getNextCoinSortOrder(db, tableName);
         for (int i = 0; i < values.size(); i++) {
             if (collectionListInfo.hasMintMarks()) {
                 for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
@@ -148,6 +328,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         insertValues.put(COL_COIN_IDENTIFIER, values.get(i));
                         insertValues.put(COL_IN_COLLECTION, 0);
                         insertValues.put(COL_COIN_MINT, flagStr);
+                        insertValues.put(COL_SORT_ORDER, newSortOrder++);
                         if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
                             total++;
                         }
@@ -158,6 +339,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 insertValues.put(COL_COIN_IDENTIFIER, values.get(i));
                 insertValues.put(COL_IN_COLLECTION, 0);
                 insertValues.put(COL_COIN_MINT, "");
+                insertValues.put(COL_SORT_ORDER, newSortOrder++);
                 if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
                     total++;
                 }
@@ -215,6 +397,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Add the new coin entries
         String tableName = collectionListInfo.getName();
+        int newSortOrder = getNextCoinSortOrder(db, tableName);
         if (collectionListInfo.hasMintMarks()) {
             for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
                 Integer mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
@@ -226,6 +409,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     insertValues.put(COL_COIN_IDENTIFIER, identifier);
                     insertValues.put(COL_IN_COLLECTION, 0);
                     insertValues.put(COL_COIN_MINT, flagStr);
+                    insertValues.put(COL_SORT_ORDER, newSortOrder++);
                     if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
                         total++;
                     }
@@ -236,6 +420,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             insertValues.put(COL_COIN_IDENTIFIER, identifier);
             insertValues.put(COL_IN_COLLECTION, 0);
             insertValues.put(COL_COIN_MINT, "");
+            insertValues.put(COL_SORT_ORDER, newSortOrder++);
             if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
                 total++;
             }
@@ -255,28 +440,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param db database
      * @param tableName The name of the collection
      * @param populateAdvInfo If true, includes advanced attributes
+     * @param useSortOrder If true, includes sort order and uses it for sorting
      * @return CoinSlot list
      */
-    static ArrayList<CoinSlot> getCoinList(SQLiteDatabase db, String tableName, boolean populateAdvInfo) {
+    static ArrayList<CoinSlot> getCoinList(SQLiteDatabase db, String tableName, boolean populateAdvInfo, boolean useSortOrder) {
 
-        String[] dbColumns;
+        ArrayList<String> dbColumns = new ArrayList<>(
+                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION));
         if (populateAdvInfo) {
-            dbColumns = new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION,
-                    COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES};
-        } else {
-            dbColumns = new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION};
+            dbColumns.addAll(
+                    Arrays.asList(COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES));
+        }
+        if (useSortOrder) {
+            // Sort order added in database version 17
+            dbColumns.add(COL_SORT_ORDER);
         }
 
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        Cursor cursor = db.query("[" + tableName + "]", dbColumns,
-                null, null, null, null, "_id");
+        String sortColumn = useSortOrder ? COL_SORT_ORDER : COL_COIN_ID;
+        Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
+                null, null, null, null, sortColumn);
         if (cursor.moveToFirst()) {
             do {
                 CoinSlot coinSlot = new CoinSlot(
+                        cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
                         cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
                         cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                        (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) == 1)
-                );
+                        (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) == 1),
+                        (useSortOrder
+                                ?  cursor.getInt(cursor.getColumnIndex(COL_SORT_ORDER))
+                                : (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID))));
                 if (populateAdvInfo) {
                     coinSlot.setAdvancedGrades(cursor.getInt(cursor.getColumnIndex(COL_ADV_GRADE_INDEX)));
                     coinSlot.setAdvancedQuantities(cursor.getInt(cursor.getColumnIndex(COL_ADV_QUANTITY_INDEX)));
@@ -297,7 +490,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @throws SQLException if an error occurs
      */
     public static int fetchTotalCollected(SQLiteDatabase db, String tableName) throws SQLException {
-        String sqlCmd = "SELECT COUNT(_id) FROM [" + tableName + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
+        String sqlCmd = "SELECT COUNT(" + COL_COIN_ID + ") FROM [" + tableName + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
         SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
         int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
@@ -362,10 +555,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         getAllTables(db, collectionListEntries);
         for (CollectionListInfo collectionListEntry : collectionListEntries) {
-            ArrayList<CoinSlot> coinList = getCoinList(db, collectionListEntry.getName(), false);
+            ArrayList<CoinSlot> coinList = getCoinList(db, collectionListEntry.getName(), false, false);
             collectionListEntry.setCreationParametersFromCoinData(coinList);
         }
         return collectionListEntries;
+    }
+
+    /**
+     * Updates an existing coin list
+     * @param db database
+     * @param tableName the collection name
+     * @param coinData coin data to use for updates
+     * @param updateTotal if true, updates the collection info total
+     * @throws SQLException if a database error occurs
+     */
+    public static void updateCoinList(SQLiteDatabase db, String tableName, ArrayList<CoinSlot> coinData, boolean updateTotal) throws SQLException {
+        runSqlDelete(db, tableName, "1", null);
+        for (CoinSlot coinSlot : coinData) {
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
+            values.put(COL_COIN_MINT, coinSlot.getMint());
+            values.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
+            values.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
+            values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
+            values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
+            values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
+            coinSlot.setDatabaseId(runSqlInsert(db, tableName, values));
+        }
+
+        // Update the collection total if needed
+        if (updateTotal) {
+            ContentValues values = new ContentValues();
+            values.put(COL_TOTAL, coinData.size());
+            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[] { tableName });
+        }
     }
 
     /**
@@ -380,17 +603,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Update the coin data
         if (coinData != null) {
-            runSqlDelete(db, oldTableName, "1", null);
-            for (CoinSlot coinSlot : coinData) {
-                ContentValues values = new ContentValues();
-                values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
-                values.put(COL_COIN_MINT, coinSlot.getMint());
-                values.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
-                values.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
-                values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
-                values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
-                runSqlInsert(db, oldTableName, values);
-            }
+            updateCoinList(db, oldTableName, coinData, false);
         }
 
         // Update the collection info
@@ -417,10 +630,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param values Values to insert into the table
      * @throws SQLException if an insert error occurred
      */
-    public static void runSqlInsert(SQLiteDatabase db, String tableName, ContentValues values) throws SQLException {
-        if (db.insert("[" + tableName + "]", null, values) == -1) {
-            throw new SQLException();
-        }
+    public static long runSqlInsert(SQLiteDatabase db, String tableName, ContentValues values) throws SQLException {
+        return db.insertOrThrow("[" + tableName + "]", null, values);
     }
 
     /**

@@ -159,19 +159,20 @@ public class StateQuarters extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showTerritories = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        int coinIndex = 0;
 
         for(Object[] coinData : STATES_COIN_IDENTIFIERS){
             String identifier = (String) coinData[0];
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(identifier, "P"));
+                    coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                 }
                 if (showD) {
-                    coinList.add(new CoinSlot(identifier, "D"));
+                    coinList.add(new CoinSlot(identifier, "D", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(identifier, ""));
+                coinList.add(new CoinSlot(identifier, "", coinIndex++));
             }
         }
         if(showTerritories){
@@ -181,13 +182,13 @@ public class StateQuarters extends CollectionInfo {
 
                 if (showMintMarks) {
                     if (showP) {
-                        coinList.add(new CoinSlot(identifier, "P"));
+                        coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                     }
                     if (showD) {
-                        coinList.add(new CoinSlot(identifier, "D"));
+                        coinList.add(new CoinSlot(identifier, "D", coinIndex++));
                     }
                 } else {
-                    coinList.add(new CoinSlot(identifier, ""));
+                    coinList.add(new CoinSlot(identifier, "", coinIndex++));
                 }
             }
         }
