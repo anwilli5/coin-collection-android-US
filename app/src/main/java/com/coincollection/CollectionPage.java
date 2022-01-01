@@ -188,7 +188,7 @@ public class CollectionPage extends BaseActivity {
             // re-display the "Unsaved Changes" view
             if (mCoinList != null){
                 for(int i = 0; i < mCoinList.size(); i++){
-                    if(mCoinList.get(i).hasIndexChanged()){
+                    if(mCoinList.get(i).hasAdvInfoChanged()){
                         this.showUnsavedTextView();
                         break;
                     }
@@ -354,7 +354,7 @@ public class CollectionPage extends BaseActivity {
 
                 for (int i = 0; i < mCoinList.size(); i++) {
                     CoinSlot coinSlot = mCoinList.get(i);
-                    if (coinSlot.hasIndexChanged()) {
+                    if (coinSlot.hasAdvInfoChanged()) {
                         try {
                             mDbAdapter.updateAdvInfo(mCollectionName, coinSlot);
                         } catch (SQLException e) {
@@ -363,7 +363,7 @@ public class CollectionPage extends BaseActivity {
                             continue;
                         }
                         // Mark this data as being unchanged
-                        coinSlot.setIndexChanged(false);
+                        coinSlot.setAdvInfoChanged(false);
                     }
                 }
 
@@ -605,7 +605,10 @@ public class CollectionPage extends BaseActivity {
                 })
                 .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
     }
-    
+
+    /**
+     * @return true if a collection has unsaved changes (only possible in advanced view)
+     */
     private boolean doUnsavedChangesExist(){
 
         if(mDisplayType == ADVANCED_DISPLAY){
@@ -625,7 +628,7 @@ public class CollectionPage extends BaseActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             // If the back key is pressed, we want to warn the user if there are unsaved changes
 
-            if(this.doUnsavedChangesExist()){
+            if(doUnsavedChangesExist()){
                 showUnsavedChangesAlertAndExitActivity();
                 return true;
             }
@@ -677,6 +680,15 @@ public class CollectionPage extends BaseActivity {
     private void showLockedMessage() {
         String text = mRes.getString(R.string.collection_locked);
         Toast toast = Toast.makeText(CollectionPage.this, text, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    /**
+     * Display message to save changes before performing an advanced action
+     */
+    private void showSaveChangesMessage() {
+        String text = mRes.getString(R.string.save_changes_first);
+        Toast toast = Toast.makeText(CollectionPage.this, text, Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -859,28 +871,37 @@ public class CollectionPage extends BaseActivity {
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.coin_actions))
                 .setItems(actionsList, (dialog, item) -> {
+                    // Clear the dialog after any option is pressed
+                    dialog.dismiss();
+
+                    // Currently if there are unsaved changes, block any of these actions from
+                    // occurring, because the methods don't yet support delayed updating of
+                    // the database (they take effect right away). A cleaner user experience
+                    // would be for all of these changes to happen 'unsaved' (only to the
+                    // data structure) and to committed to the DB when the save is performed.
+                    if (doUnsavedChangesExist()) {
+                        showSaveChangesMessage();
+                        return;
+                    }
+
                     switch (item) {
                         case ACTIONS_TOGGLE: {
                             // Toggle collected or not
-                            dialog.dismiss();
                             toggleCoinSlotInCollection(mCoinList.get(actionPosition));
                             break;
                         }
                         case ACTIONS_EDIT: {
                             // Launch edit view
-                            dialog.dismiss();
                             showCoinRenamePrompt(actionPosition);
                             break;
                         }
                         case ACTIONS_COPY: {
                             // Perform copy
-                            dialog.dismiss();
                             copyCoinSlot(mCoinList.get(actionPosition), actionPosition + 1);
                             break;
                         }
                         case ACTIONS_DELETE: {
                             // Perform delete
-                            dialog.dismiss();
                             deleteCoinSlotAtPosition(actionPosition);
                             break;
                         }

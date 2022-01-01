@@ -211,7 +211,7 @@ class CoinSlotAdapter extends BaseAdapter {
                     // Update the data structure and set index changed
                     // - Changes will be committed to the database when the user presses save
                     coinSlot.setAdvancedGrades(pos);
-                    coinSlot.setIndexChanged(true);
+                    coinSlot.setAdvInfoChanged(true);
 
                     // Tell the parent page to show the unsaved changes view
                     mCollectionPageContext.showUnsavedTextView();
@@ -239,7 +239,7 @@ class CoinSlotAdapter extends BaseAdapter {
                     // Update the data structure and set index changed
                     // - Changes will be committed to the database when the user presses save
                     coinSlot.setAdvancedQuantities(pos);
-                    coinSlot.setIndexChanged(true);
+                    coinSlot.setAdvInfoChanged(true);
 
                     // Tell the parent page to show the unsaved changes view
                     mCollectionPageContext.showUnsavedTextView();
@@ -277,7 +277,7 @@ class CoinSlotAdapter extends BaseAdapter {
                 CoinSlot viewTagCoinSlot = (CoinSlot) view.getTag();
                 boolean oldValue = viewTagCoinSlot.isInCollection();
                 viewTagCoinSlot.setInCollection(!oldValue);
-                viewTagCoinSlot.setIndexChanged(true);
+                viewTagCoinSlot.setAdvInfoChanged(true);
 
                 // Notify the adapter to re-draw the view
                 CoinSlotAdapter.this.notifyDataSetChanged();
@@ -403,7 +403,7 @@ class CoinSlotAdapter extends BaseAdapter {
         // Update the data structure and set index changed
         // - Changes will be committed to the database when the user presses save
         coinSlot.setAdvancedNotes(newText);
-        coinSlot.setIndexChanged(true);
+        coinSlot.setAdvInfoChanged(true);
 
         // Tell the parent page to show the unsaved changes view
         mCollectionPageContext.showUnsavedTextView();

@@ -185,13 +185,14 @@
     <string name="dialog_enter_collection_name">Please enter a name for the collection</string>
     <string name="dialog_enter_coin_name">Please enter a name for the coin</string>
     <string name="tutorial_add_to_and_lock_collection">Add a coin to your collection by clicking the space above its year or name.  Also, you can prevent accidental changes using the \'LOCK\' action</string>
-    <string name="dialog_unsaved_changes_change_views">This collection has unsaved changes, please save before changing views.</string>
+    <string name="dialog_unsaved_changes_change_views">This collection has unsaved changes. Please save before changing views.</string>
     <string name="dialog_unsaved_changes_exit">Leaving this page will erase your unsaved changes, are you sure you want to exit?</string>
     <string name="collection_locked">Collection is currently locked, hit the \'Edit\' action to unlock</string>
     <string name="edit_coin_info">Edit coin details</string>
     <string name="name_label">Name:</string>
     <string name="mint_label">Mint:</string>
     <string name="tutorial_edit_copy_delete_coins">Press and hold on a coin image to edit, copy, or delete!</string>
+    <string name="save_changes_first">This collection has unsaved changes. Please save changes before performing this action.</string>
 
     <!-- Error and Status Messages -->
     <string name="failed_mk_dir">Failed to make/find directory at %1$s</string>

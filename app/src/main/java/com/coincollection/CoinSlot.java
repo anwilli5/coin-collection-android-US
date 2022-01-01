@@ -34,23 +34,20 @@ import java.io.IOException;
  */
 public class CoinSlot implements Parcelable {
 
-    // Database id
+    /** id of the row for this coin in the database **/
     private long mDatabaseId = 0;
 
-    /** mIdentifierList Contains a list of the main coin identifiers (Ex: "2009", or "Kentucky") */
+    /** Name of the coin (Ex: "2009", or "Kentucky") **/
     private String mIdentifier;
 
-    /** mMintList Contains a list of the mint marks associated with each coin, if any */
+    /** Mint mark of the coin, if any **/
     private String mMint;
 
-    // These are public so that we can reach in and grab these values to save them off
-    // We will keep track of which items need to be pushed back
-
-    // List holding whether each coin is in the collection
+    /** Whether the coin is collected or not **/
     private boolean mInCollection = false;
 
-    // Lists needed to support the advanced view
-    private boolean mIndexHasChanged = false;
+    /** Whether the advanced info has changed, and has not yet been written to the database **/
+    private boolean mAdvInfoHasChanged = false;
 
     // In the database, we store the index into the grade and quantity arrays
     // so we can use these values efficiently.  For notes, we have to store the
@@ -59,7 +56,7 @@ public class CoinSlot implements Parcelable {
     private Integer mAdvancedQuantities = 0;
     private String mAdvancedNotes = "";
 
-    // Sort order
+    /** Sort order **/
     private int mSortOrder;
 
     // Database keys
@@ -142,8 +139,8 @@ public class CoinSlot implements Parcelable {
         return mMint;
     }
 
-    void setIndexChanged(boolean changed) {
-        this.mIndexHasChanged = changed;
+    void setAdvInfoChanged(boolean changed) {
+        this.mAdvInfoHasChanged = changed;
     }
 
     public boolean isInCollection() {
@@ -158,8 +155,8 @@ public class CoinSlot implements Parcelable {
         return this.isInCollection() ? R.string.collected : R.string.missing;
     }
 
-    boolean hasIndexChanged() {
-        return mIndexHasChanged;
+    boolean hasAdvInfoChanged() {
+        return mAdvInfoHasChanged;
     }
 
     public Integer getAdvancedGrades() {
@@ -339,7 +336,7 @@ public class CoinSlot implements Parcelable {
         mIdentifier = in.readString();
         mMint = in.readString();
         mInCollection = in.readByte() != 0;
-        mIndexHasChanged = in.readByte() != 0;
+        mAdvInfoHasChanged = in.readByte() != 0;
         if (in.readByte() == 0) {
             mAdvancedGrades = null;
         } else {
@@ -377,7 +374,7 @@ public class CoinSlot implements Parcelable {
         dest.writeString(mIdentifier);
         dest.writeString(mMint);
         dest.writeByte((byte) (mInCollection ? 1 : 0));
-        dest.writeByte((byte) (mIndexHasChanged ? 1 : 0));
+        dest.writeByte((byte) (mAdvInfoHasChanged ? 1 : 0));
         if (mAdvancedGrades == null) {
             dest.writeByte((byte) 0);
         } else {
