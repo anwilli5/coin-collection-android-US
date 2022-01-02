@@ -326,7 +326,7 @@ public class BaseTestCase {
                 collectionInfo.populateCollectionLists(parameters, newCoinList);
 
                 // Get coins from the updated database
-                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
+                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
                 assertNotNull(dbCoinList);
 
                 // Make sure coin lists match

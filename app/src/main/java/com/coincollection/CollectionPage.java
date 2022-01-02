@@ -761,7 +761,8 @@ public class CollectionPage extends BaseActivity {
         } else {
             // Create the new coin slot
             // - copy() also sets the sort order to original + 1
-            CoinSlot newCoinSlot = coinSlot.copy(coinSlot.getIdentifier(), coinSlot.getMint());
+            // - Mark as custom coin since it wasn't added when the collection was created
+            CoinSlot newCoinSlot = coinSlot.copy(coinSlot.getIdentifier(), coinSlot.getMint(), true);
             try {
                 // Update the sort order in the database and coin list
                 mDbAdapter.updateCoinSortOrderForInsert(mCollectionName, newCoinSlot.getSortOrder());

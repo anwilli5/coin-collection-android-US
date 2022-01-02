@@ -6,6 +6,7 @@ import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_COIN_ID;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
@@ -230,6 +231,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
 
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_SORT_ORDER + " INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_CUSTOM_COIN + " INTEGER DEFAULT 0");
 
                     // Set the sort order to the IDs, as a starting point
                     db.execSQL("UPDATE [" + name + "] SET " + COL_SORT_ORDER + " = " + COL_COIN_ID);
@@ -446,14 +448,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static ArrayList<CoinSlot> getCoinList(SQLiteDatabase db, String tableName, boolean populateAdvInfo, boolean useSortOrder) {
 
         ArrayList<String> dbColumns = new ArrayList<>(
-                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION));
+                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION, COL_SORT_ORDER, COL_CUSTOM_COIN));
         if (populateAdvInfo) {
             dbColumns.addAll(
                     Arrays.asList(COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES));
-        }
-        if (useSortOrder) {
-            // Sort order added in database version 17
-            dbColumns.add(COL_SORT_ORDER);
         }
 
         ArrayList<CoinSlot> coinList = new ArrayList<>();
@@ -462,20 +460,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, null, null, null, sortColumn);
         if (cursor.moveToFirst()) {
             do {
-                CoinSlot coinSlot = new CoinSlot(
+                int sortOrder = useSortOrder ? cursor.getInt(cursor.getColumnIndex(COL_SORT_ORDER))
+                        : (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID));
+                if (populateAdvInfo) {
+                    coinList.add(new CoinSlot(
+                            cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
+                            cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
+                            cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
+                            (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) != 0),
+                            cursor.getInt(cursor.getColumnIndex(COL_ADV_GRADE_INDEX)),
+                            cursor.getInt(cursor.getColumnIndex(COL_ADV_QUANTITY_INDEX)),
+                            cursor.getString(cursor.getColumnIndex(COL_ADV_NOTES)),
+                            sortOrder,
+                            (cursor.getInt(cursor.getColumnIndex(COL_CUSTOM_COIN)) != 0)));
+                } else {
+                    coinList.add(new CoinSlot(
+                            cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
+                            cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
+                            cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
+                            (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) != 0),
+                            sortOrder,
+                            (cursor.getInt(cursor.getColumnIndex(COL_CUSTOM_COIN)) != 0)));
+                }
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        return coinList;
+    }
+
+    /**
+     * Get the basic coin information used by the legacy code to determine collection params
+     * This function should not be updated past DB version 16
+     * @param db database
+     * @param tableName The name of the collection
+     * @return CoinSlot list
+     */
+    static ArrayList<CoinSlot> getCoinListForLegacyCollectionParams(SQLiteDatabase db, String tableName) {
+
+        ArrayList<String> dbColumns = new ArrayList<>(
+                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION));
+
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
+                null, null, null, null, COL_COIN_ID);
+        if (cursor.moveToFirst()) {
+            do {
+                coinList.add(new CoinSlot(
                         cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
                         cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
                         cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
                         (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) == 1),
-                        (useSortOrder
-                                ?  cursor.getInt(cursor.getColumnIndex(COL_SORT_ORDER))
-                                : (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID))));
-                if (populateAdvInfo) {
-                    coinSlot.setAdvancedGrades(cursor.getInt(cursor.getColumnIndex(COL_ADV_GRADE_INDEX)));
-                    coinSlot.setAdvancedQuantities(cursor.getInt(cursor.getColumnIndex(COL_ADV_QUANTITY_INDEX)));
-                    coinSlot.setAdvancedNotes(cursor.getString(cursor.getColumnIndex(COL_ADV_NOTES)));
-                }
-                coinList.add(coinSlot);
+                        (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
+                        false));
             } while(cursor.moveToNext());
         }
         cursor.close();
@@ -555,7 +591,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         getAllTables(db, collectionListEntries);
         for (CollectionListInfo collectionListEntry : collectionListEntries) {
-            ArrayList<CoinSlot> coinList = getCoinList(db, collectionListEntry.getName(), false, false);
+            ArrayList<CoinSlot> coinList = getCoinListForLegacyCollectionParams(db, collectionListEntry.getName());
             collectionListEntry.setCreationParametersFromCoinData(coinList);
         }
         return collectionListEntries;

@@ -113,7 +113,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                     }
 
                     // Check that the copied collection was made correctly in the database
-                    ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(collectionName, true, true);
+                    ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
                     compareCoinSlotLists(activity.mCoinList, checkCoinList, true);
                     checkCoinSortOrdersUnique(activity.mCoinList);
                     assertEquals(getSortOrderList(activity.mCoinList), getSortOrderList(checkCoinList));

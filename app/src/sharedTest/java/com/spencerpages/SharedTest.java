@@ -74,11 +74,11 @@ public class SharedTest {
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
             {
-                    new CoinSlot(0, "1989", "", true, 0, 0, "", 0),
-                    new CoinSlot(1, "1776-1976", "P", false, 2, 10, "Advanced Notes", 1),
-                    new CoinSlot(2, "State Park", "CC", true, 20, 1, "293370#$%@#^$#@^", 2),
-                    new CoinSlot(3, "2000 Type 1", "D", true, 0, 0, "These are my notes\n\n", 3),
-                    new CoinSlot(4, "Some Coin", "S", false, 11, 11, "", 4),
+                    new CoinSlot(0, "1989", "", true, 0, 0, "", 0, false),
+                    new CoinSlot(1, "1776-1976", "P", false, 2, 10, "Advanced Notes", 1, false),
+                    new CoinSlot(2, "State Park", "CC", true, 20, 1, "293370#$%@#^$#@^", 2, false),
+                    new CoinSlot(3, "2000 Type 1", "D", true, 0, 0, "These are my notes\n\n", 3, false),
+                    new CoinSlot(4, "Some Coin", "S", false, 11, 11, "", 4, false),
             };
 
     public static final ParcelableHashMap[] PARAMETER_SCENARIOS =

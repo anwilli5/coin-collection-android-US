@@ -34,19 +34,19 @@ import java.io.IOException;
  */
 public class CoinSlot implements Parcelable {
 
-    /** id of the row for this coin in the database **/
+    /** id of the row for this coin in the database */
     private long mDatabaseId = 0;
 
-    /** Name of the coin (Ex: "2009", or "Kentucky") **/
+    /** Name of the coin (Ex: "2009", or "Kentucky") */
     private String mIdentifier;
 
-    /** Mint mark of the coin, if any **/
+    /** Mint mark of the coin, if any */
     private String mMint;
 
-    /** Whether the coin is collected or not **/
+    /** Whether the coin is collected or not */
     private boolean mInCollection = false;
 
-    /** Whether the advanced info has changed, and has not yet been written to the database **/
+    /** Whether the advanced info has changed, and has not yet been written to the database */
     private boolean mAdvInfoHasChanged = false;
 
     // In the database, we store the index into the grade and quantity arrays
@@ -59,6 +59,9 @@ public class CoinSlot implements Parcelable {
     /** Sort order **/
     private int mSortOrder;
 
+    /** Whether the coin is custom (i.e. added by the user after the collection was created) */
+    private boolean mCustomCoin = false;
+
     // Database keys
     public final static String COL_COIN_ID = "_id";
     public final static String COL_COIN_IDENTIFIER = "coinIdentifier";
@@ -68,6 +71,7 @@ public class CoinSlot implements Parcelable {
     public final static String COL_ADV_QUANTITY_INDEX = "advQuantityIndex";
     public final static String COL_ADV_NOTES = "advNotes";
     public final static String COL_SORT_ORDER = "sortOrder";
+    public final static String COL_CUSTOM_COIN = "customCoin";
 
     // Database helpers
     public final static String COIN_SLOT_COIN_ID_WHERE_CLAUSE = COL_COIN_ID + "=?";
@@ -78,8 +82,20 @@ public class CoinSlot implements Parcelable {
     // where clause, to continue to work correctly.
     public final static String COIN_SLOT_NAME_MINT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
 
+    /**
+     * Constructor used when pulling the collection from the database with advanced info
+     * @param databaseId id of the coin in the database
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param inCollection whether the coin has been collected
+     * @param advancedGrades coin grade info
+     * @param advancedQuantities coin quantity info
+     * @param advancedNotes coin notes
+     * @param sortOrder sort order in the collection
+     * @param customCoin whether the coin was manually added by the user
+     */
     public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, Integer advancedGrades,
-                     Integer advancedQuantities, String advancedNotes, int sortOrder) {
+                     Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
@@ -88,23 +104,33 @@ public class CoinSlot implements Parcelable {
         mAdvancedQuantities = advancedQuantities;
         mAdvancedNotes = advancedNotes;
         mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
-    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, int sortOrder) {
+    /**
+     * Constructor used when pulling the collection from the database, without advanced info
+     * @param databaseId id of the coin in the database
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param inCollection whether the coin has been collected
+     * @param sortOrder sort order in the collection
+     * @param customCoin whether the coin was manually added by the user
+     */
+    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, int sortOrder, boolean customCoin) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = inCollection;
         mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
-    public CoinSlot (long databaseId, String identifier, String mint, int sortOrder) {
-        mDatabaseId = databaseId;
-        mIdentifier = identifier;
-        mMint = mint;
-        mSortOrder = sortOrder;
-    }
-
+    /**
+     * Constructor used when creating a new collection from scratch
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param sortOrder sort order in collection
+     */
     public CoinSlot (String identifier, String mint, int sortOrder) {
         mIdentifier = identifier;
         mMint = mint;
@@ -191,6 +217,17 @@ public class CoinSlot implements Parcelable {
         this.mSortOrder = sortOrder;
     }
 
+    public boolean isCustomCoin() {
+        return mCustomCoin;
+    }
+
+    public Integer isCustomCoinInt() {
+        return this.isCustomCoin() ? 1 : 0;
+    }
+    public void setCustomCoin(boolean customCoin) {
+        this.mCustomCoin = customCoin;
+    }
+
     /**
      * Get the coin slot parameters to export to legacy CSV
      * @return string array with coin slot data
@@ -217,7 +254,8 @@ public class CoinSlot implements Parcelable {
                 String.valueOf(mAdvancedGrades),
                 String.valueOf(mAdvancedQuantities),
                 mAdvancedNotes,
-                String.valueOf(mSortOrder)};
+                String.valueOf(mSortOrder),
+                String.valueOf(isCustomCoinInt())};
     }
 
     /**
@@ -235,6 +273,7 @@ public class CoinSlot implements Parcelable {
         writer.name(COL_ADV_QUANTITY_INDEX).value(mAdvancedQuantities);
         writer.name(COL_ADV_NOTES).value(mAdvancedNotes);
         writer.name(COL_SORT_ORDER).value(mSortOrder);
+        writer.name(COL_CUSTOM_COIN).value(mCustomCoin);
         writer.endObject();
     }
 
@@ -253,6 +292,7 @@ public class CoinSlot implements Parcelable {
         int advancedQuantities = 0;
         String advancedNotes = "";
         int sortOrder = coinIndex;
+        boolean customCoin = false;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -279,6 +319,9 @@ public class CoinSlot implements Parcelable {
                 case COL_SORT_ORDER:
                     sortOrder = reader.nextInt();
                     break;
+                case COL_CUSTOM_COIN:
+                    customCoin = reader.nextBoolean();
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -293,6 +336,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedQuantities = advancedQuantities;
         mAdvancedNotes = advancedNotes;
         mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
     /**
@@ -307,6 +351,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedQuantities = (in.length > 4) ? Integer.parseInt(in[4]) : 0;
         mAdvancedNotes = (in.length > 5) ? in[5] : "";
         mSortOrder = (in.length > 6) ? Integer.parseInt(in[6]) : coinIndex;
+        mCustomCoin = (in.length > 7 && (Integer.parseInt(in[7]) != 0));
     }
 
     /**
@@ -314,9 +359,10 @@ public class CoinSlot implements Parcelable {
      * Note: Sets the sort order to the original + 1
      * @param newIdentifier new coin identifier
      * @param newMint new mint mark
+     * @param isCustomCoin true if the copy should be marked as a custom coin
      * @return the new CoinSlot object
      */
-    public CoinSlot copy(String newIdentifier, String newMint) {
+    public CoinSlot copy(String newIdentifier, String newMint, boolean isCustomCoin) {
         return new CoinSlot(
                 0, // Set when the database is written
                 newIdentifier,
@@ -325,7 +371,8 @@ public class CoinSlot implements Parcelable {
                 mAdvancedGrades,
                 mAdvancedQuantities,
                 mAdvancedNotes,
-                mSortOrder + 1);
+                mSortOrder + 1,
+                isCustomCoin);
     }
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case
@@ -349,6 +396,7 @@ public class CoinSlot implements Parcelable {
         }
         mAdvancedNotes = in.readString();
         mSortOrder = in.readInt();
+        mCustomCoin = in.readByte() != 0;
     }
 
     public static final Creator<CoinSlot> CREATOR = new Creator<CoinSlot>() {
@@ -389,6 +437,7 @@ public class CoinSlot implements Parcelable {
         }
         dest.writeString(mAdvancedNotes);
         dest.writeInt(mSortOrder);
+        dest.writeByte((byte) (mCustomCoin ? 1 : 0));
     }
 
     // NOTE: This will return true if identifier and mint are the same

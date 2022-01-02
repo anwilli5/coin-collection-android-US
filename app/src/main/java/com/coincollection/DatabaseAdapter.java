@@ -24,6 +24,7 @@ import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_COIN_ID;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
@@ -222,7 +223,8 @@ public class DatabaseAdapter {
         + " " + COL_ADV_GRADE_INDEX + " integer default 0,"
         + " " + COL_ADV_QUANTITY_INDEX + " integer default 0,"
         + " " + COL_ADV_NOTES + " text default \"\","
-        + " " + COL_SORT_ORDER + " integer not null);";
+        + " " + COL_SORT_ORDER + " integer not null,"
+        + " " + COL_CUSTOM_COIN + " integer default 0);";
         mDb.execSQL(sqlCmd);
     }
 
@@ -286,32 +288,6 @@ public class DatabaseAdapter {
      */
     public Cursor getAllCollectionNames() {
         return mDb.query(TBL_COLLECTION_INFO, new String[] {COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
-    }
-
-    /**
-     * Get the list of identifiers for each collection
-     *
-     * @param tableName The name of the collection
-     * @return List of all coins in the collection
-     */
-    public ArrayList<CoinSlot> getAllIdentifiers(String tableName) {
-
-        ArrayList<CoinSlot> coinList = new ArrayList<>();
-        Cursor cursor = mDb.query("[" + tableName + "]",
-                new String[] {COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_SORT_ORDER},
-                null, null, null, null, COL_SORT_ORDER);
-        if (cursor.moveToFirst()){
-            do {
-                coinList.add(new CoinSlot(
-                        cursor.getInt(cursor.getColumnIndex(COL_COIN_ID)),
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                        false,
-                        cursor.getInt(cursor.getColumnIndex(COL_SORT_ORDER))));
-            } while(cursor.moveToNext());
-        }
-        cursor.close();
-        return coinList;
     }
 
     /**
@@ -477,6 +453,7 @@ public class DatabaseAdapter {
         values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
         values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
         values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
+        values.put(COL_CUSTOM_COIN, coinSlot.isCustomCoinInt());
 
         // Add coin into database and record database id in CoinSlot object
         coinSlot.setDatabaseId(runSqlInsert(tableName, values));
