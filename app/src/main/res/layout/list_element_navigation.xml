@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:id="@+id/navImageView"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/coin_slot_description" />
+
+    <TextView
+        android:id="@+id/navTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        tools:ignore="UseCompoundDrawables">
-        <ImageView 
-            android:layout_width="36dp" 
-            android:layout_height="36dp"
-            android:id="@+id/navImageView"
-            android:contentDescription="@string/coin_slot_description"
-            android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"/>
-       <TextView 
-           android:layout_width="fill_parent" 
-           android:layout_height="wrap_content"
-           android:id="@+id/navTextView" 
-           android:lines="1"
-           android:maxLines="1"
-           android:textSize="24sp"
-           android:paddingTop="5dp"
-           android:paddingBottom="5dp"/>
-    </LinearLayout>
+        android:lines="1"
+        android:maxLines="1"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:textSize="24sp" />
+</LinearLayout>

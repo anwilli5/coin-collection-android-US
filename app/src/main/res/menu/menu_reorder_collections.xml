@@ -2,8 +2,9 @@
     xmlns:appcompat="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.spencerpages.com.coincollection.ReorderCollections">
-    <item android:id="@+id/save_reordered_collections"
-        android:title="@string/save_string"
+    <item
+        android:id="@+id/save_reordered_collections"
         android:orderInCategory="100"
+        android:title="@string/save_string"
         appcompat:showAsAction="ifRoom" />
 </menu>

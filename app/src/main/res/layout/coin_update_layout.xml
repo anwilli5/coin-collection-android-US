@@ -1,54 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/coin_name_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignTop="@id/coin_name_edittext"
-            android:layout_alignBottom="@id/coin_name_edittext"
-            android:gravity="center_vertical"
-            android:text="@string/name_label" />
-        <EditText
-            android:id="@+id/coin_name_edittext"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_toEndOf="@id/coin_name_text"
-            android:layout_toRightOf="@id/coin_name_text">
-        </EditText>
-        <TextView
-            android:id="@+id/coin_mint_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/coin_name_text"
-            android:layout_alignTop="@id/coin_mint_edittext"
-            android:layout_alignBottom="@id/coin_mint_edittext"
-            android:layout_alignEnd="@id/coin_name_text"
-            android:layout_alignRight="@id/coin_name_text"
-            android:gravity="center_vertical"
-            android:text="@string/mint_label" />
-        <EditText
-            android:id="@+id/coin_mint_edittext"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/coin_name_edittext"
-            android:layout_toEndOf="@id/coin_mint_text"
-            android:layout_toRightOf="@id/coin_mint_text">
-        </EditText>
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/coin_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/coin_name_edittext"
+        android:layout_alignBottom="@id/coin_name_edittext"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:text="@string/name_label" />
+
+    <EditText
+        android:id="@+id/coin_name_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_toEndOf="@id/coin_name_text"
+        android:layout_toRightOf="@id/coin_name_text"
+        android:importantForAutofill="no"
+        android:inputType="text">
+    </EditText>
+
+    <TextView
+        android:id="@+id/coin_mint_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/coin_name_text"
+        android:layout_alignTop="@id/coin_mint_edittext"
+        android:layout_alignEnd="@id/coin_name_text"
+        android:layout_alignRight="@id/coin_name_text"
+        android:layout_alignBottom="@id/coin_mint_edittext"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_vertical"
+        android:text="@string/mint_label" />
+
+    <EditText
+        android:id="@+id/coin_mint_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/coin_name_edittext"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_toEndOf="@id/coin_mint_text"
+        android:layout_toRightOf="@id/coin_mint_text"
+        android:importantForAutofill="no"
+        android:inputType="text">
+    </EditText>
 </RelativeLayout>
