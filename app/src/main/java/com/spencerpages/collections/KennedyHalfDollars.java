@@ -81,6 +81,7 @@ public class KennedyHalfDollars extends CollectionInfo {
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
             String newValue = Integer.toString(i);
@@ -94,19 +95,19 @@ public class KennedyHalfDollars extends CollectionInfo {
                 if(showP){
                     if(i < 1968 || i > 1970){
                         if(i >= 1980){
-                            coinList.add(new CoinSlot(newValue, "P"));
+                            coinList.add(new CoinSlot(newValue, "P", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(newValue, ""));
+                            coinList.add(new CoinSlot(newValue, "", coinIndex++));
                         }
                     }
                 }
                 if(showD){
                     if(i != 1965 && i != 1966 && i != 1967){
-                        coinList.add(new CoinSlot(newValue, "D"));
+                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, ""));
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
         }
     }

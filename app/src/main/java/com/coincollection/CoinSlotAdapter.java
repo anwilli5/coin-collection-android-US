@@ -50,7 +50,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
     /** mContext The context of the activity we are running in (for things like Toasts that have UI
      *           components) */
-    private final Context mContext;
+    private final CollectionPage mCollectionPageContext;
     private final Resources mRes;
 
     // Information about the collections needed for the basic coin list view
@@ -61,9 +61,9 @@ class CoinSlotAdapter extends BaseAdapter {
     private final ArrayList<CoinSlot> mCoinList;
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
-    private ArrayAdapter<CharSequence> mGradeArrayAdapter = null;
-    private OnItemSelectedListener mQuantityOnItemSelectedListener = null;
-    private ArrayAdapter<CharSequence> mQuantityArrayAdapter = null;
+    private ArrayAdapter<CharSequence> mGradeArrayAdapter;
+    private OnItemSelectedListener mQuantityOnItemSelectedListener;
+    private ArrayAdapter<CharSequence> mQuantityArrayAdapter;
 
     // Keep track of whether we are showing the advanced view so we can do extra setup
     private final int mDisplayType;
@@ -80,18 +80,18 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param collectionTypeObj The backing object in the COLLECTION_TYPE list
      * @param coinList The list of coins
      */
-    CoinSlotAdapter(Context context, String tableName, CollectionInfo collectionTypeObj, ArrayList<CoinSlot> coinList, int displayType) {
+    CoinSlotAdapter(CollectionPage context, String tableName, CollectionInfo collectionTypeObj, ArrayList<CoinSlot> coinList, int displayType) {
         // Used for State, National Park, Presidential Coins, and Native American coins
         // and Pennies, Nickels, American Innovation Dollars
         super();
-        mContext = context;
+        mCollectionPageContext = context;
         mTableName = tableName;
         mCollectionTypeObj = collectionTypeObj;
         mCoinList = coinList;
         mDisplayType = displayType;
 
-        mRes = mContext.getResources();
-        SharedPreferences mainPreferences = mContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
+        mRes = mCollectionPageContext.getResources();
+        SharedPreferences mainPreferences = mCollectionPageContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         mDisplayIsLocked = mainPreferences.getBoolean(mTableName + CollectionPage.IS_LOCKED, false);
     }
 
@@ -123,13 +123,13 @@ class CoinSlotAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View coinView = convertView;
+        final boolean coinViewWasRecycled = (coinView != null);
 
-        if (coinView == null) {  // If we couldn't get a recycled one, create a new one
-
-            LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (!coinViewWasRecycled) {
+            // If we couldn't get a recycled one, create a new one
+            LayoutInflater vi = (LayoutInflater) mCollectionPageContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
-
                 if(!mDisplayIsLocked){
                   // If the collection isn't locked, we show spinners and an EditText
                   coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
@@ -137,7 +137,6 @@ class CoinSlotAdapter extends BaseAdapter {
                   // The collection is locked, so we just show the advanced details in TextViews
                   coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
                 }
-
             } else if(mDisplayType == CollectionPage.SIMPLE_DISPLAY){
                 coinView = vi.inflate(R.layout.coin_slot, parent, false);
             }
@@ -145,7 +144,20 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // Make lint happy
         if(coinView == null){
-            return coinView;
+            return null;
+        }
+
+        // Register a callback for when the view gets detached
+        if (!coinViewWasRecycled && mDisplayType == CollectionPage.ADVANCED_DISPLAY && !mDisplayIsLocked) {
+            coinView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View view) { }
+
+                @Override
+                public void onViewDetachedFromWindow(View view) {
+                    onCoinSlotAdvNotesChanged(view);
+                }
+            });
         }
 
         // Display the basic info first
@@ -156,70 +168,136 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // Set the coin identifier text (Year and Mint in most cases)
         // TODO Fix this so there is no space if there is no mint
-        // This actually puts in two spaces, since mint has a space as well
         coinText.setText(mRes.getString(R.string.coin_text_template, identifier, mint));
 
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
+        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
+        coinImage.setImageResource(imageIdentifier);
 
         // Add an accessibility string to indicate that the coin has been found or not
         String contextDesc = mRes.getString(coinSlot.isInCollectionStringRes());
         contextDesc = mRes.getString(R.string.coin_content_desc_template, identifier, mint, contextDesc);
         coinImage.setContentDescription(contextDesc);
 
-        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
-        coinImage.setImageResource(imageIdentifier);
-
         // Setup the rest of the view if it is the advanced view
         if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
-            setupAdvancedView(coinView, position);
+            setupAdvancedView(coinView, position, coinViewWasRecycled);
         }
 
         return coinView;
     }
 
     /**
+     * Setup advanced view state shared by all views in the adapter
+     */
+    private void setupAdvancedSharedViews() {
+
+        // Create the adapter that will handle grade selections
+        mGradeArrayAdapter = ArrayAdapter.createFromResource(
+                mCollectionPageContext, R.array.coin_grades, android.R.layout.simple_spinner_item);
+        mGradeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Create the listener that will handle grade selections
+        mGradeOnItemSelectedListener = new OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent,
+                                       View view, int pos, long id) {
+
+                CoinSlot coinSlot = (CoinSlot) parent.getTag();
+
+                // Update the values in the lists if this is a new value
+                if(pos != coinSlot.getAdvancedGrades()){
+
+                    // Update the data structure and set index changed
+                    // - Changes will be committed to the database when the user presses save
+                    coinSlot.setAdvancedGrades(pos);
+                    coinSlot.setAdvInfoChanged(true);
+
+                    // Tell the parent page to show the unsaved changes view
+                    mCollectionPageContext.showUnsavedTextView();
+                }
+            }
+            public void onNothingSelected(AdapterView<?> parent) {}
+
+        };
+
+        // Create the adapter that will handle quantity selections
+        mQuantityArrayAdapter = ArrayAdapter.createFromResource (
+                mCollectionPageContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
+        mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Create the listener that will handle quantity selected
+        mQuantityOnItemSelectedListener = new OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent,
+                                       View view, int pos, long id) {
+
+                CoinSlot coinSlot = (CoinSlot) parent.getTag();
+
+                // Update the values in the lists if this is a new value
+                if(pos != coinSlot.getAdvancedQuantities()){
+
+                    // Update the data structure and set index changed
+                    // - Changes will be committed to the database when the user presses save
+                    coinSlot.setAdvancedQuantities(pos);
+                    coinSlot.setAdvInfoChanged(true);
+
+                    // Tell the parent page to show the unsaved changes view
+                    mCollectionPageContext.showUnsavedTextView();
+                }
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {}
+        };
+    }
+
+    /**
      * Handles setting up the advanced view components in the case that we should display them
      * @param coinView The view that we are setting up
      * @param position The list index of the coin that we are making the view for
+     * @param coinViewWasRecycled true if the view was recycled and is being reused
      */
-    private void setupAdvancedView(View coinView, final int position) {
+    private void setupAdvancedView(View coinView, int position, boolean coinViewWasRecycled) {
 
-        // Use this so the listeners know the position of the item in the list
-        Integer positionObj = position;
+        // Get the coin slot at the position in the list
         CoinSlot coinSlot = mCoinList.get(position);
 
+        // Set up on-click listeners for the image
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
-
-        imageView.setOnClickListener(v -> {
+        imageView.setTag(coinSlot);
+        imageView.setOnClickListener(view -> {
             // Need to check whether the collection is locked
             if(mDisplayIsLocked){
                 // Collection is locked
                 String text = mRes.getString(R.string.collection_locked);
-                Toast toast = Toast.makeText(mContext, text, Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(mCollectionPageContext, text, Toast.LENGTH_SHORT);
                 toast.show();
             } else {
-                // Collection is unlocked, update value
-                //mDbAdapter.toggleInCollection(mTableName, mIdentifierList.get(position), mMintList.get(position));
+                // Update the data structure and set index changed
+                // - Changes will be committed to the database when the user presses save
+                CoinSlot viewTagCoinSlot = (CoinSlot) view.getTag();
+                boolean oldValue = viewTagCoinSlot.isInCollection();
+                viewTagCoinSlot.setInCollection(!oldValue);
+                viewTagCoinSlot.setAdvInfoChanged(true);
 
-                // Tie the update to the save button
-                CoinSlot coinSlot1 = CoinSlotAdapter.this.mCoinList.get(position);
-                boolean oldValue = coinSlot1.isInCollection();
-                coinSlot1.setInCollection(!oldValue);
-                coinSlot1.setIndexChanged(true);
-
+                // Notify the adapter to re-draw the view
                 CoinSlotAdapter.this.notifyDataSetChanged();
 
-                CollectionPage collectionPage = (CollectionPage) mContext;
-                collectionPage.showUnsavedTextView();
+                // Tell the parent page to show the unsaved changes view
+                mCollectionPageContext.showUnsavedTextView();
             }
+        });
+
+        // Add long-press handler for additional actions
+        imageView.setOnLongClickListener(view -> {
+            mCollectionPageContext.promptCoinSlotActions(position);
+            return true;
         });
 
         // Everything below here is specific to whether the collection is locked or not.
         // Take care of the locked case first, since it is easier.
 
         if(mDisplayIsLocked){
-
+            // Setup the locked view and return
             String[] grades = mRes.getStringArray(R.array.coin_grades);
             TextView gradeTextView = coinView.findViewById(R.id.grade_textview);
             int gradeIndex = coinSlot.getAdvancedGrades();
@@ -242,110 +320,34 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // The collection is not locked, we need to set up the spinners and edittext
 
+        // Setup shared advanced view state if needed
+        if (mGradeOnItemSelectedListener == null) {
+            setupAdvancedSharedViews();
+        }
+
         // Setup the spinner that will let you select the coin grade
         Spinner gradeSelector = coinView.findViewById(R.id.grade_selector);
-        gradeSelector.setTag(positionObj);
-
-        if(mGradeArrayAdapter == null){
-            // Create the adapter that will handle spinner selections
-            mGradeArrayAdapter = ArrayAdapter.createFromResource(
-                mContext, R.array.coin_grades, android.R.layout.simple_spinner_item);
-            mGradeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        }
+        gradeSelector.setTag(coinSlot);
         gradeSelector.setAdapter(mGradeArrayAdapter);
-
-        // Put the spinner at the value we have stored for this coin
         gradeSelector.setSelection(coinSlot.getAdvancedGrades(), false);
-
-        if(mGradeOnItemSelectedListener == null){
-            mGradeOnItemSelectedListener = new OnItemSelectedListener() {
-                public void onItemSelected(AdapterView<?> parent,
-                        View view, int pos, long id) {
-
-                    int posPrim = (int) parent.getTag();
-                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
-
-                    // Update the values in the lists if this is a new value
-                    if(pos != coinSlot.getAdvancedGrades()){
-                        // Value has changed
-                        coinSlot.setAdvancedGrades(pos);
-                        coinSlot.setIndexChanged(true);
-
-                        // Tell the parent page to show the unsaved changes view
-                        CollectionPage collectionPage = (CollectionPage) mContext;
-                        collectionPage.showUnsavedTextView();
-                    }
-                }
-                public void onNothingSelected(AdapterView<?> parent) {}
-
-            };
-        }
         gradeSelector.setOnItemSelectedListener(mGradeOnItemSelectedListener);
 
         // Setup the spinner that will let you select the coin quantity
         Spinner quantitySelector = coinView.findViewById(R.id.quantity_selector);
-        quantitySelector.setTag(positionObj);
-
-        if(mQuantityArrayAdapter == null){
-            mQuantityArrayAdapter = ArrayAdapter.createFromResource (
-                mContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
-            mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        }
-
+        quantitySelector.setTag(coinSlot);
         quantitySelector.setAdapter(mQuantityArrayAdapter);
-
-        // Put the spinner at the value we have stored for this coin
         quantitySelector.setSelection(coinSlot.getAdvancedQuantities(), false);
-
-        if(mQuantityOnItemSelectedListener == null) {
-            mQuantityOnItemSelectedListener = new OnItemSelectedListener() {
-                public void onItemSelected(AdapterView<?> parent,
-                                           View view, int pos, long id) {
-
-                    int posPrim = (Integer) parent.getTag();
-                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
-
-                    // Update the values in the lists if this is a new value
-                    if(pos != coinSlot.getAdvancedQuantities()){
-                        // Value has changed
-                        coinSlot.setAdvancedQuantities(pos);
-                        coinSlot.setIndexChanged(true);
-
-                        // Tell the parent page to show the unsaved changes view
-                        CollectionPage collectionPage = (CollectionPage) mContext;
-                        collectionPage.showUnsavedTextView();
-                    }
-                }
-
-                public void onNothingSelected(AdapterView<?> parent) {}
-            };
-        }
         quantitySelector.setOnItemSelectedListener(mQuantityOnItemSelectedListener);
 
         // Setup the edit text to allow for coin notes
         EditText notesEditText = coinView.findViewById(R.id.notes_edit_text);
-
-        // Get the current tag associated with this EditText.  We use this to know whether or not
-        // this is a new EditText that doesn't have a TextWatcher yet (as opposed to a recycled
-        // EditText that does.)
-        // http://stackoverflow.com/questions/14117204
-        Object previousTag = notesEditText.getTag();
-
-        // Set the tag on this EditText
-        if(previousTag != null){
-            // If the user has their cursor in the EditText when the view is recycled, the
-            // TextWatcher may not be triggered. So force the TextWatcher to trigger by
-            // setting the EditText text to itself.
-            notesEditText.setText(notesEditText.getText());
-        }
-        notesEditText.setTag(positionObj);
+        notesEditText.setTag(coinSlot);
 
         // Set the EditText to the string previously entered by the user
         // - This will trigger the TextWatcher if recycled but the new/old values should match
-        String text = coinSlot.getAdvancedNotes();
-        notesEditText.setText(text);
-        // http://stackoverflow.com/questions/6217378/place-cursor-at-the-end-of-text-in-edittext
-        notesEditText.setSelection(text.length());
+        String advancedNotesText = coinSlot.getAdvancedNotes();
+        notesEditText.setText(advancedNotesText);
+        notesEditText.setSelection(advancedNotesText.length());
 
         // Make the hint specific for this coin's notes field
         String notes = mRes.getString(R.string.notes);
@@ -354,9 +356,10 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // If the display is not locked, we also need to set up a TextWatcher so that we can know
         // when the user types into the notes field. Create one for each unique EditText
-        if(previousTag == null) {
-            final EditText textWatcherEditText = notesEditText;
-            TextWatcher notesTextWatcher = new TextWatcher() {
+        if(!coinViewWasRecycled) {
+
+            // Add the TextWatcher for this EditText
+            notesEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void afterTextChanged(Editable s) {}
                 @Override
@@ -372,30 +375,37 @@ class CoinSlotAdapter extends BaseAdapter {
                         return;
                     }
 
-                    // Ignore if the text matches what's already temporarily saved
-                    int posPrim = (Integer) textWatcherEditText.getTag();
-                    CoinSlot coinSlot = CoinSlotAdapter.this.mCoinList.get(posPrim);
-                    String newText = s.toString();
-                    if (coinSlot.getAdvancedNotes().equals(newText)) {
-                        //Log.e(APP_NAME, "Text equals what is currently stored, not updating");
-                        return;
-                    }
-
-                    // Change detected - Temporarily store the modified text
-                    coinSlot.setAdvancedNotes(newText);
-                    coinSlot.setIndexChanged(true);
-                    //Log.e("CoinCollection", "Text has changed: " + newText + " position: " + Integer.toString(posPrim));
-
-                    CollectionPage collectionPage = (CollectionPage) mContext;
-                    collectionPage.showUnsavedTextView();
+                    onCoinSlotAdvNotesChanged(coinView);
                 }
-            };
-            // Add the TextWatcher for this EditText
-            notesEditText.addTextChangedListener(notesTextWatcher);
+            });
         }
 
         // Make the edittext scrollable
         // TODO Get scrolling working all the way
         // notesEditText.setMovementMethod(new ScrollingMovementMethod());
+    }
+
+    /**
+     * Called when advanced view notes are changed to capture the updated value
+     * @param coinView view to update
+     */
+    private void onCoinSlotAdvNotesChanged(View coinView) {
+
+        // Ignore if the text matches what's already saved
+        EditText notesEditText = coinView.findViewById(R.id.notes_edit_text);
+        CoinSlot coinSlot = (CoinSlot) notesEditText.getTag();
+        String newText = notesEditText.getText().toString();
+
+        if (coinSlot.getAdvancedNotes().equals(newText)) {
+            return;
+        }
+
+        // Update the data structure and set index changed
+        // - Changes will be committed to the database when the user presses save
+        coinSlot.setAdvancedNotes(newText);
+        coinSlot.setAdvInfoChanged(true);
+
+        // Tell the parent page to show the unsaved changes view
+        mCollectionPageContext.showUnsavedTextView();
     }
 }

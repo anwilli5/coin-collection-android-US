@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 public class BaseTestCase {
@@ -325,7 +326,7 @@ public class BaseTestCase {
                 collectionInfo.populateCollectionLists(parameters, newCoinList);
 
                 // Get coins from the updated database
-                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getAllIdentifiers(collectionName);
+                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
                 assertNotNull(dbCoinList);
 
                 // Make sure coin lists match
@@ -371,12 +372,44 @@ public class BaseTestCase {
     }
 
     /**
-     * Compare two CollectionListInfo classes to ensure they're the same
+     * Compare two CollectionListInfo objects to ensure they're the same
      * @param base CollectionListInfo
      * @param check CollectionListInfo
      */
     void compareCollectionListInfos(CollectionListInfo base, CollectionListInfo check) {
         assertTrue(SharedTest.compareCollectionListInfos(base, check));
+    }
+
+    /**
+     * Compare two lists of CoinSlot objects to ensure they're the same
+     * @param base ArrayList<CoinSlot>
+     * @param check ArrayList<CoinSlot>
+     * @param compareAdvInfo if true, enables comparison of advanced details
+     */
+    void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
+        assertTrue(SharedTest.compareCoinSlotLists(base, check, compareAdvInfo));
+    }
+
+    /**
+     * Get a list of the sort orders from a coin slot list
+     * @param coinList list of coin slots
+     * @return list of sort orders
+     */
+    ArrayList<Integer> getSortOrderList(ArrayList<CoinSlot> coinList) {
+        ArrayList<Integer> sortOrderList = new ArrayList<>();
+        for (CoinSlot coinSlot : coinList) {
+            sortOrderList.add(coinSlot.getSortOrder());
+        }
+        return sortOrderList;
+    }
+
+    /**
+     * Check that the sort orders in a list of coin slots are unique
+     * @param coinList list of coins to check sort order
+     */
+    void checkCoinSortOrdersUnique(ArrayList<CoinSlot> coinList) {
+        ArrayList<Integer> sortOrderList = getSortOrderList(coinList);
+        assertEquals(new HashSet<>(sortOrderList).size(), sortOrderList.size());
     }
 
     /**
@@ -391,8 +424,15 @@ public class BaseTestCase {
         // Make sure the collection list info is correct in the database
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         activity.mDbAdapter.getAllTables(collectionListEntries);
-        assertEquals(1, collectionListEntries.size());
-        compareCollectionListInfos(collectionListEntries.get(0), collectionListInfo);
+        assertTrue(collectionListEntries.size() > 0);
+        CollectionListInfo matchingDbCollectionListInfo = null;
+        for (CollectionListInfo dbCollectionListInfo : collectionListEntries) {
+            if (dbCollectionListInfo.getName().equals(collectionListInfo.getName())) {
+                matchingDbCollectionListInfo = dbCollectionListInfo;
+            }
+        }
+        assertNotNull(matchingDbCollectionListInfo);
+        compareCollectionListInfos(matchingDbCollectionListInfo, collectionListInfo);
 
         // Test table display database methods
         int originalDisplayType = collectionListInfo.getDisplayType();
@@ -418,8 +458,8 @@ public class BaseTestCase {
         // Make sure the coin list is correct in the database
         if (coinList != null) {
             boolean populateAdvInfo = (collectionListInfo.getDisplayType() == ADVANCED_DISPLAY);
-            ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(tableName, populateAdvInfo);
-            assertEquals(coinList, checkCoinList);
+            ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(tableName, populateAdvInfo, false);
+            compareCoinSlotLists(coinList, checkCoinList, populateAdvInfo);
 
             // Test coin slot database methods
             for (CoinSlot coinSlot : coinList) {
@@ -436,10 +476,10 @@ public class BaseTestCase {
     /**
      * Generate test scenarios for each collection
      * @param coinClass collection type
-     * @param numScenarios Number of scenarios to generate
+     * @param numRandomScenarios Number of additional random scenarios to generate
      * @return scenario list containing [start, end] dates (if dates are used)
      */
-    ArrayList<Integer[]> getTestScenarios(CollectionInfo coinClass, int numScenarios) {
+    ArrayList<Integer[]> getTestScenarios(CollectionInfo coinClass, int numRandomScenarios) {
         ArrayList<Integer[]> scenarioList = new ArrayList<>();
         if (CollectionListInfo.doesCollectionTypeUseDates(coinClass.getCoinType())) {
             // Add some coin date scenarios to test
@@ -452,14 +492,14 @@ public class BaseTestCase {
             scenarioList.add(new Integer[]{startYear, startYear + 1});
             scenarioList.add(new Integer[]{endYear - 1, endYear});
             // Choose some random date ranges
-            for (int i = 0; i < numScenarios; i++) {
+            for (int i = 0; i < numRandomScenarios; i++) {
                 int randStartYear = startYear + DatabaseAccessTests.random.nextInt(endYear - startYear + 1);
                 int randEndYear = randStartYear + random.nextInt(endYear - randStartYear + 1);
                 scenarioList.add(new Integer[]{randStartYear, randEndYear});
             }
         } else {
             // Add a fixed number of scenarios if dates aren't used
-            for (int i = 0; i < numScenarios; i++) {
+            for (int i = 0; i < numRandomScenarios; i++) {
                 scenarioList.add(new Integer[]{0, 0});
             }
         }
@@ -467,60 +507,80 @@ public class BaseTestCase {
     }
 
     /**
+     * Get collection with random information filled in
+     * @param coinType type of collection to make
+     * @param dates start and end dates
+     * @return generated collection
+     */
+    FullCollection getRandomTestScenario(CollectionInfo coinType, Integer[] dates) {
+
+        // Select a unique name
+        String collectionName;
+        do {
+            collectionName = getRandCollectionName();
+        } while (mPreviousRandCollectionNames.contains(collectionName));
+        mPreviousRandCollectionNames.add(collectionName);
+
+        return getRandomTestScenario(coinType, collectionName, dates);
+    }
+    /**
+     * Get collection with random information filled in
+     * @param coinType type of collection to make
+     * @param collectionName name of the collection
+     * @param dates start and end dates
+     * @return generated collection
+     */
+    FullCollection getRandomTestScenario(CollectionInfo coinType, String collectionName,
+                                         Integer[] dates) {
+        int maxGrades = 100;
+        int maxQuantities = 20;
+        int startDate = dates[0];
+        int endDate = dates[1];
+        int displayOrder = random.nextInt(100000);
+
+        // Create CollectionListInfo
+        int displayType = ((random.nextInt() % 2) == 1 ? SIMPLE_DISPLAY : ADVANCED_DISPLAY);
+        CollectionListInfo collectionListInfo = new CollectionListInfo(
+                collectionName,
+                0,
+                0,
+                MainApplication.getIndexFromCollectionNameStr(coinType.getCoinType()),
+                displayType,
+                startDate,
+                endDate,
+                random.nextInt() & CollectionListInfo.ALL_MINT_MASK,
+                random.nextInt() & CollectionListInfo.ALL_CHECKBOXES_MASK);
+
+        // Populate coin list
+        ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        coinType.populateCollectionLists(parameters, coinList);
+        int numCollected = 0;
+        for (CoinSlot coinSlot : coinList) {
+            boolean collected = (random.nextInt() % 2) == 1;
+            coinSlot.setInCollection(collected);
+            coinSlot.setAdvancedGrades(random.nextInt() % maxGrades);
+            coinSlot.setAdvancedQuantities(random.nextInt() % maxQuantities);
+            coinSlot.setAdvancedNotes(Integer.toString(random.nextInt()));
+            numCollected += collected ? 1 : 0;
+        }
+        collectionListInfo.setMax(coinList.size());
+        collectionListInfo.setCollected(numCollected);
+
+        return new FullCollection(collectionListInfo, coinList, displayOrder);
+    }
+    /**
      * Get collections with random information filled in
-     * @param activity activity needed to access some resources
      * @param coinType type of collection to make
      * @param numScenarios number of collections to make
      * @return list of generated collections
      */
-    ArrayList<FullCollection> getRandomTestScenarios(BaseActivity activity, CollectionInfo coinType, int numScenarios) {
-        String[] grades = activity.getResources().getStringArray(R.array.coin_grades);
-        String[] quantities = activity.getResources().getStringArray(R.array.coin_quantities);
+    ArrayList<FullCollection> getRandomTestScenarios(CollectionInfo coinType, int numScenarios) {
         ArrayList<Integer[]> scenarioList = getTestScenarios(coinType, numScenarios);
         ArrayList<FullCollection> testCollections = new ArrayList<>();
 
         for (int i = 0; i < scenarioList.size(); i++) {
-            int startDate = scenarioList.get(i)[0];
-            int endDate = scenarioList.get(i)[1];
-            int displayOrder = random.nextInt(100000);
-
-            // Select a unique name
-            String collectionName;
-            do {
-                collectionName = getRandCollectionName();
-            } while (mPreviousRandCollectionNames.contains(collectionName));
-            mPreviousRandCollectionNames.add(collectionName);
-
-            // Create CollectionListInfo
-            int displayType = ((random.nextInt() % 2) == 1 ? SIMPLE_DISPLAY : ADVANCED_DISPLAY);
-            CollectionListInfo collectionListInfo = new CollectionListInfo(
-                    collectionName,
-                    0,
-                    0,
-                    MainApplication.getIndexFromCollectionNameStr(coinType.getCoinType()),
-                    displayType,
-                    startDate,
-                    endDate,
-                    random.nextInt() & CollectionListInfo.ALL_MINT_MASK,
-                    random.nextInt() & CollectionListInfo.ALL_CHECKBOXES_MASK);
-
-            // Populate coin list
-            ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
-            ArrayList<CoinSlot> coinList = new ArrayList<>();
-            coinType.populateCollectionLists(parameters, coinList);
-            int numCollected = 0;
-            for (CoinSlot coinSlot : coinList) {
-                boolean collected = (random.nextInt() % 2) == 1;
-                coinSlot.setInCollection(collected);
-                coinSlot.setAdvancedGrades(random.nextInt() % grades.length);
-                coinSlot.setAdvancedQuantities(random.nextInt() % quantities.length);
-                coinSlot.setAdvancedNotes(Integer.toString(random.nextInt()));
-                numCollected += collected ? 1 : 0;
-            }
-            collectionListInfo.setMax(coinList.size());
-            collectionListInfo.setCollected(numCollected);
-
-            testCollections.add(new FullCollection(collectionListInfo, coinList, displayOrder));
+            testCollections.add(getRandomTestScenario(coinType, scenarioList.get(i)));
         }
         return testCollections;
     }

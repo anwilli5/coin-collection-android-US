@@ -20,6 +20,9 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -31,9 +34,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.DatabaseHelper.runSqlUpdate;
 
 public class FirstSpouseGoldCoins extends CollectionInfo {
 
@@ -120,9 +120,10 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
+        int coinIndex = 0;
         for (Object[] coinData : COIN_IDENTIFIERS) {
             String identifier = (String) coinData[0];
-            coinList.add(new CoinSlot(identifier, ""));
+            coinList.add(new CoinSlot(identifier, "", coinIndex++));
         }
     }
 

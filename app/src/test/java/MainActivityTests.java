@@ -72,25 +72,25 @@ public class MainActivityTests extends BaseTestCase {
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
                 for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
-                    for (FullCollection scenario1 : getRandomTestScenarios(activity, coinType, 2)) {
-                        String collectionName = scenario1.mCollectionListInfo.getName();
+                    for (FullCollection collection : getRandomTestScenarios(coinType, 2)) {
+                        String collectionName = collection.mCollectionListInfo.getName();
 
                         // Create the collection in the database
-                        activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
-                                scenario1.mDisplayOrder, scenario1.mCoinList);
+                        activity.mDbAdapter.createAndPopulateNewTable(collection.mCollectionListInfo,
+                                collection.mDisplayOrder, collection.mCoinList);
                         activity.updateCollectionListFromDatabase();
 
                         // Make a copy
                         String newDbName = collectionName + " Copy";
                         activity.copyCollection(collectionName);
-                        CollectionListInfo copiedCollectionListInfo = scenario1.mCollectionListInfo.copy(newDbName);
+                        CollectionListInfo copiedCollectionListInfo = collection.mCollectionListInfo.copy(newDbName);
 
                         // Drop the original
                         activity.mDbAdapter.dropCollectionTable(collectionName);
 
                         // Check that the copied collection was made correctly in the database
                         compareCollectionWithDb(activity, copiedCollectionListInfo,
-                                scenario1.mCoinList, scenario1.mDisplayOrder);
+                                collection.mCoinList, collection.mDisplayOrder);
 
                         // Delete the collection from the database
                         activity.mDbAdapter.dropCollectionTable(newDbName);

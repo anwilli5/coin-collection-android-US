@@ -89,25 +89,26 @@ public class FranklinHalfDollars extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
 
             if(showMintMarks){
                 if(showP){
-                    coinList.add(new CoinSlot(Integer.toString(i), ""));
+                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                 }
                 if(showD){
                     if( i != 1955 && i != 1956 ){
-                        coinList.add(new CoinSlot(Integer.toString(i), "D"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i != 1948 && i != 1950 && i <= 1954 ){
-                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), ""));
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }

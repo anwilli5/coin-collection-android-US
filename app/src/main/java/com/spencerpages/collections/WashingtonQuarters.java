@@ -20,6 +20,9 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -31,9 +34,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COIN_SLOT_WHERE_CLAUSE;
-import static com.coincollection.DatabaseHelper.runSqlDelete;
 
 public class WashingtonQuarters extends CollectionInfo {
 
@@ -111,6 +111,7 @@ public class WashingtonQuarters extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
             String newValue = Integer.toString(i);
@@ -128,23 +129,23 @@ public class WashingtonQuarters extends CollectionInfo {
             if(showMintMarks){
                 if(showP){
                     if(i >= 1980){
-                        coinList.add(new CoinSlot(newValue, "P"));
+                        coinList.add(new CoinSlot(newValue, "P", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(newValue, ""));
+                        coinList.add(new CoinSlot(newValue, "", coinIndex++));
                     }
                 }
                 if(showD){
                     if(i != 1938 && (i < 1965 || i > 1967)){
-                        coinList.add(new CoinSlot(newValue, "D"));
+                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i < 1955 && i != 1934 && i != 1949){
-                        coinList.add(new CoinSlot(newValue, "S"));
+                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, ""));
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
         }
     }
@@ -172,9 +173,9 @@ public class WashingtonQuarters extends CollectionInfo {
 
         if(oldVersion <= 2) {
             // Remove 1965 - 1967 D quarters
-            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1965", "D"});
-            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1966", "D"});
-            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1967", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1965", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1966", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1967", "D"});
         }
 
         if (oldVersion <= 16) {

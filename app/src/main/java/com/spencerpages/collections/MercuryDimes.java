@@ -89,6 +89,7 @@ public class MercuryDimes extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -97,20 +98,20 @@ public class MercuryDimes extends CollectionInfo {
 
             if(showMintMarks){
                 if(showP){
-                    coinList.add(new CoinSlot(Integer.toString(i), ""));
+                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                 }
                 if(showD){
                     if(i != 1923 && i != 1930){
-                        coinList.add(new CoinSlot(Integer.toString(i), "D"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i != 1921 && i != 1934){
-                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), ""));
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }

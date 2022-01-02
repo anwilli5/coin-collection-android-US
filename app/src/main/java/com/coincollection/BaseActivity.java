@@ -291,8 +291,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * Create a help dialog to show the user how to do something
      * @param helpStrKey key uniquely identifying this boolean key
      * @param helpStrId Help message to display
+     * @return true if the help dialog was displayed, otherwise false
      */
-    public void createAndShowHelpDialog (final String helpStrKey, int helpStrId){
+    public boolean createAndShowHelpDialog (final String helpStrKey, int helpStrId){
         final SharedPreferences mainPreferences = this.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         final Resources res = this.getResources();
         if(mainPreferences.getBoolean(helpStrKey, true)){
@@ -305,34 +306,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
                         editor.putBoolean(helpStrKey, false);
                         editor.apply();
                     }));
+            return true;
         }
-    }
-
-    /**
-     * Show an alert that changes aren't saved before changing views
-     */
-    public void showUnsavedChangesAlertViewChange(Resources res) {
-        showAlert(newBuilder()
-                .setMessage(res.getString(R.string.dialog_unsaved_changes_change_views))
-                .setCancelable(false)
-                .setPositiveButton(res.getString(R.string.okay), (dialog, id) -> {
-                    // Nothing to do, just a warning
-                    dialog.dismiss();
-                }));
-    }
-
-    /**
-     * Show an alert that changes aren't saved before exiting activity
-     */
-    public void showUnsavedChangesAlertAndExitActivity(){
-        showAlert(newBuilder()
-                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_exit))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
-                    dialog.dismiss();
-                    finish();
-                })
-                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
+        return false;
     }
 
     /**

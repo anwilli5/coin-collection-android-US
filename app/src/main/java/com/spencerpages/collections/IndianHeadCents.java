@@ -84,6 +84,7 @@ public class IndianHeadCents extends CollectionInfo {
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
 
@@ -95,21 +96,21 @@ public class IndianHeadCents extends CollectionInfo {
                     // 1864 L
 
                     if(i == 1864){
-                        coinList.add(new CoinSlot(Integer.toString(i), " Copper"));
-                        coinList.add(new CoinSlot(Integer.toString(i), " Bronze"));
-                        coinList.add(new CoinSlot(Integer.toString(i), " L"));
+                        coinList.add(new CoinSlot(Integer.toString(i), " Copper", coinIndex++));
+                        coinList.add(new CoinSlot(Integer.toString(i), " Bronze", coinIndex++));
+                        coinList.add(new CoinSlot(Integer.toString(i), " L", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(Integer.toString(i), ""));
+                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i == 1908 || i == 1909){
-                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
 
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), ""));
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }

@@ -20,7 +20,7 @@
 
 package com.coincollection;
 
-import static com.coincollection.CoinPageCreator.getCollectionNameFilter;
+import static com.coincollection.CoinPageCreator.getCollectionOrCoinNameFilter;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.content.Context;
@@ -31,6 +31,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +60,7 @@ import java.util.ArrayList;
  */
 public class CollectionPage extends BaseActivity {
     private String mCollectionName;
-    private ArrayList<CoinSlot> mCoinList;
+    public ArrayList<CoinSlot> mCoinList;
     private CoinSlotAdapter mCoinSlotAdapter;
 
     // Saved Instance State Keywords
@@ -75,6 +77,13 @@ public class CollectionPage extends BaseActivity {
     public static final int ADVANCED_DISPLAY = 1;
 
     private int mDisplayType = SIMPLE_DISPLAY;
+
+    // Action menu items
+    private final static int NUM_ACTIONS = 4;
+    private final static int ACTIONS_TOGGLE = 0;
+    private final static int ACTIONS_EDIT = 1;
+    private final static int ACTIONS_COPY = 2;
+    private final static int ACTIONS_DELETE = 3;
 
     /* Used in conjunction with the ListView in the advance view case to scroll the view to the last
      * location.  Defaults to the first item, and will be set by:
@@ -127,7 +136,12 @@ public class CollectionPage extends BaseActivity {
 
         // Tell the user they can now lock the collections
         // Check whether it is the users first time using the app
-        createAndShowHelpDialog("first_Time_screen3", R.string.tutorial_add_to_and_lock_collection);
+        boolean displayedHelp = createAndShowHelpDialog("first_Time_screen3", R.string.tutorial_add_to_and_lock_collection);
+
+        // Tell the user they can edit/copy coins now
+        if (!displayedHelp) {
+            createAndShowHelpDialog("first_Time_screen5", R.string.tutorial_edit_copy_delete_coins);
+        }
 
         // Determine whether we should show the advanced view or the basic view
         mDisplayType = mDbAdapter.fetchTableDisplay(mCollectionName);
@@ -174,7 +188,7 @@ public class CollectionPage extends BaseActivity {
             // re-display the "Unsaved Changes" view
             if (mCoinList != null){
                 for(int i = 0; i < mCoinList.size(); i++){
-                    if(mCoinList.get(i).hasIndexChanged()){
+                    if(mCoinList.get(i).hasAdvInfoChanged()){
                         this.showUnsavedTextView();
                         break;
                     }
@@ -221,30 +235,13 @@ public class CollectionPage extends BaseActivity {
 
             // Set the onClick listener that will handle changing the coin state
             gridview.setOnItemClickListener((parent, v, position, id) -> {
-                // Need to check whether the collection is locked
-                SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+                toggleCoinSlotInCollection(mCoinList.get(position));
+            });
 
-                if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
-                    // Collection is locked
-                    showLockedMessage();
-                } else {
-                    // Preference doesn't exist or Collection is unlocked
-
-                    CoinSlot coinSlot = mCoinList.get(position);
-                    try {
-                        mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
-                    } catch (SQLException e) {
-                        showCancelableAlert(mRes.getString(R.string.error_updating_database));
-                    }
-
-                    // Update the mCoinSlotAdapters copy of the coins in this collection
-                    boolean oldValue = coinSlot.isInCollection();
-                    coinSlot.setInCollection(!oldValue);
-
-                    // And have the adapter redraw with this new info
-
-                    mCoinSlotAdapter.notifyDataSetChanged();
-                }
+            // Add long-press handler for additional actions
+            gridview.setOnItemLongClickListener((parent, view, position, id) -> {
+                promptCoinSlotActions(position);
+                return true;
             });
 
         } else if(mDisplayType == ADVANCED_DISPLAY){
@@ -270,6 +267,11 @@ public class CollectionPage extends BaseActivity {
                 }
             });
 
+            // Add long-press handler for additional actions
+            listview.setOnItemLongClickListener((parent, view, position, id) -> {
+                promptCoinSlotActions(position);
+                return true;
+            });
         }
     }
 
@@ -352,7 +354,7 @@ public class CollectionPage extends BaseActivity {
 
                 for (int i = 0; i < mCoinList.size(); i++) {
                     CoinSlot coinSlot = mCoinList.get(i);
-                    if (coinSlot.hasIndexChanged()) {
+                    if (coinSlot.hasAdvInfoChanged()) {
                         try {
                             mDbAdapter.updateAdvInfo(mCollectionName, coinSlot);
                         } catch (SQLException e) {
@@ -361,7 +363,7 @@ public class CollectionPage extends BaseActivity {
                             continue;
                         }
                         // Mark this data as being unchanged
-                        coinSlot.setIndexChanged(false);
+                        coinSlot.setAdvInfoChanged(false);
                     }
                 }
 
@@ -404,14 +406,11 @@ public class CollectionPage extends BaseActivity {
                 // view.  Also, at this point there are no unsaved changes
 
                 // Save the position that the user was at for convenience
-                // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
                 ListView listview = findViewById(R.id.advanced_collection_page);
-                int index = listview.getFirstVisiblePosition();
-                View v = listview.getChildAt(0);
-                int top = (v == null) ? 0 : v.getTop();
+                Integer[] viewPos = getAbsListViewPosition(listview);
 
-                mCallingIntent.putExtra(VIEW_INDEX, index);
-                mCallingIntent.putExtra(VIEW_POSITION, top);
+                mCallingIntent.putExtra(VIEW_INDEX, viewPos[0]);
+                mCallingIntent.putExtra(VIEW_POSITION, viewPos[1]);
                 mCallingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 finish();
@@ -429,14 +428,11 @@ public class CollectionPage extends BaseActivity {
                 }
 
                 // Save the position that the user was at for convenience
-                // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
                 GridView gridview = findViewById(R.id.standard_collection_page);
-                int index = gridview.getFirstVisiblePosition();
-                View v = gridview.getChildAt(0);
-                int top = (v == null) ? 0 : v.getTop();
+                Integer[] viewPos = getAbsListViewPosition(gridview);
 
-                mCallingIntent.putExtra(VIEW_INDEX, index);
-                mCallingIntent.putExtra(VIEW_POSITION, top);
+                mCallingIntent.putExtra(VIEW_INDEX, viewPos[0]);
+                mCallingIntent.putExtra(VIEW_POSITION, viewPos[1]);
                 mCallingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 // Restart the activity
@@ -453,7 +449,7 @@ public class CollectionPage extends BaseActivity {
 
                 if (this.doUnsavedChangesExist()) {
 
-                    showUnsavedChangesAlertViewChange(mRes);
+                    showUnsavedChangesAlertViewChange();
                     return true;
                 }
 
@@ -466,14 +462,11 @@ public class CollectionPage extends BaseActivity {
                 }
 
                 // Save the position that the user was at for convenience
-                // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
                 ListView listview = findViewById(R.id.advanced_collection_page);
-                int index = listview.getFirstVisiblePosition();
-                View v = listview.getChildAt(0);
-                int top = (v == null) ? 0 : v.getTop();
+                Integer[] viewPos = getAbsListViewPosition(listview);
 
-                mCallingIntent.putExtra(VIEW_INDEX, index);
-                mCallingIntent.putExtra(VIEW_POSITION, top);
+                mCallingIntent.putExtra(VIEW_INDEX, viewPos[0]);
+                mCallingIntent.putExtra(VIEW_POSITION, viewPos[1]);
                 mCallingIntent.putExtra(COLLECTION_NAME, mCollectionName);
 
                 // Restart the activity
@@ -486,7 +479,7 @@ public class CollectionPage extends BaseActivity {
             return true;
         } else if (itemId == R.id.rename_collection) {
             // Prompt user for new name via alert dialog
-            showRenamePrompt();
+            showCollectionRenamePrompt();
             return true;
         } else if (itemId == android.R.id.home) {
             // To support having a back arrow on the page
@@ -547,14 +540,53 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
+     * Update the coin name/mint details
+     * @param coinSlot coin slot to update
+     * @param coinName new name for the coin
+     * @param coinMint new mint mark for the coin
+     */
+    public void updateCoinDetails(CoinSlot coinSlot, String coinName, String coinMint){
+
+        // Do nothing if the name/mint isn't actually changed
+        if (coinName.equals(coinSlot.getIdentifier()) && coinMint.equals(coinSlot.getMint())){
+            return;
+        }
+
+        // Update the coin in the coin list
+        try {
+            coinSlot.setIdentifier(coinName);
+            coinSlot.setMint(coinMint);
+            mDbAdapter.updateCoinNameAndMint(mCollectionName, coinSlot);
+        } catch (SQLException e){
+            showCancelableAlert(mRes.getString(R.string.error_updating_coin));
+            return;
+        }
+
+        // Update the view
+        mCoinSlotAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Get the position that the user was at for convenience
+     * http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
+     * @param view to capture position from
+     */
+    private static Integer[] getAbsListViewPosition(AbsListView view) {
+        int index = view.getFirstVisiblePosition();
+        View v = view.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+        return new Integer[] {index, top};
+    }
+
+    /**
      * Prompts the user to rename the collection
      */
-    private void showRenamePrompt(){
+    private void showCollectionRenamePrompt(){
         // Create a text box for the new collection name
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         // Make a filter to block out bad characters
-        InputFilter nameFilter = getCollectionNameFilter();
+        InputFilter nameFilter = getCollectionOrCoinNameFilter();
         input.setFilters(new InputFilter[]{nameFilter});
         input.setText(mCollectionName);
 
@@ -573,7 +605,10 @@ public class CollectionPage extends BaseActivity {
                 })
                 .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
     }
-    
+
+    /**
+     * @return true if a collection has unsaved changes (only possible in advanced view)
+     */
     private boolean doUnsavedChangesExist(){
 
         if(mDisplayType == ADVANCED_DISPLAY){
@@ -593,7 +628,7 @@ public class CollectionPage extends BaseActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             // If the back key is pressed, we want to warn the user if there are unsaved changes
 
-            if(this.doUnsavedChangesExist()){
+            if(doUnsavedChangesExist()){
                 showUnsavedChangesAlertAndExitActivity();
                 return true;
             }
@@ -620,34 +655,22 @@ public class CollectionPage extends BaseActivity {
         // to save off the lists storing the uncommitted changes of coin grades,
         // coin quantities, and coin notes.  This is pretty hacked together,
         // so fix sometime, maybe
-        
-        int index;
-        int top;
-        
-        if(mDisplayType == ADVANCED_DISPLAY){
 
+        // Save off position of listview/gridview
+        Integer[] viewPos;
+        if(mDisplayType == ADVANCED_DISPLAY){
             // Finally, save off the position of the listview
             ListView listview = findViewById(R.id.advanced_collection_page);
-
-            // save index and top position
-            // http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
-            index = listview.getFirstVisiblePosition();
-            View v = listview.getChildAt(0);
-            top = (v == null) ? 0 : v.getTop();
-
+            viewPos = getAbsListViewPosition(listview);
         } else {
-
             GridView gridview = findViewById(R.id.standard_collection_page);
-
-            index = gridview.getFirstVisiblePosition();
-            View v = gridview.getChildAt(0);
-            top = (v == null) ? 0 : v.getTop();
+            viewPos = getAbsListViewPosition(gridview);
         }
 
         // Save off these lists that may have unsaved user data
         outState.putParcelableArrayList(COIN_LIST, mCoinList);
-        outState.putInt(VIEW_INDEX, index);
-        outState.putInt(VIEW_POSITION, top);
+        outState.putInt(VIEW_INDEX, viewPos[0]);
+        outState.putInt(VIEW_POSITION, viewPos[1]);
         outState.putString(COLLECTION_NAME, mCollectionName);
     }
 
@@ -658,5 +681,232 @@ public class CollectionPage extends BaseActivity {
         String text = mRes.getString(R.string.collection_locked);
         Toast toast = Toast.makeText(CollectionPage.this, text, Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    /**
+     * Display message to save changes before performing an advanced action
+     */
+    private void showSaveChangesMessage() {
+        String text = mRes.getString(R.string.save_changes_first);
+        Toast toast = Toast.makeText(CollectionPage.this, text, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    /**
+     * Show an alert that changes aren't saved before changing views
+     */
+    public void showUnsavedChangesAlertViewChange() {
+        showAlert(newBuilder()
+                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_change_views))
+                .setCancelable(false)
+                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
+                    // Nothing to do, just a warning
+                    dialog.dismiss();
+                }));
+    }
+
+    /**
+     * Show an alert that changes aren't saved before exiting activity
+     */
+    public void showUnsavedChangesAlertAndExitActivity(){
+        showAlert(newBuilder()
+                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_exit))
+                .setCancelable(false)
+                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
+                    dialog.dismiss();
+                    finish();
+                })
+                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
+    }
+
+    /**
+     * Toggle whether a given coin slot is collected or not
+     * @param coinSlot the CoinSlot to update
+     */
+    private void toggleCoinSlotInCollection(CoinSlot coinSlot) {
+        // Need to check whether the collection is locked
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+
+        if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+            // Collection is locked
+            showLockedMessage();
+        } else {
+            // Preference doesn't exist or Collection is unlocked
+            try {
+                mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
+            } catch (SQLException e) {
+                showCancelableAlert(mRes.getString(R.string.error_updating_database));
+            }
+
+            // Update the mCoinSlotAdapters copy of the coins in this collection
+            boolean oldValue = coinSlot.isInCollection();
+            coinSlot.setInCollection(!oldValue);
+
+            // And have the adapter redraw with this new info
+            mCoinSlotAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Makes a copy of the coin slot in the collection
+     * @param coinSlot the CoinSlot to copy
+     */
+    public void copyCoinSlot(CoinSlot coinSlot, int coinListInsertIndex) {
+        // Need to check whether the collection is locked
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+
+        if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+            // Collection is locked
+            showLockedMessage();
+        } else {
+            // Create the new coin slot
+            // - copy() also sets the sort order to original + 1
+            // - Mark as custom coin since it wasn't added when the collection was created
+            CoinSlot newCoinSlot = coinSlot.copy(coinSlot.getIdentifier(), coinSlot.getMint(), true);
+            try {
+                // Update the sort order in the database and coin list
+                mDbAdapter.updateCoinSortOrderForInsert(mCollectionName, newCoinSlot.getSortOrder());
+                for(CoinSlot currCoinSlot : mCoinList) {
+                    if (currCoinSlot.getSortOrder() >= newCoinSlot.getSortOrder()) {
+                        currCoinSlot.setSortOrder(currCoinSlot.getSortOrder() + 1);
+                    }
+                }
+
+                // Insert the new coin into the database
+                mDbAdapter.addCoinSlotToCollection(newCoinSlot, mCollectionName, true, mCoinList.size() + 1);
+            } catch (SQLException e) {
+                showCancelableAlert(mRes.getString(R.string.error_copying_coin));
+                return;
+            }
+
+            // Insert the new coin and update the view
+            mCoinList.add(coinListInsertIndex, newCoinSlot);
+            mCoinSlotAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Deletes the coin slot in the collection at a given position
+     * @param position the CoinSlot index to delete
+     */
+    public void deleteCoinSlotAtPosition(int position) {
+        // Need to check whether the collection is locked
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+
+        if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+            // Collection is locked
+            showLockedMessage();
+        } else {
+            // Delete the coin from the coin list
+            CoinSlot coinSlot = mCoinList.remove(position);
+            try {
+                mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName);
+            } catch (SQLException e) {
+                showCancelableAlert(mRes.getString(R.string.error_delete_coin));
+                return;
+            }
+
+            // Update the view
+            mCoinSlotAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Prompts the user to rename the coin
+     * @param position the CoinSlot index to update
+     */
+    private void showCoinRenamePrompt(int position){
+        // Need to check whether the collection is locked
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+
+        if(mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)){
+            // Collection is locked
+            showLockedMessage();
+        } else {
+            // Get coin slot at the position
+            CoinSlot coinSlot = mCoinList.get(position);
+
+            // Get inputs and set default text
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            RelativeLayout coinRenameView = (RelativeLayout) inflater.inflate(R.layout.coin_update_layout, null);
+            EditText nameInput = coinRenameView.findViewById(R.id.coin_name_edittext);
+            EditText mintInput = coinRenameView.findViewById(R.id.coin_mint_edittext);
+            nameInput.setText(coinSlot.getIdentifier());
+            mintInput.setText(coinSlot.getMint());
+
+            // Set filters to block out bad characters
+            InputFilter nameFilter = getCollectionOrCoinNameFilter();
+            nameInput.setFilters(new InputFilter[]{nameFilter});
+            mintInput.setFilters(new InputFilter[]{nameFilter});
+
+            // Build the alert dialog
+            showAlert(newBuilder()
+                    .setTitle(mRes.getString(R.string.edit_coin_info))
+                    .setView(coinRenameView)
+                    .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
+                        dialog.dismiss();
+                        String newName = nameInput.getText().toString();
+                        if (newName.equals("")) {
+                            Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_coin_name), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString());
+                    })
+                    .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
+        }
+    }
+
+    /**
+     * Display additional actions list
+     * @param position the CoinSlot index to update
+     */
+    public void promptCoinSlotActions(int position) {
+
+        // Populate a menu of actions for the collection
+        CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
+        actionsList[ACTIONS_TOGGLE] = mRes.getString(R.string.toggle_collected);
+        actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
+        actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
+        actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
+        final int actionPosition = position;
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.coin_actions))
+                .setItems(actionsList, (dialog, item) -> {
+                    // Clear the dialog after any option is pressed
+                    dialog.dismiss();
+
+                    // Currently if there are unsaved changes, block any of these actions from
+                    // occurring, because the methods don't yet support delayed updating of
+                    // the database (they take effect right away). A cleaner user experience
+                    // would be for all of these changes to happen 'unsaved' (only to the
+                    // data structure) and to committed to the DB when the save is performed.
+                    if (doUnsavedChangesExist()) {
+                        showSaveChangesMessage();
+                        return;
+                    }
+
+                    switch (item) {
+                        case ACTIONS_TOGGLE: {
+                            // Toggle collected or not
+                            toggleCoinSlotInCollection(mCoinList.get(actionPosition));
+                            break;
+                        }
+                        case ACTIONS_EDIT: {
+                            // Launch edit view
+                            showCoinRenamePrompt(actionPosition);
+                            break;
+                        }
+                        case ACTIONS_COPY: {
+                            // Perform copy
+                            copyCoinSlot(mCoinList.get(actionPosition), actionPosition + 1);
+                            break;
+                        }
+                        case ACTIONS_DELETE: {
+                            // Perform delete
+                            deleteCoinSlotAtPosition(actionPosition);
+                            break;
+                        }
+                    }
+                }));
     }
 }

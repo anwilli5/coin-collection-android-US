@@ -314,7 +314,7 @@ public class CoinPageCreator extends BaseActivity {
         final EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
         nameEditText.setOnKeyListener(hideKeyboardListener);
         // Make a filter to block out bad characters
-        InputFilter nameFilter = getCollectionNameFilter();
+        InputFilter nameFilter = getCollectionOrCoinNameFilter();
         nameEditText.setFilters(new InputFilter[]{nameFilter});
         // Set the name if editing an existing collection
         if (mExistingCollection != null && savedInstanceState == null) {
@@ -631,7 +631,7 @@ public class CoinPageCreator extends BaseActivity {
     /** Returns an input filter for sanitizing collection names
      * @return The input filter
      */
-    static InputFilter getCollectionNameFilter() {
+    static InputFilter getCollectionOrCoinNameFilter() {
         return (source, start, end, dest, dstart, dend) -> {
             for (int i = start; i < end; i++) {
                 if (source.charAt(i) == '[' || source.charAt(i) == ']') {
@@ -874,15 +874,30 @@ public class CoinPageCreator extends BaseActivity {
             boolean hasMintMarks = (getMintMarkFlagsFromParameters(mParameters) & CollectionListInfo.SHOW_MINT_MARKS) != 0;
             ArrayList<CoinSlot> existingCoinList = mDbAdapter.getCoinList(
                     mExistingCollection.getName(), true);
+            ArrayList<CoinSlot> mergedCoinList = new ArrayList<>();
+
+            // Add any custom coins at the beginning of the list
+            while ((existingCoinList.size() != 0) && existingCoinList.get(0).isCustomCoin()) {
+                mergedCoinList.add(existingCoinList.remove(0));
+            }
+
             for (int i = 0; i < mCoinList.size(); i++) {
+                CoinSlot newCoin = mCoinList.get(i);
+                boolean foundExistingCoinMatch = false;
                 for (int j = 0; j < existingCoinList.size(); j++) {
-                    CoinSlot newCoin = mCoinList.get(i);
                     CoinSlot existingCoin = existingCoinList.get(j);
+
+                    // Skip custom coins added by the user, as those may spuriously match
+                    if (existingCoin.isCustomCoin()) {
+                        continue;
+                    }
+
                     if (!mExistingCollection.hasMintMarks() && hasMintMarks) {
                         // If going from no mint marks to having mint marks, copy the coin progress
                         // for the existing identifier into each of the coin mints selected.
                         if (newCoin.getIdentifier().equals(existingCoin.getIdentifier())) {
-                            mCoinList.set(i, existingCoin.copy(newCoin.getIdentifier(), newCoin.getMint()));
+                            foundExistingCoinMatch = true;
+                            newCoin = existingCoin.copy(newCoin.getIdentifier(), newCoin.getMint(), false);
                             break;
                         }
                     } else if (mExistingCollection.hasMintMarks() && !hasMintMarks) {
@@ -890,19 +905,45 @@ public class CoinPageCreator extends BaseActivity {
                         // coin's advanced info and merge the inCollection attribute
                         if (newCoin.getIdentifier().equals(existingCoin.getIdentifier())) {
                             existingCoin.setInCollection(existingCoin.isInCollection() || newCoin.isInCollection());
-                            mCoinList.set(i, existingCoin);
+                            existingCoin.setMint(newCoin.getMint());
+                            foundExistingCoinMatch = true;
+                            newCoin = existingCoin;
                             // No break here to allow merging across all mints
                         }
                     } else {
                         // In all other cases, copy any coins that match identifier and mint
                         if (newCoin.equals(existingCoin)) {
-                            mCoinList.set(i, existingCoin);
+                            foundExistingCoinMatch = true;
+                            newCoin = existingCoin;
                             existingCoinList.remove(j);
                             break;
                         }
                     }
                 }
+
+                if (foundExistingCoinMatch) {
+                    // When a match is found, insert any custom coins with a lower display order ahead
+                    // of the match and remove from the list
+                    for (int j = 0; j < existingCoinList.size(); j++) {
+                        CoinSlot existingCoin = existingCoinList.get(j);
+                        if (existingCoin.isCustomCoin() && existingCoin.getSortOrder() < newCoin.getSortOrder()) {
+                            mergedCoinList.add(existingCoinList.remove(j--));
+                        }
+                    }
+                }
+                mergedCoinList.add(newCoin);
             }
+
+            // Add any remaining custom coins to the end of the list
+            for (int j = 0; j < existingCoinList.size(); j++) {
+                CoinSlot existingCoin = existingCoinList.get(j);
+                if (existingCoin.isCustomCoin()) {
+                    mergedCoinList.add(existingCoin);
+                }
+            }
+
+            // Replace the coin list with the merged coin list
+            mCoinList = mergedCoinList;
         }
     }
 

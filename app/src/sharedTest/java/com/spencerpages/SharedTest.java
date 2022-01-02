@@ -20,10 +20,6 @@
 
 package com.spencerpages;
 
-import com.coincollection.CoinSlot;
-import com.coincollection.CollectionListInfo;
-import com.coincollection.helper.ParcelableHashMap;
-
 import static com.coincollection.CoinPageCreator.OPT_CHECKBOX_1;
 import static com.coincollection.CoinPageCreator.OPT_CHECKBOX_2;
 import static com.coincollection.CoinPageCreator.OPT_EDIT_DATE_RANGE;
@@ -36,6 +32,12 @@ import static com.coincollection.CoinPageCreator.OPT_SHOW_MINT_MARK_5;
 import static com.coincollection.CoinPageCreator.OPT_START_YEAR;
 import static com.coincollection.CoinPageCreator.OPT_STOP_YEAR;
 import static com.spencerpages.MainApplication.getIndexFromCollectionNameStr;
+
+import com.coincollection.CoinSlot;
+import com.coincollection.CollectionListInfo;
+import com.coincollection.helper.ParcelableHashMap;
+
+import java.util.ArrayList;
 
 public class SharedTest {
 
@@ -72,11 +74,11 @@ public class SharedTest {
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
             {
-                    new CoinSlot("1989", "", true, 0, 0, ""),
-                    new CoinSlot("1776-1976", "P", false, 2, 10, "Advanced Notes"),
-                    new CoinSlot("State Park", "CC", true, 20, 1, "293370#$%@#^$#@^"),
-                    new CoinSlot("2000 Type 1", "D", true, 0, 0, "These are my notes\n\n"),
-                    new CoinSlot("Some Coin", "S", false, 11, 11, ""),
+                    new CoinSlot(0, "1989", "", true, 0, 0, "", 0, false),
+                    new CoinSlot(1, "1776-1976", "P", false, 2, 10, "Advanced Notes", 1, false),
+                    new CoinSlot(2, "State Park", "CC", true, 20, 1, "293370#$%@#^$#@^", 2, false),
+                    new CoinSlot(3, "2000 Type 1", "D", true, 0, 0, "These are my notes\n\n", 3, false),
+                    new CoinSlot(4, "Some Coin", "S", false, 11, 11, "", 4, false),
             };
 
     public static final ParcelableHashMap[] PARAMETER_SCENARIOS =
@@ -140,16 +142,36 @@ public class SharedTest {
      * Compare two CoinSlot objects to ensure they're the same
      * @param base CoinSlot
      * @param check CoinSlot
+     * @param compareAdvInfo if true, enables comparison of advanced details
      * @return true if they have the same contents, false otherwise
      */
-    public static boolean compareCoinSlots(CoinSlot base, CoinSlot check) {
+    public static boolean compareCoinSlots(CoinSlot base, CoinSlot check, boolean compareAdvInfo) {
         // TODO - Not sure how to add assertions here
         return (base.getIdentifier().equals(check.getIdentifier()) &&
                 (base.getMint().equals(check.getMint())) &&
                 (base.isInCollection() == check.isInCollection()) &&
-                (base.getAdvancedGrades().equals(check.getAdvancedGrades())) &&
-                (base.getAdvancedQuantities().equals(check.getAdvancedQuantities())) &&
-                (base.getAdvancedNotes().equals(check.getAdvancedNotes())));
+                (!compareAdvInfo || (base.getAdvancedGrades().equals(check.getAdvancedGrades()))) &&
+                (!compareAdvInfo || (base.getAdvancedQuantities().equals(check.getAdvancedQuantities()))) &&
+                (!compareAdvInfo || (base.getAdvancedNotes().equals(check.getAdvancedNotes()))));
+    }
+
+    /**
+     * Compare two lists of CoinSlot objects
+     * @param base list of CoinSlots
+     * @param check list of CoinSlots
+     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @return true if they have the same contents, false otherwise
+     */
+    public static boolean compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
+        if (base.size() != check.size()) {
+            return false;
+        }
+        for (int i = 0; i < base.size(); i++) {
+            if (!compareCoinSlots(base.get(i), check.get(i), compareAdvInfo)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

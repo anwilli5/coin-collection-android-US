@@ -100,6 +100,7 @@ public class CollectionListInfo implements Parcelable {
 
     // Database tables and keys
     public final static String TBL_COLLECTION_INFO = "collection_info";
+    public final static String COL_ID = "_id";
     public final static String COL_NAME = "name";
     public final static String COL_COIN_TYPE = "coinType";
     public final static String COL_TOTAL = "total";
@@ -568,8 +569,9 @@ public class CollectionListInfo implements Parcelable {
                     // Since the coin list is stored inside of the same JSON object, we'll populate the
                     // list of coinSlot objects here as well and return those to the caller
                     reader.beginArray();
+                    int coinIndex = 0;
                     while (reader.hasNext()) {
-                        coinList.add(new CoinSlot(reader));
+                        coinList.add(new CoinSlot(reader, coinIndex++));
                     }
                     reader.endArray();
                     break;

@@ -21,15 +21,9 @@
 package com.spencerpages;
 
 import android.app.Application;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CollectionInfo;
-import com.coincollection.CollectionListInfo;
-import com.coincollection.CollectionPage;
 import com.coincollection.DatabaseAdapter;
-import com.coincollection.DatabaseHelper;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
@@ -56,21 +50,6 @@ import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
-
-import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
-import static com.coincollection.CoinSlot.COL_ADV_NOTES;
-import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
-import static com.coincollection.CollectionListInfo.COL_END_YEAR;
-import static com.coincollection.CollectionListInfo.COL_NAME;
-import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
-import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
-import static com.coincollection.CollectionListInfo.COL_START_YEAR;
-import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
-import static com.coincollection.DatabaseHelper.runSqlUpdate;
 
 public class MainApplication extends Application {
 
@@ -142,146 +121,9 @@ public class MainApplication extends Application {
      *                   Version 14 - Used in Version 2.3.5 of the app
      *                   Version 15 - Used in Version 3.0.0 of the app
      *                   Version 16 - Used in Version 3.1.0 of the app
+     *                   Version 17 - Used in Version 3.3.0 of the app
      */
-    public static final int DATABASE_VERSION = 16;
-
-    /**
-     * Performs any database updates that are needed at an application level
-     * (Ex: renaming a collection type, adding fields to existing databases
-     * as required for new functionality.)  Any collection-specific changes
-     * should be performed in that collections onCollectionDatabaseUpgrade
-     * instead of here.
-     *
-     * @param db the SQLiteDatabase db object to use when making updates
-     * @param oldVersion the previous database version
-     * @param newVersion the new database version
-     * @param fromImport true if the upgrade is part of a database import
-     */
-    public static void onDatabaseUpgrade (
-            SQLiteDatabase db,
-            int oldVersion,
-            int newVersion,
-            boolean fromImport){
-
-        // Skip if importing, since the database will be created with the latest structure
-        if (oldVersion <= 5 && !fromImport) {
-
-            // We need to add in columns to support the new advanced view
-            db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY + " INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
-
-            // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, "_id");
-            if (resultCursor.moveToFirst()) {
-                do {
-
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_GRADE_INDEX + " INTEGER DEFAULT 0");
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_QUANTITY_INDEX + " INTEGER DEFAULT 0");
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_NOTES + " TEXT DEFAULT \"\"");
-
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
-            }
-            resultCursor.close();
-        }
-
-        if (oldVersion <= 7) {
-
-            if (!fromImport) {
-                // Add another column for the display order
-                db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY_ORDER + " INTEGER");
-            }
-
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_COIN_TYPE},
-                    null, null, null, null, "_id");
-
-            int i = 0;  // Used to set the display order
-
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
-                    String coinType = resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_TYPE));
-
-                    ContentValues values = new ContentValues();
-
-                    // Since we added the displayOrder column, populate that.
-                    // In the import case this may get done twice (in the case of going from
-                    // an imported 7 DB to the latest version.
-                    values.put(COL_DISPLAY_ORDER, i);
-
-                    runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=? AND " + COL_COIN_TYPE + "=?", new String[]{name, coinType});
-                    i++;
-
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
-            }
-            resultCursor.close();
-        }
-
-        if (oldVersion <= 9) {
-
-            ContentValues values = new ContentValues();
-
-            // We changed the name that we use for Sacagawea gold coin collections a while back,
-            // but since we now use this name to determine the backing CollectionInfo obj, we
-            // need to change it in the database (we should have done this to begin with!)
-            values.put(COL_COIN_TYPE, "Sacagawea/Native American Dollars");
-            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_COIN_TYPE + "=?", new String[]{"Sacagawea Dollars"});
-            values.clear();
-
-            // Remove the space from mint marks so that this field's value is less confusing
-
-            // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, "_id");
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
-
-                    values.put(COL_COIN_MINT, "P");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" P"});
-                    values.clear();
-
-                    values.put(COL_COIN_MINT, "D");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" D"});
-                    values.clear();
-
-                    values.put(COL_COIN_MINT, "S");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" S"});
-                    values.clear();
-
-                    values.put(COL_COIN_MINT, "O");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" O"});
-                    values.clear();
-
-                    values.put(COL_COIN_MINT, "CC");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" CC"});
-                    values.clear();
-
-                } while (resultCursor.moveToNext());
-            }
-            resultCursor.close();
-
-            //TODO Change buffalo nickels mint marks to remove space
-            //TODO Change indian head cent mint marks to remove space
-            //TODO Change walking liberty half dollar mint marks to remove space
-        }
-
-        if (oldVersion <= 14) {
-
-            if (!fromImport) {
-                // Add columns that keep track of the creation parameters (so these can be changed later)
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_START_YEAR + " INTEGER DEFAULT 0");
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_END_YEAR + " INTEGER DEFAULT 0");
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_MINT_MARKS + " INTEGER DEFAULT 0");
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES + " INTEGER DEFAULT 0");
-            }
-
-            // Determine the collection parameters for each existing collection
-            for (CollectionListInfo collectionListInfo : DatabaseHelper.getLegacyCollectionParams(db)) {
-                DatabaseHelper.updateExistingCollection(db, collectionListInfo.getName(), collectionListInfo, null);
-            }
-        }
-    }
+    public static final int DATABASE_VERSION = 17;
 
     /**
      * Get the collection index from collection type name

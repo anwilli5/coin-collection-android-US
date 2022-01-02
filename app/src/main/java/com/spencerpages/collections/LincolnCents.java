@@ -20,6 +20,11 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -32,11 +37,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COIN_SLOT_WHERE_CLAUSE;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.DatabaseHelper.runSqlDelete;
-import static com.coincollection.DatabaseHelper.runSqlUpdate;
 
 public class LincolnCents extends CollectionInfo {
 
@@ -115,6 +115,7 @@ public class LincolnCents extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         boolean addedVdb = false;
 
@@ -134,13 +135,13 @@ public class LincolnCents extends CollectionInfo {
 
                     if (showMintMarks) {
                         if (showP) {
-                            coinList.add(new CoinSlot(bicentIdentifier, ""));
+                            coinList.add(new CoinSlot(bicentIdentifier, "", coinIndex++));
                         }
                         if (showD) {
-                            coinList.add(new CoinSlot(bicentIdentifier, "D"));
+                            coinList.add(new CoinSlot(bicentIdentifier, "D", coinIndex++));
                         }
                     } else {
-                        coinList.add(new CoinSlot(bicentIdentifier, ""));
+                        coinList.add(new CoinSlot(bicentIdentifier, "", coinIndex++));
                     }
                 }
                 continue;
@@ -149,20 +150,20 @@ public class LincolnCents extends CollectionInfo {
             if(showMintMarks){
                 if(showP){
                     // The P was never on any Pennies
-                    coinList.add(new CoinSlot(newValue, ""));
+                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
                 if(showD){
                     if(i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967){
-                        coinList.add(new CoinSlot(newValue, "D"));
+                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)){
-                        coinList.add(new CoinSlot(newValue, "S"));
+                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, ""));
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
 
             // If we are adding in the VDB, turn this off
@@ -197,7 +198,7 @@ public class LincolnCents extends CollectionInfo {
         if(oldVersion <= 2) {
 
             // Remove 1921 D Penny
-            total -= runSqlDelete(db, tableName, COIN_SLOT_WHERE_CLAUSE, new String[]{"1921", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1921", "D"});
 
             // TODO What should we do?
             // We can't add the new identifiers, just delete the old ones

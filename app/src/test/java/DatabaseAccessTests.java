@@ -60,7 +60,7 @@ public class DatabaseAccessTests extends BaseTestCase {
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
 
-                for (FullCollection scenario1 : getRandomTestScenarios(activity, mCoinTypeObj, 20)) {
+                for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 20)) {
                     String collectionName = scenario1.mCollectionListInfo.getName();
 
                     // Create the collection in the database

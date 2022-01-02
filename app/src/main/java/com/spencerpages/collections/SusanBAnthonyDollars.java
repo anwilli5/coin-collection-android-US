@@ -20,6 +20,9 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -30,9 +33,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.DatabaseHelper.runSqlDelete;
 
 public class SusanBAnthonyDollars extends CollectionInfo {
 
@@ -88,6 +88,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
             if(i > 1981 && i < 1999)
@@ -97,21 +98,21 @@ public class SusanBAnthonyDollars extends CollectionInfo {
                 // 1979 showed the P mint mark
                 if(showP) {
                     if (i >= 1979) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "P"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(Integer.toString(i), ""));
+                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
                 if(showD){
-                    coinList.add(new CoinSlot(Integer.toString(i), "D"));
+                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                 }
                 if(showS){
                     if(i != 1999){
-                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), ""));
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }

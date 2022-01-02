@@ -17,6 +17,29 @@
 
 package com.coincollection;
 
+import static com.coincollection.CoinSlot.COIN_SLOT_COIN_ID_WHERE_CLAUSE;
+import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
+import static com.coincollection.CoinSlot.COL_ADV_NOTES;
+import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_COIN_ID;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CoinSlot.COL_SORT_ORDER;
+import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
+import static com.coincollection.CollectionListInfo.COL_END_YEAR;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_START_YEAR;
+import static com.coincollection.CollectionListInfo.COL_TOTAL;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
+import static com.coincollection.DatabaseHelper.simpleQueryForLong;
+import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -31,26 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import static com.coincollection.CoinSlot.COIN_SLOT_WHERE_CLAUSE;
-import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
-import static com.coincollection.CoinSlot.COL_ADV_NOTES;
-import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
-import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
-import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY;
-import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
-import static com.coincollection.CollectionListInfo.COL_END_YEAR;
-import static com.coincollection.CollectionListInfo.COL_NAME;
-import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
-import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
-import static com.coincollection.CollectionListInfo.COL_START_YEAR;
-import static com.coincollection.CollectionListInfo.COL_TOTAL;
-import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
-import static com.coincollection.DatabaseHelper.simpleQueryForLong;
-import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
 
 /**
  * Adapter based on the Simple Notes Database Access Helper Class on the Android site.
@@ -117,10 +120,9 @@ public class DatabaseAdapter {
     // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
     // instead have one query that returns all of the info.
     public int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
-        String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_WHERE_CLAUSE + " LIMIT 1";
+        String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE + " LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
-        compiledStatement.bindString(1, coinSlot.getIdentifier());
-        compiledStatement.bindString(2, coinSlot.getMint());
+        compiledStatement.bindString(1, String.valueOf(coinSlot.getDatabaseId()));
         int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
         compiledStatement.close();
@@ -139,8 +141,8 @@ public class DatabaseAdapter {
         int newValue = (result + 1) % 2;
         ContentValues args = new ContentValues();
         args.put(COL_IN_COLLECTION, newValue);
-        String[] whereValues = new String[] {coinSlot.getIdentifier(), coinSlot.getMint()};
-        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_WHERE_CLAUSE, whereValues);
+        String[] whereValues = new String[] {String.valueOf(coinSlot.getDatabaseId())};
+        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
 
     /**
@@ -152,7 +154,7 @@ public class DatabaseAdapter {
      */
     public int fetchTableDisplay(String tableName) throws SQLException {
         // The database will only be set up this way in this case
-        String sqlCmd = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE name=? LIMIT 1";
+        String sqlCmd = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE " + COL_NAME + "=? LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, tableName);
         int result = simpleQueryForLong(compiledStatement);
@@ -201,8 +203,8 @@ public class DatabaseAdapter {
         args.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
         args.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
         args.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
-        String[] whereValues = new String[] {coinSlot.getIdentifier(), coinSlot.getMint()};
-        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_WHERE_CLAUSE, whereValues);
+        String[] whereValues = new String[] {String.valueOf(coinSlot.getDatabaseId())};
+        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
 
     /**
@@ -213,14 +215,16 @@ public class DatabaseAdapter {
     private void createCollectionTable(String tableName) throws SQLException {
         // v2.2.1 - Until this point all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-        String sqlCmd = "CREATE TABLE [" + tableName
-        + "] (_id integer primary key,"
+        String sqlCmd = "CREATE TABLE [" + tableName + "] ("
+        + " " + COL_COIN_ID + " integer primary key,"
         + " " + COL_COIN_IDENTIFIER + " text not null,"
         + " " + COL_COIN_MINT + " text,"
         + " " + COL_IN_COLLECTION + " integer,"
         + " " + COL_ADV_GRADE_INDEX + " integer default 0,"
         + " " + COL_ADV_QUANTITY_INDEX + " integer default 0,"
-        + " " + COL_ADV_NOTES + " text default \"\");";
+        + " " + COL_ADV_NOTES + " text default \"\","
+        + " " + COL_SORT_ORDER + " integer not null,"
+        + " " + COL_CUSTOM_COIN + " integer default 0);";
         mDb.execSQL(sqlCmd);
     }
 
@@ -240,14 +244,7 @@ public class DatabaseAdapter {
         // We have the list of identifiers, now set them correctly
         if (coinData != null) {
             for (CoinSlot coinSlot : coinData) {
-                ContentValues values = new ContentValues();
-                values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
-                values.put(COL_COIN_MINT, coinSlot.getMint());
-                values.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
-                values.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
-                values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
-                values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
-                runSqlInsert(tableName, values);
+                addCoinSlotToCollection(coinSlot, tableName, false, 0);
             }
         }
 
@@ -291,30 +288,6 @@ public class DatabaseAdapter {
      */
     public Cursor getAllCollectionNames() {
         return mDb.query(TBL_COLLECTION_INFO, new String[] {COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
-    }
-
-    /**
-     * Get the list of identifiers for each collection
-     *
-     * @param tableName The name of the collection
-     * @return List of all coins in the collection
-     */
-    public ArrayList<CoinSlot> getAllIdentifiers(String tableName) {
-
-        ArrayList<CoinSlot> coinList = new ArrayList<>();
-        Cursor cursor = mDb.query("[" + tableName + "]",
-                new String[] {COL_COIN_IDENTIFIER, COL_COIN_MINT},
-                null, null, null, null, "_id");
-        if (cursor.moveToFirst()){
-            do {
-                coinList.add(new CoinSlot(
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                        false));
-            } while(cursor.moveToNext());
-        }
-        cursor.close();
-        return coinList;
     }
 
     /**
@@ -370,6 +343,16 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Get the next sort order for a new coin
+     * @param tableName the collection name to access
+     * @return The next display order to use
+     * @throws SQLException if a database error occurred
+     */
+    public int getNextCoinSortOrder(String tableName) throws SQLException {
+        return DatabaseHelper.getNextCoinSortOrder(mDb, tableName);
+    }
+
+    /**
      * Copy collection
      * @param sourceCollectionListInfo Source table info
      * @param newTableName Name of the new table to create
@@ -403,6 +386,20 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Updates an existing coin's identifier and mint
+     * @param tableName the collection name
+     * @param coinSlot coin data to use for updates
+     * @throws SQLException if a database error occurs
+     */
+    public void updateCoinNameAndMint(String tableName, CoinSlot coinSlot) throws SQLException {
+        ContentValues values = new ContentValues();
+        values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
+        values.put(COL_COIN_MINT, coinSlot.getMint());
+        String[] whereValues = new String[] {String.valueOf(coinSlot.getDatabaseId())};
+        runSqlUpdateAndCheck(tableName, values, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
+    }
+
+    /**
      * Update database info for an existing collection
      * @param oldTableName the original collection name
      * @param collectionListInfo new collection info
@@ -431,6 +428,70 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Inserts a hole in the sort order at a given position (to accommodate a new coin being added)
+     * @param tableName table name to update
+     * @param insertSortOrder sort order where the new coin will be inserted
+     * @throws SQLException if a database error occurs
+     */
+    public void updateCoinSortOrderForInsert(String tableName, int insertSortOrder) throws SQLException {
+        mDb.execSQL("UPDATE [" + tableName + "] SET " + COL_SORT_ORDER + " = " + COL_SORT_ORDER + "+1 "
+                + "WHERE " + COL_SORT_ORDER + " >= " + insertSortOrder);
+    }
+
+    /**
+     * Add a coin slot to a collection
+     * @param coinSlot coin details to add
+     * @param tableName table name to add coin to
+     * @throws SQLException thrown if the database insert fails
+     */
+    public void addCoinSlotToCollection(CoinSlot coinSlot, String tableName, boolean updateTotal, int newCollectionSize) throws SQLException {
+        ContentValues values = new ContentValues();
+        values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
+        values.put(COL_COIN_MINT, coinSlot.getMint());
+        values.put(COL_IN_COLLECTION, coinSlot.isInCollectionInt());
+        values.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
+        values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
+        values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
+        values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
+        values.put(COL_CUSTOM_COIN, coinSlot.isCustomCoinInt());
+
+        // Add coin into database and record database id in CoinSlot object
+        coinSlot.setDatabaseId(runSqlInsert(tableName, values));
+
+        // Update the collection total if needed
+        if (updateTotal) {
+            values = new ContentValues();
+            values.put(COL_TOTAL, newCollectionSize);
+            runSqlUpdateAndCheck(TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[] { tableName });
+        }
+    }
+
+    /**
+     * Deletes a coin from the collection
+     * @param coinSlot coin to delete
+     * @param tableName table name to delete from
+     * @throws SQLException if a database error occurs
+     */
+    public void removeCoinSlotFromCollection(CoinSlot coinSlot, String tableName) throws SQLException {
+        String[] whereValues = new String[] {String.valueOf(coinSlot.getDatabaseId())};
+        runSqlDeleteAndCheck(tableName, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
+        // Note: This doesn't update the sort order of all remaining coins, which means there
+        //       may be holes in the sort order after this.
+    }
+
+    /**
+     * Get the basic coin information
+     *
+     * @param tableName The name of the collection
+     * @param populateAdvInfo If true, includes advanced attributes
+     * @param useSortOrder If true, includes sort order and uses it for sorting
+     * @return CoinSlot list
+     */
+    public ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo, boolean useSortOrder) {
+        return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo, useSortOrder);
+    }
+
+    /**
      * Get the basic coin information
      *
      * @param tableName The name of the collection
@@ -438,17 +499,17 @@ public class DatabaseAdapter {
      * @return CoinSlot list
      */
     public ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo) {
-        return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo);
+        return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo, true);
     }
-
     /**
      * Executes the SQL insert command and returns false if an error occurs
      * @param tableName The table to insert into
      * @param values Values to insert into the table
      * @throws SQLException if an insert error occurred
+     * @return id of row inserted into database
      */
-    void runSqlInsert(String tableName, ContentValues values) throws SQLException {
-        DatabaseHelper.runSqlInsert(mDb, tableName, values);
+    long runSqlInsert(String tableName, ContentValues values) throws SQLException {
+        return DatabaseHelper.runSqlInsert(mDb, tableName, values);
     }
 
     /**

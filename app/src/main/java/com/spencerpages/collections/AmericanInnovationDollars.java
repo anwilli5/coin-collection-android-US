@@ -98,19 +98,20 @@ public class AmericanInnovationDollars extends CollectionInfo {
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int coinIndex = 0;
 
         for(Object[] coinData : COIN_IDENTIFIERS){
             String identifier = (String) coinData[0];
 
             if(showMintMarks){
                 if(showP){
-                    coinList.add(new CoinSlot(identifier, "P"));
+                    coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                 }
                 if(showD){
-                    coinList.add(new CoinSlot(identifier, "D"));
+                    coinList.add(new CoinSlot(identifier, "D", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(identifier, ""));
+                coinList.add(new CoinSlot(identifier, "", coinIndex++));
             }
         }
     }

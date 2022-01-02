@@ -94,30 +94,31 @@ public class BarberQuarters extends CollectionInfo {
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
 
             if(showMintMarks){
                 if(showP){
-                    coinList.add(new CoinSlot(Integer.toString(i), ""));
+                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                 }
                 if(showD){
                     if( i >= 1906 && i != 1912 ){
-                        coinList.add(new CoinSlot(Integer.toString(i), "D"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                     }
                 }
                 if(showS){
                     if(i != 1904 && i != 1906 && i != 1910 && i != 1916){
-                        coinList.add(new CoinSlot(Integer.toString(i), "S"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
                 if(showO){
                     if(i <= 1909){
-                        coinList.add(new CoinSlot(Integer.toString(i), "O"));
+                        coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), ""));
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }

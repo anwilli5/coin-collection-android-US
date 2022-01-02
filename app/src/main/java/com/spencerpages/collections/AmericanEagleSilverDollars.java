@@ -74,25 +74,26 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        int coinIndex = 0;
 
         for(int i = startYear; i <= stopYear; i++){
 
-            coinList.add(new CoinSlot(Integer.toString(i), ""));
+            coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
 
             if(showBurnished){
                 if(i == 2006){
-                    coinList.add(new CoinSlot("2006 W Burnished", ""));
+                    coinList.add(new CoinSlot("2006 W Burnished", "", coinIndex++));
                 }
 
                 else if(i == 2007){
-                    coinList.add(new CoinSlot("2007 W Burnished", ""));
+                    coinList.add(new CoinSlot("2007 W Burnished", "", coinIndex++));
                 }
 
                 else if(i == 2008){
-                    coinList.add(new CoinSlot("2008 W Burnished", ""));
+                    coinList.add(new CoinSlot("2008 W Burnished", "", coinIndex++));
                 }
                 else if(i == 2011){
-                    coinList.add(new CoinSlot("2011 W Burnished", ""));
+                    coinList.add(new CoinSlot("2011 W Burnished", "", coinIndex++));
                 }
             }
         }

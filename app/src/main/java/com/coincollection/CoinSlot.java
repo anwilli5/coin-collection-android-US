@@ -34,20 +34,20 @@ import java.io.IOException;
  */
 public class CoinSlot implements Parcelable {
 
-    /** mIdentifierList Contains a list of the main coin identifiers (Ex: "2009", or "Kentucky") */
-    private final String mIdentifier;
+    /** id of the row for this coin in the database */
+    private long mDatabaseId = 0;
 
-    /** mMintList Contains a list of the mint marks associated with each coin, if any */
-    private final String mMint;
+    /** Name of the coin (Ex: "2009", or "Kentucky") */
+    private String mIdentifier;
 
-    // These are public so that we can reach in and grab these values to save them off
-    // We will keep track of which items need to be pushed back
+    /** Mint mark of the coin, if any */
+    private String mMint;
 
-    // List holding whether each coin is in the collection
+    /** Whether the coin is collected or not */
     private boolean mInCollection = false;
 
-    // Lists needed to support the advanced view
-    private boolean mIndexHasChanged = false;
+    /** Whether the advanced info has changed, and has not yet been written to the database */
+    private boolean mAdvInfoHasChanged = false;
 
     // In the database, we store the index into the grade and quantity arrays
     // so we can use these values efficiently.  For notes, we have to store the
@@ -56,52 +56,117 @@ public class CoinSlot implements Parcelable {
     private Integer mAdvancedQuantities = 0;
     private String mAdvancedNotes = "";
 
+    /** Sort order **/
+    private int mSortOrder;
+
+    /** Whether the coin is custom (i.e. added by the user after the collection was created) */
+    private boolean mCustomCoin = false;
+
     // Database keys
+    public final static String COL_COIN_ID = "_id";
     public final static String COL_COIN_IDENTIFIER = "coinIdentifier";
     public final static String COL_COIN_MINT = "coinMint";
     public final static String COL_IN_COLLECTION = "inCollection";
     public final static String COL_ADV_GRADE_INDEX = "advGradeIndex";
     public final static String COL_ADV_QUANTITY_INDEX = "advQuantityIndex";
     public final static String COL_ADV_NOTES = "advNotes";
+    public final static String COL_SORT_ORDER = "sortOrder";
+    public final static String COL_CUSTOM_COIN = "customCoin";
 
     // Database helpers
-    public final static String COIN_SLOT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
+    public final static String COIN_SLOT_COIN_ID_WHERE_CLAUSE = COL_COIN_ID + "=?";
 
-    public CoinSlot (String identifier, String mint, boolean inCollection, Integer advancedGrades,
-                     Integer advancedQuantities, String advancedNotes) {
+    // In earlier versions of the app (prior to DB version 17), coins were guaranteed to have
+    // unique name/mints, so those were used to index into the DB. But DB version 17 lets users
+    // add custom coins, breaking this assumption. However old DB upgrades should use the legacy
+    // where clause, to continue to work correctly.
+    public final static String COIN_SLOT_NAME_MINT_WHERE_CLAUSE = COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?";
+
+    /**
+     * Constructor used when pulling the collection from the database with advanced info
+     * @param databaseId id of the coin in the database
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param inCollection whether the coin has been collected
+     * @param advancedGrades coin grade info
+     * @param advancedQuantities coin quantity info
+     * @param advancedNotes coin notes
+     * @param sortOrder sort order in the collection
+     * @param customCoin whether the coin was manually added by the user
+     */
+    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, Integer advancedGrades,
+                     Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin) {
+        mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = inCollection;
         mAdvancedGrades = advancedGrades;
         mAdvancedQuantities = advancedQuantities;
         mAdvancedNotes = advancedNotes;
+        mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
-    public CoinSlot (String identifier, String mint, boolean inCollection) {
+    /**
+     * Constructor used when pulling the collection from the database, without advanced info
+     * @param databaseId id of the coin in the database
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param inCollection whether the coin has been collected
+     * @param sortOrder sort order in the collection
+     * @param customCoin whether the coin was manually added by the user
+     */
+    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, int sortOrder, boolean customCoin) {
+        mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = inCollection;
+        mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
-    public CoinSlot (String identifier, String mint) {
+    /**
+     * Constructor used when creating a new collection from scratch
+     * @param identifier coin name
+     * @param mint coin mint
+     * @param sortOrder sort order in collection
+     */
+    public CoinSlot (String identifier, String mint, int sortOrder) {
         mIdentifier = identifier;
         mMint = mint;
+        mSortOrder = sortOrder;
+    }
+
+    public void setDatabaseId(long databaseId) {
+        this.mDatabaseId = databaseId;
+    }
+
+    public long getDatabaseId() {
+        return mDatabaseId;
     }
 
     public void setInCollection (boolean inCollection) {
-        mInCollection = inCollection;
+        this.mInCollection = inCollection;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.mIdentifier = identifier;
     }
 
     public String getIdentifier() {
         return mIdentifier;
     }
 
+    public void setMint(String mint) {
+        this.mMint = mint;
+    }
+
     public String getMint() {
         return mMint;
     }
 
-    void setIndexChanged(boolean changed) {
-        mIndexHasChanged = changed;
+    void setAdvInfoChanged(boolean changed) {
+        this.mAdvInfoHasChanged = changed;
     }
 
     public boolean isInCollection() {
@@ -116,8 +181,8 @@ public class CoinSlot implements Parcelable {
         return this.isInCollection() ? R.string.collected : R.string.missing;
     }
 
-    boolean hasIndexChanged() {
-        return mIndexHasChanged;
+    boolean hasAdvInfoChanged() {
+        return mAdvInfoHasChanged;
     }
 
     public Integer getAdvancedGrades() {
@@ -144,8 +209,27 @@ public class CoinSlot implements Parcelable {
         this.mAdvancedNotes = advancedNotes;
     }
 
+    public int getSortOrder() {
+        return this.mSortOrder;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        this.mSortOrder = sortOrder;
+    }
+
+    public boolean isCustomCoin() {
+        return mCustomCoin;
+    }
+
+    public Integer isCustomCoinInt() {
+        return this.isCustomCoin() ? 1 : 0;
+    }
+    public void setCustomCoin(boolean customCoin) {
+        this.mCustomCoin = customCoin;
+    }
+
     /**
-     * Get the coin slot parameters to export to CSV
+     * Get the coin slot parameters to export to legacy CSV
      * @return string array with coin slot data
      */
     public String[] getLegacyCsvExportProperties() {
@@ -156,6 +240,22 @@ public class CoinSlot implements Parcelable {
                 String.valueOf(mAdvancedGrades),
                 String.valueOf(mAdvancedQuantities),
                 mAdvancedNotes};
+    }
+
+    /**
+     * Get the coin slot parameters to export to new CSV
+     * @return string array with coin slot data
+     */
+    public String[] getCsvExportProperties() {
+        return new String[] {
+                mIdentifier,
+                mMint,
+                String.valueOf(isInCollectionInt()),
+                String.valueOf(mAdvancedGrades),
+                String.valueOf(mAdvancedQuantities),
+                mAdvancedNotes,
+                String.valueOf(mSortOrder),
+                String.valueOf(isCustomCoinInt())};
     }
 
     /**
@@ -172,15 +272,18 @@ public class CoinSlot implements Parcelable {
         writer.name(COL_ADV_GRADE_INDEX).value(mAdvancedGrades);
         writer.name(COL_ADV_QUANTITY_INDEX).value(mAdvancedQuantities);
         writer.name(COL_ADV_NOTES).value(mAdvancedNotes);
+        writer.name(COL_SORT_ORDER).value(mSortOrder);
+        writer.name(COL_CUSTOM_COIN).value(mCustomCoin);
         writer.endObject();
     }
 
     /**
      * Create a CoinSlot from imported JSON file
      * @param reader JsonReader to read from
+     * @param coinIndex index of coin in the list used for default sort order
      * @throws IOException if an error occurred
      */
-    public CoinSlot(JsonReader reader) throws IOException {
+    public CoinSlot(JsonReader reader, int coinIndex) throws IOException {
 
         String identifier = "";
         String mint = "";
@@ -188,6 +291,8 @@ public class CoinSlot implements Parcelable {
         int advancedGrades = 0;
         int advancedQuantities = 0;
         String advancedNotes = "";
+        int sortOrder = coinIndex;
+        boolean customCoin = false;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -211,6 +316,12 @@ public class CoinSlot implements Parcelable {
                 case COL_ADV_NOTES:
                     advancedNotes = reader.nextString();
                     break;
+                case COL_SORT_ORDER:
+                    sortOrder = reader.nextInt();
+                    break;
+                case COL_CUSTOM_COIN:
+                    customCoin = reader.nextBoolean();
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -224,45 +335,55 @@ public class CoinSlot implements Parcelable {
         mAdvancedGrades = advancedGrades;
         mAdvancedQuantities = advancedQuantities;
         mAdvancedNotes = advancedNotes;
+        mSortOrder = sortOrder;
+        mCustomCoin = customCoin;
     }
 
     /**
      * Create a CoinSlot from imported string array
      * @param in input String[]
      */
-    public CoinSlot(String[] in) {
+    public CoinSlot(String[] in, int coinIndex) {
         mIdentifier = (in.length > 0 ? in[0] : "");
         mMint = (in.length > 1 ? in[1] : "");
         mInCollection = (in.length > 2 && (Integer.parseInt(in[2]) != 0));
-        mAdvancedGrades = (in.length > 3 ? Integer.parseInt(in[3]) : 0);
-        mAdvancedQuantities = (in.length > 4 ? Integer.parseInt(in[4]) : 0);
-        mAdvancedNotes = (in.length > 5 ? in[5] : "");
+        mAdvancedGrades = (in.length > 3) ? Integer.parseInt(in[3]) : 0;
+        mAdvancedQuantities = (in.length > 4) ? Integer.parseInt(in[4]) : 0;
+        mAdvancedNotes = (in.length > 5) ? in[5] : "";
+        mSortOrder = (in.length > 6) ? Integer.parseInt(in[6]) : coinIndex;
+        mCustomCoin = (in.length > 7 && (Integer.parseInt(in[7]) != 0));
     }
 
     /**
      * Creates a copy of the current coin with a different name and mint mark
+     * Note: Sets the sort order to the original + 1
      * @param newIdentifier new coin identifier
      * @param newMint new mint mark
+     * @param isCustomCoin true if the copy should be marked as a custom coin
      * @return the new CoinSlot object
      */
-    public CoinSlot copy(String newIdentifier, String newMint) {
+    public CoinSlot copy(String newIdentifier, String newMint, boolean isCustomCoin) {
         return new CoinSlot(
+                0, // Set when the database is written
                 newIdentifier,
                 newMint,
                 mInCollection,
                 mAdvancedGrades,
                 mAdvancedQuantities,
-                mAdvancedNotes);
+                mAdvancedNotes,
+                mSortOrder + 1,
+                isCustomCoin);
     }
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case
      * where a screen orientation change occurs.
      */
     private CoinSlot(Parcel in) {
+        mDatabaseId = in.readLong();
         mIdentifier = in.readString();
         mMint = in.readString();
         mInCollection = in.readByte() != 0;
-        mIndexHasChanged = in.readByte() != 0;
+        mAdvInfoHasChanged = in.readByte() != 0;
         if (in.readByte() == 0) {
             mAdvancedGrades = null;
         } else {
@@ -274,6 +395,8 @@ public class CoinSlot implements Parcelable {
             mAdvancedQuantities = in.readInt();
         }
         mAdvancedNotes = in.readString();
+        mSortOrder = in.readInt();
+        mCustomCoin = in.readByte() != 0;
     }
 
     public static final Creator<CoinSlot> CREATOR = new Creator<CoinSlot>() {
@@ -295,10 +418,11 @@ public class CoinSlot implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mDatabaseId);
         dest.writeString(mIdentifier);
         dest.writeString(mMint);
         dest.writeByte((byte) (mInCollection ? 1 : 0));
-        dest.writeByte((byte) (mIndexHasChanged ? 1 : 0));
+        dest.writeByte((byte) (mAdvInfoHasChanged ? 1 : 0));
         if (mAdvancedGrades == null) {
             dest.writeByte((byte) 0);
         } else {
@@ -312,8 +436,11 @@ public class CoinSlot implements Parcelable {
             dest.writeInt(mAdvancedQuantities);
         }
         dest.writeString(mAdvancedNotes);
+        dest.writeInt(mSortOrder);
+        dest.writeByte((byte) (mCustomCoin ? 1 : 0));
     }
 
+    // NOTE: This will return true if identifier and mint are the same
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
