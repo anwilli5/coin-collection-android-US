@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
     <RelativeLayout
         android:id="@+id/listElementLeftSideView"
         android:layout_width="fill_parent"
@@ -12,72 +12,78 @@
         android:layout_alignParentLeft="true"
         android:layout_toStartOf="@id/move_up_arrow"
         android:layout_toLeftOf="@id/move_up_arrow">
+
         <ImageView
+            android:id="@+id/coinImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/coinImageView"
-            android:contentDescription="@string/coin_slot_description"
-            android:layout_marginRight="5dp"
-            android:layout_marginEnd="5dp"
-            android:maxWidth="51dp"
-            android:maxHeight="51dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true"
+            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
+            android:contentDescription="@string/coin_slot_description"
+            android:maxWidth="51dp"
+            android:maxHeight="51dp" />
+
         <TextView
             android:id="@+id/collectionNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:scrollHorizontally="true"
-            android:ellipsize="marquee"
-            android:textSize="24sp"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"/>
+            android:layout_toRightOf="@id/coinImageView"
+            android:ellipsize="marquee"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textSize="24sp" />
+
         <TextView
             android:id="@+id/progressTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="17sp"
             android:layout_below="@id/collectionNameTextView"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"/>
+            android:layout_toRightOf="@id/coinImageView"
+            android:textSize="17sp" />
+
         <TextView
             android:id="@+id/completeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="17sp"
-            android:textColor="#00FF00"
             android:layout_below="@id/progressTextView"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"/>
+            android:layout_toRightOf="@id/coinImageView"
+            android:textColor="#00FF00"
+            android:textSize="17sp" />
     </RelativeLayout>
+
     <ImageView
+        android:id="@+id/move_up_arrow"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/move_up_arrow"
-        android:src="@drawable/icon_up_arrow"
-        android:contentDescription="@string/reorder_move_up"
-        android:paddingRight="15dp"
-        android:paddingEnd="15dp"
-        android:paddingLeft="15dp"
-        android:paddingStart="15dp"
+        android:layout_alignTop="@id/listElementLeftSideView"
+        android:layout_alignBottom="@id/listElementLeftSideView"
         android:layout_toStartOf="@id/move_down_arrow"
         android:layout_toLeftOf="@id/move_down_arrow"
-        android:layout_alignTop="@id/listElementLeftSideView"
-        android:layout_alignBottom="@id/listElementLeftSideView"/>
+        android:contentDescription="@string/reorder_move_up"
+        android:paddingStart="15dp"
+        android:paddingLeft="15dp"
+        android:paddingEnd="15dp"
+        android:paddingRight="15dp"
+        android:src="@drawable/icon_up_arrow" />
+
     <ImageView
+        android:id="@+id/move_down_arrow"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/move_down_arrow"
-        android:src="@drawable/icon_down_arrow"
-        android:contentDescription="@string/reorder_move_down"
-        android:paddingRight="15dp"
-        android:paddingEnd="15dp"
-        android:paddingLeft="15dp"
-        android:paddingStart="15dp"
+        android:layout_alignTop="@id/listElementLeftSideView"
+        android:layout_alignBottom="@id/listElementLeftSideView"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/listElementLeftSideView"
-        android:layout_alignBottom="@id/listElementLeftSideView"/>
-    </RelativeLayout>
+        android:contentDescription="@string/reorder_move_down"
+        android:paddingStart="15dp"
+        android:paddingLeft="15dp"
+        android:paddingEnd="15dp"
+        android:paddingRight="15dp"
+        android:src="@drawable/icon_down_arrow" />
+</RelativeLayout>

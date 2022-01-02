@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:appcompat="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/rename_collection"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/rename_collection"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="@string/rename_collection"
         android:orderInCategory="100"
+        android:title="@string/rename_collection"
         appcompat:showAsAction="ifRoom" />
-    <item android:id="@+id/lock_unlock_collection"
-        android:title="@string/unlock_collection"
+    <item
+        android:id="@+id/lock_unlock_collection"
         android:orderInCategory="200"
+        android:title="@string/unlock_collection"
         appcompat:showAsAction="ifRoom" />
-    <item android:id="@+id/change_view"
-          android:icon="@android:drawable/ic_menu_view"
-          android:title="@string/change_view_string"
-          android:orderInCategory="300"
-          appcompat:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/change_view"
+        android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="300"
+        android:title="@string/change_view_string"
+        appcompat:showAsAction="ifRoom" />
 </menu>
