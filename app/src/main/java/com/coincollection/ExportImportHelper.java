@@ -476,6 +476,7 @@ public class ExportImportHelper {
                     for (int i = 2; i < lineValues.length; i++) {
                         if (lineValues[i].length() != 0) {
                             foundNonEmptyCell = true;
+                            break;
                         }
                     }
                     if (foundNonEmptyCell) {
