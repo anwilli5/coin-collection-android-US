@@ -259,6 +259,22 @@ public class CoinSlot implements Parcelable {
     }
 
     /**
+     * Get the headers for the coin CSV file
+     * @return string array with column names
+     */
+    public static String[] getCsvExportHeader() {
+        return new String[] {
+                COL_COIN_IDENTIFIER,
+                COL_COIN_MINT,
+                COL_IN_COLLECTION,
+                COL_ADV_GRADE_INDEX,
+                COL_ADV_QUANTITY_INDEX,
+                COL_ADV_NOTES,
+                COL_SORT_ORDER,
+                COL_CUSTOM_COIN};
+    }
+
+    /**
      * Write out the JSON representation (for exporting)
      * @param writer JsonWriter to write to
      * @throws IOException if an error occurred
@@ -340,18 +356,28 @@ public class CoinSlot implements Parcelable {
     }
 
     /**
+     * Returns true if an element is present in a string array
+     * @param in string array to look in
+     * @param index string position
+     * @return true if the element at the index is present and not empty
+     */
+    private boolean isPresentInStringArray(String[] in, int index) {
+        return in.length > index && in[index].length() != 0;
+    }
+
+    /**
      * Create a CoinSlot from imported string array
      * @param in input String[]
      */
     public CoinSlot(String[] in, int coinIndex) {
-        mIdentifier = (in.length > 0 ? in[0] : "");
-        mMint = (in.length > 1 ? in[1] : "");
-        mInCollection = (in.length > 2 && (Integer.parseInt(in[2]) != 0));
-        mAdvancedGrades = (in.length > 3) ? Integer.parseInt(in[3]) : 0;
-        mAdvancedQuantities = (in.length > 4) ? Integer.parseInt(in[4]) : 0;
-        mAdvancedNotes = (in.length > 5) ? in[5] : "";
-        mSortOrder = (in.length > 6) ? Integer.parseInt(in[6]) : coinIndex;
-        mCustomCoin = (in.length > 7 && (Integer.parseInt(in[7]) != 0));
+        mIdentifier = isPresentInStringArray(in, 0) ? in[0] : "";
+        mMint = isPresentInStringArray(in, 1) ? in[1] : "";
+        mInCollection = (isPresentInStringArray(in, 2) && (Integer.parseInt(in[2]) != 0));
+        mAdvancedGrades = isPresentInStringArray(in, 3) ? Integer.parseInt(in[3]) : 0;
+        mAdvancedQuantities = isPresentInStringArray(in, 4) ? Integer.parseInt(in[4]) : 0;
+        mAdvancedNotes = isPresentInStringArray(in, 5) ? in[5] : "";
+        mSortOrder = isPresentInStringArray(in, 6) ? Integer.parseInt(in[6]) : coinIndex;
+        mCustomCoin = (isPresentInStringArray(in, 7) && (Integer.parseInt(in[7]) != 0));
     }
 
     /**

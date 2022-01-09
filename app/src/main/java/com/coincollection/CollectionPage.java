@@ -800,7 +800,7 @@ public class CollectionPage extends BaseActivity {
             // Delete the coin from the coin list
             CoinSlot coinSlot = mCoinList.remove(position);
             try {
-                mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName);
+                mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName, mCoinList.size());
             } catch (SQLException e) {
                 showCancelableAlert(mRes.getString(R.string.error_delete_coin));
                 return;

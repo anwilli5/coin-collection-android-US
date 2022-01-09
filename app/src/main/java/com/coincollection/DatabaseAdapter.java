@@ -472,11 +472,16 @@ public class DatabaseAdapter {
      * @param tableName table name to delete from
      * @throws SQLException if a database error occurs
      */
-    public void removeCoinSlotFromCollection(CoinSlot coinSlot, String tableName) throws SQLException {
+    public void removeCoinSlotFromCollection(CoinSlot coinSlot, String tableName, int newCollectionSize) throws SQLException {
         String[] whereValues = new String[] {String.valueOf(coinSlot.getDatabaseId())};
         runSqlDeleteAndCheck(tableName, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
         // Note: This doesn't update the sort order of all remaining coins, which means there
         //       may be holes in the sort order after this.
+
+        // Update the collection total
+        ContentValues values = new ContentValues();
+        values.put(COL_TOTAL, newCollectionSize);
+        runSqlUpdateAndCheck(TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[] { tableName });
     }
 
     /**

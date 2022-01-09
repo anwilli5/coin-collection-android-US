@@ -457,6 +457,23 @@ public class CollectionListInfo implements Parcelable {
     }
 
     /**
+     * Get the headers for the coin CSV file
+     * @return string array with column names
+     */
+    public static String[] getCsvExportHeader() {
+        return new String[] {
+                COL_NAME,
+                COL_COIN_TYPE,
+                JSON_COL_COLLECTED,
+                COL_TOTAL,
+                COL_DISPLAY,
+                COL_START_YEAR,
+                COL_END_YEAR,
+                COL_SHOW_MINT_MARKS,
+                COL_SHOW_CHECKBOXES};
+    }
+
+    /**
      * Returns true if the collection type (string) uses date range
      * @param collectionTypeStr collection type
      * @return true if uses dates, false otherwise
