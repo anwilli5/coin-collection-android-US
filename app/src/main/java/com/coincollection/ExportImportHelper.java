@@ -469,10 +469,23 @@ public class ExportImportHelper {
                 if (lineValues.length == 0) {
                     // Ignore empty lines
                     continue;
-                } else if ((lineValues.length == 2) && lineValues[0].equals(CSV_SEPARATOR)) {
+                } else if ((lineValues.length >= 2) && lineValues[0].equals(CSV_SEPARATOR)) {
                     // Look for CSV separators which we're using to put multiple files in a single CSV
+                    // Make sure any cells following '-----', 'section' are blank, to avoid possible data row
+                    boolean foundNonEmptyCell = false;
+                    for (int i = 2; i < lineValues.length; i++) {
+                        if (lineValues[i].length() != 0) {
+                            foundNonEmptyCell = true;
+                            break;
+                        }
+                    }
+                    if (foundNonEmptyCell) {
+                        continue;
+                    }
                     currSectionType = SectionType.fromLabel(lineValues[1]);
                     coinIndex = 0;
+                    // Skip the header line
+                    csvReader.readNext();
                     continue;
                 }
 
@@ -526,9 +539,11 @@ public class ExportImportHelper {
                 ArrayList<CoinSlot> coinList = mDbAdapter.getCoinList(collectionListInfo.getName(), true);
 
                 csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.COLLECTIONS.label});
+                csvWriter.writeNext(CollectionListInfo.getCsvExportHeader());
                 csvWriter.writeNext(collectionListInfo.getCsvExportProperties(mDbAdapter));
 
                 csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.COIN_LIST.label});
+                csvWriter.writeNext(CoinSlot.getCsvExportHeader());
                 for (CoinSlot coinSlot : coinList) {
                     csvWriter.writeNext(coinSlot.getCsvExportProperties());
                 }

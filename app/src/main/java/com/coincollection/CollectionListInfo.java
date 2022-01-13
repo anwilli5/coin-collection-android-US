@@ -110,7 +110,7 @@ public class CollectionListInfo implements Parcelable {
     public final static String COL_END_YEAR = "endYear";
     public final static String COL_SHOW_MINT_MARKS = "showMintMarks";
     public final static String COL_SHOW_CHECKBOXES = "showCheckboxes";
-    public final static String JSON_COL_COLLECTED = "collected";
+    public final static String JSON_KEY_COLLECTED = "collected";
 
     // Collections in this list use the start/end years
     private final static ArrayList<String> HAS_DATE_RANGE = new ArrayList<>(Arrays.asList(
@@ -457,6 +457,23 @@ public class CollectionListInfo implements Parcelable {
     }
 
     /**
+     * Get the headers for the coin CSV file
+     * @return string array with column names
+     */
+    public static String[] getCsvExportHeader() {
+        return new String[] {
+                COL_NAME,
+                COL_COIN_TYPE,
+                JSON_KEY_COLLECTED,
+                COL_TOTAL,
+                COL_DISPLAY,
+                COL_START_YEAR,
+                COL_END_YEAR,
+                COL_SHOW_MINT_MARKS,
+                COL_SHOW_CHECKBOXES};
+    }
+
+    /**
      * Returns true if the collection type (string) uses date range
      * @param collectionTypeStr collection type
      * @return true if uses dates, false otherwise
@@ -497,7 +514,7 @@ public class CollectionListInfo implements Parcelable {
         writer.beginObject();
         writer.name(COL_NAME).value(mCollectionName);
         writer.name(COL_COIN_TYPE).value(getType());
-        writer.name(JSON_COL_COLLECTED).value(mTotalCoinsCollected);
+        writer.name(JSON_KEY_COLLECTED).value(mTotalCoinsCollected);
         writer.name(COL_TOTAL).value(mTotalCoinsInCollection);
         writer.name(COL_DISPLAY).value(displayType);
         writer.name(COL_START_YEAR).value(mStartYear);
@@ -539,7 +556,7 @@ public class CollectionListInfo implements Parcelable {
                     // Strip out all bad characters.  They shouldn't be there anyway ;)
                     collectionName = reader.nextString().replace('[', ' ').replace(']', ' ');
                     break;
-                case JSON_COL_COLLECTED:
+                case JSON_KEY_COLLECTED:
                     totalCoinsCollected = reader.nextInt();
                     break;
                 case COL_TOTAL:

@@ -20,6 +20,15 @@
 
 package com.spencerpages;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+
 import android.os.Build;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -39,15 +48,6 @@ import junit.framework.TestCase;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 @RunWith(AndroidJUnit4ClassRunner.class)
 @LargeTest
@@ -93,7 +93,7 @@ public class AndroidUITests extends TestCase {
      * Test launching the main activity
      */
     @Test
-    public void basicMainActivity() {
+    public void test_basicMainActivity() {
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
     }
 
@@ -101,7 +101,7 @@ public class AndroidUITests extends TestCase {
      * Test launching the creation page activity
      */
     @Test
-    public void launchCreationPage() {
+    public void test_launchCreationPage() {
         scrollAllTheWayDown();
         onView(withText(R.string.create_new_collection)).perform(click());
         onView(withId(R.id.edit_enter_collection_name)).check(matches(isDisplayed()));
@@ -111,7 +111,7 @@ public class AndroidUITests extends TestCase {
      * Test launching the delete collection view
      */
     @Test
-    public void launchDeleteCollectionView() {
+    public void test_launchDeleteCollectionView() {
         scrollAllTheWayDown();
         onView(withText(R.string.delete_collection)).perform(click());
         onView(withText(R.string.select_collection_delete)).check(matches(isDisplayed()));
@@ -121,7 +121,7 @@ public class AndroidUITests extends TestCase {
      * Test launching the app info collection view
      */
     @Test
-    public void launchAppInfoView() {
+    public void test_launchAppInfoView() {
         scrollAllTheWayDown();
         onView(withText(R.string.app_info)).perform(click());
         onView(withId(R.id.info_textview)).check(matches(isDisplayed()));
@@ -131,7 +131,7 @@ public class AndroidUITests extends TestCase {
      * Test exporting existing collections (assumes some collections already exist)
      */
     @Test
-    public void exportCollections() {
+    public void test_exportCollections() {
         scrollAllTheWayDown();
         onView(withText(R.string.export_collection)).perform(click());
         onView(withText(R.string.yes)).perform(click());
@@ -161,7 +161,7 @@ public class AndroidUITests extends TestCase {
             coinSlot.writeToParcel(testParcel, coinSlot.describeContents());
             testParcel.setDataPosition(0);
             CoinSlot checkInfo = CoinSlot.CREATOR.createFromParcel(testParcel);
-            assertTrue(SharedTest.compareCoinSlots(coinSlot, checkInfo));
+            assertTrue(SharedTest.compareCoinSlots(coinSlot, checkInfo, true));
         }
     }
 
