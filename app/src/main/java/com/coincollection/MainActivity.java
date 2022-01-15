@@ -523,7 +523,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (!mImportExportLegacyCsv && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)) {
             // Indicate that we're not using the legacy CSV
             mImportExportLegacyCsv = false;
 
@@ -868,7 +868,7 @@ public class MainActivity extends BaseActivity {
                         int i = 0;
                         if (cursor.moveToFirst()) {
                             do {
-                                String name1 = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                                String name1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
                                 // Fix up the displayOrder
                                 mDbAdapter.updateDisplayOrder(name1, i);
                                 i++;
@@ -1035,25 +1035,33 @@ public class MainActivity extends BaseActivity {
      */
     private void promptCsvOrJsonImport() {
 
+        // In API 30+, access to the SD card is disabled, so don't give the user the option
+        // to import from legacy storage. Since there is no choice, go directly to the picker
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            mImportExportLegacyCsv = false;
+            launchImportTask();
+            return;
+        }
+
         // For each collection item, populate a menu of actions for the collection
         CharSequence[] actionsList = new CharSequence[2];
-        actionsList[0] = mRes.getString(R.string.legacy_storage);
-        actionsList[1] = mRes.getString(R.string.pick_backup_file);
+        actionsList[0] = mRes.getString(R.string.pick_backup_file);
+        actionsList[1] = mRes.getString(R.string.legacy_storage);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.import_place_message))
                 .setItems(actionsList, (dialog, item) -> {
                     switch (item) {
                         case 0: {
-                            // Legacy Storage
+                            // Pick back-up file
                             dialog.dismiss();
-                            mImportExportLegacyCsv = true;
+                            mImportExportLegacyCsv = false;
                             launchImportTask();
                             break;
                         }
                         case 1: {
-                            // Pick back-up file
+                            // Legacy Storage
                             dialog.dismiss();
-                            mImportExportLegacyCsv = false;
+                            mImportExportLegacyCsv = true;
                             launchImportTask();
                             break;
                         }
@@ -1071,10 +1079,17 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        // In API 30+, access to the SD card is disabled, so don't give the user the option
+        // to import from legacy storage. Since there is no choice, go directly to the picker
+        boolean showLegacyExport = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q);
+
         // Populate a menu of actions for export
-        CharSequence[] actionsList = new CharSequence[2];
+        CharSequence[] actionsList = new CharSequence[showLegacyExport ? 3 : 2];
         actionsList[0] = mRes.getString(R.string.json_file);
         actionsList[1] = mRes.getString(R.string.csv_file);
+        if (showLegacyExport) {
+            actionsList[2] = mRes.getString(R.string.legacy_storage);
+        }
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.export_format_message))
                 .setItems(actionsList, (dialog, item) -> {
@@ -1092,6 +1107,14 @@ public class MainActivity extends BaseActivity {
                             dialog.dismiss();
                             mImportExportLegacyCsv = false;
                             mExportSingleFileCsv = true;
+                            launchExportTask();
+                            break;
+                        }
+                        case 2: {
+                            // Legacy CSV
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = true;
+                            mExportSingleFileCsv = false;
                             launchExportTask();
                             break;
                         }

@@ -16,7 +16,7 @@ android {
             }
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 31
     // minSdkVersion should be the lowest supported.
     //  - For app versions 1.6 and below this was 4
     //  - Raised to 7 for version 2.0 to support the appcompat support library
@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId "com.spencerpages"
         minSdkVersion 14
-        targetSdkVersion 29
+        targetSdkVersion 31
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
