@@ -112,7 +112,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (resultCursor.moveToFirst()) {
                 do {
 
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_GRADE_INDEX + " INTEGER DEFAULT 0");
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_QUANTITY_INDEX + " INTEGER DEFAULT 0");
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_NOTES + " TEXT DEFAULT \"\"");
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (resultCursor.moveToFirst()) {
                 do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
-                    String coinType = resultCursor.getString(resultCursor.getColumnIndex(COL_COIN_TYPE));
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                    String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
 
                     ContentValues values = new ContentValues();
 
@@ -173,7 +173,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
             if (resultCursor.moveToFirst()) {
                 do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
 
                     values.put(COL_COIN_MINT, "P");
                     runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" P"});
@@ -228,7 +228,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
             if (resultCursor.moveToFirst()) {
                 do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndex(COL_NAME));
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
 
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_SORT_ORDER + " INTEGER DEFAULT 0");
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_CUSTOM_COIN + " INTEGER DEFAULT 0");
@@ -460,27 +460,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, null, null, null, sortColumn);
         if (cursor.moveToFirst()) {
             do {
-                int sortOrder = useSortOrder ? cursor.getInt(cursor.getColumnIndex(COL_SORT_ORDER))
-                        : (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID));
+                int sortOrder = useSortOrder ? cursor.getInt(cursor.getColumnIndexOrThrow(COL_SORT_ORDER))
+                        : (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID));
                 if (populateAdvInfo) {
                     coinList.add(new CoinSlot(
-                            cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
-                            cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                            cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                            (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) != 0),
-                            cursor.getInt(cursor.getColumnIndex(COL_ADV_GRADE_INDEX)),
-                            cursor.getInt(cursor.getColumnIndex(COL_ADV_QUANTITY_INDEX)),
-                            cursor.getString(cursor.getColumnIndex(COL_ADV_NOTES)),
+                            cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_GRADE_INDEX)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_QUANTITY_INDEX)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_ADV_NOTES)),
                             sortOrder,
-                            (cursor.getInt(cursor.getColumnIndex(COL_CUSTOM_COIN)) != 0)));
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0)));
                 } else {
                     coinList.add(new CoinSlot(
-                            cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
-                            cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                            cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                            (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) != 0),
+                            cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
                             sortOrder,
-                            (cursor.getInt(cursor.getColumnIndex(COL_CUSTOM_COIN)) != 0)));
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0)));
                 }
             } while(cursor.moveToNext());
         }
@@ -506,11 +506,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 coinList.add(new CoinSlot(
-                        cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_IDENTIFIER)),
-                        cursor.getString(cursor.getColumnIndex(COL_COIN_MINT)),
-                        (cursor.getInt(cursor.getColumnIndex(COL_IN_COLLECTION)) == 1),
-                        (int) cursor.getLong(cursor.getColumnIndex(COL_COIN_ID)),
+                        cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                        (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) == 1),
+                        (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
                         false));
             } while(cursor.moveToNext());
         }
@@ -550,8 +550,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, null, null, null, COL_DISPLAY_ORDER);
         if (cursor.moveToFirst()) {
             do {
-                String tableName = cursor.getString(cursor.getColumnIndex(COL_NAME));
-                String coinType = cursor.getString(cursor.getColumnIndex(COL_COIN_TYPE));
+                String tableName = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+                String coinType = cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_TYPE));
                 // Figure out what collection type maps to this
                 int index = MainApplication.getIndexFromCollectionNameStr(coinType);
                 if (index == -1) {
@@ -567,14 +567,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // Add it to the list of collections
                 collectionListEntries.add(new CollectionListInfo(
                         tableName,
-                        cursor.getInt(cursor.getColumnIndex(COL_TOTAL)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_TOTAL)),
                         collected,
                         index,
-                        cursor.getInt(cursor.getColumnIndex(COL_DISPLAY)),
-                        cursor.getInt(cursor.getColumnIndex(COL_START_YEAR)),
-                        cursor.getInt(cursor.getColumnIndex(COL_END_YEAR)),
-                        cursor.getInt(cursor.getColumnIndex(COL_SHOW_MINT_MARKS)),
-                        cursor.getInt(cursor.getColumnIndex(COL_SHOW_CHECKBOXES))));
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_DISPLAY)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_START_YEAR)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_END_YEAR)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES))));
             } while(cursor.moveToNext());
         }
         cursor.close();

@@ -483,8 +483,7 @@ public class MainActivity extends BaseActivity {
      * Handle when the user starts importing a collection
      */
     private void launchImportTask() {
-        if (!mImportExportLegacyCsv &&
-                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
@@ -523,10 +522,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Indicate that we're not using the legacy CSV
-            mImportExportLegacyCsv = false;
-
+        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             if (mExportSingleFileCsv) {
@@ -868,7 +864,7 @@ public class MainActivity extends BaseActivity {
                         int i = 0;
                         if (cursor.moveToFirst()) {
                             do {
-                                String name1 = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                                String name1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
                                 // Fix up the displayOrder
                                 mDbAdapter.updateDisplayOrder(name1, i);
                                 i++;
@@ -1035,25 +1031,39 @@ public class MainActivity extends BaseActivity {
      */
     private void promptCsvOrJsonImport() {
 
-        // For each collection item, populate a menu of actions for the collection
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // In API 30+, access to the SD card is disabled, so don't give the user the option
+            // to import from legacy storage. Since there is no choice, go directly to the picker
+            mImportExportLegacyCsv = false;
+            launchImportTask();
+            return;
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            // The file picker was added in API 19, so don't give the user that option. Since there
+            // is no choice, go directly to using legacy storage
+            mImportExportLegacyCsv = true;
+            launchImportTask();
+            return;
+        }
+
+        // Populate a menu of actions for import
         CharSequence[] actionsList = new CharSequence[2];
-        actionsList[0] = mRes.getString(R.string.legacy_storage);
-        actionsList[1] = mRes.getString(R.string.pick_backup_file);
+        actionsList[0] = mRes.getString(R.string.pick_backup_file);
+        actionsList[1] = mRes.getString(R.string.legacy_storage);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.import_place_message))
                 .setItems(actionsList, (dialog, item) -> {
                     switch (item) {
                         case 0: {
-                            // Legacy Storage
+                            // Pick back-up file
                             dialog.dismiss();
-                            mImportExportLegacyCsv = true;
+                            mImportExportLegacyCsv = false;
                             launchImportTask();
                             break;
                         }
                         case 1: {
-                            // Pick back-up file
+                            // Legacy Storage
                             dialog.dismiss();
-                            mImportExportLegacyCsv = false;
+                            mImportExportLegacyCsv = true;
                             launchImportTask();
                             break;
                         }
@@ -1071,10 +1081,24 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            // If API is less than 19, only legacy storage is supported so go directly to that
+            mImportExportLegacyCsv = true;
+            mExportSingleFileCsv = false;
+            launchExportTask();
+            return;
+        }
+
+        // In API 30+, access to the SD card is disabled, so don't show this option after that
+        boolean showLegacyExport = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q);
+
         // Populate a menu of actions for export
-        CharSequence[] actionsList = new CharSequence[2];
+        CharSequence[] actionsList = new CharSequence[showLegacyExport ? 3 : 2];
         actionsList[0] = mRes.getString(R.string.json_file);
         actionsList[1] = mRes.getString(R.string.csv_file);
+        if (showLegacyExport) {
+            actionsList[2] = mRes.getString(R.string.legacy_storage);
+        }
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.export_format_message))
                 .setItems(actionsList, (dialog, item) -> {
@@ -1092,6 +1116,14 @@ public class MainActivity extends BaseActivity {
                             dialog.dismiss();
                             mImportExportLegacyCsv = false;
                             mExportSingleFileCsv = true;
+                            launchExportTask();
+                            break;
+                        }
+                        case 2: {
+                            // Legacy CSV
+                            dialog.dismiss();
+                            mImportExportLegacyCsv = true;
+                            mExportSingleFileCsv = false;
                             launchExportTask();
                             break;
                         }

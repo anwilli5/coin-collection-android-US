@@ -317,7 +317,7 @@ public class DatabaseAdapter {
         if (cursor.moveToFirst()){
             do {
                 Locale defaultLocale = Locale.getDefault();
-                if(cursor.getString(cursor.getColumnIndex(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))){
+                if(cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))){
                     cursor.close();
                     return R.string.collection_name_exists;
                 }
