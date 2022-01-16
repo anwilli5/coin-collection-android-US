@@ -43,19 +43,18 @@ public class LincolnCents extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Pennies";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Early Childhood",   R.drawable.bicent_2009_early_childhood_unc,   R.drawable.bicent_2009_early_childhood_unc_25},
-            {"Formative Years",   R.drawable.bicent_2009_formative_years_unc,   R.drawable.bicent_2009_formative_years_unc_25},
-            {"Professional Life", R.drawable.bicent_2009_professional_life_unc, R.drawable.bicent_2009_professional_life_unc_25},
-            {"Presidency",        R.drawable.bicent_2009_presidency_unc,        R.drawable.bicent_2009_presidency_unc_25},
+            {"Early Childhood",   R.drawable.bicent_2009_early_childhood_unc},
+            {"Formative Years",   R.drawable.bicent_2009_formative_years_unc},
+            {"Professional Life", R.drawable.bicent_2009_professional_life_unc},
+            {"Presidency",        R.drawable.bicent_2009_presidency_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -63,7 +62,6 @@ public class LincolnCents extends CollectionInfo {
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_lincoln_cent_unc;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
     private static final int REVERSE_IMAGE = R.drawable.rev_lincoln_cent_unc;
 
@@ -75,13 +73,8 @@ public class LincolnCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override

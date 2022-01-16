@@ -40,17 +40,16 @@ public class WashingtonQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Quarters";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"1776-1976",             R.drawable.rev_1976_washington_quarter_unc,        R.drawable.rev_1976_washington_quarter_unc_25},
-            {"Crossing the Delaware", R.drawable.rev_2021_crossing_delaware_quarter_unc, R.drawable.rev_2021_crossing_delaware_quarter_unc_25},
+            {"1776-1976",             R.drawable.rev_1976_washington_quarter_unc},
+            {"Crossing the Delaware", R.drawable.rev_2021_crossing_delaware_quarter_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -58,7 +57,6 @@ public class WashingtonQuarters extends CollectionInfo {
     private static final Integer STOP_YEAR = 2021;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
     // TODO Replace with standard back when good image becomes available
     private static final int REVERSE_IMAGE = R.drawable.rev_1976_washington_quarter_unc;
@@ -71,13 +69,8 @@ public class WashingtonQuarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override

@@ -40,26 +40,24 @@ public class JeffersonNickels extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Nickels";
 
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
-            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc, R.drawable.westward_2004_louisiana_purchase_unc_25},
-            {"Keelboat",    R.drawable.westward_2004_keelboat_unc,           R.drawable.westward_2004_keelboat_unc_25},
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
+            {"Keelboat",    R.drawable.westward_2004_keelboat_unc},
     };
 
     private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
-            {"American Bison", R.drawable.westward_2005_american_bison_unc, R.drawable.westward_2005_american_bison_unc_25},
-            {"Ocean in View!", R.drawable.westward_2005_ocean_in_view_unc, R.drawable.westward_2005_ocean_in_view_unc_25},
+            {"American Bison", R.drawable.westward_2005_american_bison_unc},
+            {"Ocean in View!", R.drawable.westward_2005_ocean_in_view_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
         for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -67,7 +65,6 @@ public class JeffersonNickels extends CollectionInfo {
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_jefferson_nickel_unc;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
     private static final int REVERSE_IMAGE = R.drawable.rev_jefferson_nickel_unc;
 
@@ -79,13 +76,8 @@ public class JeffersonNickels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override

@@ -42,7 +42,6 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     private static final Integer STOP_YEAR = 1999;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_susan_b_anthony_unc;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
     private static final int REVERSE_IMAGE = R.drawable.rev_susan_b_anthony_unc;
 
@@ -53,9 +52,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){
-        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-    }
+    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
