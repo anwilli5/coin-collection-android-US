@@ -391,6 +391,16 @@ public class BaseTestCase {
     }
 
     /**
+     * Compare two lists of CoinSlot lists to ensure they're the same
+     * @param base list of CoinSlots lists
+     * @param check list of CoinSlots lists
+     * @param compareAdvInfo if true, enables comparison of advanced details
+     */
+    void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareAdvInfo) {
+        assertTrue(SharedTest.compareListOfCoinSlotLists(base, check, compareAdvInfo));
+    }
+
+    /**
      * Get a list of the sort orders from a coin slot list
      * @param coinList list of coin slots
      * @return list of sort orders
@@ -651,4 +661,19 @@ public class BaseTestCase {
             fail();
         }
     }
+
+    /**
+     * @param dbAdapter database adapter
+     * @param collectionNames List of collection names
+     * @param populateAdvInfo if true, populates the advanced info
+     * @return a list of coin slot lists
+     */
+    ArrayList<ArrayList<CoinSlot>> getCoinSlotListsFromCollectionNames(DatabaseAdapter dbAdapter, ArrayList<String> collectionNames, boolean populateAdvInfo) {
+        ArrayList<ArrayList<CoinSlot>> coinSlotLists = new ArrayList<>();
+        for(String collectionName : collectionNames) {
+            coinSlotLists.add(dbAdapter.getCoinList(collectionName, populateAdvInfo, false));
+        }
+        return coinSlotLists;
+    }
+
 }

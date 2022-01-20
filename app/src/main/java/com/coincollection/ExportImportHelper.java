@@ -484,8 +484,10 @@ public class ExportImportHelper {
                     }
                     currSectionType = SectionType.fromLabel(lineValues[1]);
                     coinIndex = 0;
-                    // Skip the header line
-                    csvReader.readNext();
+                    if (currSectionType != SectionType.DATABASE_VERSION) {
+                        // Skip the header line, except for the database version (no header for that section)
+                        csvReader.readNext();
+                    }
                     continue;
                 }
 
@@ -530,6 +532,8 @@ public class ExportImportHelper {
 
             // Write database version
             csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.DATABASE_VERSION.label});
+            // Note: No header row here - this was originally a bug but it seems fine without
+            //       it, so making that the long-term behavior
             csvWriter.writeNext(new String[]{String.valueOf(MainApplication.DATABASE_VERSION)});
 
             // Write collections
