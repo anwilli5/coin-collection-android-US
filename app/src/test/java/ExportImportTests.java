@@ -42,6 +42,7 @@ import android.util.JsonWriter;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
@@ -103,6 +104,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
 
                 // Export and check output
                 File exportDir = new File(activity.getLegacyExportFolderName());
@@ -135,8 +137,10 @@ public class ExportImportTests extends BaseTestCase {
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
             });
         }
     }
@@ -156,6 +160,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
 
                 // Export and check output
                 File exportFile = getTempFile("json-export.json");
@@ -177,8 +182,10 @@ public class ExportImportTests extends BaseTestCase {
                 InputStream inputStream = openInputStream(exportFile);
                 assertEquals("", helper.importCollectionsFromJson(inputStream));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
                 closeStream(inputStream);
             });
         }
@@ -199,6 +206,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
 
                 // Export and check output
                 File exportFile = getTempFile("csv-export.csv");
@@ -220,8 +228,10 @@ public class ExportImportTests extends BaseTestCase {
                 InputStream inputStream = openInputStream(exportFile);
                 assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
                 closeStream(inputStream);
             });
         }

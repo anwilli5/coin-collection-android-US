@@ -193,4 +193,23 @@ public class SharedTest {
         }
         return true;
     }
+
+    /**
+     * Compare two lists of CoinSlot lists
+     * @param base list of CoinSlots lists
+     * @param check list of CoinSlots lists
+     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @return true if they have the same contents, false otherwise
+     */
+    public static boolean compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareAdvInfo) {
+        if (base.size() != check.size()) {
+            return false;
+        }
+        for (int i = 0; i < base.size(); i++) {
+            if (!compareCoinSlotLists(base.get(i), check.get(i), compareAdvInfo)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
