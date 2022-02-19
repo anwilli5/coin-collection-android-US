@@ -62,7 +62,7 @@ Supported U.S. coin sets include:
 - Automatic and manual ways to backup/restore and share collections
 
 ## Contributions
-- Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
+- Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md)
 - Review open issues, feature requests, and add comments here [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues)
 - Let us know if you've found an issue or would like to request a feature [Report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose)
 
