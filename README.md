@@ -1,7 +1,7 @@
 # Coin Collection
 Repo for the Coin Collection Android app
 
-Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin. See (#Using-the-app), (#Features), or (#Contributions) for more details!
+Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin. See [Using-the-app](#Using-the-app), [Features](#Features), or [Contributions](#Contributions) for more details!
 
 ## Download the app
 <div style="display:flex;" >
@@ -15,10 +15,10 @@ Coin Collection helps people keep track of the coins they have or are missing fo
 
 <table>
     <tr>
-        <td><img src="./images/screen1.png" alt="Coin Collection Home" width="200"/></td>
-        <td><img src="./images/screen2.png" alt="Coin Collection Page Simple" width="200"/></td>
-        <td><img src="./images/screen3.png" alt="Coin Collection Page 2" width="200"/></td>
-        <td><img src="./images/screen4.png" alt="Coin Collection Page Advanced" width="200"/></td>
+        <td><img src="./images/screen1.png" alt="Home Screen" width="200"/></td>
+        <td><img src="./images/screen2.png" alt="Lincoln cents simple collection view" width="200"/></td>
+        <td><img src="./images/screen3.png" alt="Presidential dollars simple collection view" width="200"/></td>
+        <td><img src="./images/screen4.png" alt="Morgan dollar advanced collection view" width="200"/></td>
     </tr>
 </table>
 
@@ -62,7 +62,7 @@ Supported U.S. coin sets include:
 - Automatic and manual ways to backup/restore and share collections
 
 ## Contributions
-- Pull requests are welcome! For more details see [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
+- Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
 - Review open issues, feature requests, and add comments here [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues)
 - Let us know if you've found an issue or would like to request a feature [Report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose)
 
