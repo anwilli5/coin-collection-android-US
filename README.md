@@ -7,7 +7,10 @@ Coin Collection helps users interested in collecting a set of coins keep track o
 <b>Download Coin Collection App</b>
 <div style="display:flex;" >
 <a href="https://play.google.com/store/apps/details?id=com.spencerpages">
-    <img alt="Get it on Google Play" height="64" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" />
+    <img alt="Get it on Google Play" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/master/images/google-play-badge.png" />
+</a>
+<a href="http://www.amazon.com/gp/product/B00KZ7PYPY/ref=mas_pm_coin_collection">
+    <img alt="Available at Amazon Appstore" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/master/images/amazon-appstore-badge.png" />
 </a>
 </div><br/>
 
