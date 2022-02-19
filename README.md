@@ -22,15 +22,6 @@ Coin Collection helps users interested in collecting a set of coins keep track o
         <td><img src="./images/screen4.png" alt="Coin Collection Page Advanced" width="200"/></td>
     </tr>
 </table>
-<table>
-    <tr>
-        <td><img src="./images/export.gif" alt="Export" width="200"/></td>
-        <td><img src="./images/import.gif" alt="Import" width="200"/></td>
-        <td><img src="./images/new-collection.gif" alt="New Collection" width="200"/></td>
-        <td><img src="./images/reorder.gif" alt="Reorder Collection" width="200"/></td>
-    </tr>
-</table>
-
 
 The current version only supports U.S. currency, specifically:
 - American Eagle Silver Dollars
