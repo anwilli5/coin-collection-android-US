@@ -1,10 +1,9 @@
 # Coin Collection
-<b>Repo for the Coin Collection Android app</b>.
+Repo for the Coin Collection Android app
 
-<br/>
-Coin Collection helps users interested in collecting a set of coins keep track of which coins they already have. This comes in handy if you are trying to collect the 50 U.S. State Quarters, for example, and want to check whether the quarter you just got back in change from the vending machine should be highly guarded until it can be placed in your collection.<br/><br/>
+Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin. See (#Using-the-app), (#Features), or (#Contributions) for more details!
 
-<b>Download Coin Collection App</b>
+## Download the app
 <div style="display:flex;" >
 <a href="https://play.google.com/store/apps/details?id=com.spencerpages">
     <img alt="Get it on Google Play" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/master/images/google-play-badge.png" />
@@ -23,7 +22,11 @@ Coin Collection helps users interested in collecting a set of coins keep track o
     </tr>
 </table>
 
-The current version only supports U.S. currency, specifically:
+## Using the app
+If you need help using the app or aren't sure how to do something, see our [Using the app wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Using-the-App)
+
+## Currently supported collections
+Supported U.S. coin sets include:
 - American Eagle Silver Dollars
 - American Innovation Dollars
 - Barber Dimes
@@ -52,37 +55,16 @@ The current version only supports U.S. currency, specifically:
 - Washington Quarters
 
 ## Features
-- :heavy_plus_sign: Add New Collection
-
-- :heavy_minus_sign: Delete a Collection
-
-- :arrow_up: Import Collection
-
-- :arrow_down: Export Collection
-
-- :twisted_rightwards_arrows: Reorder Collection
+- Create multiple collections of various types
+- 'Advanced' view for entering quantities, grades, notes, etc.
+- 'Lock' feature to prevent making accidental changes
+- Ability to copy/edit/delete coins in a collection
+- Automatic and manual ways to backup/restore and share collections
 
 ## Contributions
-All types of contributions are welcome here. If you are a beginner refer to [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md) for successful contribution.
-
-Further, you can browse the [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues) to fix an issue in the app.
-
-If you found a bug or wish to add a new feature you are welcome to [Create a new Issue](https://github.com/anwilli5/coin-collection-android-US/issues/new?assignees=&labels=&template=issue_template.yaml&title=Issue%3A+)
-
-**Please adhere to this project's [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
+- Pull requests are welcome! For more details see [Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
+- Review open issues, feature requests, and add comments here [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues)
+- Let us know if you've found an issue or would like to request a feature [Report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose)
 
 ## Development/Building
-For information about accessing & building the app, unit testing, and other helpful links, refer to
-[Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)
-
-## Resources/References
-- **[Google Play](https://play.google.com/store/apps/details?id=com.spencerpages)**
-- **[Issues](https://github.com/anwilli5/coin-collection-android-US/issues)**
-- **[Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)**
-- **[Contributing.md](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md)**
-- **[License](https://github.com/anwilli5/coin-collection-android-US/blob/master/LICENSE)**
-- **[Notice](https://github.com/anwilli5/coin-collection-android-US/blob/master/NOTICE)**
-- **[Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md)**
-
-## Licensing
-This Project is licensed under **GNU General Public License v3.0** (Refer to [LICENSE](https://github.com/anwilli5/coin-collection-android-US/blob/master/LICENSE)) and the Material Icons used in this app are under **Google LLC 2020 Copyright** which is licensed under **Apache License, Version 2.0** (Refer to [NOTICE](https://github.com/anwilli5/coin-collection-android-US/blob/master/NOTICE)).
+For information about building the app, unit testing, and other helpful links, refer to the [Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)
