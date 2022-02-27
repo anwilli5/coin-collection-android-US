@@ -43,7 +43,6 @@ public class EisenhowerDollar extends CollectionInfo {
     private static final Integer STOP_YEAR = 1978;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_eisenhower_dollar;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.openslot;
 
     private static final int REVERSE_IMAGE = R.drawable.rev_eisenhower_dollar;
 
@@ -62,9 +61,7 @@ public class EisenhowerDollar extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        return coinSlot.isInCollection() ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-    }
+    public int getCoinSlotImage(CoinSlot coinSlot) { return OBVERSE_IMAGE_COLLECTED; }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {

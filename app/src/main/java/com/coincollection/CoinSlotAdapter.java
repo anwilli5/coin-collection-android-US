@@ -174,6 +174,7 @@ class CoinSlotAdapter extends BaseAdapter {
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
         int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
         coinImage.setImageResource(imageIdentifier);
+        coinImage.setAlpha(coinSlot.isInCollection() ? 255 : 64);
 
         // Add an accessibility string to indicate that the coin has been found or not
         String contextDesc = mRes.getString(coinSlot.isInCollectionStringRes());

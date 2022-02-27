@@ -37,24 +37,23 @@ public class AmericanInnovationDollars extends CollectionInfo {
     public static final String COLLECTION_TYPE = "American Innovation Dollars";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            { "Introductory",   R.drawable.innovation_2018_introductory_unc, R.drawable.innovation_2018_introductory_unc_25},
-            { "Delaware",       R.drawable.innovation_2019_delaware_unc, R.drawable.innovation_2019_delaware_unc_25},
-            { "Pennsylvania",   R.drawable.innovation_2019_pennsylvania_unc, R.drawable.innovation_2019_pennsylvania_unc_25},
-            { "New Jersey",     R.drawable.innovation_2019_new_jersey_unc, R.drawable.innovation_2019_new_jersey_unc_25},
-            { "Georgia",        R.drawable.innovation_2019_georgia_unc, R.drawable.innovation_2019_georgia_unc_25},
-            { "Connecticut",    R.drawable.innovation_2020_connecticut_unc, R.drawable.innovation_2020_connecticut_unc_25},
-            { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc, R.drawable.innovation_2020_massachusetts_unc_25},
-            { "Maryland",       R.drawable.innovation_2020_maryland_unc, R.drawable.innovation_2020_maryland_unc_25},
-            { "South Carolina", R.drawable.innovation_2020_south_carolina_unc, R.drawable.innovation_2020_south_carolina_unc_25}
+            { "Introductory",   R.drawable.innovation_2018_introductory_unc},
+            { "Delaware",       R.drawable.innovation_2019_delaware_unc},
+            { "Pennsylvania",   R.drawable.innovation_2019_pennsylvania_unc},
+            { "New Jersey",     R.drawable.innovation_2019_new_jersey_unc},
+            { "Georgia",        R.drawable.innovation_2019_georgia_unc},
+            { "Connecticut",    R.drawable.innovation_2020_connecticut_unc},
+            { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc},
+            { "Maryland",       R.drawable.innovation_2020_maryland_unc},
+            { "South Carolina", R.drawable.innovation_2020_south_carolina_unc}
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -68,13 +67,8 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
 
     @Override

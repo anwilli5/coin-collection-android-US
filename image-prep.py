@@ -60,17 +60,18 @@ def plugin_main(src_path):
         output_filename = "/tmp/cc_images/%s.png" % filename
         pdb.file_png_save_defaults(img, drawable, output_filename, output_filename)
 
+        # Note: 25% images are no longer generated
         # Set the opacity to 25%
-        pdb.gimp_layer_set_opacity(drawable, 25.0)
+        #pdb.gimp_layer_set_opacity(drawable, 25.0)
 
         # Merge the opacity into the main layer
-        pdb.gimp_image_merge_visible_layers(img, CLIP_TO_IMAGE)
+        #pdb.gimp_image_merge_visible_layers(img, CLIP_TO_IMAGE)
 
-        drawable = pdb.gimp_image_get_active_drawable(img)
+        #drawable = pdb.gimp_image_get_active_drawable(img)
 
         # Save this image as the second file
-        output_filename = "/tmp/cc_images/%s_25.png" % filename
-        pdb.file_png_save_defaults(img, drawable, output_filename, output_filename)
+        #output_filename = "/tmp/cc_images/%s_25.png" % filename
+        #pdb.file_png_save_defaults(img, drawable, output_filename, output_filename)
 
     # Exit gimp
     pdb.gimp_quit(TRUE)

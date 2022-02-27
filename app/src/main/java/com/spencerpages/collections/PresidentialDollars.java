@@ -38,55 +38,54 @@ public class PresidentialDollars extends CollectionInfo {
 
     //TODO Need to update to Harry S. Truman - requires db update too
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"George Washington",      R.drawable.pres_2007_george_washington_unc,       R.drawable.pres_2007_george_washington_unc_25},
-            {"John Adams",             R.drawable.pres_2007_john_adam_unc,               R.drawable.pres_2007_john_adam_unc_25},
-            {"Thomas Jefferson",       R.drawable.pres_2007_thomas_jefferson_unc,        R.drawable.pres_2007_thomas_jefferson_unc_25},
-            {"James Madison",          R.drawable.pres_2007_james_madison_unc,           R.drawable.pres_2007_james_madison_unc_25},
-            {"James Monroe",           R.drawable.pres_2008_james_monroe_unc,            R.drawable.pres_2008_james_monroe_unc_25},
-            {"John Quincy Adams",      R.drawable.pres_2008_john_quincy_adams_unc,       R.drawable.pres_2008_john_quincy_adams_unc_25},
-            {"Andrew Jackson",         R.drawable.pres_2008_andrew_jackson_unc,          R.drawable.pres_2008_andrew_jackson_unc_25},
-            {"Martin Van Buren",       R.drawable.pres_2008_martin_van_buren_unc,        R.drawable.pres_2008_martin_van_buren_unc_25},
-            {"William Henry Harrison", R.drawable.pres_2009_william_henry_harrison_unc,  R.drawable.pres_2009_william_henry_harrison_unc_25},
-            {"John Tyler",             R.drawable.pres_2009_john_tyler_unc,              R.drawable.pres_2009_john_tyler_unc_25},
-            {"James K. Polk",          R.drawable.pres_2009_james_k_polk_unc,            R.drawable.pres_2009_james_k_polk_unc_25},
-            {"Zachary Taylor",         R.drawable.pres_2009_zachary_taylor_unc,          R.drawable.pres_2009_zachary_taylor_unc_25},
-            {"Millard Fillmore",       R.drawable.pres_2010_millard_fillmore_unc,        R.drawable.pres_2010_millard_fillmore_unc_25},
-            {"Franklin Pierce",        R.drawable.pres_2010_franklin_pierce_unc,         R.drawable.pres_2010_franklin_pierce_unc_25},
-            {"James Buchanan",         R.drawable.pres_2010_james_buchanan_unc,          R.drawable.pres_2010_james_buchanan_unc_25},
-            {"Abraham Lincoln",        R.drawable.pres_2010_abraham_lincoln_unc,         R.drawable.pres_2010_abraham_lincoln_unc_25},
-            {"Andrew Johnson",         R.drawable.pres_2011_andrew_johnson_unc,          R.drawable.pres_2011_andrew_johnson_unc_25},
-            {"Ulysses S. Grant",       R.drawable.pres_2011_ulysses_s_grant_unc,         R.drawable.pres_2011_ulysses_s_grant_unc_25},
-            {"Rutherford B. Hayes",    R.drawable.pres_2011_rutherford_b_hayes_unc,      R.drawable.pres_2011_rutherford_b_hayes_unc_25},
-            {"James Garfield",         R.drawable.pres_2011_james_garfield_unc,          R.drawable.pres_2011_james_garfield_unc_25},
-            {"Chester Arthur",         R.drawable.pres_2012_chester_arthur_unc,          R.drawable.pres_2012_chester_arthur_unc_25},
-            {"Grover Cleveland 1",     R.drawable.pres_2012_grover_cleveland_1_unc,      R.drawable.pres_2012_grover_cleveland_1_unc_25},
-            {"Benjamin Harrison",      R.drawable.pres_2012_benjamin_harrison_unc,       R.drawable.pres_2012_benjamin_harrison_unc_25},
-            {"Grover Cleveland 2",     R.drawable.pres_2012_grover_cleveland_2_unc,      R.drawable.pres_2012_grover_cleveland_2_unc_25},
-            {"William McKinley",       R.drawable.pres_2013_william_mckinley_unc,        R.drawable.pres_2013_william_mckinley_unc_25},
-            {"Theodore Roosevelt",     R.drawable.pres_2013_theodore_roosevelt_unc,      R.drawable.pres_2013_theodore_roosevelt_unc_25},
-            {"William Howard Taft",    R.drawable.pres_2013_william_taft_unc,            R.drawable.pres_2013_william_taft_unc_25},
-            {"Woodrow Wilson",         R.drawable.pres_2013_woodrow_wilson_unc,          R.drawable.pres_2013_woodrow_wilson_unc_25},
-            {"Warren G. Harding",      R.drawable.pres_2014_warren_g_harding_unc,        R.drawable.pres_2014_warren_g_harding_unc_25},
-            {"Calvin Coolidge",        R.drawable.pres_2014_calvin_coolidge_unc,         R.drawable.pres_2014_calvin_coolidge_unc_25},
-            {"Herbert Hoover",         R.drawable.pres_2014_herbert_hoover_unc,          R.drawable.pres_2014_herbert_hoover_unc_25},
-            {"Franklin D. Roosevelt",  R.drawable.pres_2014_franklin_d_roosevelt_unc,    R.drawable.pres_2014_franklin_d_roosevelt_unc_25},
-            {"Harry Truman",           R.drawable.pres_2015_harry_s_truman_unc,          R.drawable.pres_2015_harry_s_truman_unc_25},
-            {"Dwight D. Eisenhower",   R.drawable.pres_2015_dwight_d_eisenhower_unc,     R.drawable.pres_2015_dwight_d_eisenhower_unc_25},
-            {"John F. Kennedy",        R.drawable.pres_2015_john_f_kennedy_unc,          R.drawable.pres_2015_john_f_kennedy_unc_25},
-            {"Lyndon B. Johnson",      R.drawable.pres_2015_lyndon_b_johnson_unc,        R.drawable.pres_2015_lyndon_b_johnson_unc_25},
-            {"Richard M. Nixon",       R.drawable.pres_2016_richard_m_nixon_unc,         R.drawable.pres_2016_richard_m_nixon_unc_25},
-            {"Gerald R. Ford",         R.drawable.pres_2016_gerald_r_ford_unc,           R.drawable.pres_2016_gerald_r_ford_unc_25},
-            {"Ronald Reagan",          R.drawable.pres_2016_ronald_reagan_unc,           R.drawable.pres_2016_ronald_reagan_unc_25},
-            {"George H.W. Bush",       R.drawable.pres_2020_george_hw_bush_unc,          R.drawable.pres_2020_george_hw_bush_unc_25},
+            {"George Washington",      R.drawable.pres_2007_george_washington_unc},
+            {"John Adams",             R.drawable.pres_2007_john_adam_unc},
+            {"Thomas Jefferson",       R.drawable.pres_2007_thomas_jefferson_unc},
+            {"James Madison",          R.drawable.pres_2007_james_madison_unc},
+            {"James Monroe",           R.drawable.pres_2008_james_monroe_unc},
+            {"John Quincy Adams",      R.drawable.pres_2008_john_quincy_adams_unc},
+            {"Andrew Jackson",         R.drawable.pres_2008_andrew_jackson_unc},
+            {"Martin Van Buren",       R.drawable.pres_2008_martin_van_buren_unc},
+            {"William Henry Harrison", R.drawable.pres_2009_william_henry_harrison_unc},
+            {"John Tyler",             R.drawable.pres_2009_john_tyler_unc},
+            {"James K. Polk",          R.drawable.pres_2009_james_k_polk_unc},
+            {"Zachary Taylor",         R.drawable.pres_2009_zachary_taylor_unc},
+            {"Millard Fillmore",       R.drawable.pres_2010_millard_fillmore_unc},
+            {"Franklin Pierce",        R.drawable.pres_2010_franklin_pierce_unc},
+            {"James Buchanan",         R.drawable.pres_2010_james_buchanan_unc},
+            {"Abraham Lincoln",        R.drawable.pres_2010_abraham_lincoln_unc},
+            {"Andrew Johnson",         R.drawable.pres_2011_andrew_johnson_unc},
+            {"Ulysses S. Grant",       R.drawable.pres_2011_ulysses_s_grant_unc},
+            {"Rutherford B. Hayes",    R.drawable.pres_2011_rutherford_b_hayes_unc},
+            {"James Garfield",         R.drawable.pres_2011_james_garfield_unc},
+            {"Chester Arthur",         R.drawable.pres_2012_chester_arthur_unc},
+            {"Grover Cleveland 1",     R.drawable.pres_2012_grover_cleveland_1_unc},
+            {"Benjamin Harrison",      R.drawable.pres_2012_benjamin_harrison_unc},
+            {"Grover Cleveland 2",     R.drawable.pres_2012_grover_cleveland_2_unc},
+            {"William McKinley",       R.drawable.pres_2013_william_mckinley_unc},
+            {"Theodore Roosevelt",     R.drawable.pres_2013_theodore_roosevelt_unc},
+            {"William Howard Taft",    R.drawable.pres_2013_william_taft_unc},
+            {"Woodrow Wilson",         R.drawable.pres_2013_woodrow_wilson_unc},
+            {"Warren G. Harding",      R.drawable.pres_2014_warren_g_harding_unc},
+            {"Calvin Coolidge",        R.drawable.pres_2014_calvin_coolidge_unc},
+            {"Herbert Hoover",         R.drawable.pres_2014_herbert_hoover_unc},
+            {"Franklin D. Roosevelt",  R.drawable.pres_2014_franklin_d_roosevelt_unc},
+            {"Harry Truman",           R.drawable.pres_2015_harry_s_truman_unc},
+            {"Dwight D. Eisenhower",   R.drawable.pres_2015_dwight_d_eisenhower_unc},
+            {"John F. Kennedy",        R.drawable.pres_2015_john_f_kennedy_unc},
+            {"Lyndon B. Johnson",      R.drawable.pres_2015_lyndon_b_johnson_unc},
+            {"Richard M. Nixon",       R.drawable.pres_2016_richard_m_nixon_unc},
+            {"Gerald R. Ford",         R.drawable.pres_2016_gerald_r_ford_unc},
+            {"Ronald Reagan",          R.drawable.pres_2016_ronald_reagan_unc},
+            {"George H.W. Bush",       R.drawable.pres_2020_george_hw_bush_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -103,13 +102,8 @@ public class PresidentialDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
 
     @Override

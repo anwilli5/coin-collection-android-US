@@ -40,57 +40,56 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
     public static final String COLLECTION_TYPE = "First Spouse Gold Coins";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Martha Washington",          R.drawable.fs_2007_martha_washington_unc,   R.drawable.fs_2007_martha_washington_unc_25},
-            {"Abigail Adams",              R.drawable.fs_2007_abigail_adams_unc,       R.drawable.fs_2007_abigail_adams_unc_25},
-            {"Thomas Jefferson's Liberty", R.drawable.fs_2007_jeffersons_liberty_unc,  R.drawable.fs_2007_jeffersons_liberty_unc_25},
-            {"Dolley Madison",             R.drawable.fs_2007_dolley_madison_unc,      R.drawable.fs_2007_dolley_madison_unc_25},
-            {"Elizabeth Monroe",           R.drawable.fs_2008_elizabeth_monroe_unc,    R.drawable.fs_2008_elizabeth_monroe_unc_25},
-            {"Louisa Adams",               R.drawable.fs_2008_louisa_adams_unc,        R.drawable.fs_2008_louisa_adams_unc_25},
-            {"Andrew Jackson's Liberty",   R.drawable.fs_2008_jacksons_liberty_unc,    R.drawable.fs_2008_jacksons_liberty_unc_25},
-            {"Martin Van Buren's Liberty", R.drawable.fs_2008_van_burens_liberty_unc,  R.drawable.fs_2008_van_burens_liberty_unc_25},
-            {"Anna Harrison",              R.drawable.fs_2009_anna_harrison_unc,       R.drawable.fs_2009_anna_harrison_unc_25},
-            {"Letitia Tyler",              R.drawable.fs_2009_letitia_tyler_unc,       R.drawable.fs_2009_letitia_tyler_unc_25},
-            {"Julia Tyler",                R.drawable.fs_2009_julia_tyler_unc,         R.drawable.fs_2009_julia_tyler_unc_25},
-            {"Sarah Polk",                 R.drawable.fs_2009_sarah_polk_unc,          R.drawable.fs_2009_sarah_polk_unc_25},
-            {"Margaret Taylor",            R.drawable.fs_2009_margaret_taylor_unc,     R.drawable.fs_2009_margaret_taylor_unc_25},
-            {"Abigail Fillmore",           R.drawable.fs_2010_abigail_fillmore_unc,    R.drawable.fs_2010_abigail_fillmore_unc_25},
-            {"Jane Pierce",                R.drawable.fs_2010_jane_pierce_unc,         R.drawable.fs_2010_jane_pierce_unc_25},
-            {"James Buchanan's Liberty",   R.drawable.fs_2010_buchanans_liberty_unc,   R.drawable.fs_2010_buchanans_liberty_unc_25},
-            {"Mary Todd Lincoln",          R.drawable.fs_2010_mary_todd_lincoln_unc,   R.drawable.fs_2010_mary_todd_lincoln_unc_25},
-            {"Eliza Johnson",              R.drawable.fs_2011_eliza_johnson_unc,       R.drawable.fs_2011_eliza_johnson_unc_25},
-            {"Julia Grant",                R.drawable.fs_2011_julia_grant_unc,         R.drawable.fs_2011_julia_grant_unc_25},
-            {"Lucy Hayes",                 R.drawable.fs_2011_lucy_hayes_unc,          R.drawable.fs_2011_lucy_hayes_unc_25},
-            {"Lucretia Garfield",          R.drawable.fs_2011_lucretia_garfield_unc,   R.drawable.fs_2011_lucretia_garfield_unc_25},
-            {"Alice Paul",                 R.drawable.fs_2012_alice_paul_unc,          R.drawable.fs_2012_alice_paul_unc_25},
-            {"Frances Cleveland 1",        R.drawable.fs_2012_frances_cleveland_1_unc, R.drawable.fs_2012_frances_cleveland_1_unc_25},
-            {"Caroline Harrison",          R.drawable.fs_2012_caroline_harrison_unc,   R.drawable.fs_2012_caroline_harrison_unc_25},
-            {"Frances Cleveland 2",        R.drawable.fs_2012_frances_cleveland_2_unc, R.drawable.fs_2012_frances_cleveland_2_unc_25},
-            {"Ida McKinley",               R.drawable.fs_2013_ida_mckinley_unc,        R.drawable.fs_2013_ida_mckinley_unc_25},
-            {"Edith Roosevelt",            R.drawable.fs_2013_edith_roosevelt_unc,     R.drawable.fs_2013_edith_roosevelt_unc_25},
-            {"Helen Taft",                 R.drawable.fs_2013_helen_taft_unc,          R.drawable.fs_2013_helen_taft_unc_25},
-            {"Ellen Wilson",               R.drawable.fs_2013_ellen_wilson_unc,        R.drawable.fs_2013_ellen_wilson_unc_25},
-            {"Edith Wilson",               R.drawable.fs_2013_edith_wilson_unc,        R.drawable.fs_2013_edith_wilson_unc_25},
-            {"Florence Harding",           R.drawable.fs_2014_florence_harding_unc,    R.drawable.fs_2014_florence_harding_unc_25},
-            {"Grace Coolidge",             R.drawable.fs_2014_grace_coolidge_unc,      R.drawable.fs_2014_grace_coolidge_unc_25},
-            {"Lou Hoover",                 R.drawable.fs_2014_lou_hoover_unc,          R.drawable.fs_2014_lou_hoover_unc_25},
-            {"Eleanor Roosevelt",          R.drawable.fs_2014_eleanor_roosevelt_unc,   R.drawable.fs_2014_eleanor_roosevelt_unc_25},
-            {"Bess Truman",                R.drawable.fs_2015_bess_truman_unc,         R.drawable.fs_2015_bess_truman_unc_25},
-            {"Mamie Eisenhower",           R.drawable.fs_2015_mamie_eisenhower_unc,    R.drawable.fs_2015_mamie_eisenhower_unc_25},
-            {"Jacqueline Kennedy",         R.drawable.fs_2015_jacqueline_kennedy_unc,  R.drawable.fs_2015_jacqueline_kennedy_unc_25},
-            {"Lady Bird Johnson",          R.drawable.fs_2015_lady_bird_johnson_unc,   R.drawable.fs_2015_lady_bird_johnson_unc_25},
-            {"Patricia Nixon",             R.drawable.fs_2016_patricia_nixon_unc,      R.drawable.fs_2016_patricia_nixon_unc_25},
-            {"Betty Ford",                 R.drawable.fs_2016_betty_ford_unc,          R.drawable.fs_2016_betty_ford_unc_25},
-            {"Nancy Reagan",               R.drawable.fs_2016_nancy_reagan_unc,        R.drawable.fs_2016_nancy_reagan_unc_25},
-            {"Barbara Bush",               R.drawable.fs_2020_barbara_bush_unc,        R.drawable.fs_2020_barbara_bush_unc_25},
+            {"Martha Washington",          R.drawable.fs_2007_martha_washington_unc},
+            {"Abigail Adams",              R.drawable.fs_2007_abigail_adams_unc},
+            {"Thomas Jefferson's Liberty", R.drawable.fs_2007_jeffersons_liberty_unc},
+            {"Dolley Madison",             R.drawable.fs_2007_dolley_madison_unc},
+            {"Elizabeth Monroe",           R.drawable.fs_2008_elizabeth_monroe_unc},
+            {"Louisa Adams",               R.drawable.fs_2008_louisa_adams_unc},
+            {"Andrew Jackson's Liberty",   R.drawable.fs_2008_jacksons_liberty_unc},
+            {"Martin Van Buren's Liberty", R.drawable.fs_2008_van_burens_liberty_unc},
+            {"Anna Harrison",              R.drawable.fs_2009_anna_harrison_unc},
+            {"Letitia Tyler",              R.drawable.fs_2009_letitia_tyler_unc},
+            {"Julia Tyler",                R.drawable.fs_2009_julia_tyler_unc},
+            {"Sarah Polk",                 R.drawable.fs_2009_sarah_polk_unc},
+            {"Margaret Taylor",            R.drawable.fs_2009_margaret_taylor_unc},
+            {"Abigail Fillmore",           R.drawable.fs_2010_abigail_fillmore_unc},
+            {"Jane Pierce",                R.drawable.fs_2010_jane_pierce_unc},
+            {"James Buchanan's Liberty",   R.drawable.fs_2010_buchanans_liberty_unc},
+            {"Mary Todd Lincoln",          R.drawable.fs_2010_mary_todd_lincoln_unc},
+            {"Eliza Johnson",              R.drawable.fs_2011_eliza_johnson_unc},
+            {"Julia Grant",                R.drawable.fs_2011_julia_grant_unc},
+            {"Lucy Hayes",                 R.drawable.fs_2011_lucy_hayes_unc},
+            {"Lucretia Garfield",          R.drawable.fs_2011_lucretia_garfield_unc},
+            {"Alice Paul",                 R.drawable.fs_2012_alice_paul_unc},
+            {"Frances Cleveland 1",        R.drawable.fs_2012_frances_cleveland_1_unc},
+            {"Caroline Harrison",          R.drawable.fs_2012_caroline_harrison_unc},
+            {"Frances Cleveland 2",        R.drawable.fs_2012_frances_cleveland_2_unc},
+            {"Ida McKinley",               R.drawable.fs_2013_ida_mckinley_unc},
+            {"Edith Roosevelt",            R.drawable.fs_2013_edith_roosevelt_unc},
+            {"Helen Taft",                 R.drawable.fs_2013_helen_taft_unc},
+            {"Ellen Wilson",               R.drawable.fs_2013_ellen_wilson_unc},
+            {"Edith Wilson",               R.drawable.fs_2013_edith_wilson_unc},
+            {"Florence Harding",           R.drawable.fs_2014_florence_harding_unc},
+            {"Grace Coolidge",             R.drawable.fs_2014_grace_coolidge_unc},
+            {"Lou Hoover",                 R.drawable.fs_2014_lou_hoover_unc},
+            {"Eleanor Roosevelt",          R.drawable.fs_2014_eleanor_roosevelt_unc},
+            {"Bess Truman",                R.drawable.fs_2015_bess_truman_unc},
+            {"Mamie Eisenhower",           R.drawable.fs_2015_mamie_eisenhower_unc},
+            {"Jacqueline Kennedy",         R.drawable.fs_2015_jacqueline_kennedy_unc},
+            {"Lady Bird Johnson",          R.drawable.fs_2015_lady_bird_johnson_unc},
+            {"Patricia Nixon",             R.drawable.fs_2016_patricia_nixon_unc},
+            {"Betty Ford",                 R.drawable.fs_2016_betty_ford_unc},
+            {"Nancy Reagan",               R.drawable.fs_2016_nancy_reagan_unc},
+            {"Barbara Bush",               R.drawable.fs_2020_barbara_bush_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -104,13 +103,8 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
 
     @Override

@@ -41,71 +41,70 @@ public class NationalParkQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "National Park Quarters";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Hot Springs",           R.drawable.parks_2010_hot_springs_unc,            R.drawable.parks_2010_hot_springs_unc_25},
-            {"Yellowstone",           R.drawable.parks_2010_yellowstone_unc,            R.drawable.parks_2010_yellowstone_unc_25},
-            {"Yosemite",              R.drawable.parks_2010_yosemite_unc,               R.drawable.parks_2010_yosemite_unc_25},
-            {"Grand Canyon",          R.drawable.parks_2010_grand_canyon_unc,           R.drawable.parks_2010_grand_canyon_unc_25},
-            {"Mt. Hood",              R.drawable.parks_2010_mount_hood_unc,             R.drawable.parks_2010_mount_hood_unc_25},
-            {"Gettysburg",            R.drawable.parks_2011_gettysburg_unc,             R.drawable.parks_2011_gettysburg_unc_25},
-            {"Glacier",               R.drawable.parks_2011_glacier_unc,                R.drawable.parks_2011_glacier_unc_25},
-            {"Olympic",               R.drawable.parks_2011_olympic_unc,                R.drawable.parks_2011_olympic_unc_25},
-            {"Vicksburg",             R.drawable.parks_2011_vicksburg_unc,              R.drawable.parks_2011_vicksburg_unc_25},
-            {"Chickasaw",             R.drawable.parks_2011_chickasaw_unc,              R.drawable.parks_2011_chickasaw_unc_25},
-            {"El Yunque",             R.drawable.parks_2012_el_yunque_unc,              R.drawable.parks_2012_el_yunque_unc_25},
-            {"Chaco Culture",         R.drawable.parks_2012_chaco_culture_unc,          R.drawable.parks_2012_chaco_culture_unc_25},
-            {"Acadia",                R.drawable.parks_2012_acadia_unc,                 R.drawable.parks_2012_acadia_unc_25},
-            {"Hawaii Volcanoes",      R.drawable.parks_2012_hawaii_volcanoes_unc,       R.drawable.parks_2012_hawaii_volcanoes_unc_25},
-            {"Denali",                R.drawable.parks_2012_denali_unc,                 R.drawable.parks_2012_denali_unc_25},
-            {"White Mountain",        R.drawable.parks_2013_white_mountain_unc,         R.drawable.parks_2013_white_mountain_unc_25},
-            {"Perry's Victory",       R.drawable.parks_2013_perrys_victory_unc,         R.drawable.parks_2013_perrys_victory_unc_25},
-            {"Great Basin",           R.drawable.parks_2013_great_basin_unc,            R.drawable.parks_2013_great_basin_unc_25},
-            {"Fort McHenry",          R.drawable.parks_2013_fort_mchenry_unc,           R.drawable.parks_2013_fort_mchenry_unc_25},
-            {"Mount Rushmore",        R.drawable.parks_2013_mount_rushmore_unc,         R.drawable.parks_2013_mount_rushmore_unc_25},
-            {"Great Smoky Mountains", R.drawable.parks_2014_great_smoky_mountains_unc,  R.drawable.parks_2014_great_smoky_mountains_unc_25},
-            {"Shenandoah",            R.drawable.parks_2014_shenandoah_unc,             R.drawable.parks_2014_shenandoah_unc_25},
-            {"Arches",                R.drawable.parks_2014_arches_unc,                 R.drawable.parks_2014_arches_unc_25},
-            {"Great Sand Dunes",      R.drawable.parks_2014_great_sand_dunes_unc,       R.drawable.parks_2014_great_sand_dunes_unc_25},
-            {"Everglades",            R.drawable.parks_2014_everglades_unc,             R.drawable.parks_2014_everglades_unc_25},
-            {"Homestead",             R.drawable.parks_2015_homestead_unc,              R.drawable.parks_2015_homestead_unc_25},
-            {"Kisatchie",             R.drawable.parks_2015_kisatchie_unc,              R.drawable.parks_2015_kisatchie_unc_25},
-            {"Blue Ridge",            R.drawable.parks_2015_blue_ridge_unc,             R.drawable.parks_2015_blue_ridge_unc_25},
-            {"Bombay Hook",           R.drawable.parks_2015_bombay_hook_unc,            R.drawable.parks_2015_bombay_hook_unc_25},
-            {"Saratoga",              R.drawable.parks_2015_saratoga_unc,               R.drawable.parks_2015_saratoga_unc_25},
-            {"Shawnee",               R.drawable.parks_2016_shawnee_unc,                R.drawable.parks_2016_shawnee_unc_25},
-            {"Cumberland Gap",        R.drawable.parks_2016_cumberland_gap_unc,         R.drawable.parks_2016_cumberland_gap_unc_25},
-            {"Harper's Ferry",        R.drawable.parks_2016_harpers_ferry_unc,          R.drawable.parks_2016_harpers_ferry_unc_25},
-            {"Theodore Roosevelt",    R.drawable.parks_2016_theodore_roosevelt_unc,     R.drawable.parks_2016_theodore_roosevelt_unc_25},
-            {"Fort Moultrie",         R.drawable.parks_2016_fort_moultrie_unc,          R.drawable.parks_2016_fort_moultrie_unc_25},
-            {"Effigy Mounds",         R.drawable.parks_2017_effigy_mounds_proof,        R.drawable.parks_2017_effigy_mounds_proof_25},
-            {"Frederick Douglass",    R.drawable.parks_2017_frederick_douglass_proof,   R.drawable.parks_2017_frederick_douglass_proof_25},
-            {"Ozark Riverways",       R.drawable.parks_2017_ozark_riverways_proof,      R.drawable.parks_2017_ozark_riverways_proof_25},
-            {"Ellis Island",          R.drawable.parks_2017_ellis_island_proof,         R.drawable.parks_2017_ellis_island_proof_25},
-            {"George Rogers Clark",   R.drawable.parks_2017_george_rogers_clark_proof,  R.drawable.parks_2017_george_rogers_clark_proof_25},
-            {"Pictured Rocks",        R.drawable.parks_2018_pictured_rocks_proof,       R.drawable.parks_2018_pictured_rocks_proof_25},
-            {"Apostle Islands",       R.drawable.parks_2018_apostle_islands_proof,      R.drawable.parks_2018_apostle_islands_proof_25},
-            {"Voyageurs",             R.drawable.parks_2018_voyageurs_proof,            R.drawable.parks_2018_voyageurs_proof_25},
-            {"Cumberland Island",     R.drawable.parks_2018_cumberland_island_proof,    R.drawable.parks_2018_cumberland_island_proof_25},
-            {"Block Island",          R.drawable.parks_2018_block_island_proof,         R.drawable.parks_2018_block_island_proof_25},
-            {"Lowell",                R.drawable.parks_2019_lowell_proof,               R.drawable.parks_2019_lowell_proof_25},
-            {"American Memorial",     R.drawable.parks_2019_american_memorial_proof,    R.drawable.parks_2019_american_memorial_proof_25},
-            {"War in the Pacific",    R.drawable.parks_2019_war_in_the_pacific_proof,   R.drawable.parks_2019_war_in_the_pacific_proof_25},
-            {"San Antonio Missions",  R.drawable.parks_2019_san_antonio_missions_proof, R.drawable.parks_2019_san_antonio_missions_proof_25},
-            {"River of No Return",    R.drawable.parks_2019_river_of_no_return_proof,   R.drawable.parks_2019_river_of_no_return_proof_25},
-            {"National Park of American Samoa", R.drawable.parks_2020_american_samoa_unc, R.drawable.parks_2020_american_samoa_unc_25},
-            {"Weir Farm",             R.drawable.parks_2020_weir_farm_unc,              R.drawable.parks_2020_weir_farm_unc_25},
-            {"Salt River Bay",        R.drawable.parks_2020_salt_river_bay_unc,         R.drawable.parks_2020_salt_river_bay_unc_25},
-            {"Marsh-Billings-Rockefeller", R.drawable.parks_2020_marsh_billings_rockefeller_unc, R.drawable.parks_2020_marsh_billings_rockefeller_unc_25},
-            {"Tallgrass Prairie",     R.drawable.parks_2020_tallgrass_prairie_unc,      R.drawable.parks_2020_tallgrass_prairie_unc_25},
-            {"Tuskegee Airmen",       R.drawable.parks_2021_tuskegee_airmen_unc,        R.drawable.parks_2021_tuskegee_airmen_unc_25},
+            {"Hot Springs",           R.drawable.parks_2010_hot_springs_unc},
+            {"Yellowstone",           R.drawable.parks_2010_yellowstone_unc},
+            {"Yosemite",              R.drawable.parks_2010_yosemite_unc},
+            {"Grand Canyon",          R.drawable.parks_2010_grand_canyon_unc},
+            {"Mt. Hood",              R.drawable.parks_2010_mount_hood_unc},
+            {"Gettysburg",            R.drawable.parks_2011_gettysburg_unc},
+            {"Glacier",               R.drawable.parks_2011_glacier_unc},
+            {"Olympic",               R.drawable.parks_2011_olympic_unc},
+            {"Vicksburg",             R.drawable.parks_2011_vicksburg_unc},
+            {"Chickasaw",             R.drawable.parks_2011_chickasaw_unc},
+            {"El Yunque",             R.drawable.parks_2012_el_yunque_unc},
+            {"Chaco Culture",         R.drawable.parks_2012_chaco_culture_unc},
+            {"Acadia",                R.drawable.parks_2012_acadia_unc},
+            {"Hawaii Volcanoes",      R.drawable.parks_2012_hawaii_volcanoes_unc},
+            {"Denali",                R.drawable.parks_2012_denali_unc},
+            {"White Mountain",        R.drawable.parks_2013_white_mountain_unc},
+            {"Perry's Victory",       R.drawable.parks_2013_perrys_victory_unc},
+            {"Great Basin",           R.drawable.parks_2013_great_basin_unc},
+            {"Fort McHenry",          R.drawable.parks_2013_fort_mchenry_unc},
+            {"Mount Rushmore",        R.drawable.parks_2013_mount_rushmore_unc},
+            {"Great Smoky Mountains", R.drawable.parks_2014_great_smoky_mountains_unc},
+            {"Shenandoah",            R.drawable.parks_2014_shenandoah_unc},
+            {"Arches",                R.drawable.parks_2014_arches_unc},
+            {"Great Sand Dunes",      R.drawable.parks_2014_great_sand_dunes_unc},
+            {"Everglades",            R.drawable.parks_2014_everglades_unc},
+            {"Homestead",             R.drawable.parks_2015_homestead_unc},
+            {"Kisatchie",             R.drawable.parks_2015_kisatchie_unc},
+            {"Blue Ridge",            R.drawable.parks_2015_blue_ridge_unc},
+            {"Bombay Hook",           R.drawable.parks_2015_bombay_hook_unc},
+            {"Saratoga",              R.drawable.parks_2015_saratoga_unc},
+            {"Shawnee",               R.drawable.parks_2016_shawnee_unc},
+            {"Cumberland Gap",        R.drawable.parks_2016_cumberland_gap_unc},
+            {"Harper's Ferry",        R.drawable.parks_2016_harpers_ferry_unc},
+            {"Theodore Roosevelt",    R.drawable.parks_2016_theodore_roosevelt_unc},
+            {"Fort Moultrie",         R.drawable.parks_2016_fort_moultrie_unc},
+            {"Effigy Mounds",         R.drawable.parks_2017_effigy_mounds_proof},
+            {"Frederick Douglass",    R.drawable.parks_2017_frederick_douglass_proof},
+            {"Ozark Riverways",       R.drawable.parks_2017_ozark_riverways_proof},
+            {"Ellis Island",          R.drawable.parks_2017_ellis_island_proof},
+            {"George Rogers Clark",   R.drawable.parks_2017_george_rogers_clark_proof},
+            {"Pictured Rocks",        R.drawable.parks_2018_pictured_rocks_proof},
+            {"Apostle Islands",       R.drawable.parks_2018_apostle_islands_proof},
+            {"Voyageurs",             R.drawable.parks_2018_voyageurs_proof},
+            {"Cumberland Island",     R.drawable.parks_2018_cumberland_island_proof},
+            {"Block Island",          R.drawable.parks_2018_block_island_proof},
+            {"Lowell",                R.drawable.parks_2019_lowell_proof},
+            {"American Memorial",     R.drawable.parks_2019_american_memorial_proof},
+            {"War in the Pacific",    R.drawable.parks_2019_war_in_the_pacific_proof},
+            {"San Antonio Missions",  R.drawable.parks_2019_san_antonio_missions_proof},
+            {"River of No Return",    R.drawable.parks_2019_river_of_no_return_proof},
+            {"National Park of American Samoa", R.drawable.parks_2020_american_samoa_unc},
+            {"Weir Farm",             R.drawable.parks_2020_weir_farm_unc},
+            {"Salt River Bay",        R.drawable.parks_2020_salt_river_bay_unc},
+            {"Marsh-Billings-Rockefeller", R.drawable.parks_2020_marsh_billings_rockefeller_unc},
+            {"Tallgrass Prairie",     R.drawable.parks_2020_tallgrass_prairie_unc},
+            {"Tuskegee Airmen",       R.drawable.parks_2021_tuskegee_airmen_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -119,13 +118,8 @@ public class NationalParkQuarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? (int) COIN_IDENTIFIERS[0][1] : (int) COIN_IDENTIFIERS[0][2];
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
 
     @Override

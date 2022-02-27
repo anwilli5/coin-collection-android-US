@@ -37,28 +37,27 @@ public class NativeAmericanDollars extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Sacagawea/Native American Dollars"; // Was: Sacagawea Dollars
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"2009", R.drawable.native_2009_unc,       R.drawable.native_2009_unc_25},
-            {"2010", R.drawable.native_2010_unc,       R.drawable.native_2010_unc_25},
-            {"2011", R.drawable.native_2011_unc,       R.drawable.native_2011_unc_25},
-            {"2012", R.drawable.native_2012_unc,       R.drawable.native_2012_unc_25},
-            {"2013", R.drawable.native_2013_proof,     R.drawable.native_2013_proof_25},
-            {"2014", R.drawable.native_2014_unc,       R.drawable.native_2014_unc_25},
-            {"2015", R.drawable.native_2015_unc,       R.drawable.native_2015_unc_25},
-            {"2016", R.drawable.native_2016_unc,       R.drawable.native_2016_unc_25},
-            {"2017", R.drawable.native_2017_unc,       R.drawable.native_2017_unc_25},
-            {"2018", R.drawable.native_2018_unc,       R.drawable.native_2018_unc_25},
-            {"2019", R.drawable.native_2019_unc,       R.drawable.native_2019_unc_25},
-            {"2020", R.drawable.native_2020_unc,       R.drawable.native_2020_unc_25},
-            {"2021", R.drawable.native_2021_unc,       R.drawable.native_2021_unc_25},
+            {"2009", R.drawable.native_2009_unc},
+            {"2010", R.drawable.native_2010_unc},
+            {"2011", R.drawable.native_2011_unc},
+            {"2012", R.drawable.native_2012_unc},
+            {"2013", R.drawable.native_2013_proof},
+            {"2014", R.drawable.native_2014_unc},
+            {"2015", R.drawable.native_2015_unc},
+            {"2016", R.drawable.native_2016_unc},
+            {"2017", R.drawable.native_2017_unc},
+            {"2018", R.drawable.native_2018_unc},
+            {"2019", R.drawable.native_2019_unc},
+            {"2020", R.drawable.native_2020_unc},
+            {"2021", R.drawable.native_2021_unc},
     };
 
-    private static final HashMap<String, Integer[]> COIN_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : COIN_IDENTIFIERS){
-            COIN_MAP.put((String) coinData[0],
-                    new Integer[]{(Integer) coinData[1], (Integer) coinData[2]});
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
 
@@ -66,7 +65,6 @@ public class NativeAmericanDollars extends CollectionInfo {
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_sacagawea_unc;
-    private static final int OBVERSE_IMAGE_MISSING = R.drawable.obv_sacagawea_unc_25;
 
     private static final int REVERSE_IMAGE = R.drawable.rev_sacagawea_unc;
 
@@ -78,13 +76,8 @@ public class NativeAmericanDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot){
-        Integer[] slotImages = COIN_MAP.get(coinSlot.getIdentifier());
-        boolean inCollection = coinSlot.isInCollection();
-        if(slotImages != null){
-            return slotImages[inCollection ? 0 : 1];
-        } else {
-            return inCollection ? OBVERSE_IMAGE_COLLECTED : OBVERSE_IMAGE_MISSING;
-        }
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override
