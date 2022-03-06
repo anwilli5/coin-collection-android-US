@@ -29,6 +29,7 @@ If you need help using the app or aren't sure how to do something, see our [Usin
 Supported U.S. coin sets include:
 - American Eagle Silver Dollars
 - American Innovation Dollars
+- American Women Quarters
 - Barber Dimes
 - Barber Half Dollars
 - Barber Quarters
