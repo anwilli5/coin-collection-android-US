@@ -156,6 +156,11 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
         }
 
+        if (oldVersion <= 18) {
+            // Add in new 2022 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
+        }
+
         return total;
     }
 }

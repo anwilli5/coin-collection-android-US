@@ -18,11 +18,14 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import static junit.framework.TestCase.assertEquals;
+
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -53,8 +56,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static junit.framework.TestCase.assertEquals;
-
 public class CollectionCreationTests extends BaseTestCase {
 
     @Override
@@ -76,8 +77,8 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Burnished, Expected Result
         Object[][] tests = {
-                {false, 36},
-                {true,  36 + 4},
+                {false, 37},
+                {true,  37 + 4},
         };
 
         for(Object[] test : tests) {
@@ -103,12 +104,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  9},
-                {false, false, true,  9},
+                {false, true,  true,  17},
+                {false, false, true,  17},
                 {true,  false, false, 0},
-                {true,  true,  false, 9},
-                {true,  false, true,  9},
-                {true,  true,  true,  9 + 9},
+                {true,  true,  false, 17},
+                {true,  false, true,  17},
+                {true,  true,  true,  17 + 17},
         };
 
         for(Object[] test : tests){
@@ -303,13 +304,14 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years)
-        parameters.put(CoinPageCreator.OPT_START_YEAR, year);
-        ArrayList<CoinSlot> coinList = new ArrayList<>();
-        coinClass.populateCollectionLists(parameters, coinList);
-        assertEquals(6, coinList.size());
+        for(int year : years) {
+            parameters.put(CoinPageCreator.OPT_START_YEAR, year);
+            ArrayList<CoinSlot> coinList = new ArrayList<>();
+            coinClass.populateCollectionLists(parameters, coinList);
+            assertEquals(6, coinList.size());
 
-        checkCreationParamsFromCoinList(coinList, coinClass);
+            checkCreationParamsFromCoinList(coinList, coinClass);
+        }
     }
 
     /**
@@ -411,12 +413,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  86},
-                {false, false, false,  false, 86},
-                {true,  true,  false,  false, 83},
-                {true,  false, true,   false, 83},
+                {false, true,  false,  true,  87},
+                {false, false, false,  false, 87},
+                {true,  true,  false,  false, 84},
+                {true,  false, true,   false, 84},
                 {true,  false, false,  true,  19},
-                {true,  true,  true,   true,  83 + 83 + 19},
+                {true,  true,  true,   true,  84 + 84 + 19},
         };
 
         for(Object[] test : tests){
@@ -446,12 +448,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  57},
-                {false, false, true,  57},
+                {false, true,  true,  58},
+                {false, false, true,  58},
                 {true,  false, false, 0},
-                {true,  true,  false, 54},
-                {true,  false, true,  54},
-                {true,  true,  true,  54 + 54},
+                {true,  true,  false, 55},
+                {true,  false, true,  55},
+                {true,  true,  true,  55 + 55},
         };
 
         for(Object[] test : tests){
@@ -467,13 +469,14 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years)
+        for(int year : years) {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
-        ArrayList<CoinSlot> coinList = new ArrayList<>();
-        coinClass.populateCollectionLists(parameters, coinList);
-        assertEquals(92, coinList.size());
+            ArrayList<CoinSlot> coinList = new ArrayList<>();
+            coinClass.populateCollectionLists(parameters, coinList);
+            assertEquals(94, coinList.size());
+            checkCreationParamsFromCoinList(coinList, coinClass);
+        }
 
-        checkCreationParamsFromCoinList(coinList, coinClass);
     }
 
     /**
@@ -524,12 +527,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  117},
-                {false, false, false,  false, 117},
-                {true,  true,  false,  false, 117},
-                {true,  false, true,   false, 109},
+                {false, true,  false,  true,  118},
+                {false, false, false,  false, 118},
+                {true,  true,  false,  false, 118},
+                {true,  false, true,   false, 110},
                 {true,  false, false,  true,  51},
-                {true,  true,  true,   true,  117 + 109 + 51},
+                {true,  true,  true,   true,  118 + 110 + 51},
         };
 
         for(Object[] test : tests){
@@ -666,12 +669,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  22},
-                {false, false, true,  22},
+                {false, true,  true,  23},
+                {false, false, true,  23},
                 {true,  false, false, 0},
-                {true,  true,  false, 22},
-                {true,  false, true,  22},
-                {true,  true,  true,  22 + 22},
+                {true,  true,  false, 23},
+                {true,  false, true,  23},
+                {true,  true,  true,  23 + 23},
         };
 
         for(Object[] test : tests){
@@ -767,12 +770,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  76},
-                {false, false, false,  false, 76},
-                {true,  true,  false,  false, 76},
-                {true,  false, true,   false, 73},
+                {false, true,  false,  true,  77},
+                {false, false, false,  false, 77},
+                {true,  true,  false,  false, 77},
+                {true,  false, true,   false, 74},
                 {true,  false, false,  true,  10},
-                {true,  true,  true,   true,  76 + 73 + 10},
+                {true,  true,  true,   true,  77 + 74 + 10},
         };
 
         for(Object[] test : tests){
@@ -966,12 +969,48 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years)
+        for(int year : years) {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
-        ArrayList<CoinSlot> coinList = new ArrayList<>();
-        coinClass.populateCollectionLists(parameters, coinList);
-        assertEquals(48, coinList.size());
+            ArrayList<CoinSlot> coinList = new ArrayList<>();
+            coinClass.populateCollectionLists(parameters, coinList);
+            assertEquals(48, coinList.size());
 
-        checkCreationParamsFromCoinList(coinList, coinClass);
+            checkCreationParamsFromCoinList(coinList, coinClass);
+        }
+    }
+
+    /**
+     * For AmericanWomenQuarters
+     * - Test that the number of coins is correct upon collection creation
+     */
+    @Test
+    public void test_AmericanWomenQuartersCounts() {
+
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        AmericanWomenQuarters coinClass = new AmericanWomenQuarters();
+        coinClass.getCreationParameters(parameters);
+
+        // Show Mint Marks, P, D, S, Expected Result
+        Object[][] tests = {
+                {false, true,  false,  true,  5},
+                {false, false, false,  false, 5},
+                {true,  true,  false,  false, 5},
+                {true,  false, true,   false, 5},
+                {true,  false, false,  true,  5},
+                {true,  true,  true,   true,  5 + 5 + 5},
+        };
+
+        for(Object[] test : tests){
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
+
+            ArrayList<CoinSlot> coinList = new ArrayList<>();
+            coinClass.populateCollectionLists(parameters, coinList);
+            assertEquals(test[4], coinList.size());
+
+            checkCreationParamsFromCoinList(coinList, coinClass);
+        }
     }
 }

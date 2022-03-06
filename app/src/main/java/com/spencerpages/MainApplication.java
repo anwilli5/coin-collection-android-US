@@ -26,6 +26,7 @@ import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseAdapter;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -91,6 +92,7 @@ public class MainApplication extends Application {
                     new AmericanEagleSilverDollars(),
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
+                    new AmericanWomenQuarters(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
@@ -122,8 +124,9 @@ public class MainApplication extends Application {
      *                   Version 15 - Used in Version 3.0.0 of the app
      *                   Version 16 - Used in Version 3.1.0 of the app
      *                   Version 17 - Used in Version 3.3.0 of the app
+     *                   Version 18 - Used in Version 3.4.0 of the app
      */
-    public static final int DATABASE_VERSION = 17;
+    public static final int DATABASE_VERSION = 18;
 
     /**
      * Get the collection index from collection type name

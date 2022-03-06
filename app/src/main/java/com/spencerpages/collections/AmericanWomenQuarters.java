@@ -26,34 +26,21 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
-import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class AmericanInnovationDollars extends CollectionInfo {
+public class AmericanWomenQuarters extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "American Innovation Dollars";
+    public static final String COLLECTION_TYPE = "American Women Quarters";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            { "Introductory",   R.drawable.innovation_2018_introductory_unc},
-            { "Delaware",       R.drawable.innovation_2019_delaware_unc},
-            { "Pennsylvania",   R.drawable.innovation_2019_pennsylvania_unc},
-            { "New Jersey",     R.drawable.innovation_2019_new_jersey_unc},
-            { "Georgia",        R.drawable.innovation_2019_georgia_unc},
-            { "Connecticut",    R.drawable.innovation_2020_connecticut_unc},
-            { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc},
-            { "Maryland",       R.drawable.innovation_2020_maryland_unc},
-            { "South Carolina", R.drawable.innovation_2020_south_carolina_unc},
-            { "New Hampshire",  R.drawable.innovation_2021_new_hampshire_unc},
-            { "Virginia",       R.drawable.innovation_2021_virginia_unc},
-            { "New York",       R.drawable.innovation_2021_new_york_unc},
-            { "North Carolina", R.drawable.innovation_2021_north_carolina_unc},
-            { "Rhode Island",   R.drawable.innovation_2022_rhode_island_unc},
-            { "Vermont",        R.drawable.innovation_2022_vermont_unc},
-            { "Kentucky",       R.drawable.innovation_2022_kentucky_unc},
-            { "Tennessee",      R.drawable.innovation_2022_tennessee_unc}
+            {"Maya Angelou",          R.drawable.women_2022_maya_angelou_unc},
+            {"Dr. Sally Ride",        R.drawable.women_2022_sally_ride_unc},
+            {"Wilma Mankiller",       R.drawable.women_2022_wilma_mankiller_unc},
+            {"Nina Otero-Warren",     R.drawable.women_2022_nina_otero_warren_unc},
+            {"Anna May Wong",         R.drawable.women_2022_anna_may_wong_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -65,7 +52,7 @@ public class AmericanInnovationDollars extends CollectionInfo {
         }
     }
 
-    private static final int REVERSE_IMAGE = R.drawable.innovation_2018_introductory_unc;
+    private static final int REVERSE_IMAGE = R.drawable.women_2022_maya_angelou_unc;
 
     @Override
     public String getCoinType() { return COLLECTION_TYPE; }
@@ -91,6 +78,11 @@ public class AmericanInnovationDollars extends CollectionInfo {
         // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+
     }
 
     // TODO Perform validation and throw exception
@@ -100,23 +92,29 @@ public class AmericanInnovationDollars extends CollectionInfo {
         Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(Object[] coinData : COIN_IDENTIFIERS){
-            String identifier = (String) coinData[0];
+        for (Object[] parksImageIdentifier : COIN_IDENTIFIERS) {
+            String identifier = (String) parksImageIdentifier[0];
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                 }
-                if(showD){
+                if (showD) {
                     coinList.add(new CoinSlot(identifier, "D", coinIndex++));
+                }
+                if (showS) {
+                    coinList.add(new CoinSlot(identifier, "S", coinIndex++));
                 }
             } else {
                 coinList.add(new CoinSlot(identifier, "", coinIndex++));
             }
         }
     }
+
+    @Override
     public int getAttributionResId(){
         return R.string.attr_mint;
     }
@@ -134,49 +132,6 @@ public class AmericanInnovationDollars extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
-
-        int total = 0;
-
-        if (oldVersion <= 13) {
-            // Add in new 2019 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Delaware");
-            newCoinIdentifiers.add("Pennsylvania");
-            newCoinIdentifiers.add("New Jersey");
-            newCoinIdentifiers.add("Georgia");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 16) {
-            // Add in new 2020 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Connecticut");
-            newCoinIdentifiers.add("Massachusetts");
-            newCoinIdentifiers.add("Maryland");
-            newCoinIdentifiers.add("South Carolina");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 18) {
-            // Add in new 2021 and 2022 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("New Hampshire");
-            newCoinIdentifiers.add("Virginia");
-            newCoinIdentifiers.add("New York");
-            newCoinIdentifiers.add("North Carolina");
-            newCoinIdentifiers.add("Rhode Island");
-            newCoinIdentifiers.add("Vermont");
-            newCoinIdentifiers.add("Kentucky");
-            newCoinIdentifiers.add("Tennessee");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        return total;
+        return 0;
     }
 }

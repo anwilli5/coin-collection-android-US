@@ -189,7 +189,7 @@ public class CoinPageCreator extends BaseActivity {
      *
      * TODO Make this easier to maintain, but make sure it doesn't break database
      *      upgrade functionality */
-    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2021;
+    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2022;
 
 
     private final static HashMap<String,String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
