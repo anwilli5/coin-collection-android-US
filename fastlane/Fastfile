@@ -1,0 +1,41 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test_and_lint do
+    gradle(task: "testAndroidDebugUnitTest")
+    gradle(task: "lintAndroidDebug")
+  end
+
+  desc "Build debug and test APK and generate screenshots"
+  lane :build_and_screengrab do
+    build_android_app(
+      task: 'assemble',
+      build_type: 'Debug'
+    )
+    build_android_app(
+      task: 'assemble',
+      build_type: 'AndroidTest'
+    )
+    sh("cp ../app/build/outputs/apk/android/debug/app-android-debug-v*.apk ../app/build/outputs/apk/android/debug/app-android-debug.apk")
+    sh("./avd-screenshot-setup.sh on")
+    screengrab()
+    sh("./avd-screenshot-setup.sh off")
+    sh("cp metadata/android/en-US/images/phoneScreenshots/*.png ../images/screenshots/")
+  end
+end

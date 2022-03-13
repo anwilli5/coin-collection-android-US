@@ -15,10 +15,10 @@ Coin Collection helps people keep track of the coins they have or are missing fo
 
 <table>
     <tr>
-        <td><img src="./images/screen1.png" alt="Home Screen" width="200"/></td>
-        <td><img src="./images/screen2.png" alt="Lincoln cents simple collection view" width="200"/></td>
-        <td><img src="./images/screen3.png" alt="Presidential dollars simple collection view" width="200"/></td>
-        <td><img src="./images/screen4.png" alt="Morgan dollar advanced collection view" width="200"/></td>
+        <td><img src="./images/screenshots/main_screen.png" alt="Home Screen" width="200"/></td>
+        <td><img src="./images/screenshots/lincoln_cents_screen.png" alt="Lincoln cents simple collection view" width="200"/></td>
+        <td><img src="./images/screenshots/presidential_dollars_screen.png" alt="Presidential dollars simple collection view" width="200"/></td>
+        <td><img src="./images/screenshots/morgan_dollars_screen.png" alt="Morgan dollar advanced collection view" width="200"/></td>
     </tr>
 </table>
 

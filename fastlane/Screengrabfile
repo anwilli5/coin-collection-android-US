@@ -1,0 +1,7 @@
+app_package_name('com.spencerpages.debug')
+use_tests_in_classes(['com.spencerpages.ScreenshotsUITest'])
+app_apk_path('app/build/outputs/apk/android/debug/app-android-debug.apk')
+tests_apk_path('app/build/outputs/apk/androidTest/android/debug/app-android-debug-androidTest.apk')
+locales(['en-US'])
+clear_previous_screenshots(true)
+use_timestamp_suffix(false)
