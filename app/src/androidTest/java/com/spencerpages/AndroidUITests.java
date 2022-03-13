@@ -134,7 +134,7 @@ public class AndroidUITests extends TestCase {
     public void test_exportCollections() {
         scrollAllTheWayDown();
         onView(withText(R.string.export_collection)).perform(click());
-        onView(withText(R.string.yes)).perform(click());
+        onView(withText(R.string.json_file)).perform(click());
     }
 
     /**
