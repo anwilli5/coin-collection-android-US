@@ -151,7 +151,7 @@
     <string name="check_show_burnished_eagles">Include the special burnished coins</string>
     <string name="include_p">Allow space for coins from the Philadelphia mint</string>
     <string name="include_d">Allow space for coins from the Denver mint</string>
-    <string name="include_s">Allow space for coins from the San Francisco mint (circulation only)</string>
+    <string name="include_s">Allow space for coins from the San Francisco mint</string>
     <string name="include_o">Allow space for coins from the New Orleans mint</string>
     <string name="include_cc">Allow space for coins from the Carson City mint</string>
     <string name="create_page">Create New Collection!</string>

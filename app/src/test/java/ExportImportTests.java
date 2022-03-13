@@ -253,7 +253,7 @@ public class ExportImportTests extends BaseTestCase {
                 ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
                 assertEquals("", helper.importCollectionsFromLegacyCSV(v1DbDir.getAbsolutePath()));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
+                assertEquals(26, afterCollectionNames.size());
                 //assertEquals(beforeCollectionNames, afterCollectionNames);
             });
         }

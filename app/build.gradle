@@ -70,6 +70,9 @@ android {
             java.srcDirs += "src/sharedTest/java"
         }
     }
+    lint {
+        abortOnError false
+    }
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.all {
@@ -83,9 +86,6 @@ android {
             }
         }
         unitTests.includeAndroidResources = true
-    }
-    lintOptions {
-        abortOnError false
     }
 }
 
