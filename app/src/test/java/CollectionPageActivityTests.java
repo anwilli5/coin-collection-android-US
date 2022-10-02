@@ -110,6 +110,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         // Add coins
                         activity.copyCoinSlot(activity.mCoinList.get(0), 1);
                         activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin2", "First2");
+                        activity.addNewCoin("New Coin", "Coin Mint");
                     }
 
                     // Check that the copied collection was made correctly in the database

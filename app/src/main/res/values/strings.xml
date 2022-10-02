@@ -115,6 +115,7 @@
     <string name="copy">Copy</string>
     <string name="delete">Delete</string>
     <string name="warning">Warning!</string>
+    <string name="add_coin">Add Coin</string>
 
     <!-- Main Activity -->
     <string name="app_name">Coin Collection</string>
@@ -206,6 +207,7 @@
     <string name="error_open_file_reading">Error when opening input file for reading at %1$s</string>
     <string name="error_copying_database">An error occurred while trying to copy the collection</string>
     <string name="error_copying_coin">An error occurred while trying to copy the coin</string>
+    <string name="error_editing_coin">An error occurred while trying to edit coin details</string>
     <string name="error_delete_database">An error occurred while trying to delete the database</string>
     <string name="error_delete_coin">An error occurred while trying to delete the coin</string>
     <string name="error_updating_coin">An error occurred while trying to update the coin</string>

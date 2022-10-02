@@ -226,17 +226,11 @@ public class CollectionPage extends BaseActivity {
             // Apply the adapter to handle each entry in the grid
             gridview.setAdapter(mCoinSlotAdapter);
 
-            // Restore the position in the list that the user was at
-            // (or go to the default of the first item)
-            gridview.setSelection(mViewIndex);
-
             // Set the scroll listener so that the view re-adjusts to the new view
             gridview.setOnScrollListener(scrollListener);
 
             // Set the onClick listener that will handle changing the coin state
-            gridview.setOnItemClickListener((parent, v, position, id) -> {
-                toggleCoinSlotInCollection(mCoinList.get(position));
-            });
+            gridview.setOnItemClickListener((parent, v, position, id) -> toggleCoinSlotInCollection(mCoinList.get(position)));
 
             // Add long-press handler for additional actions
             gridview.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -247,10 +241,6 @@ public class CollectionPage extends BaseActivity {
         } else if(mDisplayType == ADVANCED_DISPLAY){
             // Apply the adapter to handle each entry in the list
             listview.setAdapter(mCoinSlotAdapter);
-
-            // Restore the position in the list that the user was at
-            // (or go to the default of the first item)
-            listview.setSelectionFromTop(mViewIndex, mViewPosition);
 
             // Set the scroll listener so that the view re-adjusts to the new view
             listview.setOnScrollListener(scrollListener);
@@ -273,6 +263,9 @@ public class CollectionPage extends BaseActivity {
                 return true;
             });
         }
+
+        // Scroll to the last position viewed (if saved)
+        scrollToIndex(mViewIndex, mViewPosition, false);
     }
 
     /**
@@ -492,6 +485,9 @@ public class CollectionPage extends BaseActivity {
                 this.onBackPressed();
             }
             return true;
+        } else if (itemId == R.id.add_coin_button) {
+            // Show add coin prompt
+            showCoinCreateOrRenamePrompt(0, true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -564,6 +560,27 @@ public class CollectionPage extends BaseActivity {
 
         // Update the view
         mCoinSlotAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Add the coin with name/mint
+     * @param newName coin name
+     * @param coinMint coin mint
+     */
+    public void addNewCoin(String newName, String coinMint) {
+        int sortOrder = mDbAdapter.getNextCoinSortOrder(mCollectionName);
+        CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder);
+        try {
+            // Insert the new coin into the database
+            mDbAdapter.addCoinSlotToCollection(newCoinSlot, mCollectionName, true, mCoinList.size() + 1);
+        } catch (SQLException e) {
+            showCancelableAlert(mRes.getString(R.string.error_editing_coin));
+            return;
+        }
+        // Insert the new coin and update the view
+        mCoinList.add(newCoinSlot);
+        mCoinSlotAdapter.notifyDataSetChanged();
+        scrollToIndex(mCoinList.size() - 1, 0, true);
     }
 
     /**
@@ -812,10 +829,11 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
-     * Prompts the user to rename the coin
+     * Prompts the user to create or rename a coin
      * @param position the CoinSlot index to update
+     * @param createNewCoin if true, creates a new coin at the end of the list
      */
-    private void showCoinRenamePrompt(int position){
+    private void showCoinCreateOrRenamePrompt(int position, boolean createNewCoin){
         // Need to check whether the collection is locked
         SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 
@@ -823,16 +841,21 @@ public class CollectionPage extends BaseActivity {
             // Collection is locked
             showLockedMessage();
         } else {
-            // Get coin slot at the position
-            CoinSlot coinSlot = mCoinList.get(position);
-
             // Get inputs and set default text
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             RelativeLayout coinRenameView = (RelativeLayout) inflater.inflate(R.layout.coin_update_layout, null);
             EditText nameInput = coinRenameView.findViewById(R.id.coin_name_edittext);
             EditText mintInput = coinRenameView.findViewById(R.id.coin_mint_edittext);
-            nameInput.setText(coinSlot.getIdentifier());
-            mintInput.setText(coinSlot.getMint());
+
+            if (!createNewCoin) {
+                // Get coin slot at the position
+                CoinSlot coinSlot = mCoinList.get(position);
+                nameInput.setText(coinSlot.getIdentifier());
+                mintInput.setText(coinSlot.getMint());
+            } else {
+                nameInput.setText("");
+                mintInput.setText("");
+            }
 
             // Set filters to block out bad characters
             InputFilter nameFilter = getCollectionOrCoinNameFilter();
@@ -850,7 +873,11 @@ public class CollectionPage extends BaseActivity {
                             Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_coin_name), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString());
+                        if (!createNewCoin) {
+                            updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString());
+                        } else {
+                            addNewCoin(newName, mintInput.getText().toString());
+                        }
                     })
                     .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
         }
@@ -893,7 +920,7 @@ public class CollectionPage extends BaseActivity {
                         }
                         case ACTIONS_EDIT: {
                             // Launch edit view
-                            showCoinRenamePrompt(actionPosition);
+                            showCoinCreateOrRenamePrompt(actionPosition, false);
                             break;
                         }
                         case ACTIONS_COPY: {
@@ -908,5 +935,29 @@ public class CollectionPage extends BaseActivity {
                         }
                     }
                 }));
+    }
+
+    /**
+     * Sets the coin view to a specific index and position in the list
+     * @param index view index to scroll to
+     * @param position position offset (only used for advanced view)
+     * @param smoothScroll if true, does a smooth scroll to the position
+     */
+    private void scrollToIndex(int index, int position, boolean smoothScroll) {
+        if(mDisplayType == SIMPLE_DISPLAY){
+            GridView gridview = findViewById(R.id.standard_collection_page);
+            if (smoothScroll) {
+                gridview.smoothScrollToPosition(index);
+            } else {
+                gridview.setSelection(index);
+            }
+        } else if(mDisplayType == ADVANCED_DISPLAY) {
+            ListView listview = findViewById(R.id.advanced_collection_page);
+            if (smoothScroll) {
+                listview.smoothScrollToPosition(index);
+            } else {
+                listview.setSelectionFromTop(index, position);
+            }
+        }
     }
 }

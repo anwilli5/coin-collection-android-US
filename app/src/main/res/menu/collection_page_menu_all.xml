@@ -18,4 +18,10 @@
         android:orderInCategory="300"
         android:title="@string/change_view_string"
         appcompat:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/add_coin_button"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="400"
+        android:title="@string/add_coin"
+        appcompat:showAsAction="ifRoom" />
 </menu>
