@@ -1,0 +1,22 @@
+---
+name: "🛠️ Feature Request"
+description: "Request a new feature"
+title: "Feature: "
+labels:
+  - "feature_request"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thanks for taking the time to fill out this feature request and helping us improve!**
+        Kindly search to see if a similar issue [already exists](https://github.com/anwilli5/coin-collection-android-US/issues) for your feature.
+
+        We are also happy to accept contributions from our users. For more details see [here](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
+
+  - type: textarea
+    id: feature-description
+    validations:
+      required: true
+    attributes:
+      label: "💭 Feature Description"
+      description: "A clear and concise description of the feature you're interested in."
