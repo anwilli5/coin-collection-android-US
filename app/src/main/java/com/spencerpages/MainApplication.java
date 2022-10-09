@@ -104,36 +104,37 @@ public class MainApplication extends Application {
     }
 
     /**
-     *  DATABASE_VERSION Tracks the current database version, and is essential for periodic
-     *                   database updating.  It should be raised anytime we need to insert new
-     *                   coins into a user's collections (Ex: yearly coin addition, bug fixes).
-     *
-     *                   Version 2 - Used in Versions 1 and 1.1 of the app
-     *                   Version 3 - Used in Version 1.2 and 1.3 of the app
-     *                   Version 4 - Used in Version 1.4, 1.4.1, and 1.5 of the app
-     *                   Version 5 - Used in Version 1.6 of the app
-     *                   Version 6 - Used in Version 2.0, 2.0.1 of the app
-     *                   Version 7 - Used in Version 2.1, 2.1.1 of the app
-     *                   Version 8 - Used in Version 2.2.1 of the app
-     *                   Version 9 - Used in Version 2.3 of the app
-     *                   Version 10 - Used in Version 2.3.1 of the app
-     *                   Version 11 - Used in Version 2.3.2 of the app
-     *                   Version 12 - Used in Version 2.3.3 of the app
-     *                   Version 13 - Used in Version 2.3.4 of the app
-     *                   Version 14 - Used in Version 2.3.5 of the app
-     *                   Version 15 - Used in Version 3.0.0 of the app
-     *                   Version 16 - Used in Version 3.1.0 of the app
-     *                   Version 17 - Used in Version 3.3.0 of the app
-     *                   Version 18 - Used in Version 3.4.0 of the app
+     * DATABASE_VERSION Tracks the current database version, and is essential for periodic
+     * database updating.  It should be raised anytime we need to insert new
+     * coins into a user's collections (Ex: yearly coin addition, bug fixes).
+     * <p>
+     * Version 2 - Used in Versions 1 and 1.1 of the app
+     * Version 3 - Used in Version 1.2 and 1.3 of the app
+     * Version 4 - Used in Version 1.4, 1.4.1, and 1.5 of the app
+     * Version 5 - Used in Version 1.6 of the app
+     * Version 6 - Used in Version 2.0, 2.0.1 of the app
+     * Version 7 - Used in Version 2.1, 2.1.1 of the app
+     * Version 8 - Used in Version 2.2.1 of the app
+     * Version 9 - Used in Version 2.3 of the app
+     * Version 10 - Used in Version 2.3.1 of the app
+     * Version 11 - Used in Version 2.3.2 of the app
+     * Version 12 - Used in Version 2.3.3 of the app
+     * Version 13 - Used in Version 2.3.4 of the app
+     * Version 14 - Used in Version 2.3.5 of the app
+     * Version 15 - Used in Version 3.0.0 of the app
+     * Version 16 - Used in Version 3.1.0 of the app
+     * Version 17 - Used in Version 3.3.0 of the app
+     * Version 18 - Used in Version 3.4.0 of the app
      */
     public static final int DATABASE_VERSION = 18;
 
     /**
      * Get the collection index from collection type name
+     *
      * @param collectionTypeName collection name
      * @return int index or -1 if not found
      */
-    public static int getIndexFromCollectionNameStr (String collectionTypeName) {
+    public static int getIndexFromCollectionNameStr(String collectionTypeName) {
         for (int i = 0; i < COLLECTION_TYPES.length; i++) {
             if (COLLECTION_TYPES[i].getCoinType().equals(collectionTypeName)) {
                 return i;

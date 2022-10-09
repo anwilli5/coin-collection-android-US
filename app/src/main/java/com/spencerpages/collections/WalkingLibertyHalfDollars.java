@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,13 +47,19 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_walking_liberty_half_dollars;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -80,30 +86,30 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if(i == 1922 || i == 1924 || i == 1925 || i == 1926 ||
-                    i == 1930 || i == 1931 || i == 1932){
+            if (i == 1922 || i == 1924 || i == 1925 || i == 1926 ||
+                    i == 1930 || i == 1931 || i == 1932) {
                 continue;
             }
 
-            if(showMintMarks){
-                if(showP){
-                    if( (i < 1923 || i > 1933) ){
+            if (showMintMarks) {
+                if (showP) {
+                    if ((i < 1923 || i > 1933)) {
                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
-                if(showD){
-                    if( (i < 1923 || i > 1928) && i != 1933 && i != 1940){
-                        if(i == 1917){
+                if (showD) {
+                    if ((i < 1923 || i > 1928) && i != 1933 && i != 1940) {
+                        if (i == 1917) {
                             coinList.add(new CoinSlot(Integer.toString(i), " D Obv", coinIndex++));
                             coinList.add(new CoinSlot(Integer.toString(i), " D Rev", coinIndex++));
                         } else {
@@ -111,9 +117,9 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
                         }
                     }
                 }
-                if(showS){
-                    if(i != 1938 && i != 1947){
-                        if(i == 1917){
+                if (showS) {
+                    if (i != 1938 && i != 1947) {
+                        if (i == 1917) {
                             coinList.add(new CoinSlot(Integer.toString(i), " S Obv", coinIndex++));
                             coinList.add(new CoinSlot(Integer.toString(i), " S Rev", coinIndex++));
                         } else {
@@ -128,7 +134,7 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

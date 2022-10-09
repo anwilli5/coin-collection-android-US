@@ -84,7 +84,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -138,7 +138,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -167,7 +167,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -196,7 +196,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -225,8 +225,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
-            if(i == 1922 || i == 1932 || i == 1933){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1922 || i == 1932 || i == 1933) {
                 continue;
             }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -257,11 +257,11 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
-            if (i == 1975){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1975) {
                 continue;
             }
-            if(i == 1976){
+            if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -338,7 +338,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -367,7 +367,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -395,11 +395,11 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
-            if(i == 2004){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
+            if (i == 2004) {
                 coinList.add(new Object[]{"Peace Medal", "", 0});
                 coinList.add(new Object[]{"Keelboat", "", 0});
-            } else if(i == 2005){
+            } else if (i == 2005) {
                 coinList.add(new Object[]{"American Bison", "", 0});
                 coinList.add(new Object[]{"Ocean in View!", "", 0});
             } else {
@@ -431,11 +431,11 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
-            if (i == 1975){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
+            if (i == 1975) {
                 continue;
             }
-            if(i == 1976){
+            if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -467,8 +467,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
-            if(i == 1883){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1883) {
                 coinList.add(new Object[]{"1883 w/ Cents", "", 0});
                 coinList.add(new Object[]{"1883 w/o Cents", "", 0});
             } else {
@@ -500,11 +500,11 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
-            if(i == 1909){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
+            if (i == 1909) {
                 coinList.add(new Object[]{"1909 V.D.B", "", 0});
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
-            } else if(i == 2009){
+            } else if (i == 2009) {
                 coinList.add(new Object[]{"Early Childhood", "", 0});
                 coinList.add(new Object[]{"Formative Years", "", 0});
                 coinList.add(new Object[]{"Professional Life", "", 0});
@@ -539,8 +539,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
-            if(i == 1922 || i == 1932 || i == 1933){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1922 || i == 1932 || i == 1933) {
                 continue;
             }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -571,8 +571,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
-            if(i > 1904 && i < 1921){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i > 1904 && i < 1921) {
                 continue;
             }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -636,7 +636,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -665,7 +665,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             if (i >= 1929 && i <= 1933) {
                 continue;
             }
@@ -740,7 +740,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= VERSION_1_YEAR; i++){
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -769,11 +769,11 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++){
+        for (int i = startYear; i <= endYear; i++) {
             if (i == 1922) {
                 continue;
             }
-            if(i == 1917){
+            if (i == 1917) {
                 coinList.add(new Object[]{"1917 Type 1", "", 0});
                 coinList.add(new Object[]{"1917 Type 2", "", 0});
             } else {
@@ -887,8 +887,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++) {
-            if (i > 1981 && i < 1999){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i > 1981 && i < 1999) {
                 continue;
             }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -919,8 +919,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++) {
-            if(i == 1922 || (i >= 1924 && i <= 1926) || (i >= 1930 && i <= 1932)){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1922 || (i >= 1924 && i <= 1926) || (i >= 1930 && i <= 1932)) {
                 continue;
             }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -951,16 +951,16 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-        for(int i = startYear; i <= endYear; i++) {
-            if(i == 1933 || i == 1975){
+        for (int i = startYear; i <= endYear; i++) {
+            if (i == 1933 || i == 1975) {
                 continue;
             }
-            if(i > 1998 && i < 2021) {
+            if (i > 1998 && i < 2021) {
                 continue;
             }
-            if(i == 2021){
+            if (i == 2021) {
                 coinList.add(new Object[]{"Crossing the Delaware", "", 0});
-            } else if(i == 1976){
+            } else if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});

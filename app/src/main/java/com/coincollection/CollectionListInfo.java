@@ -137,8 +137,8 @@ public class CollectionListInfo implements Parcelable {
             WashingtonQuarters.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
-                       int startYear, int stopYear, int mintMarkFlags,
-                       int checkboxFlags) {
+                              int startYear, int stopYear, int mintMarkFlags,
+                              int checkboxFlags) {
         mCollectionName = name;
         mTotalCoinsInCollection = max;
         mTotalCoinsCollected = collected;
@@ -153,6 +153,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Creates a copy of the current collection with a different name
+     *
      * @param newCollectionName The new collection name
      * @return The new collection object
      */
@@ -177,27 +178,27 @@ public class CollectionListInfo implements Parcelable {
         mTotalCoinsCollected = numCollected;
     }
 
-    public String getName(){
+    public String getName() {
         return mCollectionName;
     }
 
-    public int getMax(){
+    public int getMax() {
         return mTotalCoinsInCollection;
     }
-    
-    public int getCollected(){
+
+    public int getCollected() {
         return mTotalCoinsCollected;
     }
 
-    public int getCollectionTypeIndex(){
+    public int getCollectionTypeIndex() {
         return mCollectionTypeIndex;
     }
 
-    public int getDisplayType(){
+    public int getDisplayType() {
         return mDisplayType;
     }
 
-    public String getType(){
+    public String getType() {
         return mCollectionInfo.getCoinType();
     }
 
@@ -207,6 +208,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Gets the CollectionInfo object associated with this CollectionListInfo
+     *
      * @return The CollectionInfo object
      */
     public CollectionInfo getCollectionObj() {
@@ -272,6 +274,7 @@ public class CollectionListInfo implements Parcelable {
     /**
      * Populates the creation parameters from the coin data itself. This is used to figure out
      * the creation properties of existing collections
+     *
      * @param coinList list of coins in the database
      */
     public void setCreationParametersFromCoinData(ArrayList<CoinSlot> coinList) {
@@ -362,7 +365,7 @@ public class CollectionListInfo implements Parcelable {
         mintMarkFlags |= showCC ? CollectionListInfo.MINT_CC : 0;
 
         // Combine flags for checkboxes
-        int checkboxFlags = useCustomDateRange ? CollectionListInfo.CUSTOM_DATES: 0;
+        int checkboxFlags = useCustomDateRange ? CollectionListInfo.CUSTOM_DATES : 0;
         checkboxFlags |= showBurnished ? CollectionListInfo.BURNISHED : 0;
         checkboxFlags |= showTerritories ? CollectionListInfo.TERRITORIES : 0;
 
@@ -377,6 +380,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Parse date string to extract the start/stop year
+     *
      * @param dateStr the data string
      * @return parsed start/end date
      * @throws NumberFormatException if the string does not contain a parsable integer.
@@ -391,8 +395,9 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Detect special cases indicating that the user selected "P" mint marks
+     *
      * @param coinType collection type name
-     * @param coinId coin date or name
+     * @param coinId   coin date or name
      * @param mintMark coin mint mark
      * @return true if the coin is a special case P mint mark coin, false otherwise
      */
@@ -404,8 +409,9 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Detect special cases indicating that the user did not check 'show mint marks'
+     *
      * @param coinType collection type name
-     * @param coinId coin date or name
+     * @param coinId   coin date or name
      * @param mintMark coin mint mark
      * @return true if the coin is a special case of no mint marks, false otherwise
      */
@@ -419,8 +425,9 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Sets the properties associated with database creation
-     * @param startYear int indicating the starting year
-     * @param endYear int indicating the ending year
+     *
+     * @param startYear     int indicating the starting year
+     * @param endYear       int indicating the ending year
      * @param mintMarkFlags int flags indicating which mint marks were used
      * @param checkboxFlags int flags indicating which checkboxes were check
      */
@@ -433,6 +440,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Get the collection parameters to export to CSV
+     *
      * @param dbAdapter database adapter
      * @return string array with collection data
      */
@@ -444,7 +452,7 @@ public class CollectionListInfo implements Parcelable {
         // of the separate fetchTableDisplay calls
         String displayType = String.valueOf(dbAdapter.fetchTableDisplay(mCollectionName));
 
-        return new String[] {
+        return new String[]{
                 mCollectionName,
                 this.getType(),
                 String.valueOf(mTotalCoinsCollected),
@@ -458,10 +466,11 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Get the headers for the coin CSV file
+     *
      * @return string array with column names
      */
     public static String[] getCsvExportHeader() {
-        return new String[] {
+        return new String[]{
                 COL_NAME,
                 COL_COIN_TYPE,
                 JSON_KEY_COLLECTED,
@@ -475,6 +484,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Returns true if the collection type (string) uses date range
+     *
      * @param collectionTypeStr collection type
      * @return true if uses dates, false otherwise
      */
@@ -484,6 +494,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Checks if new mint marks for an update would result in fewer coins in the collection
+     *
      * @param mintMarkFlags new mint mark flags
      * @param checkboxFlags new checkbox flags
      * @return true if the number of coins may be less, false otherwise
@@ -492,15 +503,16 @@ public class CollectionListInfo implements Parcelable {
         // Return true if:
         // - A mint mark that is set is unset
         // - a checkbox option that is set is unset (ignores custom dates)
-        return (  (mMintMarkFlags & ~mintMarkFlags)
-                |  (mCheckboxFlags & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
+        return ((mMintMarkFlags & ~mintMarkFlags)
+                | (mCheckboxFlags & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
     }
 
     /**
      * Write out the JSON representation (for exporting)
-     * @param writer JsonWriter to write to
+     *
+     * @param writer    JsonWriter to write to
      * @param dbAdapter database adapter
-     * @param coinList coins associated with the collection
+     * @param coinList  coins associated with the collection
      * @throws IOException if an error occurred
      */
     public void writeToJson(JsonWriter writer, DatabaseAdapter dbAdapter, ArrayList<CoinSlot> coinList) throws IOException {
@@ -532,7 +544,8 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Create a collection list info from imported JSON file
-     * @param reader JsonReader to read from
+     *
+     * @param reader   JsonReader to read from
      * @param coinList List of coins with collection populated
      * @throws IOException if an error occurred
      */
@@ -613,6 +626,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Create a collection list info from imported string array
+     *
      * @param in input String[]
      */
     public CollectionListInfo(String[] in) {
@@ -638,6 +652,7 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * We make this object Parcelable so that the list can be passed between Activities
+     *
      * @param in Parcel object
      */
     protected CollectionListInfo(Parcel in) {

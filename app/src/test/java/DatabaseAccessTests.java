@@ -55,7 +55,7 @@ public class DatabaseAccessTests extends BaseTestCase {
     @Test
     public void test_createWithVariableDates() {
 
-        try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+        try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {

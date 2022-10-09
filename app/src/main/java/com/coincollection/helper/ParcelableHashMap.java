@@ -37,6 +37,7 @@ public class ParcelableHashMap extends HashMap<String, Object> implements Parcel
 
     /**
      * Creates a hashmap from a parcel containing strings, ints, and booleans
+     *
      * @param in Parcel object
      */
     protected ParcelableHashMap(Parcel in) {

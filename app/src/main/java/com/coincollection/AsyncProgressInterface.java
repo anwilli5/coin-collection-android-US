@@ -25,6 +25,7 @@ package com.coincollection;
 public interface AsyncProgressInterface {
     /**
      * Method to perform on the async thread
+     *
      * @return a string result to display, or "" if no result
      */
     String asyncProgressDoInBackground();
@@ -37,6 +38,7 @@ public interface AsyncProgressInterface {
     /**
      * Method to perform on the UI thread after of the async task
      * This method should check the
+     *
      * @param resultStr a string result to display, or "" if no result
      */
     void asyncProgressOnPostExecute(String resultStr);

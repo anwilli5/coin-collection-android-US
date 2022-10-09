@@ -48,8 +48,10 @@ import java.util.ArrayList;
  */
 class CoinSlotAdapter extends BaseAdapter {
 
-    /** mContext The context of the activity we are running in (for things like Toasts that have UI
-     *           components) */
+    /**
+     * mContext The context of the activity we are running in (for things like Toasts that have UI
+     * components)
+     */
     private final CollectionPage mCollectionPageContext;
     private final Resources mRes;
 
@@ -75,10 +77,11 @@ class CoinSlotAdapter extends BaseAdapter {
      * Constructor which passes the data necessary for the adapter to work, along with a list of
      * resource identifiers for those collections that don't use the same imageIdentifier for every
      * coin.
-     * @param context The Activity context that we should use for any UI things
-     * @param tableName The collection name
+     *
+     * @param context           The Activity context that we should use for any UI things
+     * @param tableName         The collection name
      * @param collectionTypeObj The backing object in the COLLECTION_TYPE list
-     * @param coinList The list of coins
+     * @param coinList          The list of coins
      */
     CoinSlotAdapter(CollectionPage context, String tableName, CollectionInfo collectionTypeObj, ArrayList<CoinSlot> coinList, int displayType) {
         // Used for State, National Park, Presidential Coins, and Native American coins
@@ -97,9 +100,10 @@ class CoinSlotAdapter extends BaseAdapter {
 
     /**
      * Sets the table name
+     *
      * @param tableName Table name
      */
-    public void setTableName(String tableName){
+    public void setTableName(String tableName) {
         mTableName = tableName;
     }
 
@@ -129,21 +133,21 @@ class CoinSlotAdapter extends BaseAdapter {
             // If we couldn't get a recycled one, create a new one
             LayoutInflater vi = (LayoutInflater) mCollectionPageContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
-                if(!mDisplayIsLocked){
-                  // If the collection isn't locked, we show spinners and an EditText
-                  coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
+            if (mDisplayType == CollectionPage.ADVANCED_DISPLAY) {
+                if (!mDisplayIsLocked) {
+                    // If the collection isn't locked, we show spinners and an EditText
+                    coinView = vi.inflate(R.layout.advanced_collection_slot, parent, false);
                 } else {
-                  // The collection is locked, so we just show the advanced details in TextViews
-                  coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
+                    // The collection is locked, so we just show the advanced details in TextViews
+                    coinView = vi.inflate(R.layout.advanced_collection_slot_locked, parent, false);
                 }
-            } else if(mDisplayType == CollectionPage.SIMPLE_DISPLAY){
+            } else if (mDisplayType == CollectionPage.SIMPLE_DISPLAY) {
                 coinView = vi.inflate(R.layout.coin_slot, parent, false);
             }
         }
 
         // Make lint happy
-        if(coinView == null){
+        if (coinView == null) {
             return null;
         }
 
@@ -151,7 +155,8 @@ class CoinSlotAdapter extends BaseAdapter {
         if (!coinViewWasRecycled && mDisplayType == CollectionPage.ADVANCED_DISPLAY && !mDisplayIsLocked) {
             coinView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
-                public void onViewAttachedToWindow(View view) { }
+                public void onViewAttachedToWindow(View view) {
+                }
 
                 @Override
                 public void onViewDetachedFromWindow(View view) {
@@ -182,7 +187,7 @@ class CoinSlotAdapter extends BaseAdapter {
         coinImage.setContentDescription(contextDesc);
 
         // Setup the rest of the view if it is the advanced view
-        if(mDisplayType == CollectionPage.ADVANCED_DISPLAY){
+        if (mDisplayType == CollectionPage.ADVANCED_DISPLAY) {
             setupAdvancedView(coinView, position, coinViewWasRecycled);
         }
 
@@ -207,7 +212,7 @@ class CoinSlotAdapter extends BaseAdapter {
                 CoinSlot coinSlot = (CoinSlot) parent.getTag();
 
                 // Update the values in the lists if this is a new value
-                if(pos != coinSlot.getAdvancedGrades()){
+                if (pos != coinSlot.getAdvancedGrades()) {
 
                     // Update the data structure and set index changed
                     // - Changes will be committed to the database when the user presses save
@@ -218,12 +223,14 @@ class CoinSlotAdapter extends BaseAdapter {
                     mCollectionPageContext.showUnsavedTextView();
                 }
             }
-            public void onNothingSelected(AdapterView<?> parent) {}
+
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
 
         };
 
         // Create the adapter that will handle quantity selections
-        mQuantityArrayAdapter = ArrayAdapter.createFromResource (
+        mQuantityArrayAdapter = ArrayAdapter.createFromResource(
                 mCollectionPageContext, R.array.coin_quantities, android.R.layout.simple_spinner_item);
         mQuantityArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -235,7 +242,7 @@ class CoinSlotAdapter extends BaseAdapter {
                 CoinSlot coinSlot = (CoinSlot) parent.getTag();
 
                 // Update the values in the lists if this is a new value
-                if(pos != coinSlot.getAdvancedQuantities()){
+                if (pos != coinSlot.getAdvancedQuantities()) {
 
                     // Update the data structure and set index changed
                     // - Changes will be committed to the database when the user presses save
@@ -247,14 +254,16 @@ class CoinSlotAdapter extends BaseAdapter {
                 }
             }
 
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         };
     }
 
     /**
      * Handles setting up the advanced view components in the case that we should display them
-     * @param coinView The view that we are setting up
-     * @param position The list index of the coin that we are making the view for
+     *
+     * @param coinView            The view that we are setting up
+     * @param position            The list index of the coin that we are making the view for
      * @param coinViewWasRecycled true if the view was recycled and is being reused
      */
     private void setupAdvancedView(View coinView, int position, boolean coinViewWasRecycled) {
@@ -267,7 +276,7 @@ class CoinSlotAdapter extends BaseAdapter {
         imageView.setTag(coinSlot);
         imageView.setOnClickListener(view -> {
             // Need to check whether the collection is locked
-            if(mDisplayIsLocked){
+            if (mDisplayIsLocked) {
                 // Collection is locked
                 String text = mRes.getString(R.string.collection_locked);
                 Toast toast = Toast.makeText(mCollectionPageContext, text, Toast.LENGTH_SHORT);
@@ -297,12 +306,12 @@ class CoinSlotAdapter extends BaseAdapter {
         // Everything below here is specific to whether the collection is locked or not.
         // Take care of the locked case first, since it is easier.
 
-        if(mDisplayIsLocked){
+        if (mDisplayIsLocked) {
             // Setup the locked view and return
             String[] grades = mRes.getStringArray(R.array.coin_grades);
             TextView gradeTextView = coinView.findViewById(R.id.grade_textview);
             int gradeIndex = coinSlot.getAdvancedGrades();
-            if(gradeIndex != 0){
+            if (gradeIndex != 0) {
                 // Prefix the grade with 'Grade:'
                 gradeTextView.setText(mRes.getString(R.string.grade_text_view_template, grades[gradeIndex]));
             } else {
@@ -357,14 +366,18 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // If the display is not locked, we also need to set up a TextWatcher so that we can know
         // when the user types into the notes field. Create one for each unique EditText
-        if(!coinViewWasRecycled) {
+        if (!coinViewWasRecycled) {
 
             // Add the TextWatcher for this EditText
             notesEditText.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void afterTextChanged(Editable s) {}
+                public void afterTextChanged(Editable s) {
+                }
+
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
 
@@ -388,6 +401,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
     /**
      * Called when advanced view notes are changed to capture the updated value
+     *
      * @param coinView view to update
      */
     private void onCoinSlotAdvNotesChanged(View coinView) {

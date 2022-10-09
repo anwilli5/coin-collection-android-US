@@ -89,6 +89,7 @@ public class AndroidUITests extends TestCase {
             fail();
         }
     }
+
     /**
      * Test launching the main activity
      */
@@ -142,7 +143,7 @@ public class AndroidUITests extends TestCase {
      */
     @Test
     public void test_ParcelableCollectionListInfo() {
-        for (CollectionListInfo info : SharedTest.COLLECTION_LIST_INFO_SCENARIOS){
+        for (CollectionListInfo info : SharedTest.COLLECTION_LIST_INFO_SCENARIOS) {
             Parcel testParcel = Parcel.obtain();
             info.writeToParcel(testParcel, info.describeContents());
             testParcel.setDataPosition(0);
@@ -156,7 +157,7 @@ public class AndroidUITests extends TestCase {
      */
     @Test
     public void test_ParcelableCoinSlot() {
-        for (CoinSlot coinSlot : SharedTest.COIN_SLOT_SCENARIOS){
+        for (CoinSlot coinSlot : SharedTest.COIN_SLOT_SCENARIOS) {
             Parcel testParcel = Parcel.obtain();
             coinSlot.writeToParcel(testParcel, coinSlot.describeContents());
             testParcel.setDataPosition(0);
@@ -170,7 +171,7 @@ public class AndroidUITests extends TestCase {
      */
     @Test
     public void test_ParcelableParameters() {
-        for (ParcelableHashMap parameters : SharedTest.PARAMETER_SCENARIOS){
+        for (ParcelableHashMap parameters : SharedTest.PARAMETER_SCENARIOS) {
             Parcel testParcel = Parcel.obtain();
             parameters.writeToParcel(testParcel, parameters.describeContents());
             testParcel.setDataPosition(0);
@@ -188,7 +189,7 @@ public class AndroidUITests extends TestCase {
         scrollAllTheWayDown();
         onView(withText(R.string.export_collection)).perform(click());
         onView(withText(R.string.yes)).perform(click());
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             setOrientationLeft();
             scrollAllTheWayDown();
             setOrientationNatural();

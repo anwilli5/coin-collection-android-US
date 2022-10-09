@@ -61,24 +61,34 @@ public class CoinPageCreator extends BaseActivity {
 
     public final static String EXISTING_COLLECTION_EXTRA = "existing-collection";
 
-    /** mCoinTypeIndex The index of the currently selected coin type in the
-     *                 MainApplication.COLLECTION_TYPES list. */
+    /**
+     * mCoinTypeIndex The index of the currently selected coin type in the
+     * MainApplication.COLLECTION_TYPES list.
+     */
     public int mCoinTypeIndex;
 
-    /** mCollectionObj The CollectionInfo object associated with this index. */
+    /**
+     * mCollectionObj The CollectionInfo object associated with this index.
+     */
     public CollectionInfo mCollectionObj;
 
-    /** mParameters The HashMap that is used to keep track of the changes that
-     *              the user has requested (via the UI) to the default
-     *              collection settings. */
+    /**
+     * mParameters The HashMap that is used to keep track of the changes that
+     * the user has requested (via the UI) to the default
+     * collection settings.
+     */
     public ParcelableHashMap mParameters;
 
-    /** mDefaults The default parameters provided from a call to the current
-     *             mCollectionObj getCreationParameters method. */
+    /**
+     * mDefaults The default parameters provided from a call to the current
+     * mCollectionObj getCreationParameters method.
+     */
     private HashMap<String, Object> mDefaults;
 
-    /** mCoinList Upon selecting to create a collection, gets populated with coin identifiers
-     *            and mint marks */
+    /**
+     * mCoinList Upon selecting to create a collection, gets populated with coin identifiers
+     * and mint marks
+     */
     public ArrayList<CoinSlot> mCoinList = new ArrayList<>();
 
     /* Internal keys to use for passing data via saved instance state */
@@ -87,74 +97,75 @@ public class CoinPageCreator extends BaseActivity {
 
     public CollectionListInfo mExistingCollection = null;
 
-    /** These are the options supported in the parameter HashMaps.  In general,
-     *  this is how they work:
-     *  - If an option is present in the parameters HashMap after the call to
-     *    getCreationParameters, the associated UI element will be displayed to
-     *    the user
-     *  - The UI element's default value will be set to the value specified in
-     *    the HashMap after a call to getCreationParameters, and the associated
-     *    value in the HashMap passed to populateCollectionLists will change
-     *    based on changes made to the UI element.
-     *  The specifics for the various options are as follows:
-     *
-     *  OPT_SHOW_MINT_MARKS
-     *  - Associated UI Element: 'Show Mint Marks' checkbox
-     *  - Associated Value Type: Boolean
-     *  - This option MUST be used in conjunction with at least one of the
-     *    specific show mint mark options. (Ex: OPT_SHOW_MINT_MARK_1)
-     *
-     *  OPT_SHOW_MINT_MARK_# (where # is a number between 1 and 5)
-     *  - Associated UI Element: Checkboxes that can be used for mint markers
-     *  - Associated Value Type: Boolean
-     *  - These checkboxes will get hidden and displayed depending on the 'Show Mint Marks'
-     *    checkbox.  The text associated with the checkbox must be specified via the
-     *    associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five of these
-     *    that can be used per collection (if more are needed, minor changes to the core
-     *    code will be necessary)
-     *  - These options MUST be used in conjunction with OPT_SHOW_MINT_MARKS, and MUST
-     *    be accompanied by the respective OPT_SHOW_MINT_MARK_#_STRING_ID
-     *
-     *  OPT_SHOW_MINT_MARK_#_STRING_ID (where # is a number between 1 and 5)
-     *  - Associated UI Element: Special - see above
-     *  - Associated Value Type: Integer
-     *  - This option is special - it is used in conjunction with the option above
-     *    to indicate the resource ID associated with a String to display next
-     *    to the checkbox (Ex: R.string.show_p in the U.S. Coin Collection app)
-     *
-     *  OPT_EDIT_DATE_RANGE
-     *  - Associated UI Element: 'Edit Date Range' checkbox
-     *  - Associated Value Type: Boolean
-     *  - This option MUST be used in conjunction with OPT_START_YEAR and
-     *    OPT_STOP_YEAR
-     *
-     *  OPT_START_YEAR
-     *  - Associated UI Element: 'Edit Start Year' EditText
-     *  - Associated Value Type: Integer
-     *  - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
-     *
-     *  OPT_STOP_YEAR
-     *  - Associated UI Element: 'Edit Stop Year' EditText
-     *  - Associated Value Type: Integer
-     *  - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
-     *
-     *  OPT_CHECKBOX_# (where # is a number between 1 and 5)
-     *  - Associated UI Element: a standalone checkbox
-     *  - Associated Value Type: Boolean
-     *  - The text associated with the checkbox must be specified via the
-     *    associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five
-     *    of these that can be used per collection (if more are needed, minor
-     *    changes to the core code will be necessary.)
-     *  - These options MUST be accompanied by the respective
-     *    OPT_CHECKBOX_#_STRING_ID
-     *
-     *  OPT_CHECKBOX_#_STRING_ID
-     *  - Associated UI Element: Special - see above
-     *  - Associated Value Type: Integer
-     *  - This option is special - it is used in conjunction with the option above
-     *    to indicate the resource ID associated with a String to display next
-     *    to the checkbox (Ex: R.string.show_territories in the U.S. Coin
-     *    Collection app)
+    /**
+     * These are the options supported in the parameter HashMaps.  In general,
+     * this is how they work:
+     * - If an option is present in the parameters HashMap after the call to
+     * getCreationParameters, the associated UI element will be displayed to
+     * the user
+     * - The UI element's default value will be set to the value specified in
+     * the HashMap after a call to getCreationParameters, and the associated
+     * value in the HashMap passed to populateCollectionLists will change
+     * based on changes made to the UI element.
+     * The specifics for the various options are as follows:
+     * <p>
+     * OPT_SHOW_MINT_MARKS
+     * - Associated UI Element: 'Show Mint Marks' checkbox
+     * - Associated Value Type: Boolean
+     * - This option MUST be used in conjunction with at least one of the
+     * specific show mint mark options. (Ex: OPT_SHOW_MINT_MARK_1)
+     * <p>
+     * OPT_SHOW_MINT_MARK_# (where # is a number between 1 and 5)
+     * - Associated UI Element: Checkboxes that can be used for mint markers
+     * - Associated Value Type: Boolean
+     * - These checkboxes will get hidden and displayed depending on the 'Show Mint Marks'
+     * checkbox.  The text associated with the checkbox must be specified via the
+     * associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five of these
+     * that can be used per collection (if more are needed, minor changes to the core
+     * code will be necessary)
+     * - These options MUST be used in conjunction with OPT_SHOW_MINT_MARKS, and MUST
+     * be accompanied by the respective OPT_SHOW_MINT_MARK_#_STRING_ID
+     * <p>
+     * OPT_SHOW_MINT_MARK_#_STRING_ID (where # is a number between 1 and 5)
+     * - Associated UI Element: Special - see above
+     * - Associated Value Type: Integer
+     * - This option is special - it is used in conjunction with the option above
+     * to indicate the resource ID associated with a String to display next
+     * to the checkbox (Ex: R.string.show_p in the U.S. Coin Collection app)
+     * <p>
+     * OPT_EDIT_DATE_RANGE
+     * - Associated UI Element: 'Edit Date Range' checkbox
+     * - Associated Value Type: Boolean
+     * - This option MUST be used in conjunction with OPT_START_YEAR and
+     * OPT_STOP_YEAR
+     * <p>
+     * OPT_START_YEAR
+     * - Associated UI Element: 'Edit Start Year' EditText
+     * - Associated Value Type: Integer
+     * - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
+     * <p>
+     * OPT_STOP_YEAR
+     * - Associated UI Element: 'Edit Stop Year' EditText
+     * - Associated Value Type: Integer
+     * - This option MUST be used in conjunction with OPT_EDIT_DATE_RANGE
+     * <p>
+     * OPT_CHECKBOX_# (where # is a number between 1 and 5)
+     * - Associated UI Element: a standalone checkbox
+     * - Associated Value Type: Boolean
+     * - The text associated with the checkbox must be specified via the
+     * associated OPT_SHOW_MINT_MARK_#_STRING_ID.  There are currently five
+     * of these that can be used per collection (if more are needed, minor
+     * changes to the core code will be necessary.)
+     * - These options MUST be accompanied by the respective
+     * OPT_CHECKBOX_#_STRING_ID
+     * <p>
+     * OPT_CHECKBOX_#_STRING_ID
+     * - Associated UI Element: Special - see above
+     * - Associated Value Type: Integer
+     * - This option is special - it is used in conjunction with the option above
+     * to indicate the resource ID associated with a String to display next
+     * to the checkbox (Ex: R.string.show_territories in the U.S. Coin
+     * Collection app)
      */
 
     public final static String OPT_SHOW_MINT_MARKS = "ShowMintMarks";
@@ -184,15 +195,17 @@ public class CoinPageCreator extends BaseActivity {
     private final static String OPT_CHECKBOX_4_STRING_ID = "ShowCheckbox4StringId";
     private final static String OPT_CHECKBOX_5_STRING_ID = "ShowCheckbox5StringId";
 
-    /** This flag should be used by collections whose year of most recent
-     *  production should track the current year.
-     *
+    /**
+     * This flag should be used by collections whose year of most recent
+     * production should track the current year.
+     * <p>
      * TODO Make this easier to maintain, but make sure it doesn't break database
-     *      upgrade functionality */
+     *      upgrade functionality
+     */
     public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2022;
 
 
-    private final static HashMap<String,String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
+    private final static HashMap<String, String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
 
     static {
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_1, OPT_SHOW_MINT_MARK_1_STRING_ID);
@@ -202,7 +215,7 @@ public class CoinPageCreator extends BaseActivity {
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_5, OPT_SHOW_MINT_MARK_5_STRING_ID);
     }
 
-    private final static HashMap<String,String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
+    private final static HashMap<String, String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
 
     static {
         CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_1, OPT_CHECKBOX_1_STRING_ID);
@@ -243,7 +256,7 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Restore the progress dialog if the previous task was running
-        if(mPreviousTask != null){
+        if (mPreviousTask != null) {
             asyncProgressOnPreExecute();
         }
 
@@ -256,7 +269,7 @@ public class CoinPageCreator extends BaseActivity {
 
         // Prepare the Spinner that gets what type of collection they want to make
         ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        for(int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++) {
+        for (int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++) {
             spinnerAdapter.add(MainApplication.COLLECTION_TYPES[i].getCoinType());
         }
 
@@ -272,7 +285,7 @@ public class CoinPageCreator extends BaseActivity {
                 // changed since:
                 //  - first activity initialization, or
                 //  - activity initialization from SavedInstanceState
-                if(mCoinTypeIndex == position) {
+                if (mCoinTypeIndex == position) {
                     return;
                 }
 
@@ -282,7 +295,9 @@ public class CoinPageCreator extends BaseActivity {
                 // Reset the view for the new coin type
                 updateViewFromState();
             }
-            public void onNothingSelected(AdapterView<?> parent) { }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         // Create an OnKeyListener that can be used to hide the soft keyboard when the enter key
@@ -302,7 +317,7 @@ public class CoinPageCreator extends BaseActivity {
                     (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_UP)) {
                 // This should hide the keyboard
                 // Thanks! http://stackoverflow.com/questions/1109022/how-to-close-hide-the-android-soft-keyboard
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 // Returning true prevents the action that would ordinarily have happened from taking place
                 return keyCode == KeyEvent.KEYCODE_ENTER;
@@ -328,14 +343,14 @@ public class CoinPageCreator extends BaseActivity {
             // Don't take any action if the value isn't changing - needed to prevent
             // loops that would get created by the call to updateViewFromState()
             Boolean optMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
-            if(optMintMarks != null && optMintMarks == isChecked){
+            if (optMintMarks != null && optMintMarks == isChecked) {
                 return;
             }
 
             mParameters.put(OPT_SHOW_MINT_MARKS, isChecked);
 
             // Restore defaults for all of the mint mark checkboxes when this is unchecked
-            if(!isChecked) {
+            if (!isChecked) {
                 for (String key : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
                     if (mParameters.containsKey(key)) {
                         mParameters.put(key, mDefaults.get(key));
@@ -354,15 +369,15 @@ public class CoinPageCreator extends BaseActivity {
 
             // Don't take any action if the value isn't changing - needed to prevent
             // loops that would get created by the call to updateViewFromState()
-            Boolean optEditDateRange = (Boolean)mParameters.get(OPT_EDIT_DATE_RANGE);
-            if(optEditDateRange != null && optEditDateRange == isChecked){
+            Boolean optEditDateRange = (Boolean) mParameters.get(OPT_EDIT_DATE_RANGE);
+            if (optEditDateRange != null && optEditDateRange == isChecked) {
                 return;
             }
 
             mParameters.put(OPT_EDIT_DATE_RANGE, isChecked);
 
             // Reset the start/stop year when the field is unchecked
-            if(!isChecked) {
+            if (!isChecked) {
                 mParameters.put(OPT_START_YEAR, mDefaults.get(OPT_START_YEAR));
                 mParameters.put(OPT_STOP_YEAR, mDefaults.get(OPT_STOP_YEAR));
             }
@@ -388,7 +403,7 @@ public class CoinPageCreator extends BaseActivity {
 
         // Add any stand-alone, customizable checkboxes
         LinearLayout customizableCheckboxContainer = findViewById(R.id.customizable_checkbox_container);
-        for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             // Instantiate a checkbox in the UI for this option
             CheckBox box = customizableCheckboxContainer.findViewWithTag(optName);
             box.setOnCheckedChangeListener(checkboxChangeListener);
@@ -415,9 +430,13 @@ public class CoinPageCreator extends BaseActivity {
         startYearEditText.setFilters(yearEditTextFilters);
         startYearEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 try {
@@ -436,9 +455,13 @@ public class CoinPageCreator extends BaseActivity {
         stopYearEditText.setFilters(yearEditTextFilters);
         stopYearEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 try {
@@ -471,7 +494,7 @@ public class CoinPageCreator extends BaseActivity {
         // (VISIBLE vs. GONE) of the UI from the internal state.
         updateViewFromState();
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(APP_NAME, "Finished in onCreate");
         }
     }
@@ -494,8 +517,8 @@ public class CoinPageCreator extends BaseActivity {
             Integer newStopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
             if (newStartYear == null || newStopYear == null) {
                 return;
-            } else if (  (mExistingCollection.getStartYear() < newStartYear)
-                      || (mExistingCollection.getEndYear() > newStopYear)) {
+            } else if ((mExistingCollection.getStartYear() < newStartYear)
+                    || (mExistingCollection.getEndYear() > newStopYear)) {
                 warningResId = R.string.warning_collection_dates_change;
             }
         }
@@ -541,7 +564,7 @@ public class CoinPageCreator extends BaseActivity {
         String collectionName = nameEditText.getText().toString();
 
         // Perform action on click
-        if(collectionName.equals("")){
+        if (collectionName.equals("")) {
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_missing_name),
                     Toast.LENGTH_SHORT).show();
@@ -549,28 +572,28 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Validate the last year in the collection, if necessary
-        if(mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
-                mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE){
+        if (mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
+                mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE) {
 
-            if(!validateStartAndStopYears()){
+            if (!validateStartAndStopYears()) {
                 // The function will have already displayed a toast, so return
                 return;
             }
         }
 
         // Ensure that at least one mint mark is selected
-        if(mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
-                mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE){
+        if (mParameters.containsKey(OPT_SHOW_MINT_MARKS) &&
+                mParameters.get(OPT_SHOW_MINT_MARKS) == Boolean.TRUE) {
 
             boolean atLeastOneMintMarkSelected = false;
-            for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
+            for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
                 if (mParameters.containsKey(optName) && mParameters.get(optName) == Boolean.TRUE) {
                     atLeastOneMintMarkSelected = true;
                     break;
                 }
             }
 
-            if(!atLeastOneMintMarkSelected){
+            if (!atLeastOneMintMarkSelected) {
                 Toast.makeText(CoinPageCreator.this,
                         mRes.getString(R.string.error_no_mint_selected),
                         Toast.LENGTH_SHORT).show();
@@ -628,7 +651,9 @@ public class CoinPageCreator extends BaseActivity {
         completeProgressDialogAndFinishActivity();
     }
 
-    /** Returns an input filter for sanitizing collection names
+    /**
+     * Returns an input filter for sanitizing collection names
+     *
      * @return The input filter
      */
     static InputFilter getCollectionOrCoinNameFilter() {
@@ -645,11 +670,11 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Updates the internal state based on a new coin type index
-     * @param index The index of this coin type in the list of all collection types
+     *
+     * @param index      The index of this coin type in the list of all collection types
      * @param parameters If not null, set mParameters to parameters.  Otherwise,
      *                   create a new HashMap for mParameters and assign it default
      *                   values based on the new collection type.
-     *
      */
     public void setInternalStateFromCollectionIndex(int index, ParcelableHashMap parameters) {
 
@@ -682,12 +707,12 @@ public class CoinPageCreator extends BaseActivity {
     }
 
     /**
-     *  Updates the UI from the internal state.  This allows us to easily
-     *  reset the state of the UI when a big change has occurred (Ex: the
-     *  individual showMintMark checkboxes should be shown because the
-     *  showMintMarks checkbox was set to True)
+     * Updates the UI from the internal state.  This allows us to easily
+     * reset the state of the UI when a big change has occurred (Ex: the
+     * individual showMintMark checkboxes should be shown because the
+     * showMintMarks checkbox was set to True)
      */
-    private void updateViewFromState(){
+    private void updateViewFromState() {
 
         Spinner coinTypeSelector = findViewById(R.id.coin_selector);
         CheckBox showMintMarkCheckBox = findViewById(R.id.check_show_mint_mark);
@@ -706,7 +731,7 @@ public class CoinPageCreator extends BaseActivity {
 
         // Handle the showMintMarks checkbox
         Boolean showMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
-        if(showMintMarks != null) {
+        if (showMintMarks != null) {
             showMintMarkCheckBox.setChecked(showMintMarks);
             showMintMarkCheckBox.setVisibility(View.VISIBLE);
         } else {
@@ -715,13 +740,13 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Now handle the individual showMintMark checkboxes
-        for(String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             CheckBox uiElement = showMintMarkCheckboxContainer.findViewWithTag(optName);
             Boolean paramOptValue = (Boolean) mParameters.get(optName);
-            if(paramOptValue != null && showMintMarks){
+            if (paramOptValue != null && showMintMarks) {
                 String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
-                Integer optStringId = (Integer)mParameters.get(stringIdOptName);
-                if(optStringId != null){
+                Integer optStringId = (Integer) mParameters.get(stringIdOptName);
+                if (optStringId != null) {
                     uiElement.setText(optStringId);
                     uiElement.setChecked(paramOptValue);
                     uiElement.setVisibility(View.VISIBLE);
@@ -737,14 +762,14 @@ public class CoinPageCreator extends BaseActivity {
         // Update the UI of the editDateRange checkbox and the associated
         // start/stop year EditTexts
         Boolean editDateRange = (Boolean) mParameters.get(OPT_EDIT_DATE_RANGE);
-        if(editDateRange != null){
+        if (editDateRange != null) {
             Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
             Integer stopYear = (Integer) mParameters.get(OPT_STOP_YEAR);
 
             editDateRangeCheckBox.setChecked(editDateRange);
             editDateRangeCheckBox.setVisibility(View.VISIBLE);
 
-            if(editDateRange && startYear != null && stopYear != null) {
+            if (editDateRange && startYear != null && stopYear != null) {
                 editStartYearLayout.setVisibility(View.VISIBLE);
                 editStartYear.setText(String.valueOf(startYear));
                 editStopYearLayout.setVisibility(View.VISIBLE);
@@ -760,13 +785,13 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Handle the customizable checkboxes
-        for(String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             CheckBox uiElement = customizableCheckboxContainer.findViewWithTag(optName);
             Boolean paramOptValue = (Boolean) mParameters.get(optName);
-            if(paramOptValue != null){
+            if (paramOptValue != null) {
                 String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
-                Integer optStringId = (Integer)mParameters.get(stringIdOptName);
-                if(optStringId != null){
+                Integer optStringId = (Integer) mParameters.get(stringIdOptName);
+                if (optStringId != null) {
                     uiElement.setText(optStringId);
                     uiElement.setChecked(paramOptValue);
                     uiElement.setVisibility(View.VISIBLE);
@@ -781,13 +806,13 @@ public class CoinPageCreator extends BaseActivity {
     }
 
     /**
-     *  Helper function to validate the collection start and stop years
-     *
-     *  NOTE: This doesn't rely on the UI elements having listeners that update the internal state
-     *        vars so that we can use this before the listeners have been created (or if no
-     *        listeners will be created, in the case of testing.)
+     * Helper function to validate the collection start and stop years
+     * <p>
+     * NOTE: This doesn't rely on the UI elements having listeners that update the internal state
+     * vars so that we can use this before the listeners have been created (or if no
+     * listeners will be created, in the case of testing.)
      */
-    public boolean validateStartAndStopYears(){
+    public boolean validateStartAndStopYears() {
 
         EditText editStartYear = findViewById(R.id.edit_start_year);
         EditText editStopYear = findViewById(R.id.edit_stop_year);
@@ -798,12 +823,12 @@ public class CoinPageCreator extends BaseActivity {
         Integer minStartYear = (Integer) mDefaults.get(OPT_START_YEAR);
         Integer maxStartYear = (Integer) mDefaults.get(OPT_STOP_YEAR);
 
-        if(startYear == null || stopYear == null || minStartYear == null || maxStartYear == null){
+        if (startYear == null || stopYear == null || minStartYear == null || maxStartYear == null) {
             // Shouldn't reach this as all collections should have start/end dates
             return true;
         }
 
-        if(stopYear > maxStartYear){
+        if (stopYear > maxStartYear) {
 
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_ending_year_too_high, maxStartYear),
@@ -813,7 +838,7 @@ public class CoinPageCreator extends BaseActivity {
             editStopYear.setText(String.valueOf(maxStartYear));
             return false;
         }
-        if(stopYear < minStartYear){
+        if (stopYear < minStartYear) {
 
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_ending_year_too_low, minStartYear),
@@ -824,7 +849,7 @@ public class CoinPageCreator extends BaseActivity {
             return false;
         }
 
-        if(startYear < minStartYear){
+        if (startYear < minStartYear) {
 
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_starting_year_too_low, minStartYear),
@@ -834,7 +859,7 @@ public class CoinPageCreator extends BaseActivity {
             editStartYear.setText(String.valueOf(minStartYear));
             return false;
 
-        } else if(startYear > maxStartYear){
+        } else if (startYear > maxStartYear) {
 
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_starting_year_too_high, maxStartYear),
@@ -846,7 +871,7 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Finally, validate them with respect to each other
-        if(startYear > stopYear){
+        if (startYear > stopYear) {
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_start_gt_end_year),
                     Toast.LENGTH_SHORT).show();
@@ -863,8 +888,8 @@ public class CoinPageCreator extends BaseActivity {
     }
 
     /**
-     *  Helper function to call the make collection method corresponding to the creation parameters
-     *  NOTE: This is public so we can use it with our current test bench
+     * Helper function to call the make collection method corresponding to the creation parameters
+     * NOTE: This is public so we can use it with our current test bench
      */
     public void createOrUpdateCoinListForAsyncThread() {
         mCollectionObj.populateCollectionLists(mParameters, mCoinList);
@@ -949,12 +974,13 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Returns mint mark flags based on the parameters
+     *
      * @param parameters the user-selected parameters
      * @return mint mark flags
      */
     public static int getMintMarkFlagsFromParameters(HashMap<String, Object> parameters) {
         int mintMarkFlags = 0;
-        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
             Boolean optionValue = (Boolean) parameters.get(optName);
             Integer optionStrId = (Integer) parameters.get(stringIdOptName);
@@ -977,7 +1003,7 @@ public class CoinPageCreator extends BaseActivity {
         }
         // Show mint marks is included in mint mark flags as well
         Boolean optMintMarks = (Boolean) parameters.get(OPT_SHOW_MINT_MARKS);
-        if(optMintMarks != null && optMintMarks){
+        if (optMintMarks != null && optMintMarks) {
             mintMarkFlags |= CollectionListInfo.SHOW_MINT_MARKS;
         }
         return mintMarkFlags;
@@ -985,12 +1011,13 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Returns checkbox flags based on the parameters
+     *
      * @param parameters the user-selected parameters
      * @return checkbox flags
      */
     public static int getCheckboxFlagsFromParameters(HashMap<String, Object> parameters) {
         int checkboxFlags = 0;
-        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
             Boolean optionValue = (Boolean) parameters.get(optName);
             Integer optionStrId = (Integer) parameters.get(stringIdOptName);
@@ -1007,7 +1034,7 @@ public class CoinPageCreator extends BaseActivity {
         }
         // Custom dates is included in checkbox flags as well
         Boolean optEditDateRange = (Boolean) parameters.get(OPT_EDIT_DATE_RANGE);
-        if(optEditDateRange != null && optEditDateRange){
+        if (optEditDateRange != null && optEditDateRange) {
             checkboxFlags |= CollectionListInfo.CUSTOM_DATES;
         }
         return checkboxFlags;
@@ -1015,10 +1042,11 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Returns a new CollectionListInfo object populated based on parameters and existing collection
+     *
      * @param collectionName the new or modified collection name
      * @return the CollectionListInfo object
      */
-    public CollectionListInfo getCollectionInfoFromParameters(String collectionName){
+    public CollectionListInfo getCollectionInfoFromParameters(String collectionName) {
         int totalCollected = 0;
         for (CoinSlot coinSlot : mCoinList) {
             totalCollected += coinSlot.isInCollectionInt();
@@ -1043,6 +1071,7 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Returns a parameters HashMap based on an existing collection
+     *
      * @param existingCollection the existing collection
      * @return HashMap containing parameters
      */
@@ -1063,7 +1092,7 @@ public class CoinPageCreator extends BaseActivity {
             parameters.put(OPT_STOP_YEAR, existingCollection.getEndYear());
         }
         // Mint marks
-        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             if (!parameters.containsKey(optName)) {
                 continue;
             }
@@ -1085,7 +1114,7 @@ public class CoinPageCreator extends BaseActivity {
             }
         }
         // Checkboxes
-        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()){
+        for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             if (!parameters.containsKey(optName)) {
                 continue;
             }
@@ -1106,7 +1135,7 @@ public class CoinPageCreator extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        if(item.getItemId() == android.R.id.home) {
+        if (item.getItemId() == android.R.id.home) {
             this.onBackPressed();
             return true;
         } else {
@@ -1116,13 +1145,14 @@ public class CoinPageCreator extends BaseActivity {
 
     /**
      * Create a database table for a new collection
+     *
      * @param collectionListInfo The collection details
-     * @param coinList List of coin slots
-     * @param displayOrder Display order of the collection
+     * @param coinList           List of coin slots
+     * @param displayOrder       Display order of the collection
      * @return "" if successful, otherwise an error string
      */
     public String asyncCreateOrUpdateCollection(CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinList,
-                                             int displayOrder){
+                                                int displayOrder) {
         try {
             if (mExistingCollection == null) {
                 mDbAdapter.createAndPopulateNewTable(collectionListInfo, displayOrder, coinList);

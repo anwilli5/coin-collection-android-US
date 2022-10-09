@@ -65,7 +65,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         mItems = items;
     }
 
-    private void setUnsavedChanges(Boolean unsavedChanges){
+    private void setUnsavedChanges(Boolean unsavedChanges) {
         mUnsavedChanges = unsavedChanges;
     }
 
@@ -74,11 +74,11 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
 
         // Show help to reorder the collection
         MainActivity activity = (MainActivity) getActivity();
-        if(activity != null){
+        if (activity != null) {
             activity.createAndShowHelpDialog("reorder_help1", R.string.tutorial_reorder_collections);
 
             // Setup the actionbar for the reorder page
-            if(activity.mActionBar != null){
+            if (activity.mActionBar != null) {
                 activity.mActionBar.setTitle(activity.mRes.getString(R.string.reorder_collection));
                 activity.mActionBar.setDisplayHomeAsUpEnabled(true);
                 activity.mActionBar.setHomeButtonEnabled(true);
@@ -89,7 +89,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Indicate that we have an options menu so that we can get the 'Up'
@@ -105,7 +105,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         // If the screen rotated and our view got destroyed/recreated,
         // grab the list of collections from the old view (that we stored
         // in the bundle.)
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mItems = savedInstanceState.getParcelableArrayList("mItems");
             mUnsavedChanges = savedInstanceState.getBoolean("mUnsavedChanges");
         }
@@ -138,7 +138,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
                 super.onItemRangeMoved(fromPosition, toPosition, itemCount);
 
-                if(BuildConfig.DEBUG) {
+                if (BuildConfig.DEBUG) {
                     Log.d("onItemRangeMoved", fromPosition + " " + toPosition + " " + itemCount);
                 }
 
@@ -153,7 +153,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
             }
         });
 
-        if(mUnsavedChanges){
+        if (mUnsavedChanges) {
             showUnsavedTextView();
         }
 
@@ -162,7 +162,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         view.requestFocus();
         view.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                if(mUnsavedChanges){
+                if (mUnsavedChanges) {
                     showUnsavedChangesAlertAndExitFragment();
                 } else {
                     closeFragment();
@@ -174,7 +174,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState){
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // Save off our collection list in the event of a screen orientation change
@@ -219,9 +219,9 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         return super.onOptionsItemSelected(item);
     }
 
-    private void closeFragment(){
+    private void closeFragment() {
         MainActivity activity = (MainActivity) getActivity();
-        if(activity != null){
+        if (activity != null) {
             FragmentManager fm = activity.getSupportFragmentManager();
             fm.beginTransaction()
                     .remove(this)
@@ -258,7 +258,7 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
     /**
      * Show an alert that changes aren't saved before exiting fragment
      */
-    private void showUnsavedChangesAlertAndExitFragment(){
+    private void showUnsavedChangesAlertAndExitFragment() {
         final MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
             Resources res = activity.getResources();

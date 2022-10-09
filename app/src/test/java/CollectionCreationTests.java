@@ -78,10 +78,10 @@ public class CollectionCreationTests extends BaseTestCase {
         // Show Burnished, Expected Result
         Object[][] tests = {
                 {false, 37},
-                {true,  37 + 4},
+                {true, 37 + 4},
         };
 
-        for(Object[] test : tests) {
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_CHECKBOX_2, test[0]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
@@ -104,15 +104,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  17},
-                {false, false, true,  17},
-                {true,  false, false, 0},
-                {true,  true,  false, 17},
-                {true,  false, true,  17},
-                {true,  true,  true,  17 + 17},
+                {false, true, true, 17},
+                {false, false, true, 17},
+                {true, false, false, 0},
+                {true, true, false, 17},
+                {true, false, true, 17},
+                {true, true, true, 17 + 17},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -137,16 +137,16 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  false, 25},
-                {false, false, false,  false, false, 25},
-                {true,  true,  false,  false, false, 25},
-                {true,  false, true,   false, false, 8},
-                {true,  false, false,  true,  false, 24},
-                {true,  false, false,  false, true,  17},
-                {true,  true,  true,   true,  true,  25 + 8 + 24 + 17},
+                {false, true, false, true, false, 25},
+                {false, false, false, false, false, 25},
+                {true, true, false, false, false, 25},
+                {true, false, true, false, false, 8},
+                {true, false, false, true, false, 24},
+                {true, false, false, false, true, 17},
+                {true, true, true, true, true, 25 + 8 + 24 + 17},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -174,16 +174,16 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  false, 24},
-                {false, false, false,  false, false, 24},
-                {true,  true,  false,  false, false, 24},
-                {true,  false, true,   false, false, 7},
-                {true,  false, false,  true,  false, 24},
-                {true,  false, false,  false, true,  18},
-                {true,  true,  true,   true,  true,  24 + 7 + 24 + 18},
+                {false, true, false, true, false, 24},
+                {false, false, false, false, false, 24},
+                {true, true, false, false, false, 24},
+                {true, false, true, false, false, 7},
+                {true, false, false, true, false, 24},
+                {true, false, false, false, true, 18},
+                {true, true, true, true, true, 24 + 7 + 24 + 18},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -211,16 +211,16 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, O, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  false, 25},
-                {false, false, false,  false, false, 25},
-                {true,  true,  false,  false, false, 25},
-                {true,  false, true,   false, false, 10},
-                {true,  false, false,  true,  false, 21},
-                {true,  false, false,  false, true,  18},
-                {true,  true,  true,   true,  true,  25 + 10 + 21 + 18},
+                {false, true, false, true, false, 25},
+                {false, false, false, false, false, 25},
+                {true, true, false, false, false, 25},
+                {true, false, true, false, false, 10},
+                {true, false, false, true, false, 21},
+                {true, false, false, false, true, 18},
+                {true, true, true, true, true, 25 + 10 + 21 + 18},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -248,15 +248,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  23},
-                {false, false, false,  false, 23},
-                {true,  true,  false,  false, 22},
-                {true,  false, true,   false, 20},
-                {true,  false, false,  true,  22},
-                {true,  true,  true,   true,  22 + 20 + 22},
+                {false, true, false, true, 23},
+                {false, false, false, false, 23},
+                {true, true, false, false, 22},
+                {true, false, true, false, 20},
+                {true, false, false, true, 22},
+                {true, true, true, true, 22 + 20 + 22},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -283,15 +283,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  7},
-                {false, false, true,  7},
-                {true,  false, false, 0},
-                {true,  true,  false, 7},
-                {true,  false, true,  7},
-                {true,  true,  true,  7 + 7},
+                {false, true, true, 7},
+                {false, false, true, 7},
+                {true, false, false, 0},
+                {true, true, false, 7},
+                {true, false, true, 7},
+                {true, true, true, 7 + 7},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -304,7 +304,7 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years) {
+        for (int year : years) {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
@@ -345,15 +345,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  16},
-                {false, false, false,  false, 16},
-                {true,  true,  false,  false, 16},
-                {true,  false, true,   false, 14},
-                {true,  false, false,  true,  5},
-                {true,  true,  true,   true,  16 + 14 + 5},
+                {false, true, false, true, 16},
+                {false, false, false, false, 16},
+                {true, true, false, false, 16},
+                {true, false, true, false, 14},
+                {true, false, false, true, 5},
+                {true, true, true, true, 16 + 14 + 5},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -380,15 +380,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, S, Expected Result
         Object[][] tests = {
-                {false, true,  true,  51},
-                {false, false, true,  51},
-                {true,  false, false, 0},
-                {true,  true,  false, 53},
-                {true,  false, true,  2},
-                {true,  true,  true,  53 + 2},
+                {false, true, true, 51},
+                {false, false, true, 51},
+                {true, false, false, 0},
+                {true, true, false, 53},
+                {true, false, true, 2},
+                {true, true, true, 53 + 2},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[2]);
@@ -413,15 +413,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  87},
-                {false, false, false,  false, 87},
-                {true,  true,  false,  false, 84},
-                {true,  false, true,   false, 84},
-                {true,  false, false,  true,  19},
-                {true,  true,  true,   true,  84 + 84 + 19},
+                {false, true, false, true, 87},
+                {false, false, false, false, 87},
+                {true, true, false, false, 84},
+                {true, false, true, false, 84},
+                {true, false, false, true, 19},
+                {true, true, true, true, 84 + 84 + 19},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -448,15 +448,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  58},
-                {false, false, true,  58},
-                {true,  false, false, 0},
-                {true,  true,  false, 55},
-                {true,  false, true,  55},
-                {true,  true,  true,  55 + 55},
+                {false, true, true, 58},
+                {false, false, true, 58},
+                {true, false, false, 0},
+                {true, true, false, 55},
+                {true, false, true, 55},
+                {true, true, true, 55 + 55},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -469,7 +469,7 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years) {
+        for (int year : years) {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
@@ -492,15 +492,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  31},
-                {false, false, false,  false, 31},
-                {true,  true,  false,  false, 31},
-                {true,  false, true,   false, 1},
-                {true,  false, false,  true,  1},
-                {true,  true,  true,   true,  31 + 1 + 1},
+                {false, true, false, true, 31},
+                {false, false, false, false, 31},
+                {true, true, false, false, 31},
+                {true, false, true, false, 1},
+                {true, false, false, true, 1},
+                {true, true, true, true, 31 + 1 + 1},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -527,15 +527,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  118},
-                {false, false, false,  false, 118},
-                {true,  true,  false,  false, 118},
-                {true,  false, true,   false, 110},
-                {true,  false, false,  true,  51},
-                {true,  true,  true,   true,  118 + 110 + 51},
+                {false, true, false, true, 118},
+                {false, false, false, false, 118},
+                {true, true, false, false, 118},
+                {true, false, true, false, 110},
+                {true, false, false, true, 51},
+                {true, true, true, true, 118 + 110 + 51},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -562,15 +562,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  27},
-                {false, false, false,  false, 27},
-                {true,  true,  false,  false, 27},
-                {true,  false, true,   false, 25},
-                {true,  false, false,  true,  25},
-                {true,  true,  true,   true,  27 + 25 + 25},
+                {false, true, false, true, 27},
+                {false, false, false, false, 27},
+                {true, true, false, false, 27},
+                {true, false, true, false, 25},
+                {true, false, false, true, 25},
+                {true, true, true, true, 27 + 25 + 25},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -597,17 +597,17 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, O, CC, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  false, true,  28},
-                {false, false, true,   false, true,  false, 28},
-                {true,  true,  false,  false, false, false, 28},
-                {true,  false, true,   false, false, false, 1},
-                {true,  false, false,  true,  false, false, 28},
-                {true,  false, false,  false, true,  false, 26},
-                {true,  false, false,  false, false, true,  13},
-                {true,  true,  true,   true,  true,  true,  28 + 1 + 28 + 26 + 13},
+                {false, true, false, true, false, true, 28},
+                {false, false, true, false, true, false, 28},
+                {true, true, false, false, false, false, 28},
+                {true, false, true, false, false, false, 1},
+                {true, false, false, true, false, false, 28},
+                {true, false, false, false, true, false, 26},
+                {true, false, false, false, false, true, 13},
+                {true, true, true, true, true, true, 28 + 1 + 28 + 26 + 13},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -636,15 +636,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  56},
-                {false, false, true,  56},
-                {true,  false, false, 0},
-                {true,  true,  false, 56},
-                {true,  false, true,  56},
-                {true,  true,  true,  56 + 56},
+                {false, true, true, 56},
+                {false, false, true, 56},
+                {true, false, false, 0},
+                {true, true, false, 56},
+                {true, false, true, 56},
+                {true, true, true, 56 + 56},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -669,15 +669,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  23},
-                {false, false, true,  23},
-                {true,  false, false, 0},
-                {true,  true,  false, 23},
-                {true,  false, true,  23},
-                {true,  true,  true,  23 + 23},
+                {false, true, true, 23},
+                {false, false, true, 23},
+                {true, false, false, 0},
+                {true, true, false, 23},
+                {true, false, true, 23},
+                {true, true, true, 23 + 23},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -702,15 +702,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  10},
-                {false, false, false,  false, 10},
-                {true,  true,  false,  false, 10},
-                {true,  false, true,   false, 5},
-                {true,  false, false,  true,  9},
-                {true,  true,  true,   true,  10 + 5 + 9},
+                {false, true, false, true, 10},
+                {false, false, false, false, 10},
+                {true, true, false, false, 10},
+                {true, false, true, false, 5},
+                {true, false, false, true, 9},
+                {true, true, true, true, 10 + 5 + 9},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -737,15 +737,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true,  true,  40},
-                {false, false, true,  40},
-                {true,  false, false, 0},
-                {true,  true,  false, 40},
-                {true,  false, true,  40},
-                {true,  true,  true,  40 + 40},
+                {false, true, true, 40},
+                {false, false, true, 40},
+                {true, false, false, 0},
+                {true, true, false, 40},
+                {true, false, true, 40},
+                {true, true, true, 40 + 40},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -770,15 +770,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  77},
-                {false, false, false,  false, 77},
-                {true,  true,  false,  false, 77},
-                {true,  false, true,   false, 74},
-                {true,  false, false,  true,  10},
-                {true,  true,  true,   true,  77 + 74 + 10},
+                {false, true, false, true, 77},
+                {false, false, false, false, 77},
+                {true, true, false, false, 77},
+                {true, false, true, false, 74},
+                {true, false, false, true, 10},
+                {true, true, true, true, 77 + 74 + 10},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -805,15 +805,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  15},
-                {false, false, false,  false, 15},
-                {true,  true,  false,  false, 15},
-                {true,  false, true,   false, 10},
-                {true,  false, false,  true,  12},
-                {true,  true,  true,   true,  15 + 10 + 12},
+                {false, true, false, true, 15},
+                {false, false, false, false, 15},
+                {true, true, false, false, 15},
+                {true, false, true, false, 10},
+                {true, false, false, true, 12},
+                {true, true, true, true, 15 + 10 + 12},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -840,16 +840,16 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Show Territories, Expected Result
         Object[][] tests = {
-                {false, true,  true,   false, 50},
-                {false, false, false,  true,  56},
-                {true,  true,  false,  false, 50},
-                {true,  false, true,   false, 50},
-                {true,  true,  false,  true,  56},
-                {true,  false, true,   true,  56},
-                {true,  true,  true,   true,  56 + 56},
+                {false, true, true, false, 50},
+                {false, false, false, true, 56},
+                {true, true, false, false, 50},
+                {true, false, true, false, 50},
+                {true, true, false, true, 56},
+                {true, false, true, true, 56},
+                {true, true, true, true, 56 + 56},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -876,15 +876,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  4},
-                {false, false, false,  false, 4},
-                {true,  true,  false,  false, 4},
-                {true,  false, true,   false, 4},
-                {true,  false, false,  true,  3},
-                {true,  true,  true,   true,  4 + 4 + 3},
+                {false, true, false, true, 4},
+                {false, false, false, false, 4},
+                {true, true, false, false, 4},
+                {true, false, true, false, 4},
+                {true, false, false, true, 3},
+                {true, true, true, true, 4 + 4 + 3},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -911,15 +911,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  25},
-                {false, false, false,  false, 25},
-                {true,  true,  false,  false, 20},
-                {true,  false, true,   false, 21},
-                {true,  false, false,  true,  24},
-                {true,  true,  true,   true,  20 + 21 + 24},
+                {false, true, false, true, 25},
+                {false, false, false, false, 25},
+                {true, true, false, false, 20},
+                {true, false, true, false, 21},
+                {true, false, false, true, 24},
+                {true, true, true, true, 20 + 21 + 24},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -946,15 +946,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  66},
-                {false, false, false,  false, 66},
-                {true,  true,  false,  false, 66},
-                {true,  false, true,   false, 62},
-                {true,  false, false,  true,  20},
-                {true,  true,  true,   true,  66 + 62 + 20},
+                {false, true, false, true, 66},
+                {false, false, false, false, 66},
+                {true, true, false, false, 66},
+                {true, false, true, false, 62},
+                {true, false, false, true, 20},
+                {true, true, true, true, 66 + 62 + 20},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
@@ -969,7 +969,7 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Test special case of start year 1975/1976
         int[] years = {1975, 1976};
-        for(int year : years) {
+        for (int year : years) {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
@@ -992,15 +992,15 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true,  false,  true,  5},
-                {false, false, false,  false, 5},
-                {true,  true,  false,  false, 5},
-                {true,  false, true,   false, 5},
-                {true,  false, false,  true,  5},
-                {true,  true,  true,   true,  5 + 5 + 5},
+                {false, true, false, true, 5},
+                {false, false, false, false, 5},
+                {true, true, false, false, 5},
+                {true, false, true, false, 5},
+                {true, false, false, true, 5},
+                {true, true, true, true, 5 + 5 + 5},
         };
 
-        for(Object[] test : tests){
+        for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);

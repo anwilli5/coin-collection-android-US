@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,13 +47,19 @@ public class MorganDollars extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_morgan_dollars;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -88,47 +94,47 @@ public class MorganDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showO           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showCC           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if( (i > 1904 && i < 1921) ){
+            if ((i > 1904 && i < 1921)) {
                 continue;
             }
 
-            if(showMintMarks){
-                if(showP){
-                    if(i == 1878){
+            if (showMintMarks) {
+                if (showP) {
+                    if (i == 1878) {
                         coinList.add(new CoinSlot("1878 8 Feathers", "", coinIndex++));
                         coinList.add(new CoinSlot("1878 7 Feathers", "", coinIndex++));
-                    } else if(i != 1895){
+                    } else if (i != 1895) {
                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
-                if(showD){
-                    if(i == 1921){
+                if (showD) {
+                    if (i == 1921) {
                         coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                     }
                 }
-                if(showO){
-                    if(i != 1878 && i != 1921){
+                if (showO) {
+                    if (i != 1878 && i != 1921) {
                         coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));
                     }
                 }
-                if(showCC){
-                    if( i != 1886 && i != 1887 && i != 1888 && i <= 1893 ){
+                if (showCC) {
+                    if (i != 1886 && i != 1887 && i != 1888 && i <= 1893) {
                         coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
                     }
                 }
-                if(showS){
+                if (showS) {
                     coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                 }
             } else {
@@ -138,7 +144,7 @@ public class MorganDollars extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

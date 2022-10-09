@@ -44,13 +44,19 @@ public class KennedyHalfDollars extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.rev_kennedy_half_dollar_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -73,33 +79,33 @@ public class KennedyHalfDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
             String newValue = Integer.toString(i);
-            if(i == 1975 || i == 1976){
+            if (i == 1975 || i == 1976) {
                 newValue = "1776-1976";
             }
-            if(i == 1976 && startYear != 1976)
+            if (i == 1976 && startYear != 1976)
                 continue;
 
-            if(showMintMarks){
-                if(showP){
-                    if(i < 1968 || i > 1970){
-                        if(i >= 1980){
+            if (showMintMarks) {
+                if (showP) {
+                    if (i < 1968 || i > 1970) {
+                        if (i >= 1980) {
                             coinList.add(new CoinSlot(newValue, "P", coinIndex++));
                         } else {
                             coinList.add(new CoinSlot(newValue, "", coinIndex++));
                         }
                     }
                 }
-                if(showD){
-                    if(i != 1965 && i != 1966 && i != 1967){
+                if (showD) {
+                    if (i != 1965 && i != 1966 && i != 1967) {
                         coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
@@ -110,7 +116,7 @@ public class KennedyHalfDollars extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 
@@ -129,13 +135,13 @@ public class KennedyHalfDollars extends CollectionInfo {
                                            int oldVersion, int newVersion) {
 
         int total = 0;
-        if(oldVersion <= 2){
+        if (oldVersion <= 2) {
             // Need to add in 1968 - 1970 for Half Dollars unless it doesn't exist
             // NOTE - We can't fix this, because adding will mess up the _id fields, which we use to do ordering
             // We could make a new table and copy over all of the data, but that presents a lot of challenges
         }
 
-        if(oldVersion <= 3) {
+        if (oldVersion <= 3) {
             // Add in new 2013 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
         }

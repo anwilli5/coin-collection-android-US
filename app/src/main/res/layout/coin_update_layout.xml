@@ -26,8 +26,7 @@
         android:layout_toEndOf="@id/coin_name_text"
         android:layout_toRightOf="@id/coin_name_text"
         android:importantForAutofill="no"
-        android:inputType="text">
-    </EditText>
+        android:inputType="text"></EditText>
 
     <TextView
         android:id="@+id/coin_mint_text"
@@ -53,6 +52,5 @@
         android:layout_toEndOf="@id/coin_mint_text"
         android:layout_toRightOf="@id/coin_mint_text"
         android:importantForAutofill="no"
-        android:inputType="text">
-    </EditText>
+        android:inputType="text"></EditText>
 </RelativeLayout>

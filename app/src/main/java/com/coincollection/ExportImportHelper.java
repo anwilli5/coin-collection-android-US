@@ -57,6 +57,7 @@ public class ExportImportHelper {
 
     // CSV keys
     public final static String CSV_SEPARATOR = "-----";
+
     public enum SectionType {
         DATABASE_VERSION(JSON_DB_VERSION),
         COLLECTIONS(JSON_COLLECTIONS),
@@ -64,11 +65,12 @@ public class ExportImportHelper {
         UNKNOWN("unknown");
 
         public final String label;
+
         SectionType(String label) {
             this.label = label;
         }
 
-        public static SectionType fromLabel (String label) {
+        public static SectionType fromLabel(String label) {
             for (SectionType sectionType : values()) {
                 if (sectionType.label.equals(label)) {
                     return sectionType;
@@ -92,6 +94,7 @@ public class ExportImportHelper {
     /**
      * This method imports collections from the external storage (legacy storage). New versions
      * of the app export to JSON and store in a user-accessible storage location
+     *
      * @param importDirectory import directory
      * @return "" if successful, otherwise an error message to display
      */
@@ -111,7 +114,7 @@ public class ExportImportHelper {
         }
 
         File dir = new File(importDirectory);
-        if(!dir.isDirectory()){
+        if (!dir.isDirectory()) {
             // The directory doesn't exist, notify the user
             return mRes.getString(R.string.cannot_find_export_dir, importDirectory);
         }
@@ -190,10 +193,11 @@ public class ExportImportHelper {
     /**
      * This method exports collections to the external storage (legacy storage). New versions
      * of the app export to JSON and store in a user-accessible storage location
+     *
      * @param importDirectory import directory
      * @return R.string.success_export if successful, otherwise an error message to display
      */
-    public String exportCollectionsToLegacyCSV(String importDirectory){
+    public String exportCollectionsToLegacyCSV(String importDirectory) {
 
         // See whether we can write to the external storage
         String state = Environment.getExternalStorageState();
@@ -215,7 +219,7 @@ public class ExportImportHelper {
         // At this point we know we can write to storage and the user is ok
         // if we blow away existing imported files
         File dir = new File(importDirectory);
-        if(!dir.isDirectory() && !dir.mkdir()){
+        if (!dir.isDirectory() && !dir.mkdir()) {
             // The directory doesn't exist, notify the user
             return mRes.getString(R.string.failed_mk_dir, importDirectory);
         }
@@ -229,7 +233,7 @@ public class ExportImportHelper {
         ArrayList<String[]> csvOutputLines = new ArrayList<>();
 
         // Iterate through the list of collections and write the files
-        for(int i = 0; i < collectionListEntries.size(); i++){
+        for (int i = 0; i < collectionListEntries.size(); i++) {
             CollectionListInfo item = collectionListEntries.get(i);
             csvOutputLines.add(item.getCsvExportProperties(mDbAdapter));
         }
@@ -242,7 +246,7 @@ public class ExportImportHelper {
         // Write out the database version
         outputFile = new File(dir, LEGACY_EXPORT_DB_VERSION_FILE);
         csvOutputLines = new ArrayList<>();
-        String[] version = new String[] { String.valueOf(MainApplication.DATABASE_VERSION) };
+        String[] version = new String[]{String.valueOf(MainApplication.DATABASE_VERSION)};
         csvOutputLines.add(version);
         try {
             writeToLegacyCsv(outputFile, csvOutputLines);
@@ -251,7 +255,7 @@ public class ExportImportHelper {
         }
 
         // Write out all of the other tables
-        for(int i = 0; i < collectionListEntries.size(); i++){
+        for (int i = 0; i < collectionListEntries.size(); i++) {
             CollectionListInfo item = collectionListEntries.get(i);
             String name = item.getName();
 
@@ -277,6 +281,7 @@ public class ExportImportHelper {
 
     /**
      * This method imports collections from a JSON file
+     *
      * @param inputStream input stream to read from
      * @return "" if successful, otherwise an error message to display
      */
@@ -322,7 +327,8 @@ public class ExportImportHelper {
 
     /**
      * Update the database with the imported data
-     * @param importDatabaseVersion imported database version
+     *
+     * @param importDatabaseVersion      imported database version
      * @param importedCollectionInfoList imported list of CollectionListInfo
      * @param importedCollectionContents imported list of coins
      * @return "" if successful, otherwise an error string
@@ -371,11 +377,12 @@ public class ExportImportHelper {
 
     /**
      * Exports the collection information to JSON
+     *
      * @param outputStream output stream to write to
-     * @param filePath file path being written to
+     * @param filePath     file path being written to
      * @return A message to be displayed to the user, whether successful or not
      */
-    public String exportCollectionsToJson(OutputStream outputStream, String filePath){
+    public String exportCollectionsToJson(OutputStream outputStream, String filePath) {
 
         // Get all collection lists from the database
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
@@ -403,6 +410,7 @@ public class ExportImportHelper {
 
     /**
      * Extract the contents from a CSV file into a 2D list of strings
+     *
      * @param inputFile file to read
      * @return 2D list of strings
      * @throws IOException if an error occurs
@@ -427,7 +435,8 @@ public class ExportImportHelper {
 
     /**
      * Writes contents to a CSV file
-     * @param file file to write to
+     *
+     * @param file     file to write to
      * @param contents contents to write to file
      * @throws IOException if an error occurs
      */
@@ -441,6 +450,7 @@ public class ExportImportHelper {
 
     /**
      * This method imports collections from a single CSV file
+     *
      * @param inputStream input stream to read from
      * @return "" if successful, otherwise an error message to display
      */
@@ -518,11 +528,12 @@ public class ExportImportHelper {
 
     /**
      * Exports the collection information to a single CSV file
+     *
      * @param outputStream output stream to write to
-     * @param filePath file path being written to
+     * @param filePath     file path being written to
      * @return A message to be displayed to the user, whether successful or not
      */
-    public String exportCollectionsToSingleCSV(OutputStream outputStream, String filePath){
+    public String exportCollectionsToSingleCSV(OutputStream outputStream, String filePath) {
 
         // Get all collection lists from the database
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();

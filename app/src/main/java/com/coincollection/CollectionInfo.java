@@ -39,17 +39,17 @@ public abstract class CollectionInfo {
      * identifier, coin mint, and whether the coin is in the
      * collection.  The convention used in Coin Collection for determining
      * the value to return is:
-     *
+     * <p>
      * For simple collections:
-     *  - The obverse coin image is returned if inCollection
-     *  - R.drawable.openslot is returned if not inCollection
-     *
+     * - The obverse coin image is returned if inCollection
+     * - R.drawable.openslot is returned if not inCollection
+     * <p>
      * For collections with special/individualized coins:
-     *  - The reverse (uniquely-styled side) is returned if inCollection
-     *  - The reverse at a 25% opacity is returned if not inCollection (there
-     *    is a script in the repo that will generate the 25% opacity images
-     *    automatically from thee regular images.  See image-prep.py for more
-     *    details.)
+     * - The reverse (uniquely-styled side) is returned if inCollection
+     * - The reverse at a 25% opacity is returned if not inCollection (there
+     * is a script in the repo that will generate the 25% opacity images
+     * automatically from thee regular images.  See image-prep.py for more
+     * details.)
      *
      * @param coinSlot the coin slot to return an image for
      * @return the id of an image to use for this coin
@@ -95,8 +95,8 @@ public abstract class CollectionInfo {
      *
      * @param parameters the HashMap that this method should use to get the
      *                   values needed to create the collection.
-     * @param coinList the ArrayList to populate with coin information
-     *                       (Ex: ('2009', ''), ('George Washington', 'P'))
+     * @param coinList   the ArrayList to populate with coin information
+     *                   (Ex: ('2009', ''), ('George Washington', 'P'))
      */
     abstract public void populateCollectionLists(
             HashMap<String, Object> parameters,
@@ -105,18 +105,18 @@ public abstract class CollectionInfo {
     /**
      * Performs any updates to a collection's database tables.  This allows
      * new coins to be added, incorrect coins to be fixed, etc.
-     *
+     * <p>
      * TODO Document collection database fields
-     *
+     * <p>
      * The function should only operate on the tableName provided, and MUST
      * return the total number of coins added or removed from the collection
      * (this is used to keep an accurate count in the database table that
      * contains metadata about each of the collections.)
      *
-     * @param db the SQLiteDatabase db object to use when making updates
+     * @param db                 the SQLiteDatabase db object to use when making updates
      * @param collectionListInfo information about the collection to update
-     * @param oldVersion the previous database version
-     * @param newVersion the new database version
+     * @param oldVersion         the previous database version
+     * @param newVersion         the new database version
      * @return the total number of collections added or removed from the collection
      */
     abstract public int onCollectionDatabaseUpgrade(
@@ -136,12 +136,14 @@ public abstract class CollectionInfo {
 
     /**
      * Gets the starting year of the coin series
+     *
      * @return Returns 0 if start/stop years aren't used by this series
      */
     abstract public int getStartYear();
 
     /**
      * Gets the last year of the coin series
+     *
      * @return Returns 0 if start/stop years aren't used by this series
      */
     abstract public int getStopYear();

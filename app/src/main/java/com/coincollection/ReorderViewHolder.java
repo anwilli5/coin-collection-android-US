@@ -23,9 +23,9 @@ package com.coincollection;
 import android.graphics.Color;
 import android.view.View;
 
-import com.coincollection.helper.ItemTouchHelperViewHolder;
-
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.coincollection.helper.ItemTouchHelperViewHolder;
 
 /**
  * ViewHolder used by the ReorderCollections Activity

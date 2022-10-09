@@ -102,6 +102,7 @@ public class BaseTestCase {
 
     /**
      * Enables VM policy checking (override to disable)
+     *
      * @return true if the tests support VM policy checking, otherwise false
      */
     protected boolean enableVmPolicyChecking() {
@@ -119,9 +120,10 @@ public class BaseTestCase {
 
     /**
      * Gets a minimally populated CollectionListInfo
-     * @param name collection name
+     *
+     * @param name           collection name
      * @param collectionInfo associated CollectionInfo object
-     * @param coinList (optional) list of coins
+     * @param coinList       (optional) list of coins
      * @return CollectionListInfo object
      */
     public CollectionListInfo getCollectionListInfo(String name, CollectionInfo collectionInfo,
@@ -137,6 +139,7 @@ public class BaseTestCase {
 
     /**
      * Enable storage read/write permission
+     *
      * @return true if enabling permissions was successful
      */
     @SuppressWarnings("SameReturnValue")
@@ -150,6 +153,7 @@ public class BaseTestCase {
 
     /**
      * Populate the database with one collection of each type
+     *
      * @param activity activity associated with the collection
      * @return true if successful, otherwise false
      */
@@ -172,6 +176,7 @@ public class BaseTestCase {
 
     /**
      * Populate the database with one collection of each type
+     *
      * @param activity activity associated with the collection
      * @return true if successful, otherwise false
      */
@@ -195,12 +200,13 @@ public class BaseTestCase {
 
     /**
      * Create a database table for a new collection
+     *
      * @param collectionListInfo Collection info
-     * @param coinList List of coin slots
-     * @param displayOrder Display order of the collection
+     * @param coinList           List of coin slots
+     * @param displayOrder       Display order of the collection
      */
     public void createNewTable(Activity activity, CollectionListInfo collectionListInfo,
-                        ArrayList<CoinSlot> coinList, int displayOrder) {
+                               ArrayList<CoinSlot> coinList, int displayOrder) {
         DatabaseAdapter dbAdapter = new DatabaseAdapter(activity);
         dbAdapter.open();
         dbAdapter.createAndPopulateNewTable(collectionListInfo, displayOrder, coinList);
@@ -209,6 +215,7 @@ public class BaseTestCase {
 
     /**
      * Delete all collections from the database
+     *
      * @param activity activity that can be used to access the database
      */
     public void deleteAllCollections(Activity activity) {
@@ -216,10 +223,10 @@ public class BaseTestCase {
         dbAdapter.open();
         Cursor resultCursor = dbAdapter.getAllCollectionNames();
         assertNotNull(resultCursor);
-        if (resultCursor.moveToFirst()){
-            do{
+        if (resultCursor.moveToFirst()) {
+            do {
                 dbAdapter.dropCollectionTable(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)));
-            } while(resultCursor.moveToNext());
+            } while (resultCursor.moveToNext());
         }
         resultCursor.close();
         dbAdapter.close();
@@ -227,6 +234,7 @@ public class BaseTestCase {
 
     /**
      * Get all collections from the database
+     *
      * @param activity activity that can be used to access the database
      */
     public ArrayList<String> getCollectionNames(Activity activity) {
@@ -235,10 +243,10 @@ public class BaseTestCase {
         ArrayList<String> nameList = new ArrayList<>();
         Cursor resultCursor = dbAdapter.getAllCollectionNames();
         assertNotNull(resultCursor);
-        if (resultCursor.moveToFirst()){
-            do{
+        if (resultCursor.moveToFirst()) {
+            do {
                 nameList.add(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)));
-            } while(resultCursor.moveToNext());
+            } while (resultCursor.moveToNext());
         }
         resultCursor.close();
         dbAdapter.close();
@@ -253,6 +261,7 @@ public class BaseTestCase {
         TestDatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, 1);
         }
+
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE collection_info (_id integer primary key,"
@@ -261,6 +270,7 @@ public class BaseTestCase {
                     + " total integer"
                     + ");");
         }
+
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
@@ -269,10 +279,11 @@ public class BaseTestCase {
 
     /**
      * Adds a collection to the database that looks like version 1 of the app's DB scheme
-     * @param db database to populate
+     *
+     * @param db             database to populate
      * @param collectionName collection name
-     * @param coinType coin type
-     * @param coinList list of coins
+     * @param coinType       coin type
+     * @param coinList       list of coins
      */
     public void createV1Collection(SQLiteDatabase db, String collectionName, String coinType, ArrayList<Object[]> coinList) {
 
@@ -282,7 +293,7 @@ public class BaseTestCase {
                 + " coinMint text,"
                 + " inCollection integer);");
 
-        for(Object[] coinInfo : coinList){
+        for (Object[] coinInfo : coinList) {
             ContentValues initialValues = new ContentValues();
             initialValues.put(COL_COIN_IDENTIFIER, (String) coinInfo[0]);
             initialValues.put(COL_COIN_MINT, (String) coinInfo[1]);
@@ -299,25 +310,27 @@ public class BaseTestCase {
 
     /**
      * Validate updated database
+     *
      * @param collectionInfo collection info
      * @param collectionName collection name
      */
-    public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName){
+    public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName) {
         ParcelableHashMap parameters = new ParcelableHashMap();
         validateUpdatedDb(collectionInfo, collectionName, parameters);
     }
 
     /**
      * Validate updated database
+     *
      * @param collectionInfo collection info
      * @param collectionName collection name
-     * @param parameters setup parameters
+     * @param parameters     setup parameters
      */
     public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
-                                  final ParcelableHashMap parameters){
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                                  final ParcelableHashMap parameters) {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
 
                 // Create a new database from scratch
@@ -331,7 +344,7 @@ public class BaseTestCase {
 
                 // Make sure coin lists match
                 assertEquals(newCoinList.size(), dbCoinList.size());
-                for(int i = 0; i < newCoinList.size(); i++){
+                for (int i = 0; i < newCoinList.size(); i++) {
                     assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
                     assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
                 }
@@ -355,7 +368,8 @@ public class BaseTestCase {
 
     /**
      * Checks that the collection can be recreated based solely on the coin data
-     * @param coinList coin list to analyze
+     *
+     * @param coinList  coin list to analyze
      * @param coinClass type of coin
      */
     void checkCreationParamsFromCoinList(ArrayList<CoinSlot> coinList, CollectionInfo coinClass) {
@@ -373,7 +387,8 @@ public class BaseTestCase {
 
     /**
      * Compare two CollectionListInfo objects to ensure they're the same
-     * @param base CollectionListInfo
+     *
+     * @param base  CollectionListInfo
      * @param check CollectionListInfo
      */
     void compareCollectionListInfos(CollectionListInfo base, CollectionListInfo check) {
@@ -382,8 +397,9 @@ public class BaseTestCase {
 
     /**
      * Compare two lists of CoinSlot objects to ensure they're the same
-     * @param base ArrayList<CoinSlot>
-     * @param check ArrayList<CoinSlot>
+     *
+     * @param base           ArrayList<CoinSlot>
+     * @param check          ArrayList<CoinSlot>
      * @param compareAdvInfo if true, enables comparison of advanced details
      */
     void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
@@ -392,8 +408,9 @@ public class BaseTestCase {
 
     /**
      * Compare two lists of CoinSlot lists to ensure they're the same
-     * @param base list of CoinSlots lists
-     * @param check list of CoinSlots lists
+     *
+     * @param base           list of CoinSlots lists
+     * @param check          list of CoinSlots lists
      * @param compareAdvInfo if true, enables comparison of advanced details
      */
     void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareAdvInfo) {
@@ -402,6 +419,7 @@ public class BaseTestCase {
 
     /**
      * Get a list of the sort orders from a coin slot list
+     *
      * @param coinList list of coin slots
      * @return list of sort orders
      */
@@ -415,6 +433,7 @@ public class BaseTestCase {
 
     /**
      * Check that the sort orders in a list of coin slots are unique
+     *
      * @param coinList list of coins to check sort order
      */
     void checkCoinSortOrdersUnique(ArrayList<CoinSlot> coinList) {
@@ -424,9 +443,10 @@ public class BaseTestCase {
 
     /**
      * Compare the collection against what's stored in the database
-     * @param activity test activity
+     *
+     * @param activity           test activity
      * @param collectionListInfo CollectionListInfo to compare
-     * @param coinList CoinSlot list to compare
+     * @param coinList           CoinSlot list to compare
      */
     void compareCollectionWithDb(BaseActivity activity, CollectionListInfo collectionListInfo,
                                  ArrayList<CoinSlot> coinList, int displayOrder) {
@@ -485,7 +505,8 @@ public class BaseTestCase {
 
     /**
      * Generate test scenarios for each collection
-     * @param coinClass collection type
+     *
+     * @param coinClass          collection type
      * @param numRandomScenarios Number of additional random scenarios to generate
      * @return scenario list containing [start, end] dates (if dates are used)
      */
@@ -518,8 +539,9 @@ public class BaseTestCase {
 
     /**
      * Get collection with random information filled in
+     *
      * @param coinType type of collection to make
-     * @param dates start and end dates
+     * @param dates    start and end dates
      * @return generated collection
      */
     FullCollection getRandomTestScenario(CollectionInfo coinType, Integer[] dates) {
@@ -533,11 +555,13 @@ public class BaseTestCase {
 
         return getRandomTestScenario(coinType, collectionName, dates);
     }
+
     /**
      * Get collection with random information filled in
-     * @param coinType type of collection to make
+     *
+     * @param coinType       type of collection to make
      * @param collectionName name of the collection
-     * @param dates start and end dates
+     * @param dates          start and end dates
      * @return generated collection
      */
     FullCollection getRandomTestScenario(CollectionInfo coinType, String collectionName,
@@ -579,9 +603,11 @@ public class BaseTestCase {
 
         return new FullCollection(collectionListInfo, coinList, displayOrder);
     }
+
     /**
      * Get collections with random information filled in
-     * @param coinType type of collection to make
+     *
+     * @param coinType     type of collection to make
      * @param numScenarios number of collections to make
      * @return list of generated collections
      */
@@ -597,9 +623,10 @@ public class BaseTestCase {
 
     /**
      * Generate a random collection name
+     *
      * @return string name
      */
-    String getRandCollectionName(){
+    String getRandCollectionName() {
         String chars = "ABCDEFGHIJHLMNOPqrstuvwxyz0983746~!@#$%^&*() \\/<>?:\"{}'";
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < 1 + random.nextInt(50); i++) {
@@ -610,6 +637,7 @@ public class BaseTestCase {
 
     /**
      * Open an output stream from file
+     *
      * @param file file to open
      * @return output stream
      */
@@ -625,6 +653,7 @@ public class BaseTestCase {
 
     /**
      * Open an input stream from file
+     *
      * @param file file to open
      * @return input stream
      */
@@ -640,6 +669,7 @@ public class BaseTestCase {
 
     /**
      * Close the output stream
+     *
      * @param stream output stream
      */
     void closeStream(OutputStream stream) {
@@ -652,6 +682,7 @@ public class BaseTestCase {
 
     /**
      * Close the input stream
+     *
      * @param stream input stream
      */
     void closeStream(InputStream stream) {
@@ -663,14 +694,14 @@ public class BaseTestCase {
     }
 
     /**
-     * @param dbAdapter database adapter
+     * @param dbAdapter       database adapter
      * @param collectionNames List of collection names
      * @param populateAdvInfo if true, populates the advanced info
      * @return a list of coin slot lists
      */
     ArrayList<ArrayList<CoinSlot>> getCoinSlotListsFromCollectionNames(DatabaseAdapter dbAdapter, ArrayList<String> collectionNames, boolean populateAdvInfo) {
         ArrayList<ArrayList<CoinSlot>> coinSlotLists = new ArrayList<>();
-        for(String collectionName : collectionNames) {
+        for (String collectionName : collectionNames) {
             coinSlotLists.add(dbAdapter.getCoinList(collectionName, populateAdvInfo, false));
         }
         return coinSlotLists;

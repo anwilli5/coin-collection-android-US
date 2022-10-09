@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,13 +46,19 @@ public class BuffaloNickels extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_buffalo_nickels;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -79,24 +85,24 @@ public class BuffaloNickels extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if(i == 1922 || i == 1932 || i == 1933){
+            if (i == 1922 || i == 1932 || i == 1933) {
                 continue;
             }
 
-            if(showMintMarks){
-                if(showP){
-                    if(i != 1931 && i != 1938){
-                        if(i == 1913){
+            if (showMintMarks) {
+                if (showP) {
+                    if (i != 1931 && i != 1938) {
+                        if (i == 1913) {
                             coinList.add(new CoinSlot(Integer.toString(i), " Type 1", coinIndex++));
                             coinList.add(new CoinSlot(Integer.toString(i), " Type 2", coinIndex++));
                         } else {
@@ -104,9 +110,9 @@ public class BuffaloNickels extends CollectionInfo {
                         }
                     }
                 }
-                if(showD){
-                    if(i != 1921 && i != 1923 && i != 1930 && i != 1931){
-                        if(i == 1913){
+                if (showD) {
+                    if (i != 1921 && i != 1923 && i != 1930 && i != 1931) {
+                        if (i == 1913) {
                             coinList.add(new CoinSlot(Integer.toString(i), " D Type 1", coinIndex++));
                             coinList.add(new CoinSlot(Integer.toString(i), " D Type 2", coinIndex++));
                         } else {
@@ -114,9 +120,9 @@ public class BuffaloNickels extends CollectionInfo {
                         }
                     }
                 }
-                if(showS){
-                    if(i != 1934 && i != 1938){
-                        if(i == 1913){
+                if (showS) {
+                    if (i != 1934 && i != 1938) {
+                        if (i == 1913) {
                             coinList.add(new CoinSlot(Integer.toString(i), " S Type 1", coinIndex++));
                             coinList.add(new CoinSlot(Integer.toString(i), " S Type 2", coinIndex++));
                         } else {
@@ -131,7 +137,7 @@ public class BuffaloNickels extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

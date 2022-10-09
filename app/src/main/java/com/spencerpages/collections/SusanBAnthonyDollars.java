@@ -46,13 +46,19 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.rev_susan_b_anthony_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -79,32 +85,32 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
-            if(i > 1981 && i < 1999)
+        for (int i = startYear; i <= stopYear; i++) {
+            if (i > 1981 && i < 1999)
                 continue;
 
-            if(showMintMarks){
+            if (showMintMarks) {
                 // 1979 showed the P mint mark
-                if(showP) {
+                if (showP) {
                     if (i >= 1979) {
                         coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
                     } else {
                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
-                if(showD){
+                if (showD) {
                     coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                 }
-                if(showS){
-                    if(i != 1999){
+                if (showS) {
+                    if (i != 1999) {
                         coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
@@ -115,7 +121,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 
@@ -135,7 +141,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
         String tableName = collectionListInfo.getName();
         int total = 0;
 
-        if(oldVersion <= 2) {
+        if (oldVersion <= 2) {
             // Remove 1982 Susan B Anthony's
             total -= runSqlDelete(db, tableName, COL_COIN_IDENTIFIER + "=?", new String[]{"1982"});
         }

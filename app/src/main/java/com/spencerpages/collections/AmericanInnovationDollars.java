@@ -37,30 +37,30 @@ public class AmericanInnovationDollars extends CollectionInfo {
     public static final String COLLECTION_TYPE = "American Innovation Dollars";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            { "Introductory",   R.drawable.innovation_2018_introductory_unc},
-            { "Delaware",       R.drawable.innovation_2019_delaware_unc},
-            { "Pennsylvania",   R.drawable.innovation_2019_pennsylvania_unc},
-            { "New Jersey",     R.drawable.innovation_2019_new_jersey_unc},
-            { "Georgia",        R.drawable.innovation_2019_georgia_unc},
-            { "Connecticut",    R.drawable.innovation_2020_connecticut_unc},
-            { "Massachusetts",  R.drawable.innovation_2020_massachusetts_unc},
-            { "Maryland",       R.drawable.innovation_2020_maryland_unc},
-            { "South Carolina", R.drawable.innovation_2020_south_carolina_unc},
-            { "New Hampshire",  R.drawable.innovation_2021_new_hampshire_unc},
-            { "Virginia",       R.drawable.innovation_2021_virginia_unc},
-            { "New York",       R.drawable.innovation_2021_new_york_unc},
-            { "North Carolina", R.drawable.innovation_2021_north_carolina_unc},
-            { "Rhode Island",   R.drawable.innovation_2022_rhode_island_unc},
-            { "Vermont",        R.drawable.innovation_2022_vermont_unc},
-            { "Kentucky",       R.drawable.innovation_2022_kentucky_unc},
-            { "Tennessee",      R.drawable.innovation_2022_tennessee_unc}
+            {"Introductory", R.drawable.innovation_2018_introductory_unc},
+            {"Delaware", R.drawable.innovation_2019_delaware_unc},
+            {"Pennsylvania", R.drawable.innovation_2019_pennsylvania_unc},
+            {"New Jersey", R.drawable.innovation_2019_new_jersey_unc},
+            {"Georgia", R.drawable.innovation_2019_georgia_unc},
+            {"Connecticut", R.drawable.innovation_2020_connecticut_unc},
+            {"Massachusetts", R.drawable.innovation_2020_massachusetts_unc},
+            {"Maryland", R.drawable.innovation_2020_maryland_unc},
+            {"South Carolina", R.drawable.innovation_2020_south_carolina_unc},
+            {"New Hampshire", R.drawable.innovation_2021_new_hampshire_unc},
+            {"Virginia", R.drawable.innovation_2021_virginia_unc},
+            {"New York", R.drawable.innovation_2021_new_york_unc},
+            {"North Carolina", R.drawable.innovation_2021_north_carolina_unc},
+            {"Rhode Island", R.drawable.innovation_2022_rhode_island_unc},
+            {"Vermont", R.drawable.innovation_2022_vermont_unc},
+            {"Kentucky", R.drawable.innovation_2022_kentucky_unc},
+            {"Tennessee", R.drawable.innovation_2022_tennessee_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS){
+        for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -68,13 +68,17 @@ public class AmericanInnovationDollars extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.innovation_2018_introductory_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){
+    public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
@@ -97,19 +101,19 @@ public class AmericanInnovationDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         int coinIndex = 0;
 
-        for(Object[] coinData : COIN_IDENTIFIERS){
+        for (Object[] coinData : COIN_IDENTIFIERS) {
             String identifier = (String) coinData[0];
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     coinList.add(new CoinSlot(identifier, "P", coinIndex++));
                 }
-                if(showD){
+                if (showD) {
                     coinList.add(new CoinSlot(identifier, "D", coinIndex++));
                 }
             } else {
@@ -117,7 +121,8 @@ public class AmericanInnovationDollars extends CollectionInfo {
             }
         }
     }
-    public int getAttributionResId(){
+
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 

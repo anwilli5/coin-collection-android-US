@@ -55,7 +55,7 @@ public class MainActivityTests extends BaseTestCase {
     @Test
     public void test_buildAttributions() {
 
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> assertNotEquals("", activity.buildInfoText()));
@@ -67,7 +67,7 @@ public class MainActivityTests extends BaseTestCase {
      */
     @Test
     public void test_copyCollections() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -106,7 +106,7 @@ public class MainActivityTests extends BaseTestCase {
     @Test
     public void test_reorderFragment() {
 
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {

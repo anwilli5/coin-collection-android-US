@@ -28,20 +28,19 @@ import android.os.AsyncTask;
 // TODO For passing the AsyncTask between Activity instances, see this post:
 // http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html
 // Our method is subject to the race conditions described therein :O
-class AsyncProgressTask extends AsyncTask<Void, Void, Void>
-{
+class AsyncProgressTask extends AsyncTask<Void, Void, Void> {
     AsyncProgressInterface mListener;
     int mAsyncTaskId = 0;
     private final static int NUM_DELAY_HALF_SECONDS = 10;
     String mResultString;
 
-    AsyncProgressTask(AsyncProgressInterface listener){
+    AsyncProgressTask(AsyncProgressInterface listener) {
         this.mListener = listener;
     }
+
     @Override
-    protected Void doInBackground( Void... params )
-    {
-        for(int i = 0; i < NUM_DELAY_HALF_SECONDS; i++){
+    protected Void doInBackground(Void... params) {
+        for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
             if (mListener != null) {
                 mResultString = mListener.asyncProgressDoInBackground();
                 break;
@@ -54,11 +53,11 @@ class AsyncProgressTask extends AsyncTask<Void, Void, Void>
         }
         return null;
     }
+
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
         super.onPreExecute();
-        for(int i = 0; i < NUM_DELAY_HALF_SECONDS; i++){
+        for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
             if (mListener != null) {
                 mListener.asyncProgressOnPreExecute();
                 break;
@@ -70,11 +69,11 @@ class AsyncProgressTask extends AsyncTask<Void, Void, Void>
             }
         }
     }
+
     @Override
-    protected void onPostExecute( Void result )
-    {
+    protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-        for(int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
+        for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
             if (mListener != null) {
                 mListener.asyncProgressOnPostExecute(mResultString);
                 break;
