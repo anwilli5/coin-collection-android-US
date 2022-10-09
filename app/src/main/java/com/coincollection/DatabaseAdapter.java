@@ -120,7 +120,7 @@ public class DatabaseAdapter {
     // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
     // instead have one query that returns all of the info.
     public int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
-        String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + tableName + "] WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE + " LIMIT 1";
+        String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + removeBrackets(tableName) + "] WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE + " LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, String.valueOf(coinSlot.getDatabaseId()));
         int result = simpleQueryForLong(compiledStatement);
@@ -215,7 +215,7 @@ public class DatabaseAdapter {
     private void createCollectionTable(String tableName) throws SQLException {
         // v2.2.1 - Until this point all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
-        String sqlCmd = "CREATE TABLE [" + tableName + "] ("
+        String sqlCmd = "CREATE TABLE [" + removeBrackets(tableName) + "] ("
         + " " + COL_COIN_ID + " integer primary key,"
         + " " + COL_COIN_IDENTIFIER + " text not null,"
         + " " + COL_COIN_MINT + " text,"
@@ -268,7 +268,7 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void dropCollectionTable(String tableName) throws SQLException {
-        String dropTableCmd = "DROP TABLE [" + tableName + "];";
+        String dropTableCmd = "DROP TABLE [" + removeBrackets(tableName) + "];";
         mDb.execSQL(dropTableCmd);
         runSqlDeleteAndCheck(TBL_COLLECTION_INFO, COL_NAME + "=?", new String[] { tableName });
     }
@@ -368,7 +368,7 @@ public class DatabaseAdapter {
 
         // Populate the contents use SQL commands
         String sourceTableName = sourceCollectionListInfo.getName();
-        String populateDbCmd = "INSERT INTO [" + newTableName + "] SELECT * FROM [" + sourceTableName + "];";
+        String populateDbCmd = "INSERT INTO [" + removeBrackets(newTableName) + "] SELECT * FROM [" + removeBrackets(sourceTableName) + "];";
         mDb.execSQL(populateDbCmd);
 
         // Return the newly created object
@@ -434,7 +434,7 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void updateCoinSortOrderForInsert(String tableName, int insertSortOrder) throws SQLException {
-        mDb.execSQL("UPDATE [" + tableName + "] SET " + COL_SORT_ORDER + " = " + COL_SORT_ORDER + "+1 "
+        mDb.execSQL("UPDATE [" + removeBrackets(tableName) + "] SET " + COL_SORT_ORDER + " = " + COL_SORT_ORDER + "+1 "
                 + "WHERE " + COL_SORT_ORDER + " >= " + insertSortOrder);
     }
 
@@ -542,5 +542,15 @@ public class DatabaseAdapter {
         if (DatabaseHelper.runSqlDelete(mDb, table, whereClause, whereArgs) <= 0) {
             throw new SQLException();
         }
+    }
+
+    /**
+     * Remove square brackets from a string
+     * Note: None of the uses of this should be necessary, but adding to prevent unintentional bugs
+     * @param inputStr string to remove brackets from
+     * @return string with no square brackets
+     */
+    public static String removeBrackets(String inputStr) {
+        return inputStr.replaceAll("[\\[\\]]", "");
     }
 }
