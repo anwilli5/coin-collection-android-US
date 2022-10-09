@@ -251,7 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @throws SQLException if a database error occurred
      */
     public static int getNextCoinSortOrder(SQLiteDatabase db, String tableName) throws SQLException {
-        String sqlCmd = "SELECT MAX(" + COL_SORT_ORDER + ") FROM [" + tableName + "]";
+        String sqlCmd = "SELECT MAX(" + COL_SORT_ORDER + ") FROM [" + DatabaseAdapter.removeBrackets(tableName) + "]";
         SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
         int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
@@ -303,7 +303,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @throws SQLException if the database update was not successful
      */
     static void updateCollectionName(SQLiteDatabase db, String oldName, String newName) throws SQLException {
-        String alterDbSqlStr = "ALTER TABLE [" + oldName + "] RENAME TO [" + newName + "]";
+        String alterDbSqlStr = "ALTER TABLE [" + DatabaseAdapter.removeBrackets(oldName) + "] RENAME TO [" + DatabaseAdapter.removeBrackets(newName) + "]";
         db.execSQL(alterDbSqlStr);
         ContentValues args = new ContentValues();
         args.put(COL_NAME, newName);
@@ -526,7 +526,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @throws SQLException if an error occurs
      */
     public static int fetchTotalCollected(SQLiteDatabase db, String tableName) throws SQLException {
-        String sqlCmd = "SELECT COUNT(" + COL_COIN_ID + ") FROM [" + tableName + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
+        String sqlCmd = "SELECT COUNT(" + COL_COIN_ID + ") FROM [" + DatabaseAdapter.removeBrackets(tableName) + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
         SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
         int result = simpleQueryForLong(compiledStatement);
         compiledStatement.clearBindings();
