@@ -19,8 +19,8 @@
 
 package com.coincollection.helper;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Interface to listen for a move event from a {@link ItemTouchHelper.Callback}.
@@ -40,7 +40,6 @@ public interface ItemTouchHelperAdapter {
      * @param fromPosition The start position of the moved item.
      * @param toPosition   Then resolved position of the moved item.
      * @return True if the item was moved to the new adapter position.
-     *
      * @see RecyclerView.ViewHolder#getAdapterPosition()
      */
     boolean onItemMove(int fromPosition, int toPosition);

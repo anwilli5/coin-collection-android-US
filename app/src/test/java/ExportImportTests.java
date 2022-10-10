@@ -77,6 +77,7 @@ public class ExportImportTests extends BaseTestCase {
 
     /**
      * Get a temporary file with a given name
+     *
      * @param filename file name
      * @return file
      */
@@ -94,7 +95,7 @@ public class ExportImportTests extends BaseTestCase {
      */
     @Test
     public void test_legacyCsvExportOneOfEachCollection() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -119,7 +120,7 @@ public class ExportImportTests extends BaseTestCase {
                 for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
                     assertNotNull(collectionInfo);
                     File collectionFile;
-                    if(collectionInfo instanceof NativeAmericanDollars){
+                    if (collectionInfo instanceof NativeAmericanDollars) {
                         collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
                     } else {
                         collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
@@ -150,7 +151,7 @@ public class ExportImportTests extends BaseTestCase {
      */
     @Test
     public void test_jsonExportOneOfEachCollection() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -196,7 +197,7 @@ public class ExportImportTests extends BaseTestCase {
      */
     @Test
     public void test_csvExportOneOfEachCollection() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -242,7 +243,7 @@ public class ExportImportTests extends BaseTestCase {
      */
     @Test
     public void test_csvImportV1Collection() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -280,7 +281,7 @@ public class ExportImportTests extends BaseTestCase {
                 "$name",
                 "collection.csv"
         ));
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -328,7 +329,7 @@ public class ExportImportTests extends BaseTestCase {
      */
     @Test
     public void test_csvExportImportMethods() {
-        for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS){
+        for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
             DatabaseAdapter fakeDbAdapter = mock(DatabaseAdapter.class);
             when(fakeDbAdapter.fetchTableDisplay(anyString())).thenReturn(info.getDisplayType());
             String[] export = info.getCsvExportProperties(fakeDbAdapter);
@@ -343,7 +344,7 @@ public class ExportImportTests extends BaseTestCase {
     @Test
     public void test_jsonExportImportMethods() {
         int testNum = 0;
-        for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS){
+        for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
             DatabaseAdapter fakeDbAdapter = mock(DatabaseAdapter.class);
             when(fakeDbAdapter.fetchTableDisplay(anyString())).thenReturn(info.getDisplayType());
             File exportFile = getTempFile("test-file" + testNum + ".json");
@@ -382,7 +383,7 @@ public class ExportImportTests extends BaseTestCase {
                 {"src/test/data/coin-collection-010822-17.csv", 11},
                 {"src/test/data/coin-collection-010822-17-excel.csv", 11},
         };
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {

@@ -137,8 +137,8 @@ public class MainActivity extends BaseActivity {
         // isn't set
         createAndShowHelpDialog("first_Time_screen1", R.string.intro_message);
 
-        if(mPreviousTask == null){
-            if(BuildConfig.DEBUG) {
+        if (mPreviousTask == null) {
+            if (BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
             }
             // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
@@ -147,7 +147,7 @@ public class MainActivity extends BaseActivity {
             kickOffAsyncProgressTask(TASK_OPEN_DATABASE);
             // The AsyncProgressTask will update mDbAdapter once the database has been opened
         } else {
-            if(BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "Taking over existing mTask");
             }
 
@@ -161,7 +161,7 @@ public class MainActivity extends BaseActivity {
             asyncProgressOnPreExecute();
 
             // If we were in the middle of importing, the DB adapter may now be closed
-            if(mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS){
+            if (mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS) {
                 openDbAdapterForUIThread();
                 mIsImportingCollection = true;
             }
@@ -181,40 +181,40 @@ public class MainActivity extends BaseActivity {
         // the fragment
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
 
-                    if(0 == getSupportFragmentManager().getBackStackEntryCount()){
+            if (0 == getSupportFragmentManager().getBackStackEntryCount()) {
 
-                        // We are back at this activity, so restore the ActionBar
-                        if(mActionBar != null){
-                            mActionBar.setTitle(mRes.getString(R.string.app_name));
-                            mActionBar.setDisplayHomeAsUpEnabled(false);
-                            mActionBar.setHomeButtonEnabled(false);
-                        }
+                // We are back at this activity, so restore the ActionBar
+                if (mActionBar != null) {
+                    mActionBar.setTitle(mRes.getString(R.string.app_name));
+                    mActionBar.setDisplayHomeAsUpEnabled(false);
+                    mActionBar.setHomeButtonEnabled(false);
+                }
 
-                        // The collections may have been re-ordered, so update them here.
-                        updateCollectionListFromDatabaseAndUpdateViewForUIThread();
-                    }
-                });
+                // The collections may have been re-ordered, so update them here.
+                updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+            }
+        });
 
         // Now set the onItemClickListener to perform a certain action based on what's clicked
         lv.setOnItemClickListener((parent, view, position, id) -> {
 
             // See whether it was one of the special list entries (Add collection, delete
             // collection, etc.)
-            if(position >= mNumberOfCollections){
+            if (position >= mNumberOfCollections) {
                 int newPosition = position - mNumberOfCollections;
-                switch(newPosition){
+                switch (newPosition) {
                     case ADD_COLLECTION:
                         launchCoinPageCreatorActivity(null);
                         break;
                     case REMOVE_COLLECTION:
-                        if(mNumberOfCollections == 0){
+                        if (mNumberOfCollections == 0) {
                             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                             break;
                         }
                         // Thanks!
                         // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
                         CharSequence[] names = new CharSequence[mNumberOfCollections];
-                        for(int i = 0; i < mNumberOfCollections; i++){
+                        for (int i = 0; i < mNumberOfCollections; i++) {
                             names[i] = mCollectionListEntries.get(i).getName();
                         }
 
@@ -255,7 +255,7 @@ public class MainActivity extends BaseActivity {
 
         // Add long-press handler for additional actions
         lv.setOnItemLongClickListener((parent, view, position, id) -> {
-            if(position < mNumberOfCollections) {
+            if (position < mNumberOfCollections) {
                 // For each collection item, populate a menu of actions for the collection
                 CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
                 actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
@@ -424,6 +424,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Launches the collection page for a collection list entry
+     *
      * @param listEntry The collection to view
      * @return Intent (used for testing)
      */
@@ -437,6 +438,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Launches the collection creation page, either for creating a new collection or for editing
+     *
      * @param existingCollection if null, creates a new collection otherwise edits an existing one
      */
     private void launchCoinPageCreatorActivity(CollectionListInfo existingCollection) {
@@ -449,11 +451,12 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Launch the reorder fragment
+     *
      * @return ReorderCollections (used for testing)
      */
     public ReorderCollections launchReorderFragment() {
 
-        if(mNumberOfCollections == 0){
+        if (mNumberOfCollections == 0) {
             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
             return null;
         }
@@ -494,11 +497,11 @@ public class MainActivity extends BaseActivity {
             // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
             // hasPermissions() will kick off the permissions request and the handler will re-call
             // this method after prompting the user.
-            if(checkNoLegacyExternalPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, IMPORT_PERMISSIONS_REQUEST)){
+            if (checkNoLegacyExternalPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, IMPORT_PERMISSIONS_REQUEST)) {
                 return;
             }
 
-            if(mNumberOfCollections == 0){
+            if (mNumberOfCollections == 0) {
                 // Finish the import by kicking off an AsyncTask to do the heavy lifting
                 kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
             } else {
@@ -512,7 +515,7 @@ public class MainActivity extends BaseActivity {
      */
     private void launchExportTask() {
 
-        if(mNumberOfCollections == 0){
+        if (mNumberOfCollections == 0) {
             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -537,7 +540,7 @@ public class MainActivity extends BaseActivity {
             // Check for WRITE_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
             // hasPermissions() will kick off the permissions request and the handler will re-call
             // this method after prompting the user.
-            if(checkNoLegacyExternalPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, EXPORT_PERMISSIONS_REQUEST)){
+            if (checkNoLegacyExternalPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, EXPORT_PERMISSIONS_REQUEST)) {
                 return;
             }
 
@@ -546,7 +549,7 @@ public class MainActivity extends BaseActivity {
 
             // Check to see if the folder exists already
             File dir = new File(getLegacyExportFolderName());
-            if(dir.isDirectory() || dir.exists()){
+            if (dir.isDirectory() || dir.exists()) {
                 // Let the user decide whether they want to delete this
                 showExportConfirmation();
             } else {
@@ -561,11 +564,12 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Checks if the user has given external READ/WRITE permission
-     * @param permission read or write permission
+     *
+     * @param permission  read or write permission
      * @param callbackTag string identifier passed to the callback method
      * @return true if the user hasn't given permission
      */
-    private boolean checkNoLegacyExternalPermissions(String permission, int callbackTag){
+    private boolean checkNoLegacyExternalPermissions(String permission, int callbackTag) {
 
         int permissionState = ContextCompat.checkSelfPermission(this, permission);
         if (permissionState != PackageManager.PERMISSION_GRANTED) {
@@ -630,7 +634,7 @@ public class MainActivity extends BaseActivity {
                 case PICK_IMPORT_FILE: {
                     if (resultData != null) {
                         mImportExportFileUri = resultData.getData();
-                        if(mNumberOfCollections != 0){
+                        if (mNumberOfCollections != 0) {
                             showImportConfirmation();
                         } else {
                             // Finish the import by kicking off an AsyncTask to do the heavy lifting
@@ -660,13 +664,13 @@ public class MainActivity extends BaseActivity {
         }
 
         @Override
-        public int getViewTypeCount(){
+        public int getViewTypeCount() {
             return 2;
         }
 
         @Override
         public int getItemViewType(int position) {
-            if(position >= this.numberOfCollections){
+            if (position >= this.numberOfCollections) {
                 return 1;
             } else {
                 return 0;
@@ -681,21 +685,21 @@ public class MainActivity extends BaseActivity {
             if (view == null) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-                if(0 == viewType){
+                if (0 == viewType) {
                     view = vi.inflate(R.layout.list_element, parent, false);
                 } else {
                     view = vi.inflate(R.layout.list_element_navigation, parent, false);
                 }
             }
 
-            if(viewType == 1){
+            if (viewType == 1) {
                 // Set up the non-collection views
                 ImageView image = view.findViewById(R.id.navImageView);
                 TextView text = view.findViewById(R.id.navTextView);
 
                 int newPosition = position - this.numberOfCollections;
 
-                switch(newPosition){
+                switch (newPosition) {
                     case ADD_COLLECTION:
                         image.setBackgroundResource(R.drawable.icon_circle_add);
                         text.setText(mRes.getString(R.string.create_new_collection));
@@ -732,7 +736,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus){
+    public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
         // Note that this provides information about global focus state, which is managed
@@ -744,7 +748,7 @@ public class MainActivity extends BaseActivity {
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
 
-        if (hasFocus && !mIsImportingCollection){
+        if (hasFocus && !mIsImportingCollection) {
             // Only do this if the database has been opened with the AsyncTask first
             // and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
@@ -757,12 +761,12 @@ public class MainActivity extends BaseActivity {
      * Reloads the collection list from the database.  This is useful after changes have been made
      * (collections reordered, deleted, etc.)
      */
-    public void updateCollectionListFromDatabase(){
+    public void updateCollectionListFromDatabase() {
 
         //Get a list of all the database tables
         try {
             mDbAdapter.getAllTables(mCollectionListEntries);
-        } catch (SQLException e){
+        } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_reading_database));
         }
 
@@ -772,7 +776,7 @@ public class MainActivity extends BaseActivity {
         // We use an ArrayAdapter to power the ListView, but since we want to add in somethings that
         // don't have items in the list, we add in some blank entries to account for them.  Pretty
         // hacked together but it should work.
-        for(int i = 0; i < NUMBER_OF_COLLECTION_LIST_SPACERS; i++) {
+        for (int i = 0; i < NUMBER_OF_COLLECTION_LIST_SPACERS; i++) {
             mCollectionListEntries.add(null);
         }
     }
@@ -790,7 +794,7 @@ public class MainActivity extends BaseActivity {
             // Refresh mCollectionListEntries and mNumberOfCollections from the database
             updateCollectionListFromDatabase();
         } catch (NullPointerException e) {
-            if(BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 Log.e(APP_NAME, "Called updateCollectionListFromDatabaseAndUpdateViewForUIThread() before mDbAdapter initialized ");
             }
             return;
@@ -807,7 +811,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Show dialog for user to confirm export
      */
-    private void showExportConfirmation(){
+    private void showExportConfirmation() {
 
         showAlert(newBuilder()
                 .setMessage(mRes.getString(R.string.export_warning))
@@ -823,7 +827,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Show dialog for user to confirm import
      */
-    private void showImportConfirmation(){
+    private void showImportConfirmation() {
 
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.warning))
@@ -840,9 +844,10 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Show dialog for user to confirm deletion of collection
+     *
      * @param name collection name
      */
-    private void showDeleteConfirmation(final String name){
+    private void showDeleteConfirmation(final String name) {
 
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.warning))
@@ -878,6 +883,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Makes a copy of the collection specified by tableName
+     *
      * @param tableName The collection name to make a copy of
      */
     public void copyCollection(String tableName) {
@@ -885,7 +891,7 @@ public class MainActivity extends BaseActivity {
         // Get the source collection details
         CollectionListInfo sourceCollectionListInfo = null;
         int insertIndex = 0;
-        for(int i = 0; i < mNumberOfCollections; i++){
+        for (int i = 0; i < mNumberOfCollections; i++) {
             if (mCollectionListEntries.get(i).getName().equals(tableName)) {
                 sourceCollectionListInfo = mCollectionListEntries.get(i);
                 insertIndex = i + 1;
@@ -913,17 +919,17 @@ public class MainActivity extends BaseActivity {
         int checkNameResult;
         int attemptNumber = 0;
         do {
-            String suffixIndex = (attemptNumber == 0) ?  "" : Integer.toString(attemptNumber);
+            String suffixIndex = (attemptNumber == 0) ? "" : Integer.toString(attemptNumber);
             newTableName = baseNewTableName + mRes.getString(R.string.copy_name_suffix) + suffixIndex;
             checkNameResult = mDbAdapter.checkCollectionName(newTableName);
             attemptNumber++;
-        } while(checkNameResult != -1);
+        } while (checkNameResult != -1);
 
         // Create the new table
         CollectionListInfo newCollectionListInfo;
         try {
             newCollectionListInfo = mDbAdapter.createCollectionCopy(sourceCollectionListInfo, newTableName, insertIndex);
-        } catch (SQLException e){
+        } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_copying_database));
             return;
         }
@@ -937,11 +943,12 @@ public class MainActivity extends BaseActivity {
     /**
      * Takes the reordered list of collections in from the ReorderCollections fragment and updates
      * the ordering in the database.
+     *
      * @param reorderedList The reordered list of collections
      */
-    public void handleCollectionsReordered(ArrayList<CollectionListInfo> reorderedList){
+    public void handleCollectionsReordered(ArrayList<CollectionListInfo> reorderedList) {
 
-        for(int i = 0; i < reorderedList.size(); i++){
+        for (int i = 0; i < reorderedList.size(); i++) {
             CollectionListInfo info = reorderedList.get(i);
             try {
                 mDbAdapter.updateDisplayOrder(info.getName(), i);
@@ -955,18 +962,19 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Construct the attribution string for the info text
+     *
      * @return info text string
      */
-    public String buildInfoText(){
+    public String buildInfoText() {
         HashSet<String> attributions = new HashSet<>();
-        for(CollectionInfo collection : MainApplication.COLLECTION_TYPES){
+        for (CollectionInfo collection : MainApplication.COLLECTION_TYPES) {
             int attributionResId = collection.getAttributionResId();
             if (attributionResId == -1 || attributionResId == R.string.attr_mint) {
                 // US mint attribution is included at the end
                 continue;
             }
             String attributionStr = mRes.getString(attributionResId);
-            if(attributionStr.equals("")){
+            if (attributionStr.equals("")) {
                 continue;
             }
             attributions.add(attributionStr);
@@ -975,7 +983,7 @@ public class MainActivity extends BaseActivity {
         StringBuilder builder = new StringBuilder();
         builder.append(mRes.getString(R.string.info_overview));
         builder.append("\n\n");
-        for(String attribution : attributions){
+        for (String attribution : attributions) {
             builder.append(attribution);
             builder.append("\n\n");
         }
@@ -988,6 +996,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Returns the path to the file storage directory
+     *
      * @return path string
      */
     public String getLegacyExportFolderName() {
@@ -997,6 +1006,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Returns the display name from a file URI
+     *
      * @param uri file uri
      * @return string display name or "Unknown" if an error occurs
      */
@@ -1014,6 +1024,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Gets a simple date string, for example 012019 for January 20th, 2019
+     *
      * @return date string
      */
     private String getTodayDateString() {
@@ -1071,7 +1082,7 @@ public class MainActivity extends BaseActivity {
      */
     private void promptCsvOrJsonExport() {
 
-        if(mNumberOfCollections == 0){
+        if (mNumberOfCollections == 0) {
             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
             return;
         }

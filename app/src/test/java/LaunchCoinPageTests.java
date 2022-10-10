@@ -61,7 +61,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
      */
     @Test
     public void test_launchCoinPage() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {

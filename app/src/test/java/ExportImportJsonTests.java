@@ -69,6 +69,7 @@ public class ExportImportJsonTests extends BaseTestCase {
 
     /**
      * Get a temporary file with a given name
+     *
      * @param filename file name
      * @return file
      */
@@ -91,7 +92,7 @@ public class ExportImportJsonTests extends BaseTestCase {
      */
     @Test
     public void test_exportImportJson() {
-        try(ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {

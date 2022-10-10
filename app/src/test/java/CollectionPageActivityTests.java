@@ -19,7 +19,6 @@
  */
 
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
-
 import static org.junit.Assert.assertEquals;
 
 import android.content.Intent;
@@ -51,7 +50,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
 
     @Before
     public void databaseSetup() {
-        try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+        try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -91,7 +90,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         activity.copyCoinSlot(activity.mCoinList.get(0), 1);
 
                         int lastIndex = activity.mCoinList.size() - 1;
-                        activity.copyCoinSlot(activity.mCoinList.get(lastIndex), lastIndex+1);
+                        activity.copyCoinSlot(activity.mCoinList.get(lastIndex), lastIndex + 1);
 
                         // Update coin names
                         activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin", "First");

@@ -7,8 +7,7 @@
         android:id="@+id/advanced_collection_page"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:descendantFocusability="beforeDescendants">
-    </ListView>
+        android:descendantFocusability="beforeDescendants"></ListView>
 
     <TextView
         android:id="@+id/unsaved_message_textview"

@@ -41,7 +41,7 @@ public class JeffersonNickels extends CollectionInfo {
 
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
             {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
-            {"Keelboat",    R.drawable.westward_2004_keelboat_unc},
+            {"Keelboat", R.drawable.westward_2004_keelboat_unc},
     };
 
     private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
@@ -53,10 +53,10 @@ public class JeffersonNickels extends CollectionInfo {
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS){
+        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
-        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS){
+        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -69,13 +69,17 @@ public class JeffersonNickels extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.rev_jefferson_nickel_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){
+    public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
@@ -105,17 +109,17 @@ public class JeffersonNickels extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if(i == 2004){
+            if (i == 2004) {
                 // 2004 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
                     String identifier = (String) coinData[0];
@@ -134,7 +138,7 @@ public class JeffersonNickels extends CollectionInfo {
                 continue;
             }
 
-            if(i == 2005){
+            if (i == 2005) {
                 // 2005 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
                     String identifier = (String) coinData[0];
@@ -153,8 +157,8 @@ public class JeffersonNickels extends CollectionInfo {
                 continue;
             }
 
-            if(showMintMarks){
-                if(showP) {
+            if (showMintMarks) {
+                if (showP) {
                     if (i != 1968 && i != 1969 && i != 1970) {
                         if (i >= 1980) {
                             coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
@@ -163,13 +167,13 @@ public class JeffersonNickels extends CollectionInfo {
                         }
                     }
                 }
-                if(showD){
-                    if(i != 1965 && i != 1966 && i != 1967){
+                if (showD) {
+                    if (i != 1965 && i != 1966 && i != 1967) {
                         coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
                     }
                 }
-                if(showS){
-                    if(i <= 1970 && i != 1950 && (i < 1955 || i > 1967)){
+                if (showS) {
+                    if (i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {
                         coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
@@ -180,7 +184,7 @@ public class JeffersonNickels extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 
@@ -200,7 +204,7 @@ public class JeffersonNickels extends CollectionInfo {
         String tableName = collectionListInfo.getName();
         int total = 0;
 
-        if(oldVersion <= 2) {
+        if (oldVersion <= 2) {
 
             // Remove 1955s nickel
             total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1955", "S"});
@@ -215,7 +219,7 @@ public class JeffersonNickels extends CollectionInfo {
             //total -= runSqlDelete(db, "[" + name + "]", COL_COIN_IDENTIFIER + "=?", new String[] { "2005" });
         }
 
-        if(oldVersion <= 3) {
+        if (oldVersion <= 3) {
             // Add in new 2013 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
         }

@@ -44,13 +44,19 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.rev_american_eagle_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -68,28 +74,23 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBurnished   = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showBurnished = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
             coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
 
-            if(showBurnished){
-                if(i == 2006){
+            if (showBurnished) {
+                if (i == 2006) {
                     coinList.add(new CoinSlot("2006 W Burnished", "", coinIndex++));
-                }
-
-                else if(i == 2007){
+                } else if (i == 2007) {
                     coinList.add(new CoinSlot("2007 W Burnished", "", coinIndex++));
-                }
-
-                else if(i == 2008){
+                } else if (i == 2008) {
                     coinList.add(new CoinSlot("2008 W Burnished", "", coinIndex++));
-                }
-                else if(i == 2011){
+                } else if (i == 2011) {
                     coinList.add(new CoinSlot("2011 W Burnished", "", coinIndex++));
                 }
             }
@@ -97,7 +98,7 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 

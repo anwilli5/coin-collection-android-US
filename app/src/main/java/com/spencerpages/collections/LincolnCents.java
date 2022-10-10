@@ -20,8 +20,8 @@
 
 package com.spencerpages.collections;
 
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.DatabaseHelper.runSqlDelete;
 import static com.coincollection.DatabaseHelper.runSqlUpdate;
 
@@ -43,17 +43,17 @@ public class LincolnCents extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Pennies";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Early Childhood",   R.drawable.bicent_2009_early_childhood_unc},
-            {"Formative Years",   R.drawable.bicent_2009_formative_years_unc},
+            {"Early Childhood", R.drawable.bicent_2009_early_childhood_unc},
+            {"Formative Years", R.drawable.bicent_2009_formative_years_unc},
             {"Professional Life", R.drawable.bicent_2009_professional_life_unc},
-            {"Presidency",        R.drawable.bicent_2009_presidency_unc},
+            {"Presidency", R.drawable.bicent_2009_presidency_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS){
+        for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -66,13 +66,17 @@ public class LincolnCents extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.rev_lincoln_cent_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){
+    public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
@@ -102,28 +106,28 @@ public class LincolnCents extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
         boolean addedVdb = false;
 
-        for(Integer i = startYear; i <= stopYear; i++){
+        for (Integer i = startYear; i <= stopYear; i++) {
 
             // Support V.D.B.
             String newValue = Integer.toString(i);
-            if(i == 1909 && !addedVdb){
+            if (i == 1909 && !addedVdb) {
                 newValue = "1909 V.D.B";
             }
 
-            if(i == 2009){
+            if (i == 2009) {
 
                 // Add support for 2009 Lincoln Presidential Pennies
-                for (Object[] coinData : COIN_IDENTIFIERS){
+                for (Object[] coinData : COIN_IDENTIFIERS) {
                     String bicentIdentifier = (String) coinData[0];
 
                     if (showMintMarks) {
@@ -140,18 +144,18 @@ public class LincolnCents extends CollectionInfo {
                 continue;
             }
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     // The P was never on any Pennies
                     coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
-                if(showD){
-                    if(i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967){
+                if (showD) {
+                    if (i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
                         coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
-                if(showS){
-                    if(i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)){
+                if (showS) {
+                    if (i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
                         coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
@@ -160,7 +164,7 @@ public class LincolnCents extends CollectionInfo {
             }
 
             // If we are adding in the VDB, turn this off
-            if(i == 1909 && !addedVdb){
+            if (i == 1909 && !addedVdb) {
                 i--;
                 addedVdb = true;
             }
@@ -168,7 +172,7 @@ public class LincolnCents extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 
@@ -188,7 +192,7 @@ public class LincolnCents extends CollectionInfo {
         String tableName = collectionListInfo.getName();
         int total = 0;
 
-        if(oldVersion <= 2) {
+        if (oldVersion <= 2) {
 
             // Remove 1921 D Penny
             total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1921", "D"});
@@ -198,7 +202,7 @@ public class LincolnCents extends CollectionInfo {
             //total -= runSqlDelete(db, "[" + name + "]", COL_COIN_IDENTIFIER + "=?", new String[] { "2009" });
         }
 
-        if(oldVersion <= 3) {
+        if (oldVersion <= 3) {
 
             // 1. Bug fix: The bicentennials should not display mint mark "P"
             ContentValues values = new ContentValues();

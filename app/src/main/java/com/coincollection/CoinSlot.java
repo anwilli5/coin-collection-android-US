@@ -34,19 +34,29 @@ import java.io.IOException;
  */
 public class CoinSlot implements Parcelable {
 
-    /** id of the row for this coin in the database */
+    /**
+     * id of the row for this coin in the database
+     */
     private long mDatabaseId = 0;
 
-    /** Name of the coin (Ex: "2009", or "Kentucky") */
+    /**
+     * Name of the coin (Ex: "2009", or "Kentucky")
+     */
     private String mIdentifier;
 
-    /** Mint mark of the coin, if any */
+    /**
+     * Mint mark of the coin, if any
+     */
     private String mMint;
 
-    /** Whether the coin is collected or not */
+    /**
+     * Whether the coin is collected or not
+     */
     private boolean mInCollection = false;
 
-    /** Whether the advanced info has changed, and has not yet been written to the database */
+    /**
+     * Whether the advanced info has changed, and has not yet been written to the database
+     */
     private boolean mAdvInfoHasChanged = false;
 
     // In the database, we store the index into the grade and quantity arrays
@@ -56,10 +66,14 @@ public class CoinSlot implements Parcelable {
     private Integer mAdvancedQuantities = 0;
     private String mAdvancedNotes = "";
 
-    /** Sort order **/
+    /**
+     * Sort order
+     **/
     private int mSortOrder;
 
-    /** Whether the coin is custom (i.e. added by the user after the collection was created) */
+    /**
+     * Whether the coin is custom (i.e. added by the user after the collection was created)
+     */
     private boolean mCustomCoin = false;
 
     // Database keys
@@ -84,18 +98,19 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Constructor used when pulling the collection from the database with advanced info
-     * @param databaseId id of the coin in the database
-     * @param identifier coin name
-     * @param mint coin mint
-     * @param inCollection whether the coin has been collected
-     * @param advancedGrades coin grade info
+     *
+     * @param databaseId         id of the coin in the database
+     * @param identifier         coin name
+     * @param mint               coin mint
+     * @param inCollection       whether the coin has been collected
+     * @param advancedGrades     coin grade info
      * @param advancedQuantities coin quantity info
-     * @param advancedNotes coin notes
-     * @param sortOrder sort order in the collection
-     * @param customCoin whether the coin was manually added by the user
+     * @param advancedNotes      coin notes
+     * @param sortOrder          sort order in the collection
+     * @param customCoin         whether the coin was manually added by the user
      */
-    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, Integer advancedGrades,
-                     Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin) {
+    public CoinSlot(long databaseId, String identifier, String mint, boolean inCollection, Integer advancedGrades,
+                    Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
@@ -109,14 +124,15 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Constructor used when pulling the collection from the database, without advanced info
-     * @param databaseId id of the coin in the database
-     * @param identifier coin name
-     * @param mint coin mint
+     *
+     * @param databaseId   id of the coin in the database
+     * @param identifier   coin name
+     * @param mint         coin mint
      * @param inCollection whether the coin has been collected
-     * @param sortOrder sort order in the collection
-     * @param customCoin whether the coin was manually added by the user
+     * @param sortOrder    sort order in the collection
+     * @param customCoin   whether the coin was manually added by the user
      */
-    public CoinSlot (long databaseId, String identifier, String mint, boolean inCollection, int sortOrder, boolean customCoin) {
+    public CoinSlot(long databaseId, String identifier, String mint, boolean inCollection, int sortOrder, boolean customCoin) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
@@ -127,11 +143,12 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Constructor used when creating a new collection from scratch
+     *
      * @param identifier coin name
-     * @param mint coin mint
-     * @param sortOrder sort order in collection
+     * @param mint       coin mint
+     * @param sortOrder  sort order in collection
      */
-    public CoinSlot (String identifier, String mint, int sortOrder) {
+    public CoinSlot(String identifier, String mint, int sortOrder) {
         mIdentifier = identifier;
         mMint = mint;
         mSortOrder = sortOrder;
@@ -145,7 +162,7 @@ public class CoinSlot implements Parcelable {
         return mDatabaseId;
     }
 
-    public void setInCollection (boolean inCollection) {
+    public void setInCollection(boolean inCollection) {
         this.mInCollection = inCollection;
     }
 
@@ -224,16 +241,18 @@ public class CoinSlot implements Parcelable {
     public Integer isCustomCoinInt() {
         return this.isCustomCoin() ? 1 : 0;
     }
+
     public void setCustomCoin(boolean customCoin) {
         this.mCustomCoin = customCoin;
     }
 
     /**
      * Get the coin slot parameters to export to legacy CSV
+     *
      * @return string array with coin slot data
      */
     public String[] getLegacyCsvExportProperties() {
-        return new String[] {
+        return new String[]{
                 mIdentifier,
                 mMint,
                 String.valueOf(isInCollectionInt()),
@@ -244,10 +263,11 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Get the coin slot parameters to export to new CSV
+     *
      * @return string array with coin slot data
      */
     public String[] getCsvExportProperties() {
-        return new String[] {
+        return new String[]{
                 mIdentifier,
                 mMint,
                 String.valueOf(isInCollectionInt()),
@@ -260,10 +280,11 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Get the headers for the coin CSV file
+     *
      * @return string array with column names
      */
     public static String[] getCsvExportHeader() {
-        return new String[] {
+        return new String[]{
                 COL_COIN_IDENTIFIER,
                 COL_COIN_MINT,
                 COL_IN_COLLECTION,
@@ -276,6 +297,7 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Write out the JSON representation (for exporting)
+     *
      * @param writer JsonWriter to write to
      * @throws IOException if an error occurred
      */
@@ -295,7 +317,8 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Create a CoinSlot from imported JSON file
-     * @param reader JsonReader to read from
+     *
+     * @param reader    JsonReader to read from
      * @param coinIndex index of coin in the list used for default sort order
      * @throws IOException if an error occurred
      */
@@ -357,7 +380,8 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Returns true if an element is present in a string array
-     * @param in string array to look in
+     *
+     * @param in    string array to look in
      * @param index string position
      * @return true if the element at the index is present and not empty
      */
@@ -367,6 +391,7 @@ public class CoinSlot implements Parcelable {
 
     /**
      * Create a CoinSlot from imported string array
+     *
      * @param in input String[]
      */
     public CoinSlot(String[] in, int coinIndex) {
@@ -383,9 +408,10 @@ public class CoinSlot implements Parcelable {
     /**
      * Creates a copy of the current coin with a different name and mint mark
      * Note: Sets the sort order to the original + 1
+     *
      * @param newIdentifier new coin identifier
-     * @param newMint new mint mark
-     * @param isCustomCoin true if the copy should be marked as a custom coin
+     * @param newMint       new mint mark
+     * @param isCustomCoin  true if the copy should be marked as a custom coin
      * @return the new CoinSlot object
      */
     public CoinSlot copy(String newIdentifier, String newMint, boolean isCustomCoin) {

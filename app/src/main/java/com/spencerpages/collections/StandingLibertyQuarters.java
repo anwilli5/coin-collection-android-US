@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,13 +47,19 @@ public class StandingLibertyQuarters extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_standing_liberty_quarters;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -80,25 +86,25 @@ public class StandingLibertyQuarters extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
         boolean addedTypeOne = false;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if(i == 1922){
+            if (i == 1922) {
                 continue;
             }
 
             String newValue;
-            if(i == 1917){
-                if(!addedTypeOne){
+            if (i == 1917) {
+                if (!addedTypeOne) {
                     newValue = "1917 Type 1";
                 } else {
                     newValue = "1917 Type 2";
@@ -107,17 +113,17 @@ public class StandingLibertyQuarters extends CollectionInfo {
                 newValue = Integer.toString(i);
             }
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
-                if(showD){
-                    if(i != 1916 && i != 1921 && i != 1925 && i != 1923 && i != 1930){
+                if (showD) {
+                    if (i != 1916 && i != 1921 && i != 1925 && i != 1923 && i != 1930) {
                         coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
                 }
-                if(showS){
-                    if(i != 1916 && i != 1921 && i != 1925){
+                if (showS) {
+                    if (i != 1916 && i != 1921 && i != 1925) {
                         coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
@@ -125,7 +131,7 @@ public class StandingLibertyQuarters extends CollectionInfo {
                 coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
 
-            if(i == 1917 && !addedTypeOne){
+            if (i == 1917 && !addedTypeOne) {
                 addedTypeOne = true;
                 i--;
             }
@@ -133,7 +139,7 @@ public class StandingLibertyQuarters extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

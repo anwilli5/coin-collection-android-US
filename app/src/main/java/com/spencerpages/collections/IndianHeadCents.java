@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,13 +46,19 @@ public class IndianHeadCents extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_indian_head_cents;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -76,23 +82,23 @@ public class IndianHeadCents extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     // A few special ones
                     // 1864 Copper
                     // 1864 Bronze
                     // 1864 L
 
-                    if(i == 1864){
+                    if (i == 1864) {
                         coinList.add(new CoinSlot(Integer.toString(i), " Copper", coinIndex++));
                         coinList.add(new CoinSlot(Integer.toString(i), " Bronze", coinIndex++));
                         coinList.add(new CoinSlot(Integer.toString(i), " L", coinIndex++));
@@ -100,8 +106,8 @@ public class IndianHeadCents extends CollectionInfo {
                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
                     }
                 }
-                if(showS){
-                    if(i == 1908 || i == 1909){
+                if (showS) {
+                    if (i == 1908 || i == 1909) {
                         coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
                     }
                 }
@@ -113,7 +119,7 @@ public class IndianHeadCents extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

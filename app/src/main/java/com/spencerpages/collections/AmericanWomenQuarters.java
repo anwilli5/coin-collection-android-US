@@ -36,18 +36,18 @@ public class AmericanWomenQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "American Women Quarters";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Maya Angelou",          R.drawable.women_2022_maya_angelou_unc},
-            {"Dr. Sally Ride",        R.drawable.women_2022_sally_ride_unc},
-            {"Wilma Mankiller",       R.drawable.women_2022_wilma_mankiller_unc},
-            {"Nina Otero-Warren",     R.drawable.women_2022_nina_otero_warren_unc},
-            {"Anna May Wong",         R.drawable.women_2022_anna_may_wong_unc}
+            {"Maya Angelou", R.drawable.women_2022_maya_angelou_unc},
+            {"Dr. Sally Ride", R.drawable.women_2022_sally_ride_unc},
+            {"Wilma Mankiller", R.drawable.women_2022_wilma_mankiller_unc},
+            {"Nina Otero-Warren", R.drawable.women_2022_nina_otero_warren_unc},
+            {"Anna May Wong", R.drawable.women_2022_anna_may_wong_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS){
+        for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -55,13 +55,17 @@ public class AmericanWomenQuarters extends CollectionInfo {
     private static final int REVERSE_IMAGE = R.drawable.women_2022_maya_angelou_unc;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){
+    public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
@@ -89,10 +93,10 @@ public class AmericanWomenQuarters extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
         for (Object[] parksImageIdentifier : COIN_IDENTIFIERS) {
@@ -115,7 +119,7 @@ public class AmericanWomenQuarters extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return R.string.attr_mint;
     }
 

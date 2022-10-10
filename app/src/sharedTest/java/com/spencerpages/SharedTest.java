@@ -84,7 +84,7 @@ public class SharedTest {
 
     public static final ParcelableHashMap[] PARAMETER_SCENARIOS =
             {
-                    new ParcelableHashMap(){{
+                    new ParcelableHashMap() {{
                         put(OPT_SHOW_MINT_MARKS, Boolean.TRUE);
                         put(OPT_EDIT_DATE_RANGE, Boolean.TRUE);
                         put(OPT_START_YEAR, 1990);
@@ -97,7 +97,7 @@ public class SharedTest {
                         put(OPT_CHECKBOX_1, Boolean.TRUE);
                         put(OPT_CHECKBOX_2, Boolean.FALSE);
                     }},
-                    new ParcelableHashMap(){{
+                    new ParcelableHashMap() {{
                         put(OPT_SHOW_MINT_MARKS, Boolean.FALSE);
                         put(OPT_EDIT_DATE_RANGE, Boolean.TRUE);
                         put(OPT_START_YEAR, 1800);
@@ -110,7 +110,7 @@ public class SharedTest {
                         put(OPT_CHECKBOX_1, Boolean.FALSE);
                         put(OPT_CHECKBOX_2, Boolean.TRUE);
                     }},
-                    new ParcelableHashMap(){{
+                    new ParcelableHashMap() {{
                         put(OPT_SHOW_MINT_MARKS, Boolean.TRUE);
                         put(OPT_EDIT_DATE_RANGE, Boolean.FALSE);
                         put(OPT_START_YEAR, 0);
@@ -121,7 +121,8 @@ public class SharedTest {
 
     /**
      * Compare two CollectionListInfo objects to ensure they're the same
-     * @param base CollectionListInfo
+     *
+     * @param base  CollectionListInfo
      * @param check CollectionListInfo
      * @return true if they have the same contents, false otherwise
      */
@@ -141,8 +142,9 @@ public class SharedTest {
 
     /**
      * Compare two CoinSlot objects to ensure they're the same
-     * @param base CoinSlot
-     * @param check CoinSlot
+     *
+     * @param base           CoinSlot
+     * @param check          CoinSlot
      * @param compareAdvInfo if true, enables comparison of advanced details
      * @return true if they have the same contents, false otherwise
      */
@@ -158,8 +160,9 @@ public class SharedTest {
 
     /**
      * Compare two lists of CoinSlot objects
-     * @param base list of CoinSlots
-     * @param check list of CoinSlots
+     *
+     * @param base           list of CoinSlots
+     * @param check          list of CoinSlots
      * @param compareAdvInfo if true, enables comparison of advanced details
      * @return true if they have the same contents, false otherwise
      */
@@ -177,7 +180,8 @@ public class SharedTest {
 
     /**
      * Compare two ParcelableHashMap objects to ensure they're the same
-     * @param base ParcelableHashMap
+     *
+     * @param base  ParcelableHashMap
      * @param check ParcelableHashMap
      * @return true if they have the same contents, false otherwise
      */
@@ -197,8 +201,9 @@ public class SharedTest {
 
     /**
      * Compare two lists of CoinSlot lists
-     * @param base list of CoinSlots lists
-     * @param check list of CoinSlots lists
+     *
+     * @param base           list of CoinSlots lists
+     * @param check          list of CoinSlots lists
      * @param compareAdvInfo if true, enables comparison of advanced details
      * @return true if they have the same contents, false otherwise
      */

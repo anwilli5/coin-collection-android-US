@@ -24,9 +24,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
-import com.coincollection.CollectionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,13 +47,19 @@ public class LibertyHeadNickels extends CollectionInfo {
     private static final int ATTRIBUTION = R.string.attr_liberty_head_nickels;
 
     @Override
-    public String getCoinType() { return COLLECTION_TYPE; }
+    public String getCoinType() {
+        return COLLECTION_TYPE;
+    }
 
     @Override
-    public int getCoinImageIdentifier() { return REVERSE_IMAGE; }
+    public int getCoinImageIdentifier() {
+        return REVERSE_IMAGE;
+    }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot){ return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -80,36 +86,36 @@ public class LibertyHeadNickels extends CollectionInfo {
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear       = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear        = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks   = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS           = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
         boolean added1883WithCents = false;
-        for(int i = startYear; i <= stopYear; i++){
+        for (int i = startYear; i <= stopYear; i++) {
 
             String newValue = Integer.toString(i);
 
-            if(i == 1883){
-                if(!added1883WithCents){
+            if (i == 1883) {
+                if (!added1883WithCents) {
                     newValue = "1883 w/ Cents";
                 } else {
                     newValue = "1883 w/o Cents";
                 }
             }
 
-            if(showMintMarks){
-                if(showP){
+            if (showMintMarks) {
+                if (showP) {
                     coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
-                if(i == 1912){
-                    if(showD){
+                if (i == 1912) {
+                    if (showD) {
                         coinList.add(new CoinSlot(newValue, "D", coinIndex++));
                     }
-                    if(showS){
+                    if (showS) {
                         coinList.add(new CoinSlot(newValue, "S", coinIndex++));
                     }
                 }
@@ -117,7 +123,7 @@ public class LibertyHeadNickels extends CollectionInfo {
                 coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
 
-            if(i == 1883 && !added1883WithCents){
+            if (i == 1883 && !added1883WithCents) {
                 added1883WithCents = true;
                 i--;
             }
@@ -125,7 +131,7 @@ public class LibertyHeadNickels extends CollectionInfo {
     }
 
     @Override
-    public int getAttributionResId(){
+    public int getAttributionResId() {
         return ATTRIBUTION;
     }
 

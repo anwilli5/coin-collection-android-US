@@ -61,7 +61,9 @@ public class EisenhowerDollar extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) { return OBVERSE_IMAGE_COLLECTED; }
+    public int getCoinSlotImage(CoinSlot coinSlot) {
+        return OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {

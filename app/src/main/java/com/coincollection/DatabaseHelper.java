@@ -3,9 +3,9 @@ package com.coincollection;
 import static com.coincollection.CoinSlot.COL_ADV_GRADE_INDEX;
 import static com.coincollection.CoinSlot.COL_ADV_NOTES;
 import static com.coincollection.CoinSlot.COL_ADV_QUANTITY_INDEX;
+import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
@@ -55,6 +55,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Creates the collection info database table
+     *
      * @param db database to add to
      * @throws SQLException if an error occurs
      */
@@ -90,16 +91,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * should be performed in that collections onCollectionDatabaseUpgrade
      * instead of here.
      *
-     * @param db the SQLiteDatabase db object to use when making updates
+     * @param db         the SQLiteDatabase db object to use when making updates
      * @param oldVersion the previous database version
      * @param newVersion the new database version
      * @param fromImport true if the upgrade is part of a database import
      */
     private static void upgradeDbStructure(
-        SQLiteDatabase db,
-        int oldVersion,
-        int newVersion,
-        boolean fromImport){
+            SQLiteDatabase db,
+            int oldVersion,
+            int newVersion,
+            boolean fromImport) {
 
         // Skip if importing, since the database will be created with the latest structure
         if (oldVersion <= 5 && !fromImport) {
@@ -245,7 +246,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Get the next sort order for a new coin
-     * @param db the database to access
+     *
+     * @param db        the database to access
      * @param tableName the collection name to access
      * @return The next display order to use
      * @throws SQLException if a database error occurred
@@ -262,14 +264,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Upgrades the database
      *
-     * @param db the database to upgrade
+     * @param db         the database to upgrade
      * @param oldVersion the database's current version
      * @param newVersion the version to upgrade to
      * @param fromImport if true, indicates that the upgrade is part of a collection import
      */
     public static void upgradeDb(SQLiteDatabase db, int oldVersion, int newVersion, boolean fromImport) {
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.i(APP_NAME, "Upgrading database from version " + oldVersion + " to " + newVersion);
         }
 
@@ -282,7 +284,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         getAllTables(db, collectionList);
         for (CollectionListInfo collectionListInfo : collectionList) {
             String tableName = collectionListInfo.getName();
-            int numCoinsAdded = collectionListInfo.getCollectionObj().onCollectionDatabaseUpgrade (
+            int numCoinsAdded = collectionListInfo.getCollectionObj().onCollectionDatabaseUpgrade(
                     db, collectionListInfo, oldVersion, newVersion);
             // Update the collection total if coins were added or removed
             if (numCoinsAdded != 0) {
@@ -297,7 +299,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Helper function to rename a collection
-     * @param db database
+     *
+     * @param db      database
      * @param oldName The original collection name
      * @param newName The new collection name
      * @throws SQLException if the database update was not successful
@@ -307,13 +310,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(alterDbSqlStr);
         ContentValues args = new ContentValues();
         args.put(COL_NAME, newName);
-        runSqlUpdate(db, TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[] { oldName });
+        runSqlUpdate(db, TBL_COLLECTION_INFO, args, COL_NAME + "=?", new String[]{oldName});
     }
 
     /**
      * Adds new coins to the collection based on collection creation parameters
+     *
      * @param collectionListInfo the collection info
-     * @param values the ArrayList containing coinIdentifier values to add
+     * @param values             the ArrayList containing coinIdentifier values to add
      * @return number of rows added
      */
     public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
@@ -352,11 +356,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Add coins for the new year for the "P", "D", and "" mint marks
-     * @param db database
+     *
+     * @param db                 database
      * @param collectionListInfo the collection info
-     * @param previousYear previous year to look for to know if this coin should be added
-     * @param year coin year
-     * @param identifier identifier of the coin to add
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
      * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
@@ -367,24 +372,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Add coins for the new year for the "P", "D", and "" mint marks
-     * @param db database
+     *
+     * @param db                 database
      * @param collectionListInfo the collection info
-     * @param year coin year
+     * @param year               coin year
      * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
         ArrayList<String> mintList = new ArrayList<>(Arrays.asList("P", "D"));
-        return addFromYear(db, collectionListInfo, year-1, year, String.valueOf(year), mintList);
+        return addFromYear(db, collectionListInfo, year - 1, year, String.valueOf(year), mintList);
     }
 
     /**
      * Add coins for the new year, based on the collection parameters
-     * @param db database
+     *
+     * @param db                 database
      * @param collectionListInfo the collection info
-     * @param previousYear previous year to look for to know if this coin should be added
-     * @param year coin year
-     * @param identifier identifier of the coin to add
-     * @param mintsToAdd list of the mint marks to add
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
+     * @param mintsToAdd         list of the mint marks to add
      * @return total number of coins added
      */
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
@@ -431,7 +438,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Update the collection's end year
         ContentValues updateValues = new ContentValues();
         updateValues.put(COL_END_YEAR, year);
-        runSqlUpdate(db, TBL_COLLECTION_INFO, updateValues, COL_NAME + "=?", new String[] { tableName });
+        runSqlUpdate(db, TBL_COLLECTION_INFO, updateValues, COL_NAME + "=?", new String[]{tableName});
         collectionListInfo.setEndYear(year);
 
         return total;
@@ -439,10 +446,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Get the basic coin information
-     * @param db database
-     * @param tableName The name of the collection
+     *
+     * @param db              database
+     * @param tableName       The name of the collection
      * @param populateAdvInfo If true, includes advanced attributes
-     * @param useSortOrder If true, includes sort order and uses it for sorting
+     * @param useSortOrder    If true, includes sort order and uses it for sorting
      * @return CoinSlot list
      */
     static ArrayList<CoinSlot> getCoinList(SQLiteDatabase db, String tableName, boolean populateAdvInfo, boolean useSortOrder) {
@@ -482,7 +490,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             sortOrder,
                             (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0)));
                 }
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         return coinList;
@@ -491,7 +499,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Get the basic coin information used by the legacy code to determine collection params
      * This function should not be updated past DB version 16
-     * @param db database
+     *
+     * @param db        database
      * @param tableName The name of the collection
      * @return CoinSlot list
      */
@@ -512,7 +521,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) == 1),
                         (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
                         false));
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         return coinList;
@@ -520,7 +529,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Get the total number of coins in the collection
-     * @param db database
+     *
+     * @param db        database
      * @param tableName String that identifiers which table to query
      * @return int with the total number of coins in the collection
      * @throws SQLException if an error occurs
@@ -536,7 +546,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Returns a list of all collections in the database
-     * @param db database
+     *
+     * @param db                    database
      * @param collectionListEntries List of CollectionListInfo to populate
      * @throws SQLException if a database error occurs
      */
@@ -545,7 +556,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Get rid of the other items in the list (if any)
         collectionListEntries.clear();
         Cursor cursor = db.query(TBL_COLLECTION_INFO,
-                new String[] {COL_NAME, COL_COIN_TYPE, COL_TOTAL, COL_DISPLAY, COL_START_YEAR,
+                new String[]{COL_NAME, COL_COIN_TYPE, COL_TOTAL, COL_DISPLAY, COL_START_YEAR,
                         COL_END_YEAR, COL_SHOW_MINT_MARKS, COL_SHOW_CHECKBOXES},
                 null, null, null, null, COL_DISPLAY_ORDER);
         if (cursor.moveToFirst()) {
@@ -575,7 +586,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_END_YEAR)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES))));
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
     }
@@ -583,6 +594,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Gets the collection parameters based on the collection contents,
      * which is needed for database upgrade.
+     *
      * @param db database
      * @return List of CollectionListInfo populated based on contents
      */
@@ -599,9 +611,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Updates an existing coin list
-     * @param db database
-     * @param tableName the collection name
-     * @param coinData coin data to use for updates
+     *
+     * @param db          database
+     * @param tableName   the collection name
+     * @param coinData    coin data to use for updates
      * @param updateTotal if true, updates the collection info total
      * @throws SQLException if a database error occurs
      */
@@ -623,16 +636,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (updateTotal) {
             ContentValues values = new ContentValues();
             values.put(COL_TOTAL, coinData.size());
-            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[] { tableName });
+            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{tableName});
         }
     }
 
     /**
      * Update database info for an existing collection
-     * @param db database
-     * @param oldTableName the original collection name
+     *
+     * @param db                 database
+     * @param oldTableName       the original collection name
      * @param collectionListInfo new collection info
-     * @param coinData new coin data
+     * @param coinData           new coin data
      * @throws SQLException if a database error occurs
      */
     public static void updateExistingCollection(SQLiteDatabase db, String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
@@ -651,7 +665,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_END_YEAR, collectionListInfo.getEndYear());
         values.put(COL_SHOW_MINT_MARKS, collectionListInfo.getMintMarkFlags());
         values.put(COL_SHOW_CHECKBOXES, collectionListInfo.getCheckboxFlags());
-        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[] { oldTableName });
+        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{oldTableName});
 
         // Rename the collection if needed
         if (!oldTableName.equals(collectionListInfo.getName())) {
@@ -661,9 +675,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Executes the SQL insert command and returns false if an error occurs
-     * @param db The database
+     *
+     * @param db        The database
      * @param tableName The table to insert into
-     * @param values Values to insert into the table
+     * @param values    Values to insert into the table
      * @throws SQLException if an insert error occurred
      */
     public static long runSqlInsert(SQLiteDatabase db, String tableName, ContentValues values) throws SQLException {
@@ -672,11 +687,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Executes the SQL update command and returns false if an error occurs
-     * @param db The database
-     * @param tableName Table to update
-     * @param values Values to update
+     *
+     * @param db          The database
+     * @param tableName   Table to update
+     * @param values      Values to update
      * @param whereClause Where clause
-     * @param whereArgs Where args
+     * @param whereArgs   Where args
      * @return the number of rows impacted
      */
     public static int runSqlUpdate(SQLiteDatabase db, String tableName, ContentValues values, String whereClause, String[] whereArgs) {
@@ -685,11 +701,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Wrapper for simpleQueryForLong
+     *
      * @param compiledStatement statement to execute
      * @return int query result
      * @throws SQLException if a database exception occurs
      */
-    public static int simpleQueryForLong (SQLiteStatement compiledStatement) throws SQLException {
+    public static int simpleQueryForLong(SQLiteStatement compiledStatement) throws SQLException {
         try {
             return (int) compiledStatement.simpleQueryForLong();
         } catch (SQLiteDoneException e) {
@@ -699,10 +716,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Wrapper for delete
-     * @param db The database
-     * @param tableName Table to update
+     *
+     * @param db          The database
+     * @param tableName   Table to update
      * @param whereClause Where clause
-     * @param whereArgs Where args
+     * @param whereArgs   Where args
      * @return the number of rows impacted
      */
     public static int runSqlDelete(SQLiteDatabase db, String tableName, String whereClause, String[] whereArgs) {

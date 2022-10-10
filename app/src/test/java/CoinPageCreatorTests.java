@@ -52,7 +52,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
     @Test
     public void test_createFromParameters() {
 
-        try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+        try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                         .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
@@ -77,7 +77,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
     @Test
     public void test_updateCollection() {
         for (final CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
-            try(ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+            try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                     new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
                             .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false)
                             .putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, info))) {

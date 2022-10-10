@@ -101,7 +101,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
         // Look for async tasks kicked-off prior to an orientation change
         mPreviousTask = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
-        if(mPreviousTask != null){
+        if (mPreviousTask != null) {
             mTask = mPreviousTask;
         } else {
             mTask = new AsyncProgressTask(this);
@@ -123,6 +123,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     /**
      * This method should be called when mDbAdapter can be opened on the UI thread
+     *
      * @return An error message if the open failed, otherwise -1
      */
     public String openDbAdapterForAsyncThread() {
@@ -138,6 +139,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     /**
      * This should be overridden by Activities that use the AsyncTask
      * - This is method contains the work that needs to be performed on the async task
+     *
      * @return a string result to display, or "" if no result
      */
     @Override
@@ -150,12 +152,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * - This is method is called on the UI thread ahead of executing DoInBackground
      */
     @Override
-    public void asyncProgressOnPreExecute() { }
+    public void asyncProgressOnPreExecute() {
+    }
 
     /**
      * This should be overridden by Activities that use the AsyncTask
      * - This is method is called on the UI thread after executing DoInBackground
      * - Activities should call super.asyncProgressOnPostExecute to display the error
+     *
      * @param resultStr a string result to display, or "" if no result
      */
     @Override
@@ -175,6 +179,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     /**
      * Displays a message to the user
+     *
      * @param text The text to be displayed
      */
     public void showCancelableAlert(String text) {
@@ -185,9 +190,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     // TODO Consider only using one of onSaveInstanceState and onRetainNonConfigurationInstanceState
     // TODO Also, read the notes on this better and make sure we are using it correctly
     @Override
-    public Object onRetainCustomNonConfigurationInstance(){
+    public Object onRetainCustomNonConfigurationInstance() {
 
-        if(mProgressDialog != null && mProgressDialog.isShowing()){
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
             dismissProgressDialog();
             return mTask;
         } else {
@@ -204,10 +209,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         // If an async task is running, set the listener to null to have it wait before
         // trying its callback.  Setting the listener to null also prevents memory leaks
-        if(mTask != null) {
+        if (mTask != null) {
             mTask.mListener = null;
             mTask = null;
         }
@@ -217,7 +222,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     /**
      * Create a new progress dialog
      */
-    protected void createProgressDialog(String message){
+    protected void createProgressDialog(String message) {
         dismissProgressDialog();
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
@@ -242,18 +247,19 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     /**
      * Hide the dialog and finish the activity
      */
-    protected void completeProgressDialogAndFinishActivity(){
+    protected void completeProgressDialogAndFinishActivity() {
         dismissProgressDialog();
         this.finish();
     }
 
     /**
      * Builds the list element for displaying collections
+     *
      * @param item Collection list info item
      * @param view view that needs to be populated
-     * @param res Used to access project string values
+     * @param res  Used to access project string values
      */
-    public static void buildListElement(CollectionListInfo item, View view, Resources res){
+    public static void buildListElement(CollectionListInfo item, View view, Resources res) {
 
         String tableName = item.getName();
 
@@ -271,14 +277,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             }
 
             TextView progressTextView = view.findViewById(R.id.progressTextView);
-            if(progressTextView != null){
+            if (progressTextView != null) {
                 progressTextView.setText(res.getString(R.string.collection_completion_template, total, item.getMax()));
             }
 
             TextView completionTextView = view.findViewById(R.id.completeTextView);
-            if(total >= item.getMax()){
+            if (total >= item.getMax()) {
                 // The collection is complete
-                if(completionTextView != null){
+                if (completionTextView != null) {
                     completionTextView.setText(res.getString(R.string.collection_complete));
                 }
             } else {
@@ -289,14 +295,15 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     /**
      * Create a help dialog to show the user how to do something
+     *
      * @param helpStrKey key uniquely identifying this boolean key
-     * @param helpStrId Help message to display
+     * @param helpStrId  Help message to display
      * @return true if the help dialog was displayed, otherwise false
      */
-    public boolean createAndShowHelpDialog (final String helpStrKey, int helpStrId){
+    public boolean createAndShowHelpDialog(final String helpStrKey, int helpStrId) {
         final SharedPreferences mainPreferences = this.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         final Resources res = this.getResources();
-        if(mainPreferences.getBoolean(helpStrKey, true)){
+        if (mainPreferences.getBoolean(helpStrKey, true)) {
             showAlert(newBuilder()
                     .setMessage(res.getString(helpStrId))
                     .setCancelable(false)
@@ -314,6 +321,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     /**
      * Creates a new alerter builder and cleans up any previous builders,
      * to prevent memory leaks
+     *
      * @return new builder object
      */
     protected NonLeakingAlertDialogBuilder newBuilder() {
@@ -322,6 +330,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     /**
      * Uses builder to create and show an alert
+     *
      * @param builder to use to create alert
      */
     protected void showAlert(NonLeakingAlertDialogBuilder builder) {
@@ -338,9 +347,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     /**
      * Create and kick-off an async task to finish long-running tasks
+     *
      * @param taskId type of task
      */
-    public void kickOffAsyncProgressTask(int taskId){
+    public void kickOffAsyncProgressTask(int taskId) {
         mTask = new AsyncProgressTask(this);
         mTask.mAsyncTaskId = taskId;
         if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {

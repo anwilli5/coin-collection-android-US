@@ -25,8 +25,8 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.view.ViewTreeObserver;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * This class is needed to resolve memory leaks caused by the AlertDialogs
