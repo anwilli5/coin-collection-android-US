@@ -47,7 +47,7 @@ public class SharedTest {
                     new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionNameStr("Nickels"), 0, 1938, 2020, 9, 0),
                     new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionNameStr("Dimes"), 0, 1950, 1951, 2, 1),
                     new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionNameStr("Quarters"), 0, 1932, 1998, 3, 0),
-                    new CollectionListInfo("<>STATE QUARTERS\0\n\n", 112, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, 7, 4),
+                    new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, 7, 4),
                     new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, 5, 0),
                     new CollectionListInfo("~", 56, 0, getIndexFromCollectionNameStr("Half-Dollars"), 0, 1964, 2020, 2, 1),
                     new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionNameStr("Eisenhower Dollars"), 0, 1971, 1971, 7, 1),
