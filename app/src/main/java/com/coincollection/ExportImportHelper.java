@@ -26,8 +26,12 @@ import android.os.Environment;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -131,7 +135,7 @@ public class ExportImportHelper {
             } else {
                 return mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath());
             }
-        } catch (IOException ignored) {
+        } catch (IOException | CsvValidationException ignored) {
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
         }
 
@@ -142,7 +146,7 @@ public class ExportImportHelper {
             for (String[] items : fileContents) {
                 importedCollectionInfoList.add(new CollectionListInfo(items));
             }
-        } catch (IOException ignored) {
+        } catch (IOException | CsvValidationException ignored) {
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
         }
 
@@ -169,7 +173,7 @@ public class ExportImportHelper {
                 for (String[] items : fileContents) {
                     collectionContent.add(new CoinSlot(items, coinIndex++));
                 }
-            } catch (IOException ignored) {
+            } catch (IOException | CsvValidationException ignored) {
                 collectionErrorMessages.add(mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath()));
                 continue;
             }
@@ -401,8 +405,6 @@ public class ExportImportHelper {
             writer.endArray();
             writer.endObject();
             return mRes.getString(R.string.success_export, filePath);
-        } catch (UnsupportedEncodingException e) {
-            return mRes.getString(R.string.error_exporting, e.getMessage());
         } catch (IOException e) {
             return mRes.getString(R.string.error_exporting, e.getMessage());
         }
@@ -415,15 +417,15 @@ public class ExportImportHelper {
      * @return 2D list of strings
      * @throws IOException if an error occurs
      */
-    private ArrayList<String[]> getCsvFileContents(File inputFile) throws IOException {
+    private ArrayList<String[]> getCsvFileContents(File inputFile) throws IOException, CsvValidationException {
         // Tell the CSVReader to use the NULL character as the escape
         // character to effectively allow no escape characters
         // (otherwise, '\' is the escape character, and it can be
         // typed by users!)
-        CSVReader csvReader = new CSVReader(new FileReader(inputFile),
-                CSVWriter.DEFAULT_SEPARATOR,
-                CSVWriter.DEFAULT_QUOTE_CHARACTER,
-                '\0');
+        CSVParser parser = new CSVParserBuilder().withEscapeChar('\0').build();
+        CSVReader csvReader = new CSVReaderBuilder(new FileReader(inputFile))
+                .withCSVParser(parser).build();
+
         ArrayList<String[]> lineList = new ArrayList<>();
         String[] lineValues;
         while (null != (lineValues = csvReader.readNext())) {
@@ -469,10 +471,10 @@ public class ExportImportHelper {
         // character to effectively allow no escape characters
         // (otherwise, '\' is the escape character, and it can be
         // typed by users!)
-        try (CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream),
-                CSVWriter.DEFAULT_SEPARATOR,
-                CSVWriter.DEFAULT_QUOTE_CHARACTER,
-                '\0')) {
+        try {
+            CSVParser parser = new CSVParserBuilder().withEscapeChar('\0').build();
+            CSVReader csvReader = new CSVReaderBuilder(new InputStreamReader(inputStream))
+                    .withCSVParser(parser).build();
 
             while (null != (lineValues = csvReader.readNext())) {
 
@@ -517,7 +519,7 @@ public class ExportImportHelper {
                         break;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | CsvValidationException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
         }
 
