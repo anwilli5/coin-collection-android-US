@@ -1,6 +1,6 @@
 # How to contribute
 
-If you want to make a contribution to the repository, follow these steps :
+If you want to make a contribution to the repository, follow these steps:
 
 *-- Please follow the [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md) of this project and keep this in mind while contributing --*
 
@@ -50,10 +50,10 @@ Click on that and you will have to give the title and description of the changes
 
 /*-- If you don't find the above option you can come [here](https://github.com/anwilli5/coin-collection-android-US/pulls) and click on **New pull request** then select the **compare across forks button** and select your repo and branch to the base branch and click on **Create pull request**. --*/ 
 
-</br>
-<b>That's it! You have successfully made your contribution 🎉</b/>
-</br>
-</br>
-</br>
+<br />
+<b>That's it! You have successfully made your contribution 🎉</b>
+<br />
+<br />
+<br />
 
 *-- Note : If you want to request for a new feature or report any bug in the project, feel free to [report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose) --*
