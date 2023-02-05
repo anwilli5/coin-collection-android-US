@@ -191,6 +191,11 @@ public class RooseveltDimes extends CollectionInfo {
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
         }
 
+        if (oldVersion <= 19) {
+            // Add in new 2023 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
+        }
+
         return total;
     }
 }

@@ -125,8 +125,9 @@ public class MainApplication extends Application {
      * Version 16 - Used in Version 3.1.0 of the app
      * Version 17 - Used in Version 3.3.0 of the app
      * Version 18 - Used in Version 3.4.0 of the app
+     * Version 19 - Used in Version 3.5.0 of the app
      */
-    public static final int DATABASE_VERSION = 18;
+    public static final int DATABASE_VERSION = 19;
 
     /**
      * Get the collection index from collection type name
