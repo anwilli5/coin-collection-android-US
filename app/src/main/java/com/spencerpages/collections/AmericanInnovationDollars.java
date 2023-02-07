@@ -53,7 +53,11 @@ public class AmericanInnovationDollars extends CollectionInfo {
             {"Rhode Island", R.drawable.innovation_2022_rhode_island_unc},
             {"Vermont", R.drawable.innovation_2022_vermont_unc},
             {"Kentucky", R.drawable.innovation_2022_kentucky_unc},
-            {"Tennessee", R.drawable.innovation_2022_tennessee_unc}
+            {"Tennessee", R.drawable.innovation_2022_tennessee_unc},
+            {"Ohio", R.drawable.innovation_2023_ohio_unc},
+            {"Louisiana", R.drawable.innovation_2023_louisiana_unc},
+            {"Indiana", R.drawable.innovation_2023_indiana_unc},
+            {"Mississippi", R.drawable.innovation_2023_mississippi_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -177,6 +181,18 @@ public class AmericanInnovationDollars extends CollectionInfo {
             newCoinIdentifiers.add("Vermont");
             newCoinIdentifiers.add("Kentucky");
             newCoinIdentifiers.add("Tennessee");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 19) {
+            // Add in new 2023 coins if applicable
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Ohio");
+            newCoinIdentifiers.add("Louisiana");
+            newCoinIdentifiers.add("Indiana");
+            newCoinIdentifiers.add("Mississippi");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);

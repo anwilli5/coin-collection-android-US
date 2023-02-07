@@ -1,15 +1,31 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
+#coding: utf-8
+
 # This is a gimp script that takes a coin image and converts it into the files
 # needed by the app.  An example invocation is as follows:
 #
-# ln -s ~/AndroidStudio/image-prep.py ~/.gimp-2.8/plug-ins/image-prep.py
-# gimp --no-interface --batch \
+# ln -s ~/path/to/script/image-prep.py ~/.gimp-2.10/plug-ins/coin-collection-android-image-prep.py
+# /path/to/gimp --no-interface --batch \
 # '(python-fu-coin-collection-android-image-prep RUN-NONINTERACTIVE "/tmp/cc_images_pre/")'
+#
+# This can be run from the application by navigating to:
+# Filters->Python-Fu->CoinCollection->Image-Prep
 #
 # NOTES:
 # - Replace /tmp/cc_images_pre with the path to the files you want to process
 # - Images will end up in /tmp/cc_images
 # - Tested with gimp version 2.8.16 and python 2.7.12
+
+"""
+Processes coin images for the coin collection app.
+
+Coin images are read in from a specified input
+directory (e.g. /tmp/cc_images_pre) and the new
+images are written to /tmp/cc_images.
+
+If run from the command line, gimp is closed when
+the plug-in finishes.
+"""
 
 import os
 from gimpfu import *
@@ -36,7 +52,7 @@ def plugin_main(src_path):
 
         # Get the image file name without the extension
         filename = os.path.basename(pdb.gimp_image_get_filename(img))
-        filename, ext = os.path.splitext(filename)
+        filename, _ = os.path.splitext(filename)
 
         # Add an alpha layer to the image (a transparent background)
         l = pdb.gimp_image_get_active_layer(img)
@@ -74,20 +90,20 @@ def plugin_main(src_path):
         #pdb.file_png_save_defaults(img, drawable, output_filename, output_filename)
 
     # Exit gimp
-    pdb.gimp_quit(TRUE)
+    if not gimp.Display:
+        pdb.gimp_quit(TRUE)
     
-
 register(
     "coin-collection-android-image-prep",
     "Takes directory of coin images and prepares them for use by app",
-    "This is intended to be run from the command line",
+    globals()["__doc__"],
     "anwilli5",
     "Andrew Williams",
     "2019",
-    "<Toolbox>/Xtns/Languages/Python-Fu/CoinCollection/Prep",
+    "<Toolbox>/Xtns/Languages/Python-Fu/CoinCollection/Image-Prep",
     "",
     [
-    (PF_STRING, "src_path", "Path to the folder with all the source images", ""),
+    (PF_STRING, "src_path", "Path to the folder with all the source images", "/tmp/cc_images_pre"),
     ],
     [],
     plugin_main)

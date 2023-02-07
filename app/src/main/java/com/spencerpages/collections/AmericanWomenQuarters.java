@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -40,7 +41,12 @@ public class AmericanWomenQuarters extends CollectionInfo {
             {"Dr. Sally Ride", R.drawable.women_2022_sally_ride_unc},
             {"Wilma Mankiller", R.drawable.women_2022_wilma_mankiller_unc},
             {"Nina Otero-Warren", R.drawable.women_2022_nina_otero_warren_unc},
-            {"Anna May Wong", R.drawable.women_2022_anna_may_wong_unc}
+            {"Anna May Wong", R.drawable.women_2022_anna_may_wong_unc},
+            {"Bessie Coleman", R.drawable.women_2023_bessie_coleman_unc},
+            {"Edith Kanaka'ole", R.drawable.women_2023_edith_kanakaole_unc},
+            {"Eleanor Roosevelt", R.drawable.women_2023_eleanor_roosevelt_unc},
+            {"Jovita Idar", R.drawable.women_2023_jovita_idar_unc},
+            {"Maria Tallchief", R.drawable.women_2023_maria_tallchief_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -136,6 +142,22 @@ public class AmericanWomenQuarters extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
-        return 0;
+
+        int total = 0;
+
+        if (oldVersion <= 19) {
+            // Add in new 2023 coins if applicable
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Bessie Coleman");
+            newCoinIdentifiers.add("Edith Kanaka'ole");
+            newCoinIdentifiers.add("Eleanor Roosevelt");
+            newCoinIdentifiers.add("Jovita Idar");
+            newCoinIdentifiers.add("Maria Tallchief");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        return total;
     }
 }

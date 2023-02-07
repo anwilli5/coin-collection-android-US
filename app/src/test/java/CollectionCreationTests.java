@@ -77,8 +77,8 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Burnished, Expected Result
         Object[][] tests = {
-                {false, 37},
-                {true, 37 + 4},
+                {false, 38},
+                {true, 38 + 4},
         };
 
         for (Object[] test : tests) {
@@ -104,12 +104,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true, true, 17},
-                {false, false, true, 17},
+                {false, true, true, 21},
+                {false, false, true, 21},
                 {true, false, false, 0},
-                {true, true, false, 17},
-                {true, false, true, 17},
-                {true, true, true, 17 + 17},
+                {true, true, false, 21},
+                {true, false, true, 21},
+                {true, true, true, 21 + 21},
         };
 
         for (Object[] test : tests) {
@@ -413,12 +413,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, true, 87},
-                {false, false, false, false, 87},
-                {true, true, false, false, 84},
-                {true, false, true, false, 84},
+                {false, true, false, true, 88},
+                {false, false, false, false, 88},
+                {true, true, false, false, 85},
+                {true, false, true, false, 85},
                 {true, false, false, true, 19},
-                {true, true, true, true, 84 + 84 + 19},
+                {true, true, true, true, 85 + 85 + 19},
         };
 
         for (Object[] test : tests) {
@@ -448,12 +448,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true, true, 58},
-                {false, false, true, 58},
+                {false, true, true, 59},
+                {false, false, true, 59},
                 {true, false, false, 0},
-                {true, true, false, 55},
-                {true, false, true, 55},
-                {true, true, true, 55 + 55},
+                {true, true, false, 56},
+                {true, false, true, 56},
+                {true, true, true, 56 + 56},
         };
 
         for (Object[] test : tests) {
@@ -473,7 +473,7 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(94, coinList.size());
+            assertEquals(96, coinList.size());
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
 
@@ -527,12 +527,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, true, 118},
-                {false, false, false, false, 118},
-                {true, true, false, false, 118},
-                {true, false, true, false, 110},
+                {false, true, false, true, 119},
+                {false, false, false, false, 119},
+                {true, true, false, false, 119},
+                {true, false, true, false, 111},
                 {true, false, false, true, 51},
-                {true, true, true, true, 118 + 110 + 51},
+                {true, true, true, true, 119 + 111 + 51},
         };
 
         for (Object[] test : tests) {
@@ -669,12 +669,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true, true, 23},
-                {false, false, true, 23},
+                {false, true, true, 24},
+                {false, false, true, 24},
                 {true, false, false, 0},
-                {true, true, false, 23},
-                {true, false, true, 23},
-                {true, true, true, 23 + 23},
+                {true, true, false, 24},
+                {true, false, true, 24},
+                {true, true, true, 24 + 24},
         };
 
         for (Object[] test : tests) {
@@ -770,12 +770,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, true, 77},
-                {false, false, false, false, 77},
-                {true, true, false, false, 77},
-                {true, false, true, false, 74},
+                {false, true, false, true, 78},
+                {false, false, false, false, 78},
+                {true, true, false, false, 78},
+                {true, false, true, false, 75},
                 {true, false, false, true, 10},
-                {true, true, true, true, 77 + 74 + 10},
+                {true, true, true, true, 78 + 75 + 10},
         };
 
         for (Object[] test : tests) {
@@ -992,12 +992,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, true, 5},
-                {false, false, false, false, 5},
-                {true, true, false, false, 5},
-                {true, false, true, false, 5},
-                {true, false, false, true, 5},
-                {true, true, true, true, 5 + 5 + 5},
+                {false, true, false, true, 10},
+                {false, false, false, false, 10},
+                {true, true, false, false, 10},
+                {true, false, true, false, 10},
+                {true, false, false, true, 10},
+                {true, true, true, true, 10 + 10 + 10},
         };
 
         for (Object[] test : tests) {
