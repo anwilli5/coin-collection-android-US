@@ -2,7 +2,7 @@
 
 If you want to make a contribution to the repository, follow these steps:
 
-*-- Please follow the [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/master/CODE_OF_CONDUCT.md) of this project and keep this in mind while contributing --*
+*-- Please follow the [Code Of Conduct](https://github.com/anwilli5/coin-collection-android-US/blob/main/CODE_OF_CONDUCT.md) of this project and keep this in mind while contributing --*
 
   1) **Fork this repository** to your own Github account by clicking the Fork button on the top right corner.
  

@@ -6,10 +6,10 @@ Coin Collection helps people keep track of the coins they have or are missing fo
 ## Download the app
 <div style="display:flex;" >
 <a href="https://play.google.com/store/apps/details?id=com.spencerpages">
-    <img alt="Get it on Google Play" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/master/images/google-play-badge.png" />
+    <img alt="Get it on Google Play" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/main/images/google-play-badge.png" />
 </a>
 <a href="http://www.amazon.com/gp/product/B00KZ7PYPY/ref=mas_pm_coin_collection">
-    <img alt="Available at Amazon Appstore" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/master/images/amazon-appstore-badge.png" />
+    <img alt="Available at Amazon Appstore" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/main/images/amazon-appstore-badge.png" />
 </a>
 </div><br/>
 
@@ -63,7 +63,7 @@ Supported U.S. coin sets include:
 - Automatic and manual ways to backup/restore and share collections
 
 ## Contributions
-- Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md)
+- Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/main/CONTRIBUTING.md)
 - Review open issues, feature requests, and add comments here [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues)
 - Let us know if you've found an issue or would like to request a feature [Report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose)
 

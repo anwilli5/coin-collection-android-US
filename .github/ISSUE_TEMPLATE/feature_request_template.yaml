@@ -11,7 +11,7 @@ body:
         **Thanks for taking the time to fill out this feature request and helping us improve!**
         Kindly search to see if a similar issue [already exists](https://github.com/anwilli5/coin-collection-android-US/issues) for your feature.
 
-        We are also happy to accept contributions from our users. For more details see [here](https://github.com/anwilli5/coin-collection-android-US/blob/master/CONTRIBUTING.md).
+        We are also happy to accept contributions from our users. For more details see [here](https://github.com/anwilli5/coin-collection-android-US/blob/main/CONTRIBUTING.md).
 
   - type: textarea
     id: feature-description
