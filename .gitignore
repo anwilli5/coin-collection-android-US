@@ -71,7 +71,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
-fastlane/metadata
 
 # Version control
 vcs.xml
