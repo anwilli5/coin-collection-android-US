@@ -1,0 +1,40 @@
+Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin.
+
+Supported U.S. coin sets include:
+- American Eagle Silver Dollars
+- American Innovation Dollars
+- American Women Quarters
+- Barber Dimes
+- Barber Half Dollars
+- Barber Quarters
+- Buffalo Nickels
+- Eisenhower Dollars
+- First Spouse Gold Coins
+- Franklin Half Dollars
+- Indian Head Cents
+- Jefferson Nickels
+- Kennedy Half-Dollars
+- Liberty Head Nickels
+- Lincoln Cents
+- Mercury Dimes
+- Morgan Dollars
+- National Park Quarters
+- Native American/Sacagawea Dollars
+- Peace Dollars
+- Presidential Dollars
+- Roosevelt Dimes
+- Standing Liberty Quarters
+- State Quarters including D.C. and Territories
+- Susan B. Anthony Dollars
+- Walking Liberty Half Dollars
+- Washington Quarters
+
+Find us on GitHub to report issue, request features, and to follow progress!
+
+This App is not endorsed by the United States Mint
+
+United States coin images from the United States Mint.
+Quarter-dollar coin images from the United States Mint.
+Mercury Dime images, Buffalo Nickel reverse image, and Peace Dollar images courtesy of CCF Numismatics.
+Indian Head Cent images, Walking Liberty Half Dollar images, Morgan Dollar images, Buffalo Nickel obverse image, Liberty Head Nickel images, Barber Quarter images, and Barber Half Dollar images courtesy of Brandon Grossardt.
+Standing Liberty Quarter images and Franklin Half Dollar images courtesy of John Baumgart.
