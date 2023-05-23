@@ -1,6 +1,10 @@
 # https://github.com/marketplace/actions/validate-fastlane-supply-metadata
 
+name: Fastlane Metadata
+
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
