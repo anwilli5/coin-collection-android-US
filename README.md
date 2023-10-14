@@ -11,6 +11,11 @@ Coin Collection helps people keep track of the coins they have or are missing fo
 <a href="http://www.amazon.com/gp/product/B00KZ7PYPY/ref=mas_pm_coin_collection">
     <img alt="Available at Amazon Appstore" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/main/images/amazon-appstore-badge.png" />
 </a>
+<a href="https://f-droid.org/en/packages/com.spencerpages">
+    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+    alt="Get it on F-Droid"
+    height="64">
+</a>
 </div><br/>
 
 <table>
