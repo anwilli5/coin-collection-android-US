@@ -19,6 +19,12 @@ android {
     }
 }
 
+configurations {
+    all {
+        exclude module: 'commons-logging'
+    }
+}
+
 dependencies {
     implementation(project(":app"))
     implementation 'androidx.appcompat:appcompat:1.6.1'
