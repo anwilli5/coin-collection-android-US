@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertTrue;
 
@@ -31,7 +33,6 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.helper.ParcelableHashMap;
-import com.spencerpages.SharedTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

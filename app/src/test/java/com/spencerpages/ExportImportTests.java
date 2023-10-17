@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import static com.coincollection.ExportImportHelper.JSON_CHARSET;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_EXT;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
@@ -48,7 +50,6 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.ExportImportHelper;
 import com.coincollection.MainActivity;
-import com.spencerpages.R;
 import com.spencerpages.collections.NativeAmericanDollars;
 
 import org.junit.Rule;

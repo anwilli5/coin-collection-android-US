@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
@@ -55,9 +57,6 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.MainActivity;
 import com.coincollection.helper.ParcelableHashMap;
-import com.spencerpages.MainApplication;
-import com.spencerpages.R;
-import com.spencerpages.SharedTest;
 
 import junit.framework.TestCase;
 

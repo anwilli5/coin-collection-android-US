@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Intent;
@@ -29,7 +31,6 @@ import androidx.test.core.app.ApplicationProvider;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
-import com.spencerpages.MainApplication;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

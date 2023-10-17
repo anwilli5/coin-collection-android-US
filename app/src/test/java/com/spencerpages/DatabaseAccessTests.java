@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import android.content.Intent;
 import android.os.Build;
 
@@ -26,7 +28,6 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
-import com.spencerpages.MainApplication;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

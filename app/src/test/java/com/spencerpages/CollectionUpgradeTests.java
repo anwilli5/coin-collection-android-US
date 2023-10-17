@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 

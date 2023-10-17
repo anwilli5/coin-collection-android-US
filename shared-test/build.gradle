@@ -1,0 +1,24 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'com.spencerpages'
+    compileSdkVersion 33
+    defaultConfig {
+        minSdkVersion 14
+    }
+    flavorDimensions "version"
+    productFlavors {
+        android {
+            dimension "version"
+        }
+        amazon {
+            dimension "version"
+        }
+    }
+}
+
+dependencies {
+    implementation(project(":app"))
+}

@@ -18,6 +18,8 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package com.spencerpages;
+
 import static com.coincollection.ExportImportHelper.JSON_CHARSET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -34,7 +36,6 @@ import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.MainActivity;
-import com.spencerpages.MainApplication;
 
 import org.junit.Rule;
 import org.junit.Test;
