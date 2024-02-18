@@ -46,7 +46,12 @@ public class AmericanWomenQuarters extends CollectionInfo {
             {"Edith Kanaka'ole", R.drawable.women_2023_edith_kanakaole_unc},
             {"Eleanor Roosevelt", R.drawable.women_2023_eleanor_roosevelt_unc},
             {"Jovita Idar", R.drawable.women_2023_jovita_idar_unc},
-            {"Maria Tallchief", R.drawable.women_2023_maria_tallchief_unc}
+            {"Maria Tallchief", R.drawable.women_2023_maria_tallchief_unc},
+            {"Rev. Dr. Pauli Murray", R.drawable.women_2024_pauli_murray_unc},
+            {"Patsy Takemoto Mink", R.drawable.women_2024_patsy_takemoto_unc},
+            {"Dr. Mary Edwards Walker", R.drawable.women_2024_mary_edwards_walker_unc},
+            {"Celia Cruz", R.drawable.women_2024_celia_cruz_unc},
+            {"Zitkala-Ša", R.drawable.women_2024_zitkala_sa_unc}
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -153,6 +158,19 @@ public class AmericanWomenQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Eleanor Roosevelt");
             newCoinIdentifiers.add("Jovita Idar");
             newCoinIdentifiers.add("Maria Tallchief");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        if (oldVersion <= 20) {
+            // Add in new 2024 coins if applicable
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Rev. Dr. Pauli Murray");
+            newCoinIdentifiers.add("Patsy Takemoto Mink");
+            newCoinIdentifiers.add("Dr. Mary Edwards Walker");
+            newCoinIdentifiers.add("Celia Cruz");
+            newCoinIdentifiers.add("Zitkala-Ša");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);

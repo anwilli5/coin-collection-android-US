@@ -107,7 +107,7 @@ public class MainApplication extends Application {
      * DATABASE_VERSION Tracks the current database version, and is essential for periodic
      * database updating.  It should be raised anytime we need to insert new
      * coins into a user's collections (Ex: yearly coin addition, bug fixes).
-     * <p>
+     *
      * Version 2 - Used in Versions 1 and 1.1 of the app
      * Version 3 - Used in Version 1.2 and 1.3 of the app
      * Version 4 - Used in Version 1.4, 1.4.1, and 1.5 of the app
@@ -126,8 +126,9 @@ public class MainApplication extends Application {
      * Version 17 - Used in Version 3.3.0 of the app
      * Version 18 - Used in Version 3.4.0 of the app
      * Version 19 - Used in Version 3.5.0 of the app
+     * Version 20 - Used in Version 3.6.0 of the app
      */
-    public static final int DATABASE_VERSION = 19;
+    public static final int DATABASE_VERSION = 20;
 
     /**
      * Get the collection index from collection type name

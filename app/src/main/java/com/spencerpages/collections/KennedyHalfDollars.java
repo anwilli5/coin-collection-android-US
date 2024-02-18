@@ -196,6 +196,11 @@ public class KennedyHalfDollars extends CollectionInfo {
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
         }
 
+        if (oldVersion <= 20) {
+            // Add in new 2024 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
+        }
+
         return total;
     }
 }
