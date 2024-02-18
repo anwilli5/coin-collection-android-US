@@ -52,6 +52,7 @@ public class NativeAmericanDollars extends CollectionInfo {
             {"2021", R.drawable.native_2021_unc},
             {"2022", R.drawable.native_2022_unc},
             {"2023", R.drawable.native_2023_unc},
+            {"2024", R.drawable.native_2024_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -204,6 +205,11 @@ public class NativeAmericanDollars extends CollectionInfo {
         if (oldVersion <= 19) {
             // Add in new 2023 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
+        }
+
+        if (oldVersion <= 20) {
+            // Add in new 2024 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
         }
 
         return total;
