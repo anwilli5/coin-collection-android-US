@@ -59,7 +59,7 @@ public class WashingtonQuarters extends CollectionInfo {
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 
     // TODO Replace with standard back when good image becomes available
-    private static final int REVERSE_IMAGE = R.drawable.rev_1976_washington_quarter_unc;
+    private static final int REVERSE_IMAGE = R.drawable.a98_quarter_reverseby636buster;
 
     @Override
     public String getCoinType() {
@@ -83,18 +83,18 @@ public class WashingtonQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
 
         // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
 
         // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
     }
 
@@ -149,7 +149,7 @@ public class WashingtonQuarters extends CollectionInfo {
 
     @Override
     public int getAttributionResId() {
-        return R.string.attr_mint;
+        return R.string.attr_quarters;
     }
 
     @Override

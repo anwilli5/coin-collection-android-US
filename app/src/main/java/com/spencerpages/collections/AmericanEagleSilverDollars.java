@@ -36,7 +36,25 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "American Eagle Silver Dollars";
 
-    private static final Integer START_YEAR = 1986;
+    private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
+            {"Flowing Hair", R.drawable.do1795_flowing_hairo},
+            {"Drapped Bust", R.drawable.do1799_draped_bust_dollaro},
+            {"Seated Liberty", R.drawable.do1860o},
+            {"Trade", R.drawable.do1876tradeo},
+            {"Morgan", R.drawable.obv_morgan_dollar},
+            {"Peace", R.drawable.obv_peace_dollar},
+            {"Eisenhower", R.drawable.obv_eisenhower_dollar},
+            {"SBA", R.drawable.obv_susan_b_anthony_unc},
+    };
+
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
+
+    static {
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+    }
+
+    private static final Integer START_YEAR = 1984;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_american_eagle_unc;
@@ -55,7 +73,8 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot) {
-        return OBVERSE_IMAGE_COLLECTED;
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override
@@ -65,9 +84,13 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
-        // Use one of the customizable checkboxes for the 'Show Burnished' options
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
+
+
     }
 
     // TODO Perform validation and throw exception
@@ -76,9 +99,17 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showBurnished = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+
         int coinIndex = 0;
 
+        if (showold) {
+            for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {
+                String identifier = (String) coinData[0];
+                coinList.add(new CoinSlot(identifier, "", coinIndex++));
+            }
+        }
         for (int i = startYear; i <= stopYear; i++) {
 
             coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
@@ -165,11 +196,6 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         if (oldVersion <= 19) {
             // Add in new 2023 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
-        }
-
-        if (oldVersion <= 20) {
-            // Add in new 2024 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
         }
 
         return total;

@@ -31,12 +31,23 @@ import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CladDimes;
+import com.spencerpages.collections.CladKennedy;
+import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
+import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
+import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -46,11 +57,22 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Sets;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SmallCents;
+import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.WestPoint;
+import com.spencerpages.collections.moreNickels;
 
 public class MainApplication extends Application {
 
@@ -66,6 +88,30 @@ public class MainApplication extends Application {
     // should be added here
     public static final CollectionInfo[] COLLECTION_TYPES =
             {
+                    new SmallCents(),
+                    new LargeCents(),
+                    new moreNickels(),
+                    new HalfDimes(),
+                    new CladDimes(),
+                    new SilverDimes(),
+                    new EarlyDimes(),
+                    new CladQuarters(),
+                    new WashingtonSilver(),
+                    new EarlyQuarters(),
+                    new CladKennedy(),
+                    new SilverHalfDollars(),
+                    new EarlyHalfDollars(),
+                    new SmallDollars(),
+                    new Cartwheels(),
+                    new EarlyDollars(),
+                    new WestPoint(),
+                    new Sets(),
+                    new HalfCents(),
+                    new TwoCents(),
+                    new Trimes(),
+                    new TwentyCents(),
+                    new FirstSpouseGoldCoins(),
+
                     new LincolnCents(),
                     new JeffersonNickels(),
                     new RooseveltDimes(),

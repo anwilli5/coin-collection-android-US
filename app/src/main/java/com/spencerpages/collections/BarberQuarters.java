@@ -44,6 +44,8 @@ public class BarberQuarters extends CollectionInfo {
 
     // https://commons.wikimedia.org/wiki/File:1914_Barber_Quarter_NGC_AU58_Obverse.png
     // https://commons.wikimedia.org/wiki/File:1914_Barber_Quarter_NGC_AU58_Reverse.png
+    // https://commons.wikimedia.org/wiki/File:Standing_Liberty_Quarter_Type1_1917S_Obverse.png
+    // https://commons.wikimedia.org/wiki/File:Standing_Liberty_Quarter_Type2_1924D_Reverse.png
     private static final int ATTRIBUTION = R.string.attr_barber_quarters;
 
     @Override
