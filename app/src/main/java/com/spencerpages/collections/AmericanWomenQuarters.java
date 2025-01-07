@@ -18,6 +18,26 @@
  * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Coin Collection, an Android app that helps users track the coins that they've collected
+ * Copyright (C) 2010-2016 Andrew Williams
+ *
+ * This file is part of Coin Collection.
+ *
+ * Coin Collection is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coin Collection is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -37,21 +57,17 @@ public class AmericanWomenQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "American Women Quarters";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"Maya Angelou", R.drawable.women_2022_maya_angelou_unc},
-            {"Dr. Sally Ride", R.drawable.women_2022_sally_ride_unc},
-            {"Wilma Mankiller", R.drawable.women_2022_wilma_mankiller_unc},
-            {"Nina Otero-Warren", R.drawable.women_2022_nina_otero_warren_unc},
-            {"Anna May Wong", R.drawable.women_2022_anna_may_wong_unc},
-            {"Bessie Coleman", R.drawable.women_2023_bessie_coleman_unc},
-            {"Edith Kanaka'ole", R.drawable.women_2023_edith_kanakaole_unc},
-            {"Eleanor Roosevelt", R.drawable.women_2023_eleanor_roosevelt_unc},
-            {"Jovita Idar", R.drawable.women_2023_jovita_idar_unc},
-            {"Maria Tallchief", R.drawable.women_2023_maria_tallchief_unc},
-            {"Rev. Dr. Pauli Murray", R.drawable.women_2024_pauli_murray_unc},
-            {"Patsy Takemoto Mink", R.drawable.women_2024_patsy_takemoto_unc},
-            {"Dr. Mary Edwards Walker", R.drawable.women_2024_mary_edwards_walker_unc},
-            {"Celia Cruz", R.drawable.women_2024_celia_cruz_unc},
-            {"Zitkala-Ša", R.drawable.women_2024_zitkala_sa_unc}
+            {"Maya Angelou 2022", R.drawable.women_2022_maya_angelou_unc},
+            {"Dr. Sally Ride 2022", R.drawable.women_2022_sally_ride_unc},
+            {"Wilma Mankiller 2022", R.drawable.women_2022_wilma_mankiller_unc},
+            {"Nina Otero-Warren 2022", R.drawable.women_2022_nina_otero_warren_unc},
+            {"Anna May Wong 2022", R.drawable.women_2022_anna_may_wong_unc},
+            {"Bessie Coleman 2023", R.drawable.women_2023_bessie_coleman_unc},
+            {"Edith Kanaka'ole 2023", R.drawable.women_2023_edith_kanakaole_unc},
+            {"Eleanor Roosevelt 2023", R.drawable.women_2023_eleanor_roosevelt_unc},
+            {"Jovita Idar 2023", R.drawable.women_2023_jovita_idar_unc},
+            {"Maria Tallchief 2023", R.drawable.women_2023_maria_tallchief_unc},
+
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -84,7 +100,7 @@ public class AmericanWomenQuarters extends CollectionInfo {
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -98,34 +114,31 @@ public class AmericanWomenQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
 
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_silver_Proofs);
     }
 
     // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
         int coinIndex = 0;
 
         for (Object[] parksImageIdentifier : COIN_IDENTIFIERS) {
             String identifier = (String) parksImageIdentifier[0];
-
-            if (showMintMarks) {
-                if (showP) {
-                    coinList.add(new CoinSlot(identifier, "P", coinIndex++));
-                }
-                if (showD) {
-                    coinList.add(new CoinSlot(identifier, "D", coinIndex++));
-                }
-                if (showS) {
-                    coinList.add(new CoinSlot(identifier, "S", coinIndex++));
-                }
-            } else {
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
-            }
+            if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+            if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+            if (showS) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
+            if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+            if (showSilver) {coinList.add(new CoinSlot(identifier, "S Silver Proof", coinIndex++));}
         }
     }
 
@@ -135,9 +148,7 @@ public class AmericanWomenQuarters extends CollectionInfo {
     }
 
     @Override
-    public int getStartYear() {
-        return 0;
-    }
+    public int getStartYear() {return 0;}
 
     @Override
     public int getStopYear() {
@@ -153,24 +164,11 @@ public class AmericanWomenQuarters extends CollectionInfo {
         if (oldVersion <= 19) {
             // Add in new 2023 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Bessie Coleman");
-            newCoinIdentifiers.add("Edith Kanaka'ole");
-            newCoinIdentifiers.add("Eleanor Roosevelt");
-            newCoinIdentifiers.add("Jovita Idar");
-            newCoinIdentifiers.add("Maria Tallchief");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 20) {
-            // Add in new 2024 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Rev. Dr. Pauli Murray");
-            newCoinIdentifiers.add("Patsy Takemoto Mink");
-            newCoinIdentifiers.add("Dr. Mary Edwards Walker");
-            newCoinIdentifiers.add("Celia Cruz");
-            newCoinIdentifiers.add("Zitkala-Ša");
+            newCoinIdentifiers.add("Bessie Coleman 2023");
+            newCoinIdentifiers.add("Edith Kanaka'ole 2023");
+            newCoinIdentifiers.add("Eleanor Roosevelt 2023");
+            newCoinIdentifiers.add("Jovita Idar 2023");
+            newCoinIdentifiers.add("Maria Tallchief 2023");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
