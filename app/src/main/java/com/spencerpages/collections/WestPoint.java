@@ -32,7 +32,7 @@ import java.util.HashMap;
 
 public class WestPoint extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "WestPoint";
+    public static final String COLLECTION_TYPE = "WestPoint Mint";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"2019 W Lincoln Cent", R.drawable.obv_lincoln_cent_unc},

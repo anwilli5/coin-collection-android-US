@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MintSets extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "MintSets";
+    public static final String COLLECTION_TYPE = "Mint Sets";
 
     private static final int REVERSE_IMAGE = R.drawable.a24rj;
 

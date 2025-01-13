@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 public class JeffersonNickels extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "JeffersonNickels";
+    public static final String COLLECTION_TYPE = "Jefferson Nickels";
 
     private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
             {"Shield", R.drawable.obv_shield_nickel},

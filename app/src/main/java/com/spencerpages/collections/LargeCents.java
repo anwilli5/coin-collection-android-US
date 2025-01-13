@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class LargeCents extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "LargeCents";
+    public static final String COLLECTION_TYPE = "Large Cents";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Flowing Hair Chain Reverse", R.drawable.annc_us_1793_1c_flowing_hair_cent},

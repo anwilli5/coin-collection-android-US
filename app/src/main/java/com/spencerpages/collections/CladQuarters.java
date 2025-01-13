@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CladQuarters extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "CladQuarters";
+    public static final String COLLECTION_TYPE = "Clad Quarters";
 
     private static final Object[][] SMS_COIN_IDENTIFIERS = {
             {"1965", R.drawable.quarter_front_92px},

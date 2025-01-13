@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Sets extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "Sets";
+    public static final String COLLECTION_TYPE = "Coin Sets";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Proof Set", R.drawable.a24rg},

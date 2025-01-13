@@ -99,33 +99,7 @@ public class SmallDollars extends CollectionInfo {
             {"`", R.drawable.obv_sacagawea_unc},
     };
 
-    private static final Object[][] INOVATIONIDENTIFIERS = {
-            {"2018 Introductory", R.drawable.innovation_2018_introductory_unc},
-            {"2019 Delaware", R.drawable.innovation_2019_delaware_unc},
-            {"2019 Pennsylvania", R.drawable.innovation_2019_pennsylvania_unc},
-            {"2019 New Jersey", R.drawable.innovation_2019_new_jersey_unc},
-            {"2019 Georgia", R.drawable.innovation_2019_georgia_unc},
-            {"2020 Connecticut", R.drawable.innovation_2020_connecticut_unc},
-            {"2020 Massachusetts", R.drawable.innovation_2020_massachusetts_unc},
-            {"2020 Maryland", R.drawable.innovation_2020_maryland_unc},
-            {"2020 South Carolina", R.drawable.innovation_2020_south_carolina_unc},
-            {"2021 New Hampshire", R.drawable.innovation_2021_new_hampshire_unc},
-            {"2021 Virginia", R.drawable.innovation_2021_virginia_unc},
-            {"2021 New York", R.drawable.innovation_2021_new_york_unc},
-            {"2021 North Carolina", R.drawable.innovation_2021_north_carolina_unc},
-            {"2022 Rhode Island", R.drawable.innovation_2022_rhode_island_unc},
-            {"2022 Vermont", R.drawable.innovation_2022_vermont_unc},
-            {"2022 Kentucky", R.drawable.innovation_2022_kentucky_unc},
-            {"2022 Tennessee", R.drawable.innovation_2022_tennessee_unc},
-            {"2023 Ohio", R.drawable.innovation_2023_ohio_unc},
-            {"2023 Louisiana", R.drawable.innovation_2023_louisiana_unc},
-            {"2023 Indiana", R.drawable.innovation_2023_indiana_unc},
-            {"2023 Mississippi", R.drawable.innovation_2023_mississippi_unc},
-            {"2024 Illinois", R.drawable.innovation_2024_illinois_unc},
-            {"2024 Alabama", R.drawable.innovation_2024_alabama_unc},
-            {"2024 Maine", R.drawable.innovation_2024_maine_unc},
-            {"2024 Missouri", R.drawable.innovation_2024_missouri_unc}
-    };
+
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
@@ -134,7 +108,6 @@ public class SmallDollars extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : BUSHIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : SACIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : INOVATIONIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final int REVERSE_IMAGE = R.drawable.obv_sacagawea_unc;
@@ -170,9 +143,6 @@ public class SmallDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.includepres);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.includeinovation);
-
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
@@ -189,9 +159,6 @@ public class SmallDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_RevProofs);
-
     }
 
     // TODO Perform validation and throw exception
@@ -201,12 +168,10 @@ public class SmallDollars extends CollectionInfo {
         Boolean showsba = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showsac = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showpres = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showin = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showrev = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
         int coinIndex = 0;
 
         if (showsba) {
@@ -216,19 +181,6 @@ public class SmallDollars extends CollectionInfo {
                 if (showD) {coinList.add(new CoinSlot("",String.format("%d D ", i), coinIndex++));}
                 if (showS && i != 1999) {coinList.add(new CoinSlot("",String.format("%d S ", i), coinIndex++));}
                 if (showproof) {coinList.add(new CoinSlot("",String.format("%d S Proof ", i), coinIndex++));}
-            }
-        }
-        if(showsac){
-            for (int i = 2000; i <= 2008; i++) {
-                if (showP) {coinList.add(new CoinSlot("`",String.format("%d  ", i), coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot("`",String.format("%d D ", i), coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot("`",String.format("%d S Proof ", i), coinIndex++));}
-            }
-            for (Object[] coinData : SACIDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
         }
         if(showpres){
@@ -241,13 +193,17 @@ public class SmallDollars extends CollectionInfo {
             if (showP) {coinList.add(new CoinSlot("2020 George H.W. Bush", "P", coinIndex++));}
             if (showD) {coinList.add(new CoinSlot("2020 George H.W. Bush", "D", coinIndex++));}
         }
-        if(showin){
-            for (Object[] coinData : INOVATIONIDENTIFIERS) {
+        if(showsac){
+            for (int i = 2000; i <= 2008; i++) {
+                if (showP) {coinList.add(new CoinSlot("`",String.format("%d  ", i), coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot("`",String.format("%d D ", i), coinIndex++));}
+                if (showproof) {coinList.add(new CoinSlot("`",String.format("%d S Proof ", i), coinIndex++));}
+            }
+            for (Object[] coinData : SACIDENTIFIERS) {
                 String identifier = (String) coinData[0];
                 if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
                 if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
-                if (showrev) {coinList.add(new CoinSlot(identifier, "S Rev Proof", coinIndex++));}
             }
         }
     }

@@ -51,7 +51,7 @@ public class Cartwheels extends CollectionInfo {
             {"SBA", R.drawable.obv_susan_b_anthony_unc},
             {"Eagle",R.drawable.obv_american_eagle_unc},
             {"Morgan", R.drawable.obv_morgan_dollar},
-            {"Peacer", R.drawable.obv_peace_dollar},
+            {"Peace", R.drawable.obv_peace_dollar},
             {"Eisenhower", R.drawable.obv_eisenhower_dollar},
     };
 

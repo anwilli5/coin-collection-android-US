@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 public class SilverHalfDollars extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "SilverHalfDollars";
+    public static final String COLLECTION_TYPE = "Silver Half Dollars";
 
     private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
             {"Flowing Hair", R.drawable.ha1795o},
