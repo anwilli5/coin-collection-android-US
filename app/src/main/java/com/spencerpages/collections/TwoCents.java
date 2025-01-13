@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class TwoCents extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "TwoCents";
+    public static final String COLLECTION_TYPE = "Two Cents";
 
     private static final int REVERSE_IMAGE = R.drawable.a1865_two_cent;
 

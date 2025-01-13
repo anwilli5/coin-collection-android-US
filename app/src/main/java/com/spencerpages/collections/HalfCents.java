@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 public class HalfCents extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "HalfCents";
+    public static final String COLLECTION_TYPE = "Half Cents";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"`Liberty Cap", R.drawable.annc_us_1793__c_liberty_cap_half_cent},

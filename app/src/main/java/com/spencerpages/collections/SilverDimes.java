@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 public class SilverDimes extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "SilverDimes";
+    public static final String COLLECTION_TYPE = "Silver Dimes";
 
 
     private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {

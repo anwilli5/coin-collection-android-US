@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class EarlyDollars extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "EarlyDollars";
+    public static final String COLLECTION_TYPE = "Early Dollars";
 
 
     private static final Object[][] COIN_IDENTIFIERS = {

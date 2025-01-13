@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 public class moreNickels extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "moreNickels";
+    public static final String COLLECTION_TYPE = "All Nickels";
 
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
             {"Peace Medal ", R.drawable.westward_2004_louisiana_purchase_unc},

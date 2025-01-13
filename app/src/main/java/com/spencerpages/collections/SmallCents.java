@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 public class SmallCents extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "SmallCents";
+    public static final String COLLECTION_TYPE = "Small Cents";
 
     private static final Object[][] OLDCOIN_COIN_IDENTIFIERS = {
             {"Flowing Hair", R.drawable.annc_us_1793_1c_flowing_hair_cent},

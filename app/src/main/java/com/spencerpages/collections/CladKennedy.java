@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 public class CladKennedy extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "CladKennedy";
+    public static final String COLLECTION_TYPE = "Clad Kennedy";
 
     private static final Integer START_YEAR = 1971;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;

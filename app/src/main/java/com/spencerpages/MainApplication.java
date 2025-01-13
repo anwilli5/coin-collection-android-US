@@ -87,32 +87,7 @@ public class MainApplication extends Application {
     // List of all the supported collection types by the app.  New collections
     // should be added here
     public static final CollectionInfo[] COLLECTION_TYPES =
-            {
-                    new SmallCents(),
-                    new LargeCents(),
-                    new moreNickels(),
-                    new HalfDimes(),
-                    new CladDimes(),
-                    new SilverDimes(),
-                    new EarlyDimes(),
-                    new CladQuarters(),
-                    new WashingtonSilver(),
-                    new EarlyQuarters(),
-                    new CladKennedy(),
-                    new SilverHalfDollars(),
-                    new EarlyHalfDollars(),
-                    new SmallDollars(),
-                    new Cartwheels(),
-                    new EarlyDollars(),
-                    new WestPoint(),
-                    new Sets(),
-                    new HalfCents(),
-                    new TwoCents(),
-                    new Trimes(),
-                    new TwentyCents(),
-                    new FirstSpouseGoldCoins(),
-
-                    new LincolnCents(),
+            {       new LincolnCents(),
                     new JeffersonNickels(),
                     new RooseveltDimes(),
                     new WashingtonQuarters(),
@@ -139,6 +114,33 @@ public class MainApplication extends Application {
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
+                    new FirstSpouseGoldCoins(),
+
+
+                    new SmallCents(),
+                    new LargeCents(),
+                    new moreNickels(),
+                    new HalfDimes(),
+                    new CladDimes(),
+                    new SilverDimes(),
+                    new EarlyDimes(),
+                    new CladQuarters(),
+                    new WashingtonSilver(),
+                    new EarlyQuarters(),
+                    new CladKennedy(),
+                    new SilverHalfDollars(),
+                    new EarlyHalfDollars(),
+                    new SmallDollars(),
+                    new Cartwheels(),
+                    new EarlyDollars(),
+                    new WestPoint(),
+                    new Sets(),
+                    new HalfCents(),
+                    new TwoCents(),
+                    new Trimes(),
+                    new TwentyCents(),
+
+
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
