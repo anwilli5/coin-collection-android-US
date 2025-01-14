@@ -72,7 +72,7 @@ import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
-import com.spencerpages.collections.moreNickels;
+import com.spencerpages.collections.AllNickels;
 
 public class MainApplication extends Application {
 
@@ -114,12 +114,11 @@ public class MainApplication extends Application {
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
-                    new FirstSpouseGoldCoins(),
 
 
                     new SmallCents(),
                     new LargeCents(),
-                    new moreNickels(),
+                    new AllNickels(),
                     new HalfDimes(),
                     new CladDimes(),
                     new SilverDimes(),

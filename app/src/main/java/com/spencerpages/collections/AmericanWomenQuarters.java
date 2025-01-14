@@ -1,22 +1,3 @@
-/*
- * Coin Collection, an Android app that helps users track the coins that they've collected
- * Copyright (C) 2010-2016 Andrew Williams
- *
- * This file is part of Coin Collection.
- *
- * Coin Collection is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Coin Collection is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 /*
  * Coin Collection, an Android app that helps users track the coins that they've collected
@@ -169,6 +150,17 @@ public class AmericanWomenQuarters extends CollectionInfo {
             newCoinIdentifiers.add("Eleanor Roosevelt 2023");
             newCoinIdentifiers.add("Jovita Idar 2023");
             newCoinIdentifiers.add("Maria Tallchief 2023");
+
+            // Add these coins, mimicking which coinMints the user already has defined
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+        if (oldVersion <= 20 ){
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("Rev. Dr. Pauli Muarray 2024");
+            newCoinIdentifiers.add("Patsy Takemoto 2024");
+            newCoinIdentifiers.add("Dr. Mary Edwards Walker 2024");
+            newCoinIdentifiers.add("Celia Cruz 2024");
+            newCoinIdentifiers.add("Zitkala Sa 2024");
 
             // Add these coins, mimicking which coinMints the user already has defined
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
