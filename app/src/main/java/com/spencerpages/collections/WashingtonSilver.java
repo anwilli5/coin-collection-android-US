@@ -163,6 +163,11 @@ public class WashingtonSilver extends CollectionInfo {
             {"Eleanor Roosevelt 2023", R.drawable.women_2023_eleanor_roosevelt_unc},
             {"Jovita Idar 2023", R.drawable.women_2023_jovita_idar_unc},
             {"Maria Tallchief 2023", R.drawable.women_2023_maria_tallchief_unc},
+            {"Rev. Dr. Pauli Murray 2024", R.drawable.women_2024_pauli_murray_unc},
+            {"Patsy Takemoto 2024", R.drawable.women_2024_patsy_takemoto_unc},
+            {"Dr. Mary Edwards Walker 2024", R.drawable.women_2024_mary_edwards_walker_unc},
+            {"Celia Cruz 2024", R.drawable.women_2024_celia_cruz_unc},
+            {"Zitkala Sa 2024", R.drawable.women_2024_zitkala_sa_unc},
     };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
