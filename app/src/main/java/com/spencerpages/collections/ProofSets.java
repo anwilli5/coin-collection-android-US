@@ -25,7 +25,7 @@ public class ProofSets extends CollectionInfo {
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
 
     private static final Integer START_YEAR = 1950;
-    private static final Integer STOP_YEAR = 2024;
+    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     @Override
     public int getStartYear() {return START_YEAR;}

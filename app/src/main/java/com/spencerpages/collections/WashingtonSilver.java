@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WashingtonSilver extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "Washington Silver";
+    public static final String COLLECTION_TYPE = "Washington Silver Quarters";
 
     private static final Object[][] CLASSIC_COIN_IDENTIFIERS = {
             {"1776-1976 S 40% Silver BU", R.drawable.quarter_front_92px},

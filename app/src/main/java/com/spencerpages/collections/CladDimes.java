@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 public class CladDimes extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "Clad Dimes";
+    public static final String COLLECTION_TYPE = "Clad Roosevelt Dimes";
 
 
 

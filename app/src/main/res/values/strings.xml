@@ -196,12 +196,11 @@
     <string name="include_Ikes">Include Eisenhower Dollars</string>
     <string name="include_Eagles">Include American Silver Eagles</string>
     <string name="include_MemProofs">Include Memorial Proofs</string>
-    <string name="includesba">Include Susan B Anthony Dollars</string>
-    <string name="includesac">Include Sacagawea Dollars</string>
-    <string name="includebarber">Include Barber Quarters</string>
-    <string name="includestanding">Include Liberty Standing Quarters</string>
-    <string name="includepres">Include Presidential Dollars</string>
-    <string name="includeinovation">Include Inovation Dollars</string>
+    <string name="include_sba">Include Susan B Anthony Dollars</string>
+    <string name="include_sac">Include Sacagawea Dollars</string>
+    <string name="include_abarber">Include Barber Quarters</string>
+    <string name="include_standing">Include Liberty Standing Quarters</string>
+    <string name="include_pres">Include Presidential Dollars</string>
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>
     <string name="select_collection_type">Collection Type: </string>
@@ -288,7 +287,7 @@
 
     <!-- Attribution Strings -->
     <!--Common attribution string - https://www.usmint.gov/consumer/indexf8be.html?action=circCoinPolicy -->
-    <string name="attr_mint">Kennedy Half Dollar coin images from the United States Mint</string>
+    <string name="attr_mint">United States coin images from the United States Mint</string>
     <string name="attr_wiki">Large Cent coin images from Wikimedia Commons</string>
     <string name="attr_wikidimes">Draped Bust, Capped Bust, and Liberty Seated dime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
     <string name="attr_wikihalfdimes">Draped Bust, Capped Bust, and Liberty Seated halfdime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
