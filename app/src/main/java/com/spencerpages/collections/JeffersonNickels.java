@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 public class JeffersonNickels extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "Jefferson Nickels";
+    public static final String COLLECTION_TYPE = "Nickels";
 
     private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
             {"Shield", R.drawable.obv_shield_nickel},
@@ -198,7 +198,7 @@ public class JeffersonNickels extends CollectionInfo {
                 if (showSatin && i > 2004 && i < 2011 ) {coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));}
                 if (showD && i != 1965 && i != 1966 && i != 1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 if (showSatin && i > 2004 && i < 2011 ) {coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));}
-                if (showS && i <= 1970 && i != 1950 && (i < 1955 || i > 1967 )) {coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
+                if (showS && i <= 1970 && i != 1950 && (i < 1956 || i > 1967 )) {coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
                 if (showSProof && i > 1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));}
             }
         }

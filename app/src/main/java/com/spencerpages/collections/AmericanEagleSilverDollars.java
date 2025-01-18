@@ -54,7 +54,7 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
-    private static final Integer START_YEAR = 1984;
+    private static final Integer START_YEAR = 1986;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_american_eagle_unc;
