@@ -264,7 +264,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
                 continue;
             }
             if (i == 1976) {
-                coinList.add(new Object[]{"1776-1976", "", 0});
+                coinList.add(new Object[]{"1776-1976", "Type I", 0});
+                coinList.add(new Object[]{"1776-1976", "Type II", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
             }
@@ -398,7 +399,10 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if (i == 2004) {
+            if (i == 1942) {
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
+                coinList.add(new Object[]{Integer.toString(i), "P Silver", 0});
+            }else if (i == 2004) {
                 coinList.add(new Object[]{"Peace Medal", "", 0});
                 coinList.add(new Object[]{"Keelboat", "", 0});
             } else if (i == 2005) {
