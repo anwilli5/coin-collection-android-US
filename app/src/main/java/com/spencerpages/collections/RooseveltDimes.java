@@ -137,9 +137,8 @@ public class RooseveltDimes extends CollectionInfo {
 
         for (int i = startYear; i <= stopYear; i++) {
             if (showMintMarks) {
-                if (showP && ( i <1980)) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                } else {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
+                if (showP && ( i <1980)) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
+                if (showP && ( i >1979)) {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
                 if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 if (showsatin && i > 2004 && i < 2011) {
                     coinList.add(new CoinSlot(Integer.toString(i), "P Satin", coinIndex++));

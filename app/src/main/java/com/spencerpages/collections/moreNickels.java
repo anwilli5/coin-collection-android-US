@@ -31,18 +31,18 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class AllNickels extends CollectionInfo {
+public class moreNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "All Nickels";
 
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
-            {"Peace Medal ", R.drawable.westward_2004_louisiana_purchase_unc},
-            {"Keelboat ", R.drawable.westward_2004_keelboat_unc},
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
+            {"Keelboat", R.drawable.westward_2004_keelboat_unc},
     };
 
     private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
-            {"Bison ", R.drawable.westward_2005_american_bison_unc},
-            {"Ocean in View ", R.drawable.westward_2005_ocean_in_view_unc},
+            {"Bison", R.drawable.westward_2005_american_bison_unc},
+            {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},
     };
     private static final Object[][] COIN_IDENTIFIERS = {
             {"   ", R.drawable.obv_shield_nickel},
