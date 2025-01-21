@@ -47,13 +47,13 @@ public class JeffersonNickels extends CollectionInfo {
     };
 
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
-            {"Peace Medal ", R.drawable.westward_2004_louisiana_purchase_unc},
-            {"Keelboat ", R.drawable.westward_2004_keelboat_unc},
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
+            {"Keelboat", R.drawable.westward_2004_keelboat_unc},
     };
 
     private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
-            {"American Bison ", R.drawable.westward_2005_american_bison_unc},
-            {"Ocean in View! ", R.drawable.westward_2005_ocean_in_view_unc},
+            {"American Bison", R.drawable.westward_2005_american_bison_unc},
+            {"Ocean in View!", R.drawable.westward_2005_ocean_in_view_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -175,21 +175,12 @@ public class JeffersonNickels extends CollectionInfo {
                 if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
             }
-            if ( i == 1943){
+            if ( i == 1943 || i == 1944 || i == 1945){
                 if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Silver", coinIndex++));}
                 if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
             }
-            if (  i == 1944 ){
-                if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Silver", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
-            }
-            if ( i == 1945 ){
-                if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Silver", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
-            }
+
             if ( i != 1942 && i != 1943 && i != 1944 && i != 1945 && i != 2004 && i != 2005 ) {
                 if (showP && i != 1968 && i != 1969 && i != 1970) {
                     if (i >= 1980) {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
