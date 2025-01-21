@@ -111,12 +111,9 @@ public class CladKennedy extends CollectionInfo {
                 if (showP){
                     if( i < 1980) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
                     if (i > 1979) {coinList.add(new CoinSlot(newValue, "P", coinIndex++));}
-                    if (i == 2014) {coinList.add(new CoinSlot(newValue, "P Enhanced", coinIndex++));}
                 }
                 if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "P Satin", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showD && i ==2014) {coinList.add(new CoinSlot(newValue, "D Enhanced", coinIndex++));}
-                if ( i == 2017){coinList.add(new CoinSlot(newValue, "S Enhanced", coinIndex++));}
                 if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));}
                 if (showproofs) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
             }

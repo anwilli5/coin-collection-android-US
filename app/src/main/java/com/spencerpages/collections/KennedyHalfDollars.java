@@ -135,13 +135,10 @@ public class KennedyHalfDollars extends CollectionInfo {
             if ( i == 1975 ) continue;
             if ( i == 1976) {
                 newValue = "1776-1976";
-                if (showP) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
-                }
-                if (showD) {
-                    coinList.add(new CoinSlot(newValue, "D", coinIndex++));
-                }
-                if (showproofs){
+                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
+                if (showproofs) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
+                if (showSilver){
                     coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
                     coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
                 }
@@ -150,39 +147,19 @@ public class KennedyHalfDollars extends CollectionInfo {
             }
 
 
-            if ( i == 1964){
+            if ( i == 1964 ){
                 if (showP){coinList.add(new CoinSlot(newValue, "Silver", coinIndex++));}
                 if (showD){coinList.add(new CoinSlot(newValue, "D Silver", coinIndex++));}
                 if (showproofs){coinList.add(new CoinSlot(newValue, "Silver Proof", coinIndex++));}
-            }
-            if ( i == 1965){
-                if (showP){coinList.add(new CoinSlot(newValue, "40% Silver", coinIndex++));}
-                {coinList.add(new CoinSlot(newValue, "SMS 40% Silver", coinIndex++));}
-            }
-            if ( i == 1966){
-                if (showP){coinList.add(new CoinSlot(newValue, "40% Silver", coinIndex++));}
-                {coinList.add(new CoinSlot(newValue, "SMS 40% Silver", coinIndex++));}
-            }
-            if ( i == 1967){
-                if (showP){coinList.add(new CoinSlot(newValue, "40% Silver", coinIndex++));}
-                {coinList.add(new CoinSlot(newValue, "SMS 40% Silver", coinIndex++));}
-            }
-            if ( i == 1968){
+            }else if ( i == 1965 || i == 1966 || i ==1967 ){
+                if (showP){coinList.add(new CoinSlot(newValue, "40% Silver", coinIndex++));
+                           coinList.add(new CoinSlot(newValue, "SMS 40% Silver", coinIndex++));}
+            }else if ( i == 1968 || i == 1969 || i == 1970 ){
                 if (showD){coinList.add(new CoinSlot(newValue,  "D 40% Silver", coinIndex++));}
                 if (showproofs){coinList.add(new CoinSlot(newValue, "S Proof 40% Silver", coinIndex++));}
-            }
-            if ( i == 1969){
-                if (showD){coinList.add(new CoinSlot(newValue,  "D 40% Silver", coinIndex++));}
-                if (showproofs){coinList.add(new CoinSlot(newValue, "S Proof 40% Silver", coinIndex++));}
-            }
-            if ( i == 1970){
-                if (showD){coinList.add(new CoinSlot(newValue,  "D 40% Silver", coinIndex++));}
-                if (showproofs){coinList.add(new CoinSlot(newValue, "S Proof 40% Silver", coinIndex++));}
-            }
-            if ( i != 1964 && i != 1965 && i != 1966 && i != 1967 && i != 1968 && i != 1969 && i != 1970 && i != 1976) {
-                if (showP  && i < 1980) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                else if ( i > 1979){coinList.add(new CoinSlot(newValue, "P", coinIndex++));}
+            }else if(  i != 1976) {
+                if ( showP  && i < 1980) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
+                if ( showP && i > 1979){coinList.add(new CoinSlot(newValue, "P", coinIndex++));}
                 if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "P Satin", coinIndex++));}
                 if (showD ) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
                 if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));}

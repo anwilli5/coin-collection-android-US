@@ -56,11 +56,6 @@ public class LincolnCents extends CollectionInfo {
             {"Indian Head", R.drawable.obv_indian_head_cent},
     };
 
-    private static final Object[][] A1909_COIN_IDENTIFIERS = {
-            {"1909", R.drawable.obv_lincoln_cent_unc},
-            {"1909 VDB", R.drawable.obv_lincoln_cent_unc},
-    };
-
     private static final Object[][] STEEL_COIN_IDENTIFIERS = {
             {"1943", R.drawable.a1943o},
     };
@@ -73,6 +68,7 @@ public class LincolnCents extends CollectionInfo {
             {"1982 D Copper Large Date", R.drawable.obv_lincoln_cent_unc},
             {"1982 D Zinc Large Date", R.drawable.obv_lincoln_cent_unc},
             {"1982 D Zinc Small Date", R.drawable.obv_lincoln_cent_unc},
+
     };
 
     private static final Object[][] COIN_IDENTIFIERS = {
@@ -86,11 +82,18 @@ public class LincolnCents extends CollectionInfo {
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLDCOIN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : A1909_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : STEEL_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : A1982_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : OLDCOIN_COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+        for (Object[] coinData : STEEL_COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+        for (Object[] coinData : A1982_COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+        for (Object[] coinData : COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
     }
 
     private static final Integer START_YEAR = 1909;
@@ -139,7 +142,7 @@ public class LincolnCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_satin);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_s_Proofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_MemProofs);
     }
 
     // TODO Perform validation and throw exception
@@ -148,7 +151,6 @@ public class LincolnCents extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
@@ -160,30 +162,41 @@ public class LincolnCents extends CollectionInfo {
         if (showold) {
             for (Object[] coinData : OLDCOIN_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));}
+                coinList.add(new CoinSlot(identifier, "", coinIndex++));
+            }
         }
         for (Integer i = startYear; i <= stopYear; i++) {
             if (i == 1909) {
-                for (Object[] coinData : A1909_COIN_IDENTIFIERS) {
-                    String Identifier = (String) coinData[0];
-                    if (showP) {coinList.add(new CoinSlot(Identifier, "", coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(Identifier, "S", coinIndex++));}
-                }
-            }else
+                    if (showP) {
+                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                         coinList.add(new CoinSlot(Integer.toString(i), "VDB", coinIndex++));
+                    }
+                    if (showS) {
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(Integer.toString(i), "S VDB", coinIndex++));
+                    }
+            }
             if (i == 1943) {
-                for (Object[] coinData : STEEL_COIN_IDENTIFIERS) {
-                    String Identifier = (String) coinData[0];
-                    if (showP) {coinList.add(new CoinSlot(Identifier, "Steel Cent", coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(Identifier, "D Steel Cent", coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(Identifier, "S Steel Cent", coinIndex++));}
-
+                if (showP) {coinList.add(new CoinSlot("1943", "Steel Cent", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot("1943", "D Steel Cent", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot("1943", "S Steel Cent", coinIndex++));}
+            }
+            if (i == 1982) {
+                if (showP) {
+                    coinList.add(new CoinSlot("1982 Copper Large Date", "", coinIndex++));
+                    coinList.add(new CoinSlot("1982 Copper Small Date", "", coinIndex++));
+                    coinList.add(new CoinSlot("1982 Zinc Large Date", "", coinIndex++));
+                    coinList.add(new CoinSlot("1982 Zinc Small Date", "", coinIndex++));
                 }
-            }else
-            if ( i == 1982){
-                for (Object[] coinData : A1982_COIN_IDENTIFIERS) {
-                    String identifier = (String) coinData[0];
-                    coinList.add(new CoinSlot(identifier, "", coinIndex++));}
-            }else
+                if (showD) {
+                    coinList.add(new CoinSlot("1982 D Copper Large Date", "", coinIndex++));
+                    coinList.add(new CoinSlot("1982 D Zinc Large Date", "", coinIndex++));
+                    coinList.add(new CoinSlot("1982 D Zinc Small Date", "", coinIndex++));
+                }
+                if (showSProof) {
+                   coinList.add(new CoinSlot(Integer.toString(i), "S Proof", coinIndex++));
+                }
+            }
             if (i == 2009) {
                 // Add support for 2009 Lincoln Presidential Pennies
                 for (Object[] coinData : COIN_IDENTIFIERS) {
@@ -192,22 +205,32 @@ public class LincolnCents extends CollectionInfo {
                     if (showsatin) {coinList.add(new CoinSlot(bicentIdentifier, "2009 Satin", coinIndex++));}
                     if (showD) {coinList.add(new CoinSlot(bicentIdentifier, "2009 D", coinIndex++));}
                     if (showsatin) {coinList.add(new CoinSlot(bicentIdentifier, "2009 D Satin", coinIndex++));}
+                    if (showSProof) {coinList.add(new CoinSlot(Integer.toString(i), "S Proof", coinIndex++));}
                 }
-            }else
-            if (showMintMarks) {
-                if (showP && i == 2017 ) {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
-                else {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
-                if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));}
-                if (showD && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
-                if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));}
-                if (showS  && i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
-                if (showSProof && i > 1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));}
             }
-
+            if (i!=1909 && i!= 1943 && i!= 1982 && i!=2009) {
+                if (showP) {
+                    if (i == 2017) {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
+                    if (i != 2017) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
+                }
+                if (showsatin && i > 2004 && i < 2011) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));
+                    coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));
+                }
+                if (showD && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                }
+                if (showS && i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                }
+                if (showSProof && i > 1958) {
+                    if ( i< 1965){coinList.add(new CoinSlot(Integer.toString(i), "Proof", coinIndex++));}
+                    if ( i>1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));}
+                }
+            }
         }
     }
+
     @Override
     public int getAttributionResId() {return R.string.attr_mint;}
 
@@ -218,8 +241,7 @@ public class LincolnCents extends CollectionInfo {
     public int getStopYear() {return STOP_YEAR;}
 
     @Override
-    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {
+    public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,int oldVersion, int newVersion) {
         String tableName = collectionListInfo.getName();
         int total = 0;
 
@@ -249,57 +271,47 @@ public class LincolnCents extends CollectionInfo {
 
         if (oldVersion <= 4) {
             // Add in new 2014 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);}
 
         if (oldVersion <= 6) {
             // Add in new 2015 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);}
 
         if (oldVersion <= 7) {
             // Add in new 2016 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);}
 
         if (oldVersion <= 8) {
             // Add in new 2017 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);}
 
         if (oldVersion <= 11) {
             // Add in new 2018 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);}
 
         if (oldVersion <= 12) {
             // Add in new 2019 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);}
 
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);}
 
         if (oldVersion <= 16) {
             // Add in new 2021 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);}
 
         if (oldVersion <= 18) {
             // Add in new 2022 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);}
 
         if (oldVersion <= 19) {
             // Add in new 2023 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);}
+
         if (oldVersion <= 20) {
             // Add in new 2024 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
-        }
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);}
 
         return total;
     }
