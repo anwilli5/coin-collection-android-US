@@ -186,14 +186,14 @@ public class CoinPageCreator extends BaseActivity {
 
     public final static String OPT_CHECKBOX_1 = "ShowCheckbox1";
     public final static String OPT_CHECKBOX_2 = "ShowCheckbox2";
-    private final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
-    private final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
-    private final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
+    public final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
+    public final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
+    public final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
     public final static String OPT_CHECKBOX_1_STRING_ID = "ShowCheckbox1StringId";
     public final static String OPT_CHECKBOX_2_STRING_ID = "ShowCheckbox2StringId";
-    private final static String OPT_CHECKBOX_3_STRING_ID = "ShowCheckbox3StringId";
-    private final static String OPT_CHECKBOX_4_STRING_ID = "ShowCheckbox4StringId";
-    private final static String OPT_CHECKBOX_5_STRING_ID = "ShowCheckbox5StringId";
+    public final static String OPT_CHECKBOX_3_STRING_ID = "ShowCheckbox3StringId";
+    public final static String OPT_CHECKBOX_4_STRING_ID = "ShowCheckbox4StringId";
+    public final static String OPT_CHECKBOX_5_STRING_ID = "ShowCheckbox5StringId";
 
     /**
      * This flag should be used by collections whose year of most recent
