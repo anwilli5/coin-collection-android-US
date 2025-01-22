@@ -87,7 +87,7 @@ public class KennedyHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
 
         // Use the MINT_MARK_2 checkbox for whether to include 'D' coins

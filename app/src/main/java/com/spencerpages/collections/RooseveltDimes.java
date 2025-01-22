@@ -83,7 +83,7 @@ public class RooseveltDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
