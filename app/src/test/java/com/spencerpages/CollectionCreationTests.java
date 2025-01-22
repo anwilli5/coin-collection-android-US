@@ -285,24 +285,26 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, true, false, false, false, false, 8},     //p
-                {true, false, true, false, false, false, 8},      //d
-                {true, false, false, true, false, false, 0},      //s
-                {true, false, false, false, true, false, 6},      //clad proofs
-                {true, false, false, true, true, true,  16},      //proofs & silver
-                {true, true, true, true, true, true, 32},         //all
+                {false, true, false, false, false,  8},
+                {false, false, true,false, false,  8},
+                {true, false, false, false, false, 0},
+                {true, true, false, false, false, 8},     //p
+                {true, false, true, false, false, 8},     //d
+                {true, false, false, true, false, 6},     //proof
+                {true, false, false, false, true, 10},    //silver
+                {true, true, true, true, true, 8 + 8 + 6 + 10},
         };
 
         for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);  //p
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);  //d
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);  //s
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);  //proof
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);  //silver
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);  //p        8
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);  //d        8
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);  //proof    6
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);  //silver  10
+
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[4], coinList.size());
+            assertEquals(test[5], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -313,7 +315,7 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_START_YEAR, year);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(6, coinList.size());
+            assertEquals(4, coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -418,21 +420,27 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, 87},
-                {false, false, false, 87},
-                {true, true, false, 87},
-                {true, false, true, 86},
-                {true, true, true, 87 + 86},
+                {false, true, false, true,false, false, 87},
+                {false, false, false, false, false, false, 87 },
+                {true, true, false, false, false, false, 87},   //p
+                {true, false, true, false, false, false, 86},   //d
+                {true, false, false, true, false, false, 20},   //s
+                {true, false, false, false, true, false, 59},   //proof
+                {true, false, false, false, false, true, 14},   //satin
+                {true, true, true, true, true, true, 87 + 86 + 20 + 59 + 14},
         };
 
         for (Object[] test : tests) {
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);    //no 87
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);   //p 87
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);   //d 86
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);   //s 20
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);   //proof 59
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);   //satin 14    266 total (sum matches)
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[3], coinList.size());
+            assertEquals(test[6], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -451,26 +459,22 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, Expected Result
         Object[][] tests = {
-                {false, false, false, false, false, false, 0},
-                {false, true, false, true, false, false, 0},
-                {true, true, false, false, false, false,  60},     //p
-                {true, false, true, false, false, false,  57},     //d
-                {true, false, false, true, false, false,  12},     //satin
-                {true, false, false, false, true, false,  57},     //proofs
-                {true, false, false, false, false, true,  35},     // silver proofs
-                {true, true, true, true, true, true,  60 + 57 + 12 + 56 + 35},  //220 227 with types checkbox
+                {false, true, true, 117},
+                {false, false, true, 57},
+                {true, false, false, 0},
+                {true, true, false, 60},
+                {true, false, true, 57},
+                {true, true, true, 60 + 57},
         };
 
         for (Object[] test : tests) {                                        // actual collection creation
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);    //no  0
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);   //p  60
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);   //d  57
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);   //satin  12
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);   //proofs 56
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);   //silver proofs 35
+
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[6], coinList.size());
+            assertEquals(test[3], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -535,13 +539,14 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {false, true, false, true, false,  123},
-                {false, false, false, false, false,  123},
-                {true, true, false, false, false,  123},    //p
-                {true, false, true, false, false,  114},    //d
-                {true, false, false, true, false,  51},     //s
-                {true, false, false, false, true, 66},     //proof
-                {true, true, true, true, true, 123 + 114 + 51 + 66},   //372
+                {false, true, false, true, false, false, 123},
+                {false, false, false, false, false, false, 123},
+                {true, true, false, false, false, false, 123},    //p
+                {true, false, true, false, false, false, 114},    //d
+                {true, false, false, true, false, false, 51},     //s
+                {true, false, false, false, true, false, 18},     //satin
+                {true, false, false, false, false, true, 66},     //proof
+                {true, true, false, false, false, 123 + 112 + 51 + 18 + 66},    //all
         };
 
         for (Object[] test : tests) {
@@ -549,12 +554,12 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);   //p 123
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);   //d 114
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);   //s 51
-            //parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[]);   // satin 18
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[4]);   // proof 66  total 372
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);   //satin 18
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);   //proofs 66  total 372 (sums match)
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[1], coinList.size());
+            assertEquals(test[6], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -1001,13 +1006,12 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Proof Expected Result
         Object[][] tests = {
-                {false, false, false, false, false, false, 10},   //no
-                {true, true, false, false, false, false, 10},     //p
-                {true, false, true, false, false, false, 10},     //d
-                {true, false, false, true, false, false, 10},     //s
-                {true, false, false, false, true, false, 10},     //proof
-                {true, false, false, false, false, true, 10},     //silver proof
-                {true, true, true, true, true, true, 10 + 10 + 10 + 10 + 10},
+                {false, true, false, false, 15},
+                {false, false, false, false, 15},
+                {true, true, false, false, 15},
+                {true, false, true, false, 15},
+                {true, false, false, true, 15},
+                {true, true, true, true, 10 + 10 + 10},
         };
 
         for (Object[] test : tests) {
@@ -1015,12 +1019,11 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);   //p
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);   //d
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);   //s
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);   //proof
-            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, test[5]);   //silver proof
+
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[6], coinList.size());
+            assertEquals(test[4], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }

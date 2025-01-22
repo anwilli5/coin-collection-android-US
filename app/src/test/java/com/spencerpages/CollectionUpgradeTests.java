@@ -442,11 +442,16 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if (i == 1975) {
+            if (i == 1975 || i == 1968 || i == 1969 || i == 1970) {
                 continue;
-            }
-            if (i == 1976) {coinList.add(new Object[]{"1776-1976", "", 0});}
-            if (i != 1976) {coinList.add(new Object[]{Integer.toString(i), "", 0});}
+            }else if (i == 1964){ coinList.add(new Object[]{Integer.toString(i), "Silver", 0});
+            }else if (i == 1965 || i == 1966 || i ==1967){
+                 coinList.add(new Object[]{Integer.toString(i), "40% Silver", 0});
+                 coinList.add(new Object[]{Integer.toString(i), "SMS 40% Silver", 0});
+            }else if (i ==1976) {
+                coinList.add(new Object[]{"1776-1976", "", 0});
+            }else if (i > 1979){coinList.add(new Object[]{Integer.toString(i), "P", 0});
+            }else {coinList.add(new Object[]{Integer.toString(i), "", 0});}
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -509,7 +514,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
 
         // Test Parameters
 
-        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
+        for (int i = startYear; i <=VERSION_1_YEAR ; i++) {
             if (i == 1909) {
                 coinList.add(new Object[]{"1909", "", 0});
                 coinList.add(new Object[]{"1909", "VDB", 0});
@@ -525,8 +530,8 @@ public class CollectionUpgradeTests extends BaseTestCase {
                 coinList.add(new Object[]{"Formative Years", "2009", 0});
                 coinList.add(new Object[]{"Professional Life", "2009", 0});
                 coinList.add(new Object[]{"Presidency", "2009", 0});
-            }else if (i == 2017 ) {
-                coinList.add(new Object[]{"2017", "P", 0});
+            }else if (i == 2017 ) {                               // wont work, outside of upper date limit. set by upgrade.
+                coinList.add(new Object[]{"2017", "P", 0});       //  unit test fails here. removing the p from code and unit test passed
             }else {coinList.add(new Object[]{Integer.toString(i), "", 0});}
 
         }
@@ -759,8 +764,12 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if ( i < 1980) {coinList.add(new Object[]{Integer.toString(i), "", 0});}
-            if ( i > 1979) {coinList.add(new Object[]{Integer.toString(i), "P", 0});}
+            if (i > 1979) {
+                coinList.add(new Object[]{Integer.toString(i), "P", 0});
+            }else {
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
+            }
+
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -978,14 +987,17 @@ public class CollectionUpgradeTests extends BaseTestCase {
                 continue;
             }
             if (i == 2021) {
-                coinList.add(new Object[]{"Crossing the Delaware", "", 0});
+                coinList.add(new Object[]{"Crossing the Delaware", "P", 0});
             } else if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
-            } else if (i < 1980) {
+            } else if (i > 1979) { coinList.add(new Object[]{Integer.toString(i), "P", 0});
+            } else  {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
-            }else  coinList.add(new Object[]{Integer.toString(i), "P", 0});
+            }
+
 
         }
+        createV1Collection(db, collectionName, coinType, coinList);
         db.close();
         testDbHelper.close();
 
