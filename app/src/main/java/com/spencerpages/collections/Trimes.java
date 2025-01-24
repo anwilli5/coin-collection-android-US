@@ -11,7 +11,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class Trimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Three Cents";
@@ -19,7 +18,6 @@ public class Trimes extends CollectionInfo {
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Silver", R.drawable.annc_us_1854_3c_three_cent__silver__tyii_},
             {"Nickel", R.drawable.annc_us_1865_3c_three_cent__nickel},
-
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -101,5 +99,3 @@ public class Trimes extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-

@@ -60,11 +60,7 @@ public class ProofSets extends CollectionInfo {
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
         Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showsilver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-
-
-
         int coinIndex = 0;
-        //string mint = "Integer.toString(i)";
 
         for (int i = startYear; i <= stopYear;  i++) {
             if ( showproof && i > 1967 ){
@@ -82,6 +78,3 @@ public class ProofSets extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-

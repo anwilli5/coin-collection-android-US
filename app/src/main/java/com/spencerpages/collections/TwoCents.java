@@ -11,7 +11,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class TwoCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Two Cents";
@@ -44,7 +43,6 @@ public class TwoCents extends CollectionInfo {
         return OBVERSE_IMAGE_COLLECTED;
     }
 
-
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -73,5 +71,3 @@ public class TwoCents extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-

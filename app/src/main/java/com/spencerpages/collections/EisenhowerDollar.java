@@ -71,7 +71,7 @@ public class EisenhowerDollar extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -80,13 +80,6 @@ public class EisenhowerDollar extends CollectionInfo {
         // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
-
-
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s_Proofs);
-
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_silver);
     }
 
     // TODO Perform validation and throw exception
@@ -95,75 +88,36 @@ public class EisenhowerDollar extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
             String newValue = Integer.toString(i);
-            if (i==1971){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i==1972){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i==1973){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i==1974){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i == 1975) continue;
-            if (i == 1976) {
+            if (i == 1975 || i == 1976) {
                 newValue = "1776-1976";
+            }
+            if (i == 1976 && startYear != 1976)
+                continue; // (what if start date is 1976)
+
+            if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, "Type I", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "Type II", coinIndex++));}
-                if (showD) {
-                    coinList.add(new CoinSlot(newValue, "D Type I", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "D Type II", coinIndex++));}
-                if (showProof) {
-                    coinList.add(new CoinSlot(newValue, "S Proof Type I", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S Proof Type II", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
+                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
                 }
+                if (showD) {
+                    coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                }
+            } else {
+                coinList.add(new CoinSlot(newValue, "", coinIndex++));
             }
-            if (i==1977){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-            }
-            if (i==1978){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-            }
+
+            //if(i < 1973){
+            //	if(mShowS){
+            //	    mIdentifierList.add(newValue);
+            //	    mMintList.add("S");
+            //	}
+            //}
         }
     }
 

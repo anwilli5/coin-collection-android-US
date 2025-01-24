@@ -35,10 +35,6 @@ public class CladDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Clad Roosevelt Dimes";
 
-
-
-
-
     private static final Integer START_YEAR = 1965;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
@@ -59,8 +55,6 @@ public class CladDimes extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot) {return OBVERSE_IMAGE_COLLECTED;}
 
-
-
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
@@ -77,15 +71,13 @@ public class CladDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
 
+        // Use the MINT_MARK_3 checkbox for whether to include 'SF' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string .include_s_Proofs);
 
-        // Use the MINT_MARK_ checkbox for whether to include 'S' coins
+        // Use the MINT_MARK_4 checkbox for whether to include satin finish coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string .include_satin);
-
-
-
     }
 
     // TODO Perform validation and throw exception
@@ -99,10 +91,7 @@ public class CladDimes extends CollectionInfo {
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showproofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showsatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-
         int coinIndex = 0;
-
-
 
         for (int i = startYear; i <= stopYear; i++) {
             if (showMintMarks) {
@@ -140,4 +129,3 @@ public class CladDimes extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-

@@ -15,7 +15,6 @@ public class EarlyDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Dimes";
 
-
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Draped Bust", R.drawable.a1797drapeddime},
             {"Capped Bust", R.drawable.a1820cappeddime},
@@ -26,8 +25,6 @@ public class EarlyDimes extends CollectionInfo {
             {"Liberty Seated Arrows2", R.drawable.alegendarrowsdime},
     };
 
-
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -35,7 +32,6 @@ public class EarlyDimes extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
 
     }
-
 
     private static final Integer START_YEAR = 1796;
     private static final Integer STOP_YEAR = 1891;
@@ -49,8 +45,6 @@ public class EarlyDimes extends CollectionInfo {
 
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
-
-
 
     public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
@@ -76,8 +70,6 @@ public class EarlyDimes extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_seated);
-
-
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -105,9 +97,7 @@ public class EarlyDimes extends CollectionInfo {
         Boolean showo = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showcc = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-
         int coinIndex = 0;
-
 
         if (showOld && !showdraped) {coinList.add(new CoinSlot("Draped Bust","", coinIndex++));}
         if (showOld && !showcapped) {coinList.add(new CoinSlot("Capped Bust","", coinIndex++));}
@@ -140,8 +130,6 @@ public class EarlyDimes extends CollectionInfo {
                 if (showcc && i == 1873){coinList.add(new CoinSlot("Liberty Seated w Arrows2",String.format("%d CC", i), coinIndex++));}
                 if (showcc && i == 1874){coinList.add(new CoinSlot("Liberty Seated w Arrows2",String.format("%d CC", i), coinIndex++));}
             }
-
-
         }
     }
     @Override
@@ -157,10 +145,3 @@ public class EarlyDimes extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-
-
-
-
-

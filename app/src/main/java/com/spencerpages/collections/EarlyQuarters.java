@@ -48,9 +48,10 @@ public class EarlyQuarters extends CollectionInfo {
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
-    static { for (Object[] coinData : OLDCOIN_IDENTIFIERS) {
-        COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-    }
+    static {
+        for (Object[] coinData : OLDCOIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
         for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
@@ -143,7 +144,6 @@ public class EarlyQuarters extends CollectionInfo {
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
         int coinIndex = 0;
-
 
         if (showold && !showbust) {
             {coinList.add(new CoinSlot("Draped Bust", "", coinIndex++));}
@@ -240,4 +240,3 @@ public class EarlyQuarters extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-

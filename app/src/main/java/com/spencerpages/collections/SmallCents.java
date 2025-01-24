@@ -252,6 +252,3 @@ public class SmallCents extends CollectionInfo {
                                            int oldVersion, int newVersion) {return 0;}
 
 }
-
-
-

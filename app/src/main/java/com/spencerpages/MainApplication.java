@@ -57,7 +57,7 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
-import com.spencerpages.collections.Sets;
+import com.spencerpages.collections.AllSets;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -114,8 +114,6 @@ public class MainApplication extends Application {
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
-
-
                     new SmallCents(),
                     new LargeCents(),
                     new AllNickels(),
@@ -133,13 +131,11 @@ public class MainApplication extends Application {
                     new Cartwheels(),
                     new EarlyDollars(),
                     new WestPoint(),
-                    new Sets(),
+                    new AllSets(),
                     new HalfCents(),
                     new TwoCents(),
                     new Trimes(),
                     new TwentyCents(),
-
-
             };
 
     public static final String DATABASE_NAME = "CoinCollection";

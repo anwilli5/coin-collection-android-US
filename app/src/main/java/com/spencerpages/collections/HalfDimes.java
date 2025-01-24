@@ -15,7 +15,6 @@ public class HalfDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Half Dimes";
 
-
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Flowing Hair", R.drawable.a1794_half_dime},
             {"Draped Bust", R.drawable.a1797drapeddime},
@@ -26,8 +25,6 @@ public class HalfDimes extends CollectionInfo {
             {"Liberty Seated Legend", R.drawable.alegenddime},
     };
 
-
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -35,7 +32,6 @@ public class HalfDimes extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
 
     }
-
 
     private static final Integer START_YEAR = 1794;
     private static final Integer STOP_YEAR = 1873;
@@ -49,8 +45,6 @@ public class HalfDimes extends CollectionInfo {
 
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
-
-
 
     public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
@@ -70,8 +64,6 @@ public class HalfDimes extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_seated);
-
-
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -93,9 +85,7 @@ public class HalfDimes extends CollectionInfo {
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showo = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-
         int coinIndex = 0;
-
 
         for (Integer i = startYear; i <= stopYear; i++) {
             if (showbust && i == 1794) {
@@ -161,11 +151,3 @@ public class HalfDimes extends CollectionInfo {
         return 0;
     }
 }
-
-
-
-
-
-
-
-

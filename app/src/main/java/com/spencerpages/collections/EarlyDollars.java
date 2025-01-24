@@ -15,7 +15,6 @@ public class EarlyDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Dollars";
 
-
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Flowing Hair", R.drawable.a1795_half_dollar_obv},
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
@@ -24,7 +23,6 @@ public class EarlyDollars extends CollectionInfo {
             {"Trade", R.drawable.annc1884_t_1_trade_dollar__judd_1732_},
     };
 
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -32,9 +30,7 @@ public class EarlyDollars extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
-
     }
-
 
     private static final Integer START_YEAR = 1794;
     private static final Integer STOP_YEAR = 1885;
@@ -52,7 +48,6 @@ public class EarlyDollars extends CollectionInfo {
     public int getCoinImageIdentifier() {
         return REVERSE_IMAGE;
     }
-
 
     public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
@@ -76,7 +71,6 @@ public class EarlyDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_trade);
 
-
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_o);
@@ -87,7 +81,6 @@ public class EarlyDollars extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_cc);
-
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
@@ -99,9 +92,7 @@ public class EarlyDollars extends CollectionInfo {
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-
         int coinIndex = 0;
-
 
         for (Integer i = startYear; i <= stopYear; i++) {
             if(showbust){
@@ -125,7 +116,6 @@ public class EarlyDollars extends CollectionInfo {
                 if(showCC){if(i>1872 && i<1879){coinList.add(new CoinSlot("Trade", String.format("%d CC", i), coinIndex++));}}
                 if(i>1878 && i <1886){coinList.add(new CoinSlot("Trade", String.format("%d Proofs Only", i), coinIndex++));}
             }
-
         }
     }
 

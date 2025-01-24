@@ -31,7 +31,7 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class moreNickels extends CollectionInfo {
+public class AllNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "All Nickels";
 
@@ -112,7 +112,7 @@ public class moreNickels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
 
-        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
+        // Use the MINT_MARK_4 checkbox for whether to include 'SF' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
 
@@ -130,8 +130,6 @@ public class moreNickels extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_Jefferson);
-
-
     }
 
     // TODO Perform validation and throw exception
@@ -161,8 +159,6 @@ public class moreNickels extends CollectionInfo {
             String sf = String.format("%d S ", i);
             String satin = String.format("%d Satin", i);
             String satind = String.format("%d D Satin", i);
-
-
 
             if (showshield) {
                 if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {
@@ -288,4 +284,3 @@ public class moreNickels extends CollectionInfo {
                                            int oldVersion, int newVersion) {return 0;}
 
 }
-

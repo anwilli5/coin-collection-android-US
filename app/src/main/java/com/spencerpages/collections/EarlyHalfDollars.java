@@ -15,7 +15,6 @@ public class EarlyHalfDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Half Dollars";
 
-
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Flowing Hair", R.drawable.a1795_half_dollar_obv},
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
@@ -24,8 +23,6 @@ public class EarlyHalfDollars extends CollectionInfo {
             {"`Liberty Seated", R.drawable.a1873_half_dollar_obverse},
     };
 
-
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -33,7 +30,6 @@ public class EarlyHalfDollars extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
 
     }
-
 
     private static final Integer START_YEAR = 1794;
     private static final Integer STOP_YEAR = 1891;
@@ -47,8 +43,6 @@ public class EarlyHalfDollars extends CollectionInfo {
 
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
-
-
 
     public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
@@ -68,7 +62,6 @@ public class EarlyHalfDollars extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_seated);
-
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -96,7 +89,6 @@ public class EarlyHalfDollars extends CollectionInfo {
         Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
 
         int coinIndex = 0;
-
 
         for (Integer i = startYear; i <= stopYear; i++) {
             if(showbust){
@@ -134,9 +126,6 @@ public class EarlyHalfDollars extends CollectionInfo {
                     if(i>1874 && i<1879){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Motto", i), coinIndex++));}
                 }
             }
-
-
-
         }
     }
     @Override
@@ -152,10 +141,3 @@ public class EarlyHalfDollars extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-
-
-
-
-

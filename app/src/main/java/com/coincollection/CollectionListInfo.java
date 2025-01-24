@@ -29,16 +29,28 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import com.spencerpages.MainApplication;
+import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CladDimes;
+import com.spencerpages.collections.CladKennedy;
+import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
+import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
+import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -46,11 +58,19 @@ import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.AllSets;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.WashingtonSilver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -134,7 +154,27 @@ public class CollectionListInfo implements Parcelable {
             StandingLibertyQuarters.COLLECTION_TYPE,
             SusanBAnthonyDollars.COLLECTION_TYPE,
             WalkingLibertyHalfDollars.COLLECTION_TYPE,
-            WashingtonQuarters.COLLECTION_TYPE));
+            WashingtonQuarters.COLLECTION_TYPE,
+            SmallCents.COLLECTION_TYPE,
+            LargeCents.COLLECTION_TYPE,
+            AllNickels.COLLECTION_TYPE,
+            HalfDimes.COLLECTION_TYPE,
+            CladDimes.COLLECTION_TYPE,
+            SilverDimes.COLLECTION_TYPE,
+            EarlyDimes.COLLECTION_TYPE,
+            CladQuarters.COLLECTION_TYPE,
+            WashingtonSilver.COLLECTION_TYPE,
+            EarlyQuarters.COLLECTION_TYPE,
+            CladKennedy.COLLECTION_TYPE,
+            SilverHalfDollars.COLLECTION_TYPE,
+            EarlyHalfDollars.COLLECTION_TYPE,
+            Cartwheels.COLLECTION_TYPE,
+            EarlyDollars.COLLECTION_TYPE,
+            AllSets.COLLECTION_TYPE,
+            HalfCents.COLLECTION_TYPE,
+            TwoCents.COLLECTION_TYPE,
+            Trimes.COLLECTION_TYPE,
+            TwentyCents.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
                               int startYear, int stopYear, int mintMarkFlags,

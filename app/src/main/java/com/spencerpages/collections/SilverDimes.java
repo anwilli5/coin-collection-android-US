@@ -35,13 +35,11 @@ public class SilverDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Silver Dimes";
 
-
     private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
             {"Draped Bust", R.drawable.a1797drapeddime},
             {"Capped Bust", R.drawable.a1820cappeddime},
             {"Seated Liberty", R.drawable.astarsdime},
     };
-
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"  ", R.drawable.obv_barber_dime},
@@ -51,19 +49,13 @@ public class SilverDimes extends CollectionInfo {
             {"Mercury", R.drawable.obv_mercury_dime},
     };
 
-
-
-
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-
     }
-
 
     private static final Integer START_YEAR = 1793;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
@@ -77,8 +69,6 @@ public class SilverDimes extends CollectionInfo {
 
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
-
-
 
     public int getCoinSlotImage(CoinSlot coinSlot) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
@@ -185,8 +175,3 @@ public class SilverDimes extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-
-
-

@@ -199,7 +199,6 @@ public class CladQuarters extends CollectionInfo {
             {"Dr. Mary Edwards Walker 2024", R.drawable.women_2024_mary_edwards_walker_unc},
             {"Celia Cruz 2024", R.drawable.women_2024_celia_cruz_unc},
             {"Zitkala Sa 2024", R.drawable.women_2024_zitkala_sa_unc},
-
     };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
@@ -393,5 +392,3 @@ public class CladQuarters extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-

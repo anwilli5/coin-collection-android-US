@@ -13,8 +13,8 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Sets extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "Coin Sets";
+public class AllSets extends CollectionInfo {
+    public static final String COLLECTION_TYPE = "All Coin Sets";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Proof Set", R.drawable.a24rg},
@@ -81,11 +81,7 @@ public class Sets extends CollectionInfo {
         Boolean showmint = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showsilver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-
-
-
         int coinIndex = 0;
-        //string mint = "Integer.toString(i)";
 
         for (int i = startYear; i <= stopYear;  i++) {
             if (showmint && i > 1946 && i != 1950){
@@ -98,7 +94,7 @@ public class Sets extends CollectionInfo {
                 coinList.add(new CoinSlot("Silver Proof Set", Integer.toString(i), coinIndex++));
             }
             if (showsilver && i >1991) {
-                coinList.add(new CoinSlot("Silver Proof Set",Integer.toString(i), coinIndex++));
+                coinList.add(new CoinSlot("Silver Proof Set", Integer.toString(i), coinIndex++));
             }
         }
     }
@@ -106,6 +102,3 @@ public class Sets extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-

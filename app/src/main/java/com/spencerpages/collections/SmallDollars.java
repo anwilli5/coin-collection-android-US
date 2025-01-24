@@ -99,8 +99,6 @@ public class SmallDollars extends CollectionInfo {
             {"`", R.drawable.obv_sacagawea_unc},
     };
 
-
-
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -228,4 +226,3 @@ public class SmallDollars extends CollectionInfo {
                                            int oldVersion, int newVersion) {return 0;}
 
 }
-

@@ -32,7 +32,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class Cartwheels extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Cartwheels";
 
@@ -41,7 +40,6 @@ public class Cartwheels extends CollectionInfo {
             {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},
             {"Seated Liberty", R.drawable.do1860o},
             {"Trade", R.drawable.do1876tradeo},
-
     };
 
     private static final Object[][] COIN_IDENTIFIERS = {
@@ -136,7 +134,6 @@ public class Cartwheels extends CollectionInfo {
         Boolean showpeace = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
         Boolean showike = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
         Boolean showeagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
-
         int coinIndex = 0;
 
         if (showold) {
@@ -185,7 +182,6 @@ public class Cartwheels extends CollectionInfo {
                         if (i > 1972){coinList.add(new CoinSlot("",String.format("%2d S Proof", i), coinIndex++));}
                     }
                 }
-                if (i == 1975) {continue;}
                 if (i == 1976) {
                     if (showP) {
                         coinList.add(new CoinSlot("", String.format("%d Type I", i), coinIndex++));
@@ -226,4 +222,3 @@ public class Cartwheels extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-

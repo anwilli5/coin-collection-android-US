@@ -11,7 +11,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class HalfCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Half Cents";
@@ -91,4 +90,3 @@ public class HalfCents extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-

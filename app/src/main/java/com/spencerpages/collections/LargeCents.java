@@ -11,7 +11,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class LargeCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Large Cents";
@@ -117,4 +116,3 @@ public class LargeCents extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-

@@ -59,7 +59,7 @@ public class WashingtonQuarters extends CollectionInfo {
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 
     // TODO Replace with standard back when good image becomes available
-    private static final int REVERSE_IMAGE = R.drawable.a98_quarter_reverseby636buster;
+    private static final int REVERSE_IMAGE = R.drawable.rev_1976_washington_quarter_unc;
 
     @Override
     public String getCoinType() {
@@ -83,7 +83,7 @@ public class WashingtonQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -149,7 +149,7 @@ public class WashingtonQuarters extends CollectionInfo {
 
     @Override
     public int getAttributionResId() {
-        return R.string.attr_quarters;
+        return R.string.attr_mint;
     }
 
     @Override

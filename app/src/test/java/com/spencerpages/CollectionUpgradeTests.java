@@ -26,7 +26,6 @@ import android.os.Build;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CoinPageCreator;
-import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
@@ -265,8 +264,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
                 continue;
             }
             if (i == 1976) {
-                coinList.add(new Object[]{"1776-1976", "Type I", 0});
-                coinList.add(new Object[]{"1776-1976", "Type II", 0});
+                coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
             }
@@ -400,20 +398,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if (i == 1942) {
-                coinList.add(new Object[]{Integer.toString(i), "", 0});
-                coinList.add(new Object[]{Integer.toString(i), "P Silver", 0});
-            } else if ( i==1943 || i==1944 || i== 1945) {
-                coinList.add(new Object[]{Integer.toString(i), "P Silver", 0});
-            } else if (i == 2004) {
-                coinList.add(new Object[]{"Peace Medal", "P", 0});
-                coinList.add(new Object[]{"Keelboat", "P", 0});
+            if (i == 2004) {
+                coinList.add(new Object[]{"Peace Medal", "", 0});
+                coinList.add(new Object[]{"Keelboat", "", 0});
             } else if (i == 2005) {
-                coinList.add(new Object[]{"American Bison", "P", 0});
-                coinList.add(new Object[]{"Ocean in View!", "P", 0});
-            } else if( i != 1968 && i != 1969 && i != 1970) {
-                if (i >= 1980)coinList.add(new Object[]{Integer.toString(i), "P", 0});
-                if (i < 1980 )coinList.add(new Object[]{Integer.toString(i), "", 0});
+                coinList.add(new Object[]{"American Bison", "", 0});
+                coinList.add(new Object[]{"Ocean in View!", "", 0});
+            } else {
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
             }
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -442,16 +434,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if (i == 1975 || i == 1968 || i == 1969 || i == 1970) {
+            if (i == 1975) {
                 continue;
-            }else if (i == 1964){ coinList.add(new Object[]{Integer.toString(i), "Silver", 0});
-            }else if (i == 1965 || i == 1966 || i ==1967){
-                 coinList.add(new Object[]{Integer.toString(i), "40% Silver", 0});
-                 coinList.add(new Object[]{Integer.toString(i), "SMS 40% Silver", 0});
-            }else if (i ==1976) {
+            }
+            if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
-            }else if (i > 1979){coinList.add(new Object[]{Integer.toString(i), "P", 0});
-            }else {coinList.add(new Object[]{Integer.toString(i), "", 0});}
+            } else {
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
+            }
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -502,6 +492,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
     @Test
     public void test_LincolnCentsUpgrade() {
 
+        // Test Parameters
         CollectionInfo collection = new LincolnCents();
         String coinType = "Pennies";
         String collectionName = coinType + " Upgrade";
@@ -511,29 +502,18 @@ public class CollectionUpgradeTests extends BaseTestCase {
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
-
-        // Test Parameters
-
-        for (int i = startYear; i <=VERSION_1_YEAR ; i++) {
+        for (int i = startYear; i <= VERSION_1_YEAR; i++) {
             if (i == 1909) {
-                coinList.add(new Object[]{"1909", "", 0});
-                coinList.add(new Object[]{"1909", "VDB", 0});
-            }else if (i==1943) {
-                coinList.add(new Object[]{"1943", "Steel Cent", 0});
-            }else if (i == 1982) {
-                coinList.add(new Object[]{"1982 Copper Large Date", "", 0});
-                coinList.add(new Object[]{"1982 Copper Small Date", "", 0});
-                coinList.add(new Object[]{"1982 Zinc Large Date", "", 0});
-                coinList.add(new Object[]{"1982 Zinc Small Date", "", 0});
-            }else if (i == 2009) {
-                coinList.add(new Object[]{"Early Childhood", "2009", 0});
-                coinList.add(new Object[]{"Formative Years", "2009", 0});
-                coinList.add(new Object[]{"Professional Life", "2009", 0});
-                coinList.add(new Object[]{"Presidency", "2009", 0});
-            }else if (i == 2017 ) {                               // wont work, outside of upper date limit. set by upgrade.
-                coinList.add(new Object[]{"2017", "P", 0});       //  unit test fails here. removing the p from code and unit test passed
-            }else {coinList.add(new Object[]{Integer.toString(i), "", 0});}
-
+                coinList.add(new Object[]{"1909 V.D.B", "", 0});
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
+            } else if (i == 2009) {
+                coinList.add(new Object[]{"Early Childhood", "", 0});
+                coinList.add(new Object[]{"Formative Years", "", 0});
+                coinList.add(new Object[]{"Professional Life", "", 0});
+                coinList.add(new Object[]{"Presidency", "", 0});
+            } else {
+                coinList.add(new Object[]{Integer.toString(i), "", 0});
+            }
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -542,7 +522,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
         // Compare against a new database
         validateUpdatedDb(collection, collectionName);
     }
-
 
     /**
      * For MercuryDimes
@@ -764,12 +743,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            if (i > 1979) {
-                coinList.add(new Object[]{Integer.toString(i), "P", 0});
-            }else {
-                coinList.add(new Object[]{Integer.toString(i), "", 0});
-            }
-
+            coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -987,15 +961,12 @@ public class CollectionUpgradeTests extends BaseTestCase {
                 continue;
             }
             if (i == 2021) {
-                coinList.add(new Object[]{"Crossing the Delaware", "P", 0});
+                coinList.add(new Object[]{"Crossing the Delaware", "", 0});
             } else if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
-            } else if (i > 1979) { coinList.add(new Object[]{Integer.toString(i), "P", 0});
-            } else  {
+            } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
             }
-
-
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
