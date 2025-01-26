@@ -25,6 +25,7 @@ import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
@@ -228,7 +229,8 @@ public class DatabaseAdapter {
                 + " " + COL_ADV_QUANTITY_INDEX + " integer default 0,"
                 + " " + COL_ADV_NOTES + " text default \"\","
                 + " " + COL_SORT_ORDER + " integer not null,"
-                + " " + COL_CUSTOM_COIN + " integer default 0);";
+                + " " + COL_CUSTOM_COIN + " integer default 0,"
+                + " " + COL_IMAGE_ID + " integer default -1);";
         mDb.execSQL(sqlCmd);
     }
 
@@ -405,10 +407,11 @@ public class DatabaseAdapter {
      * @param coinSlot  coin data to use for updates
      * @throws SQLException if a database error occurs
      */
-    public void updateCoinNameAndMint(String tableName, CoinSlot coinSlot) throws SQLException {
+    public void updateCoinNameMintImage(String tableName, CoinSlot coinSlot) throws SQLException {
         ContentValues values = new ContentValues();
         values.put(COL_COIN_IDENTIFIER, coinSlot.getIdentifier());
         values.put(COL_COIN_MINT, coinSlot.getMint());
+        values.put(COL_IMAGE_ID, coinSlot.getImageId());
         String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
         runSqlUpdateAndCheck(tableName, values, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
@@ -473,6 +476,7 @@ public class DatabaseAdapter {
         values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
         values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
         values.put(COL_CUSTOM_COIN, coinSlot.isCustomCoinInt());
+        values.put(COL_IMAGE_ID, coinSlot.getImageId());
 
         // Add coin into database and record database id in CoinSlot object
         coinSlot.setDatabaseId(runSqlInsert(tableName, values));

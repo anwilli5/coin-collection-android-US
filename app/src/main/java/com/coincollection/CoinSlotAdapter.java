@@ -38,6 +38,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -155,11 +157,11 @@ class CoinSlotAdapter extends BaseAdapter {
         if (!coinViewWasRecycled && mDisplayType == CollectionPage.ADVANCED_DISPLAY && !mDisplayIsLocked) {
             coinView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
-                public void onViewAttachedToWindow(View view) {
+                public void onViewAttachedToWindow(@NonNull View view) {
                 }
 
                 @Override
-                public void onViewDetachedFromWindow(View view) {
+                public void onViewDetachedFromWindow(@NonNull View view) {
                     onCoinSlotAdvNotesChanged(view);
                 }
             });
@@ -177,9 +179,9 @@ class CoinSlotAdapter extends BaseAdapter {
 
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
-        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot);
+        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot, false);
         coinImage.setImageResource(imageIdentifier);
-        coinImage.setAlpha(coinSlot.isInCollection() ? 255 : 64);
+        coinImage.setImageAlpha(coinSlot.isInCollection() ? 255 : 64);
 
         // Add an accessibility string to indicate that the coin has been found or not
         String contextDesc = mRes.getString(coinSlot.isInCollectionStringRes());
