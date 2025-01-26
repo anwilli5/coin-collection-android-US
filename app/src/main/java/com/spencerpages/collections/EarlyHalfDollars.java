@@ -15,20 +15,20 @@ public class EarlyHalfDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Half Dollars";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
             {"Flowing Hair", R.drawable.a1795_half_dollar_obv},
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
             {"Capped Bust", R.drawable.a1834_bust_half_dollar_obverse},
             {"Liberty Seated", R.drawable.a1885_half_dollar_obv},
-            {"`Liberty Seated", R.drawable.a1873_half_dollar_obverse},
+            {"Liberty Seated (Arrows)", R.drawable.a1873_half_dollar_obverse},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-
+        for (Object[] coinData : COIN_IMG_IDS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final Integer START_YEAR = 1794;
@@ -44,8 +44,14 @@ public class EarlyHalfDollars extends CollectionInfo {
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
 
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
@@ -100,29 +106,29 @@ public class EarlyHalfDollars extends CollectionInfo {
             if(showseated){
                 if(showP){
                     if(i>1838 && i<1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d", i), coinIndex++));}
-                    if(i==1853){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d Arrows&Rays", i), coinIndex++));}
-                    if(i==1854 ||i==1855){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d Arrows", i), coinIndex++));}
+                    if(i==1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows&Rays", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
+                    if(i==1854 ||i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1855 && i<1866){coinList.add(new CoinSlot("Liberty Seated", String.format("%d", i), coinIndex++));}
                     if(i>1865 && i<1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Motto", i), coinIndex++));}
-                    if(i==1873 ||i==1974){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d Motto&Arrows", i), coinIndex++));}
+                    if(i==1873 ||i==1974){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Motto&Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1874 && i<1892){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Motto", i), coinIndex++));}
                 }
                 if(showO){
                     if(i>1839 && i<1854){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O", i), coinIndex++));}
-                    if(i==1853){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d O Arrows&Rays", i), coinIndex++));}
-                    if(i==1854 ||i==1855){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d O Arrows", i), coinIndex++));}
+                    if(i==1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O Arrows&Rays", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
+                    if(i==1854 ||i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1855 && i<1862){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O", i), coinIndex++));}
                 }
                 if(showS){
-                    if(i==1855){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d S Arrows", i), coinIndex++));}
+                    if(i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1855 && i<1866){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S", i), coinIndex++));}
                     if(i>1865 && i<1879){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto", i), coinIndex++));}
-                    if(i==1873 ||i==1874){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d S Motto&Arrows", i), coinIndex++));}
+                    if(i==1873 ||i==1874){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto&Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1874 && i<1879){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto", i), coinIndex++));}
                 }
                 if(showCC){
                     if(i>1869 && i<1874){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Motto", i), coinIndex++));}
-                    if(i==1873 ||i==1874){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d CC Motto&Arrows", i), coinIndex++));}
+                    if(i==1873 ||i==1874){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Motto&Arrows", i), coinIndex++, getImgId("Liberty Seated (Arrows)")));}
                     if(i>1874 && i<1879){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Motto", i), coinIndex++));}
                 }
             }
@@ -140,4 +146,9 @@ public class EarlyHalfDollars extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
+
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }

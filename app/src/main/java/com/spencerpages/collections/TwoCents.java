@@ -39,7 +39,7 @@ public class TwoCents extends CollectionInfo {
     public int getStopYear() {return STOP_YEAR;}
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         return OBVERSE_IMAGE_COLLECTED;
     }
 

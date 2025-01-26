@@ -48,7 +48,7 @@ public class Trimes extends CollectionInfo {
     public int getStopYear() {return STOP_YEAR;}
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }

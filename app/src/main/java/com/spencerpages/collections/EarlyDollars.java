@@ -15,11 +15,12 @@ public class EarlyDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Dollars";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
             {"Flowing Hair", R.drawable.a1795_half_dollar_obv},
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
             {"Liberty Seated", R.drawable.a1885_half_dollar_obv},
-            {"`Liberty Seated", R.drawable.anostarsdime},
+            {"Liberty Seated (1836)", R.drawable.anostarsdime},
             {"Trade", R.drawable.annc1884_t_1_trade_dollar__judd_1732_},
     };
 
@@ -27,7 +28,7 @@ public class EarlyDollars extends CollectionInfo {
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {
+        for (Object[] coinData : COIN_IMG_IDS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -49,8 +50,14 @@ public class EarlyDollars extends CollectionInfo {
         return REVERSE_IMAGE;
     }
 
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
@@ -102,7 +109,7 @@ public class EarlyDollars extends CollectionInfo {
                 if(i==1804){coinList.add(new CoinSlot("Draped Bust", String.format("%d Rare", i), coinIndex++));}
             }
             if(showseated){
-                if(i==1836){coinList.add(new CoinSlot("`Liberty Seated", String.format("%d Gobrecht", i), coinIndex++));}
+                if(i==1836){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Gobrecht", i), coinIndex++, getImgId("Liberty Seated (1836)")));}
                 if(i==1837 || i==1838){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Gobrecht Proofs Only", i), coinIndex++));}
                 if(i>1839 && i<1866 && i!= 1858){coinList.add(new CoinSlot("Liberty Seated", String.format("%d", i), coinIndex++));}
                 if(i>1865 &&i<1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Motto", i), coinIndex++));}
@@ -138,5 +145,10 @@ public class EarlyDollars extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
         return 0;
+    }
+
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
     }
 }

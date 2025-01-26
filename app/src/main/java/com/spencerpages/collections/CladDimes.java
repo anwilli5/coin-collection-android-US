@@ -53,7 +53,7 @@ public class CladDimes extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {return OBVERSE_IMAGE_COLLECTED;}
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {return OBVERSE_IMAGE_COLLECTED;}
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {

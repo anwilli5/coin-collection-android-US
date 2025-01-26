@@ -41,9 +41,13 @@ public class EarlyQuarters extends CollectionInfo {
             {"Liberty Seated", R.drawable.a1885_half_dollar_obv},
     };
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"", R.drawable.obv_standing_liberty_quarter},
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Standing Liberty", R.drawable.obv_standing_liberty_quarter},
             {"Barber", R.drawable.obv_barber_quarter},
+            {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
+            {"Capped Bust", R.drawable.a1834_bust_half_dollar_obverse},
+            {"Liberty Seated", R.drawable.a1885_half_dollar_obv},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -52,7 +56,7 @@ public class EarlyQuarters extends CollectionInfo {
         for (Object[] coinData : OLDCOIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
-        for (Object[] coinData : COIN_IDENTIFIERS) {
+        for (Object[] coinData : COIN_IMG_IDS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -79,8 +83,14 @@ public class EarlyQuarters extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
@@ -153,6 +163,7 @@ public class EarlyQuarters extends CollectionInfo {
         if (showold && !showbarber) {coinList.add(new CoinSlot("Barber","", coinIndex++));}
 
         for (int i = startYear; i <= stopYear; i++) {
+            String year = String.format("%d", i);
 
             if(showbust){
                 if(i==1776){coinList.add(new CoinSlot("Draped Bust", String.format("%d Sm Eagle", i), coinIndex++));}
@@ -164,7 +175,7 @@ public class EarlyQuarters extends CollectionInfo {
             if(showseated){
                 if(showP){
                     if(i==1838 || i==1839) {coinList.add(new CoinSlot("Liberty Seated", String.format("%d No Drapery", i), coinIndex++));}
-                    if(i>1839 && i<1866 && i!=1853 && i!=1854 && i!=1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d", i), coinIndex++));}
+                    if(i>1839 && i<1866 && i!=1853 && i!=1854 && i!=1855){coinList.add(new CoinSlot("Liberty Seated", year, coinIndex++));}
                     if(i==1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows&Rays", i), coinIndex++));}
                     if(i==1854 || i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows", i), coinIndex++));}
                     if(i==1866){coinList.add(new CoinSlot("Liberty Seated", String.format("%d One Known", i), coinIndex++));}
@@ -203,19 +214,19 @@ public class EarlyQuarters extends CollectionInfo {
             if (showstanding && i > 1915) {
                 if (i == 1917) {
                     if (showP) {
-                        coinList.add(new CoinSlot("", String.format("%d Type I  ", i), coinIndex++));
-                        coinList.add(new CoinSlot("", String.format("%d Type II ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Type I", i), "", coinIndex++, getImgId("Standing Liberty")));
+                        coinList.add(new CoinSlot(String.format("%d Type II", i), "", coinIndex++, getImgId("Standing Liberty")));}
                     if (showD) {
-                        coinList.add(new CoinSlot("", String.format("%d Type I D ", i), coinIndex++));
-                        coinList.add(new CoinSlot("", String.format("%d Type II D ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Type I", i), "D", coinIndex++, getImgId("Standing Liberty")));
+                        coinList.add(new CoinSlot(String.format("%d Type II", i), "D", coinIndex++, getImgId("Standing Liberty")));}
                     if (showS) {
-                        coinList.add(new CoinSlot("", String.format("%d Type I S ", i), coinIndex++));
-                        coinList.add(new CoinSlot("", String.format("%d Type II S ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Type I", i), "S", coinIndex++, getImgId("Standing Liberty")));
+                        coinList.add(new CoinSlot(String.format("%d Type II", i), "S", coinIndex++, getImgId("Standing Liberty")));}
                 } else {
-                    if (showP) {coinList.add(new CoinSlot("", String.format("%d  ", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Standing Liberty")));}
                     if (showD && i != 1916 && i != 1921 && i != 1925 && i != 1923 && i != 1930) {
-                        coinList.add(new CoinSlot("", String.format("%d D  ", i), coinIndex++));}
-                    if (showS && i != 1916 && i != 1921 && i != 1925) {coinList.add(new CoinSlot("", String.format("%d S ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Standing Liberty")));}
+                    if (showS && i != 1916 && i != 1921 && i != 1925) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Standing Liberty")));}
                 }
             }
         }
@@ -239,4 +250,9 @@ public class EarlyQuarters extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
+
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }

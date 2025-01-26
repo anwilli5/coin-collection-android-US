@@ -42,10 +42,8 @@ public class Cartwheels extends CollectionInfo {
             {"Trade", R.drawable.do1876tradeo},
     };
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"`", R.drawable.obv_morgan_dollar},
-            {" ", R.drawable.obv_peace_dollar},
-            {"", R.drawable.obv_eisenhower_dollar},
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
             {"SBA", R.drawable.obv_susan_b_anthony_unc},
             {"Eagle",R.drawable.obv_american_eagle_unc},
             {"Morgan", R.drawable.obv_morgan_dollar},
@@ -58,7 +56,7 @@ public class Cartwheels extends CollectionInfo {
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
         for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : COIN_IMG_IDS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final Integer START_YEAR = 1878;
@@ -79,8 +77,14 @@ public class Cartwheels extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -151,61 +155,63 @@ public class Cartwheels extends CollectionInfo {
             if ((i > 1904 && i < 1921)) {continue;
             }else if (i >= 1929 && i <= 1933) {continue;}
 
-            String phil = String.format("%d ", i);
-            String den = String.format("%d D ", i);
-            String sf = String.format("%d S ", i);
-            String no = String.format("%d O ", i);
-            String cc = String.format("%d CC ", i);
+            String year = String.format("%d", i);
+            String phil = "";
+            String den = "D";
+            String sf = "S";
+            String no = "O";
+            String cc = "CC";
+
             if (showmorgan && i >1877 && i < 1922) {
                 if (showP && i == 1878) {
-                    coinList.add(new CoinSlot("`",String.format("%d 8 Feathers", i), coinIndex++));
-                    coinList.add(new CoinSlot("`",String.format("%d 7 Feathers", i), coinIndex++));
-                } else if (i != 1895) {coinList.add(new CoinSlot("`",phil, coinIndex++));}
-                if (showD && i == 1921) {coinList.add(new CoinSlot("`",den, coinIndex++));}
-                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot("`",no, coinIndex++));}
-                if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {coinList.add(new CoinSlot("`",cc, coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot("`",sf, coinIndex++));
+                    coinList.add(new CoinSlot(String.format("%d 8 Feathers", i), phil, coinIndex++, getImgId("Morgan")));
+                    coinList.add(new CoinSlot(String.format("%d 7 Feathers", i), phil, coinIndex++, getImgId("Morgan")));
+                } else if (i != 1895) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Morgan")));}
+                if (showD && i == 1921) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Morgan")));}
+                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot(year, no, coinIndex++, getImgId("Morgan")));}
+                if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {coinList.add(new CoinSlot(year, cc, coinIndex++, getImgId("Morgan")));}
+                if (showS) {coinList.add(new CoinSlot(year, sf, coinIndex++, getImgId("Morgan")));
                 }
             }
             if (showpeace && i > 1920 && i < 1936){
-                if (showP) {coinList.add(new CoinSlot(" ",String.format("%d  ", i), coinIndex++));}
-                if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {coinList.add(new CoinSlot(" ",String.format("%d D  ", i), coinIndex++));}
-                if (showS && i != 1921) {coinList.add(new CoinSlot(" ",String.format("%d S  ", i), coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Peace")));}
+                if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Peace")));}
+                if (showS && i != 1921) {coinList.add(new CoinSlot(year, sf, coinIndex++, getImgId("Peace")));}
             }
             if (showike && i > 1970 && i < 1979){
                 if (i < 1975) {
-                    if (showP) {coinList.add(new CoinSlot("",phil, coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("",den, coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Eisenhower")));}
+                    if (showD) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        {coinList.add(new CoinSlot("",String.format("%d S 40%% Silver", i), coinIndex++));}
-                        {coinList.add(new CoinSlot("",String.format("%d S 40%% Silver Proof", i), coinIndex++));}
-                        if (i > 1972){coinList.add(new CoinSlot("",String.format("%2d S Proof", i), coinIndex++));}
+                        {coinList.add(new CoinSlot(String.format("%d 40%% Silver", i), sf, coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(String.format("%d 40%% Silver Proof", i), sf, coinIndex++, getImgId("Eisenhower")));}
+                        if (i > 1972){coinList.add(new CoinSlot(String.format("%d Proof", i), sf, coinIndex++, getImgId("Eisenhower")));}
                     }
                 }
                 if (i == 1976) {
                     if (showP) {
-                        coinList.add(new CoinSlot("", String.format("%d Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d Type II", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Type I", i), phil, coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot(String.format("%d Type II", i), phil, coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {
-                        coinList.add(new CoinSlot("",String.format("%d D Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d D Type II", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Type I", i), den, coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot(String.format("%d Type II", i), den, coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        coinList.add(new CoinSlot("",String.format("%d S Proof Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S Proof Type II", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S 40%% Silver", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S 40%% Silver Proof", i), coinIndex++));}
+                        coinList.add(new CoinSlot(String.format("%d Proof Type I", i), sf, coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot(String.format("%d Proof Type II", i), sf, coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot(String.format("%d 40%% Silver", i), sf, coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot(String.format("%d 40%% Silver Proof", i), sf, coinIndex++, getImgId("Eisenhower")));}
                 }
                 if ( i > 1976 ){
-                    if (showP) {coinList.add(new CoinSlot("",phil, coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("",den, coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot("",String.format("%d S Proof", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Eisenhower")));}
+                    if (showD) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Eisenhower")));}
+                    if (showS) {coinList.add(new CoinSlot(String.format("%d Proof", i), sf, coinIndex++, getImgId("Eisenhower")));}
                 }
             }
-            if (showeagle && i >1985){coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                if (i == 2006) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2007) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2008) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2011) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+            if (showeagle && i >1985){coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Eagle")));
+                if (i == 2006) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                if (i == 2007) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                if (i == 2008) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                if (i == 2011) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
             }
         }
     }
@@ -221,4 +227,9 @@ public class Cartwheels extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
+
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }

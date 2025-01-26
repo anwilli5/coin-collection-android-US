@@ -39,11 +39,10 @@ public class TwentyCents extends CollectionInfo {
     public int getStopYear() {return STOP_YEAR;}
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         return OBVERSE_IMAGE_COLLECTED;
     }
-
-
+    
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);

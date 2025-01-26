@@ -44,16 +44,19 @@ public class AllNickels extends CollectionInfo {
             {"Bison", R.drawable.westward_2005_american_bison_unc},
             {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},
     };
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"   ", R.drawable.obv_shield_nickel},
-            {"  ", R.drawable.obv_liberty_head_nickel},
-            {"", R.drawable.obv_buffalo_nickel},
-            {" ", R.drawable.obv_jefferson_nickel_unc},
-            {"`", R.drawable.jeffersonuncirculated},
-            {"'", R.drawable.jeffersonproof},
+
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
             {"Shield", R.drawable.obv_shield_nickel},
             {"Liberty", R.drawable.obv_liberty_head_nickel},
             {"Buffalo", R.drawable.obv_buffalo_nickel},
+            {"Jefferson", R.drawable.obv_jefferson_nickel_unc},
+            {"Jefferson (Unc)", R.drawable.jeffersonuncirculated},
+            {"Jefferson (Proof)", R.drawable.jeffersonproof},
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
+            {"Keelboat", R.drawable.westward_2004_keelboat_unc},
+            {"Bison", R.drawable.westward_2005_american_bison_unc},
+            {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -66,7 +69,7 @@ public class AllNickels extends CollectionInfo {
         for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
-        for (Object[] coinData : COIN_IDENTIFIERS) {
+        for (Object[] coinData : COIN_IMG_IDS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -87,9 +90,15 @@ public class AllNickels extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
+        return (slotImage != null) ? slotImage : (int) COIN_IMG_IDS[0][1];
     }
 
     @Override
@@ -154,28 +163,32 @@ public class AllNickels extends CollectionInfo {
         if (!showBuffalo) {coinList.add(new CoinSlot("Buffalo","", coinIndex++));}
 
         for (int i = startYear; i <= stopYear; i++) {
-            String phil = String.format("%d ", i);
-            String den = String.format("%d D ", i);
-            String sf = String.format("%d S ", i);
-            String satin = String.format("%d Satin", i);
-            String satind = String.format("%d D Satin", i);
+            String year = String.format("%d", i);
+            String phil = "";
+            String den = "D";
+            String sf = "S";
+            String satin = "Satin";
+            String satin_d = "Satin D";
+            String silver_p = "Silver";
+            String silver_d = "Silver D";
+            String silver_s = "Silver S";
 
             if (showshield) {
                 if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {
-                    coinList.add(new CoinSlot("   ",String.format("%d    ", i  ), coinIndex++));
+                    coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Shield")));
                 }
             }
             if (showLiberty) {
                 if (i == 1883) {
-                    coinList.add(new CoinSlot("  ", String.format("%d w Cents  ", i), coinIndex++));
-                    coinList.add(new CoinSlot("  ", String.format("%d No Cents  ", i), coinIndex++));
+                    coinList.add(new CoinSlot(String.format("%d w Cents", i), phil, coinIndex++, getImgId("Liberty")));
+                    coinList.add(new CoinSlot(String.format("%d No Cents", i), phil, coinIndex++, getImgId("Liberty")));
                 }
                 if (i > 1883 && i < 1913) {
-                    coinList.add(new CoinSlot("  ",String.format("%d   ", i  ), coinIndex++));
+                    coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Liberty")));
                 }
                 if (showS && i == 1912) {
-                    coinList.add(new CoinSlot("  ",String.format("%d D   ", i  ), coinIndex++));
-                    coinList.add(new CoinSlot("  ",String.format("%d S   ", i  ), coinIndex++));
+                    coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Liberty")));
+                    coinList.add(new CoinSlot(year, sf, coinIndex++, getImgId("Liberty")));
                 }
             }
             if (showBuffalo) {
@@ -183,30 +196,30 @@ public class AllNickels extends CollectionInfo {
                     if (showP) {
                         if (i != 1931 && i != 1938) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(String.format("%d Type I", i), phil, coinIndex++, getImgId("Buffalo")));
+                                coinList.add(new CoinSlot(String.format("%d Type II", i), phil, coinIndex++, getImgId("Buffalo")));
                             } else {
-                                coinList.add(new CoinSlot("", phil, coinIndex++));
+                                coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Buffalo")));
                             }
                         }
                     }
                     if (showD) {
                         if (i != 1921 && i != 1923 && i != 1930 && i != 1931) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d D Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d D Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(String.format("%d Type I", i), den, coinIndex++, getImgId("Buffalo")));
+                                coinList.add(new CoinSlot(String.format("%d Type II", i), den, coinIndex++, getImgId("Buffalo")));
                             } else {
-                                coinList.add(new CoinSlot("", den, coinIndex++));
+                                coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Buffalo")));
                             }
                         }
                     }
                     if (showS) {
                         if (i != 1934 && i != 1938) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d S Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d S Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(String.format("%d Type I", i), sf, coinIndex++, getImgId("Buffalo")));
+                                coinList.add(new CoinSlot(String.format("%d Type II", i), sf, coinIndex++, getImgId("Buffalo")));
                             } else {
-                                coinList.add(new CoinSlot("", sf, coinIndex++));
+                                coinList.add(new CoinSlot(year, sf, coinIndex++, getImgId("Buffalo")));
                             }
                         }
                     }
@@ -219,7 +232,7 @@ public class AllNickels extends CollectionInfo {
                         String identifier = (String) coinData[0];
                         if (showP) {coinList.add(new CoinSlot(identifier, phil, coinIndex++));}
                         if (showD) {coinList.add(new CoinSlot(identifier, den, coinIndex++));}
-                        if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i), coinIndex++));}
+                        if (showSProof) {coinList.add(new CoinSlot(identifier, String.format("%d S Proof", i), coinIndex++));}
                     }
                 }
                 if (i == 2005) {
@@ -229,38 +242,38 @@ public class AllNickels extends CollectionInfo {
                         if (showP) {coinList.add(new CoinSlot(identifier, phil, coinIndex++));}
                         if (showSatin) {coinList.add(new CoinSlot(identifier, satin, coinIndex++));}
                         if (showD) {coinList.add(new CoinSlot(identifier, den, coinIndex++));}
-                        if (showSatin) {coinList.add(new CoinSlot(identifier, satind, coinIndex++));}
+                        if (showSatin) {coinList.add(new CoinSlot(identifier, satin_d, coinIndex++));}
                         if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i), coinIndex++));}
                     }
                 }
                 if ( i == 1942){
                     if (showP) {
-                        coinList.add(new CoinSlot(" ",String.format("%d ", i), coinIndex++));
-                        coinList.add(new CoinSlot(" ",String.format("%d Silver ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(" ",String.format("%d D ", i), coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(" ",String.format("%d S Silver ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Jefferson")));
+                        coinList.add(new CoinSlot(year, silver_p, coinIndex++, getImgId("Jefferson")));}
+                    if (showD) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Jefferson")));}
+                    if (showS) {coinList.add(new CoinSlot(year, silver_s, coinIndex++, getImgId("Jefferson")));}
                 }
                 if ( i > 1942 && i < 1946){
-                    if (showP) {coinList.add(new CoinSlot(" ",String.format("%d Silver ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(" ",String.format("%d D Silver ", i), coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(" ",String.format("%d S Silver ", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(year, silver_p, coinIndex++, getImgId("Jefferson")));}
+                    if (showD) {coinList.add(new CoinSlot(year, silver_d, coinIndex++, getImgId("Jefferson")));}
+                    if (showS) {coinList.add(new CoinSlot(year, silver_s, coinIndex++, getImgId("Jefferson")));}
                 }
                 if ( i  < 2004 && i != 1942 && i != 1943 && i != 1944 && i != 1945) {
                     if (showP && i != 1968 && i != 1969 && i != 1970) {
-                        if (i >= 1980) {coinList.add(new CoinSlot(" ",String.format("%d P  ", i), coinIndex++));}
-                        if (i < 1980) {coinList.add(new CoinSlot(" ",String.format("%d  ", i), coinIndex++));}
-                        if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(" ",String.format("%d SMS ", i), coinIndex++));}
+                        if (i >= 1980) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Jefferson")));}
+                        if (i < 1980) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Jefferson")));}
+                        if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(year, "SMS", coinIndex++, getImgId("Jefferson")));}
                     }
-                    if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(" ",String.format("%d D  ", i), coinIndex++));}
-                    if (showS && i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {coinList.add(new CoinSlot(" ",String.format("%d S  ", i), coinIndex++));}
-                    if (showSProof && i > 1967) {coinList.add(new CoinSlot(" ",String.format("%d S Proof ", i), coinIndex++));}
+                    if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Jefferson")));}
+                    if (showS && i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {coinList.add(new CoinSlot(year, sf, coinIndex++, getImgId("Jefferson")));}
+                    if (showSProof && i > 1967) {coinList.add(new CoinSlot(year, "Proof S", coinIndex++, getImgId("Jefferson")));}
                 }
                 if (i > 2005) {
-                    if (showP) {coinList.add(new CoinSlot("`",String.format("%d P  ", i), coinIndex++));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot("`",String.format("%d P Satin ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("`",String.format("%d D  ", i), coinIndex++));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot("`",String.format("%d D Satin ", i), coinIndex++));}
-                    if (showSProof) {coinList.add(new CoinSlot("'",String.format("%d S Proof ", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(year, phil, coinIndex++, getImgId("Jefferson (Unc)")));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, satin, coinIndex++, getImgId("Jefferson (Unc)")));}
+                    if (showD) {coinList.add(new CoinSlot(year, den, coinIndex++, getImgId("Jefferson (Unc)")));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, satin_d, coinIndex++, getImgId("Jefferson (Unc)")));}
+                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Jefferson (Proof)")));}
                 }
             }
         }
@@ -283,4 +296,8 @@ public class AllNickels extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }

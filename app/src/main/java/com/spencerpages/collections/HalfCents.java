@@ -15,8 +15,9 @@ public class HalfCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Half Cents";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"`Liberty Cap", R.drawable.annc_us_1793__c_liberty_cap_half_cent},
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Liberty Cap (1793)", R.drawable.annc_us_1793__c_liberty_cap_half_cent},
             {"Liberty Cap", R.drawable.annc_us_1794__c_liberty_cap_half_cent},
             {"Draped Bust", R.drawable.annc_us_1806__c_draped_bust_half_cent},
             {"Capped Bust", R.drawable.annc_us_1828__c_classic_head_half_cent__proof_},
@@ -26,7 +27,7 @@ public class HalfCents extends CollectionInfo {
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : COIN_IMG_IDS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final int REVERSE_IMAGE = R.drawable.annc_us_1793__c_liberty_cap_half_cent;
@@ -51,9 +52,15 @@ public class HalfCents extends CollectionInfo {
     public int getStopYear() {return STOP_YEAR;}
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
+        return (slotImage != null) ? slotImage : (int) COIN_IMG_IDS[0][1];
     }
 
     @Override
@@ -71,7 +78,7 @@ public class HalfCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if (i == 1793) {coinList.add(new CoinSlot("`Liberty Cap", String.format("%d", i), coinIndex++));}
+            if (i == 1793) {coinList.add(new CoinSlot("Liberty Cap", String.format("%d", i), coinIndex++, getImgId("Liberty Cap (1793)")));}
             if (i > 1793 && i < 1798) {coinList.add(new CoinSlot("Liberty Cap",String.format("%d", i), coinIndex++));}
             if (i > 1799 && i < 1809 && i!=1801) {coinList.add(new CoinSlot("Draped Bust",String.format("%d", i), coinIndex++));}
             if (i>1808 && i<1812) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
@@ -89,4 +96,9 @@ public class HalfCents extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
+
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }

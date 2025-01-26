@@ -50,7 +50,8 @@ public class SmallDollars extends CollectionInfo {
             {"2020", R.drawable.native_2020_unc},
             {"2021", R.drawable.native_2021_unc},
             {"2022", R.drawable.native_2022_unc},
-            {"2023", R.drawable.native_2023_unc},};
+            {"2023", R.drawable.native_2023_unc},
+    };
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"2007 George Washington", R.drawable.pres_2007_george_washington_unc},
@@ -94,9 +95,13 @@ public class SmallDollars extends CollectionInfo {
             {"2016 Ronald Reagan", R.drawable.pres_2016_ronald_reagan_unc},
     };
     private static final Object[][] BUSHIDENTIFIERS = {
-            {"",R.drawable.obv_susan_b_anthony_unc},
             {"2020 George H.W. Bush", R.drawable.pres_2020_george_hw_bush_unc},
-            {"`", R.drawable.obv_sacagawea_unc},
+    };
+
+    // Remember not to reorder this list and always add new ones to the end
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Susan B. Anthony", R.drawable.obv_susan_b_anthony_unc},
+            {"Sacagawea", R.drawable.obv_sacagawea_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -106,6 +111,7 @@ public class SmallDollars extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : BUSHIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : SACIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : COIN_IMG_IDS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final int REVERSE_IMAGE = R.drawable.obv_sacagawea_unc;
@@ -124,8 +130,14 @@ public class SmallDollars extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
+        Integer slotImage;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
 
@@ -174,11 +186,12 @@ public class SmallDollars extends CollectionInfo {
 
         if (showsba) {
             for (int i = 1979; i <= 1999; i++) {
+                String year = String.format("%d", i);
                 if (i > 1981 && i < 1999) continue;
-                if (showP) {coinList.add(new CoinSlot("",String.format("%d  ", i), coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot("",String.format("%d D ", i), coinIndex++));}
-                if (showS && i != 1999) {coinList.add(new CoinSlot("",String.format("%d S ", i), coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot("",String.format("%d S Proof ", i), coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Susan B. Anthony")));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Susan B. Anthony")));}
+                if (showS && i != 1999) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Susan B. Anthony")));}
+                if (showproof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Susan B. Anthony")));}
             }
         }
         if(showpres){
@@ -193,9 +206,10 @@ public class SmallDollars extends CollectionInfo {
         }
         if(showsac){
             for (int i = 2000; i <= 2008; i++) {
-                if (showP) {coinList.add(new CoinSlot("`",String.format("%d  ", i), coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot("`",String.format("%d D ", i), coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot("`",String.format("%d S Proof ", i), coinIndex++));}
+                String year = String.format("%d", i);
+                if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Sacagawea")));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Sacagawea")));}
+                if (showproof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Sacagawea")));}
             }
             for (Object[] coinData : SACIDENTIFIERS) {
                 String identifier = (String) coinData[0];
@@ -225,4 +239,8 @@ public class SmallDollars extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 
+    @Override
+    public Object[][] getImageIds() {
+        return COIN_IMG_IDS;
+    }
 }
