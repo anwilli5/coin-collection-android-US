@@ -54,7 +54,7 @@ public class KennedyHalfDollars extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         return OBVERSE_IMAGE_COLLECTED;
     }
 

@@ -1,56 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
 
-    <TextView
-        android:id="@+id/coin_name_text"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/coin_name_edittext"
-        android:layout_alignBottom="@id/coin_name_edittext"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:gravity="center_vertical"
-        android:text="@string/name_label" />
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/coin_name_edittext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_toEndOf="@id/coin_name_text"
-        android:layout_toRightOf="@id/coin_name_text"
-        android:importantForAutofill="no"
-        android:inputType="text"></EditText>
+        <TextView
+            android:id="@+id/coin_name_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/name_label" />
 
-    <TextView
-        android:id="@+id/coin_mint_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/coin_name_text"
-        android:layout_alignTop="@id/coin_mint_edittext"
-        android:layout_alignEnd="@id/coin_name_text"
-        android:layout_alignRight="@id/coin_name_text"
-        android:layout_alignBottom="@id/coin_mint_edittext"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:gravity="center_vertical"
-        android:text="@string/mint_label" />
+        <EditText
+            android:id="@+id/coin_name_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:minHeight="48dp"
+            android:inputType="text" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/coin_mint_edittext"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/coin_name_edittext"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_toEndOf="@id/coin_mint_text"
-        android:layout_toRightOf="@id/coin_mint_text"
-        android:importantForAutofill="no"
-        android:inputType="text"></EditText>
-</RelativeLayout>
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/coin_mint_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/mint_label" />
+
+        <EditText
+            android:id="@+id/coin_mint_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:minHeight="48dp"
+            android:inputType="text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/coin_image_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/coin_image_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:text="@string/image_label" />
+
+        <Spinner
+            android:id="@+id/coin_image_select"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:prompt="@string/select_image" />
+    </LinearLayout>
+</LinearLayout>

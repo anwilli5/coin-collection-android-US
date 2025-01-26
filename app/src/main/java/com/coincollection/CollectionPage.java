@@ -39,10 +39,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +65,7 @@ public class CollectionPage extends BaseActivity {
     private String mCollectionName;
     public ArrayList<CoinSlot> mCoinList;
     private CoinSlotAdapter mCoinSlotAdapter;
+    private int mCollectionTypeIndex;
 
     // Saved Instance State Keywords
 
@@ -110,8 +113,8 @@ public class CollectionPage extends BaseActivity {
         // to get the previous CoinSlotAdapter, if present
 
         // Need to get the coin type from the intent that started this process
-        int collectionTypeIndex = mCallingIntent.getIntExtra(COLLECTION_TYPE_INDEX, 0);
-        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[collectionTypeIndex];
+        mCollectionTypeIndex = mCallingIntent.getIntExtra(COLLECTION_TYPE_INDEX, 0);
+        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
 
         // Capture the collection name from the saved instance state if it's there,
         // otherwise capture from the calling intent. Note that the calling intent
@@ -544,11 +547,13 @@ public class CollectionPage extends BaseActivity {
      * @param coinSlot coin slot to update
      * @param coinName new name for the coin
      * @param coinMint new mint mark for the coin
+     * @param imageId image id for the coin
      */
-    public void updateCoinDetails(CoinSlot coinSlot, String coinName, String coinMint) {
+    public void updateCoinDetails(CoinSlot coinSlot, String coinName, String coinMint, int imageId) {
 
         // Do nothing if the name/mint isn't actually changed
-        if (coinName.equals(coinSlot.getIdentifier()) && coinMint.equals(coinSlot.getMint())) {
+        if (coinName.equals(coinSlot.getIdentifier()) && coinMint.equals(coinSlot.getMint())
+            && (imageId == coinSlot.getImageId())) {
             return;
         }
 
@@ -556,7 +561,8 @@ public class CollectionPage extends BaseActivity {
         try {
             coinSlot.setIdentifier(coinName);
             coinSlot.setMint(coinMint);
-            mDbAdapter.updateCoinNameAndMint(mCollectionName, coinSlot);
+            coinSlot.setImageId(imageId);
+            mDbAdapter.updateCoinNameMintImage(mCollectionName, coinSlot);
         } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_updating_coin));
             return;
@@ -571,10 +577,11 @@ public class CollectionPage extends BaseActivity {
      *
      * @param newName  coin name
      * @param coinMint coin mint
+     * @param imageId  coin image id
      */
-    public void addNewCoin(String newName, String coinMint) {
+    public void addNewCoin(String newName, String coinMint, int imageId) {
         int sortOrder = mDbAdapter.getNextCoinSortOrder(mCollectionName);
-        CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder);
+        CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder, imageId);
         try {
             // Insert the new coin into the database
             mDbAdapter.addCoinSlotToCollection(newCoinSlot, mCollectionName, true, mCoinList.size() + 1);
@@ -620,7 +627,7 @@ public class CollectionPage extends BaseActivity {
                 .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
                     dialog.dismiss();
                     String newName = input.getText().toString();
-                    if (newName.equals("")) {
+                    if (newName.isEmpty()) {
                         Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -852,18 +859,22 @@ public class CollectionPage extends BaseActivity {
         } else {
             // Get inputs and set default text
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            RelativeLayout coinRenameView = (RelativeLayout) inflater.inflate(R.layout.coin_update_layout, null);
+            LinearLayout coinRenameView = (LinearLayout) inflater.inflate(R.layout.coin_update_layout, null);
             EditText nameInput = coinRenameView.findViewById(R.id.coin_name_edittext);
             EditText mintInput = coinRenameView.findViewById(R.id.coin_mint_edittext);
+            Spinner imgSpinner = coinRenameView.findViewById(R.id.coin_image_select);
+            LinearLayout imgRow = coinRenameView.findViewById(R.id.coin_image_row);
 
             if (!createNewCoin) {
                 // Get coin slot at the position
                 CoinSlot coinSlot = mCoinList.get(position);
                 nameInput.setText(coinSlot.getIdentifier());
                 mintInput.setText(coinSlot.getMint());
+                setupCoinImageSpinner(coinSlot, imgSpinner, imgRow);
             } else {
                 nameInput.setText("");
                 mintInput.setText("");
+                setupCoinImageSpinner(null, imgSpinner, imgRow);
             }
 
             // Set filters to block out bad characters
@@ -878,17 +889,79 @@ public class CollectionPage extends BaseActivity {
                     .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
                         dialog.dismiss();
                         String newName = nameInput.getText().toString();
-                        if (newName.equals("")) {
+                        int imageId = getSpinnerImageId(imgSpinner);
+                        if (newName.isEmpty()) {
                             Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_coin_name), Toast.LENGTH_SHORT).show();
                             return;
                         }
                         if (!createNewCoin) {
-                            updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString());
+                            updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString(), imageId);
                         } else {
-                            addNewCoin(newName, mintInput.getText().toString());
+                            addNewCoin(newName, mintInput.getText().toString(), imageId);
                         }
                     })
                     .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
+        }
+    }
+
+    /**
+     * Get image id value from the coin image spinner
+     *
+     * @param imgSpinner coin image spinner
+     * @return image id
+     */
+    private int getSpinnerImageId(Spinner imgSpinner) {
+        if (imgSpinner.getVisibility() == View.VISIBLE) {
+            // Get the selected image ID when the button is pressed
+            int selectedPosition = imgSpinner.getSelectedItemPosition();
+            if (selectedPosition == AdapterView.INVALID_POSITION) {
+                return -1;
+            } else {
+                return selectedPosition-1;
+            }
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Set up the coin image spinner, if needed
+     *
+     * @param coinSlot coin slot being modified
+     * @param imgSpinner coin image spinner
+     */
+    private void setupCoinImageSpinner(CoinSlot coinSlot, Spinner imgSpinner, LinearLayout imgRow) {
+        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+        Object[][] imageIdData = collectionTypeObj.getImageIds();
+
+        if (imageIdData.length != 0) {
+            imgSpinner.setVisibility(View.VISIBLE);
+            imgRow.setVisibility(View.VISIBLE);
+
+            // Ignore image id here to show the actual default for this name
+            int defaultResId = (coinSlot != null) ? collectionTypeObj.getCoinSlotImage(coinSlot, true)
+                    : collectionTypeObj.getCoinImageIdentifier();
+            int defaultImageId = (coinSlot != null) ? coinSlot.getImageId() : -1;
+
+            // Create lists to hold the names and resIds
+            ArrayList<String> names = new ArrayList<>();
+            ArrayList<Integer> resIds = new ArrayList<>();
+            names.add(mContext.getString(R.string.img_default));
+            resIds.add(defaultResId);
+            for (Object[] entry : imageIdData) {
+                names.add((String) entry[0]);
+                resIds.add((Integer) entry[1]);
+            }
+
+            // Set up the image select spinner
+            ImageSpinnerAdapter adapter = new ImageSpinnerAdapter(this, names, resIds);
+            imgSpinner.setAdapter(adapter);
+
+            // Set the selected position based on the current image id
+            imgSpinner.setSelection(defaultImageId+1);
+        } else {
+            imgSpinner.setVisibility(View.GONE);
+            imgRow.setVisibility(View.GONE);
         }
     }
 
