@@ -19,11 +19,11 @@ public class EarlyDimes extends CollectionInfo {
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Draped Bust", R.drawable.a1797drapeddime},
             {"Capped Bust", R.drawable.a1820cappeddime},
-            {"Liberty Seated No Stars", R.drawable.anostarsdime},
-            {"liberty Seated Stars", R.drawable.astarsdime},
-            {"Liberty Seated Arrows1", R.drawable.astars_arrowsdime},
-            {"Liberty Seated Legend", R.drawable.alegenddime},
-            {"Liberty Seated Arrows2", R.drawable.alegendarrowsdime},
+            {"Seated No Stars", R.drawable.anostarsdime},
+            {"Seated Stars", R.drawable.astarsdime},
+            {"Seated Arrows", R.drawable.astars_arrowsdime},
+            {"Seated Legend", R.drawable.alegenddime},
+            {"Seated Arrows ", R.drawable.alegendarrowsdime},
     };
 
 
@@ -68,10 +68,10 @@ public class EarlyDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_draped_bust);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_capped_bust);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
@@ -115,30 +115,36 @@ public class EarlyDimes extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             if (showdraped && i > 1795 && i < 1798) {coinList.add(new CoinSlot("Draped Bust",String.format("%d Small Eagle", i), coinIndex++));}
             if (showdraped && i > 1797 && i < 1808 && i !=1799 && i != 1806) {coinList.add(new CoinSlot("Draped Bust",String.format("%d Heraldic Eagle", i), coinIndex++));}
-            if (showcapped && i==1809 || i==1811 || i==1814) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
+            if (showcapped && i==1809) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
+            if (showcapped && i==1811) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
+            if (showcapped && i==1814) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
             if (showcapped && i>1819 && i<1838  && i!=1826) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
             if (showseated){
                 if (showP){
-                    if ( i == 1837){coinList.add(new CoinSlot("Liberty Seated No Stars",String.format("%d", i), coinIndex++));}
-                    if ( i>1837 && i<1860 && i!=1854 && i!= 1855 ){coinList.add(new CoinSlot("Liberty Seated Stars",String.format("%d", i), coinIndex++));}
-                    if ( i == 1853 || i == 1854 || i== 1855){coinList.add(new CoinSlot("Liberty Seated Arrows1",String.format("%d", i), coinIndex++));}
-                    if( i > 1859 && i<1892 && i!=1874){coinList.add(new CoinSlot("Liberty Seated Legend",String.format("%d", i), coinIndex++));}
-                    if( i==1873 || i==1874){coinList.add(new CoinSlot("Liberty Seated Arrows2",String.format("%d", i), coinIndex++));}
+                    if ( i == 1837){coinList.add(new CoinSlot("Seated No Stars",String.format("%d", i), coinIndex++));}
+                    if ( i>1837 && i<1860 && i!=1854 && i!= 1855 ){coinList.add(new CoinSlot("Seated Stars",String.format("%d", i), coinIndex++));}
+                    if ( i == 1853 || i == 1854 || i== 1855){coinList.add(new CoinSlot("Seated Arrows",String.format("%d", i), coinIndex++));}
+                    if( i > 1859 && i<1892 && i!=1874){coinList.add(new CoinSlot("Seated Legend",String.format("%d", i), coinIndex++));}
+                    if( i==1873 || i==1874){coinList.add(new CoinSlot("Seated Arrows ",String.format("%d", i), coinIndex++));}
                 }
                 if(showo && (i>1837 && i<1861 || i==1891) && i!=1844 && i!=1846 && i!=1847 && i !=1848 && i!=1855){
-                    if ( i == 1838){coinList.add(new CoinSlot("Liberty Seated No Stars",String.format("%d O", i), coinIndex++));}
-                    if ( (i > 1838 && i < 1860) && i != 1853 && i !=1854){coinList.add(new CoinSlot("Liberty Seated Stars",String.format("%d O", i), coinIndex++));}
-                    if (  i == 1853 || i ==1854){coinList.add(new CoinSlot("Liberty Seated Arrows1",String.format("%d O", i), coinIndex++));}
-                    if (  i == 1860 || i ==1891){coinList.add(new CoinSlot("Liberty Seated Legend",String.format("%d O", i), coinIndex++));}
+                    if ( i == 1838){coinList.add(new CoinSlot("Seated No Stars",String.format("%d O", i), coinIndex++));}
+                    if ( (i > 1838 && i < 1860) && i != 1853 && i !=1854){coinList.add(new CoinSlot("Seated Stars",String.format("%d O", i), coinIndex++));}
+                    if (  i == 1853 || i ==1854){coinList.add(new CoinSlot("Seated Arrows",String.format("%d O", i), coinIndex++));}
+                    if (  i == 1860 || i ==1891){coinList.add(new CoinSlot("Seated Legend",String.format("%d O", i), coinIndex++));}
                 }
                 if (showS && (i>1855 && i<1892) && i!=1857 && i!=1878 && i!= 1879 && i!=1880 && i!=1881 && i!=1882 && i!=1883) {
-                    if(i<1861){coinList.add(new CoinSlot("Liberty Seated Stars",String.format("%d S", i), coinIndex++));}
-                    if ( i >1860 && i != 1873){coinList.add(new CoinSlot("Liberty Seated Legend",String.format("%d S", i), coinIndex++));}
-                    if ( i == 1873){coinList.add(new CoinSlot("Liberty Seated Arrows2",String.format("%d S", i), coinIndex++));}
+                    if(i<1861){coinList.add(new CoinSlot("Seated Stars",String.format("%d S", i), coinIndex++));}
+                    if ( i >1860 && i != 1873 && i != 1874){coinList.add(new CoinSlot("Seated Legend",String.format("%d S", i), coinIndex++));}
+                    if ( i == 1873 || i ==1874){coinList.add(new CoinSlot("Seated Arrows ",String.format("%d S", i), coinIndex++));}
                 }
-                if(showcc && i>1870 && i< 1879 && i !=1874){coinList.add(new CoinSlot("Liberty Seated Legend",String.format("%d CC", i), coinIndex++));}
-                if (showcc && i == 1873){coinList.add(new CoinSlot("Liberty Seated w Arrows2",String.format("%d CC", i), coinIndex++));}
-                if (showcc && i == 1874){coinList.add(new CoinSlot("Liberty Seated w Arrows2",String.format("%d CC", i), coinIndex++));}
+                if(showcc) {
+                    if (i > 1870 && i < 1879 && i != 1873 && i != 1874) {coinList.add(new CoinSlot("Seated Legend", String.format("%d CC", i), coinIndex++));}
+                    if (i == 1873){
+                        coinList.add(new CoinSlot("Seated Legend",String.format("%d CC", i), coinIndex++));
+                        coinList.add(new CoinSlot("Seated Arrows ", String.format("%d CC", i), coinIndex++));}
+                    if (i == 1874) {coinList.add(new CoinSlot("Seated Arrows ", String.format("%d CC", i), coinIndex++));}
+                }
             }
 
 

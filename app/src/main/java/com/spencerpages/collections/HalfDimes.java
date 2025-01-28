@@ -20,10 +20,10 @@ public class HalfDimes extends CollectionInfo {
             {"Flowing Hair", R.drawable.a1794_half_dime},
             {"Draped Bust", R.drawable.a1797drapeddime},
             {"Capped Bust", R.drawable.a1820cappeddime},
-            {"Liberty Seated No Stars", R.drawable.anostarsdime},
-            {"liberty Seated Stars", R.drawable.astarsdime},
-            {"Liberty Seated Arrows", R.drawable.astars_arrowsdime},
-            {"Liberty Seated Legend", R.drawable.alegenddime},
+            {"Seated No Stars", R.drawable.anostarsdime},
+            {"Seated Stars", R.drawable.astarsdime},
+            {"Seated Arrows", R.drawable.astars_arrowsdime},
+            {"Seated Legend", R.drawable.alegenddime},
     };
 
 
@@ -98,43 +98,36 @@ public class HalfDimes extends CollectionInfo {
 
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if (showbust && i == 1794) {
-                coinList.add(new CoinSlot("Flowing Hair", String.format("%d", i), coinIndex++));
-            }
-            if (showbust && i > 1795 && i < 1798) {
-                coinList.add(new CoinSlot("Draped Bust", String.format("%d Small Eagle", i), coinIndex++));
-            }
-            if (showbust && i > 1799 && i < 1806 && i != 1804) {
-                coinList.add(new CoinSlot("Draped Bust", String.format("%d Heraldic Eagle", i), coinIndex++));
-            }
-            if (showbust && i > 1828 && i < 1838) {
-                coinList.add(new CoinSlot("Capped Bust", String.format("%d", i), coinIndex++));
-            }
+            if (showbust && i == 1794 ) {coinList.add(new CoinSlot("Flowing Hair", String.format("%d", i), coinIndex++));}
+            if (showbust && i == 1795) {coinList.add(new CoinSlot("Flowing Hair", String.format("%d", i), coinIndex++));}
+            if (showbust && i > 1795 && i < 1798) {coinList.add(new CoinSlot("Draped Bust", String.format("%d Small Eagle", i), coinIndex++));}
+            if (showbust && i > 1799 && i < 1806 && i != 1804) {coinList.add(new CoinSlot("Draped Bust", String.format("%d Heraldic Eagle", i), coinIndex++));}
+            if (showbust && i > 1828 && i < 1838) {coinList.add(new CoinSlot("Capped Bust", String.format("%d", i), coinIndex++));}
+
             if (showseated) {
                 if (showP) {
-                    if (i == 1837) {coinList.add(new CoinSlot("Liberty Seated No Stars", String.format("%d Sm Date", i), coinIndex++));}
-                    if (i == 1837) {coinList.add(new CoinSlot("Liberty Seated No Stars", String.format("%d Lg Date", i), coinIndex++));}
-                    if (i > 1837 && i < 1841) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d No Drapery", i), coinIndex++));}
+                    if (i == 1837) {coinList.add(new CoinSlot("Seated No Stars", String.format("%d Sm Date", i), coinIndex++));}
+                    if (i == 1837) {coinList.add(new CoinSlot("Seated No Stars", String.format("%d Lg Date", i), coinIndex++));}
+                    if (i > 1837 && i < 1841) {coinList.add(new CoinSlot("Seated Stars", String.format("%d No Drapery", i), coinIndex++));}
                     if (i > 1839 && i < 1860 && i != 1854 && i != 1855) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d", i), coinIndex++));}
-                    if (i == 1848) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d Lg Date", i), coinIndex++));}
-                    if (i == 1849) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d 9 Over 6", i), coinIndex++));}
-                    if (i == 1853 || i == 1854 || i == 1855) {coinList.add(new CoinSlot("Liberty Seated Arrows", String.format("%d", i), coinIndex++));}
-                    if (i == 1858) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d Double Date", i), coinIndex++));
-                        coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d Over Inverted Date", i), coinIndex++));}
-                    if (i > 1859) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d", i), coinIndex++));}
-                    if (i == 1861) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d 1 Over 0", i), coinIndex++));}
+                    if (i == 1848) {coinList.add(new CoinSlot("Seated Stars", String.format("%d Lg Date", i), coinIndex++));}
+                    if (i == 1849) {coinList.add(new CoinSlot("Seated Stars", String.format("%d 9 Over 6", i), coinIndex++));}
+                    if (i == 1853 || i == 1854 || i == 1855) {coinList.add(new CoinSlot("Seated Arrows", String.format("%d", i), coinIndex++));}
+                    if (i == 1858) {coinList.add(new CoinSlot("Seated Stars", String.format("%d Double Date", i), coinIndex++));
+                        coinList.add(new CoinSlot("Seated Stars", String.format("%d Over Inverted Date", i), coinIndex++));}
+                    if (i > 1859) {coinList.add(new CoinSlot("Seated Legend", String.format("%d", i), coinIndex++));}
+                    if (i == 1861) {coinList.add(new CoinSlot("Seated Legend", String.format("%d 1 Over 0", i), coinIndex++));}
                 }
                 if (showo) {
-                    if (i == 1838) {coinList.add(new CoinSlot("Liberty Seated No Stars", String.format("%d O", i), coinIndex++));}
-                    if (i == 1839 || i == 1840) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d O No Drapery", i), coinIndex++));}
-                    if (i > 1839 && i < 1860 && i != 1843 && i != 1845 && i != 1846 && i != 1847 && i != 1854 && i != 1855) {coinList.add(new CoinSlot("Liberty Seated Stars", String.format("%d O", i), coinIndex++));}
-                    if (i == 1853 || i == 1854 || i == 1855) {coinList.add(new CoinSlot("Liberty Seated Arrows", String.format("%d O", i), coinIndex++));}
-                    if (i > 1859) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d O", i), coinIndex++));}
+                    if (i == 1838) {coinList.add(new CoinSlot("Seated No Stars", String.format("%d O", i), coinIndex++));}
+                    if (i == 1839 || i == 1840) {coinList.add(new CoinSlot("Seated Stars", String.format("%d O No Drapery", i), coinIndex++));}
+                    if (i > 1839 && i < 1861 && i != 1843 && i != 1845 && i != 1846 && i != 1847 && i != 1854 && i != 1855) {coinList.add(new CoinSlot("Seated Stars", String.format("%d O", i), coinIndex++));}
+                    if (i == 1853 || i == 1854 || i == 1855) {coinList.add(new CoinSlot("Seated Arrows", String.format("%d O", i), coinIndex++));}
                 }
                 if (showS) {
-                    if (i > 1859 && i != 1870) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d S", i), coinIndex++));}
-                    if (i == 1870) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d S One Known", i), coinIndex++));}
-                    if (i == 1872) {coinList.add(new CoinSlot("Liberty Seated Legend", String.format("%d S Under Bow", i), coinIndex++));}
+                    if (i > 1862 && i != 1870) {coinList.add(new CoinSlot("Seated Legend", String.format("%d S", i), coinIndex++));}
+                    if (i == 1870) {coinList.add(new CoinSlot("Seated Legend", String.format("%d S One Known", i), coinIndex++));}
+                    if (i == 1872) {coinList.add(new CoinSlot("Seated Legend", String.format("%d S Under Bow", i), coinIndex++));}
                 }
             }
         }

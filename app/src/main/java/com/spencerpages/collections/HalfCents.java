@@ -17,7 +17,7 @@ public class HalfCents extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Half Cents";
 
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"`Liberty Cap", R.drawable.annc_us_1793__c_liberty_cap_half_cent},
+            {"Liberty Cap 1793", R.drawable.annc_us_1793__c_liberty_cap_half_cent},
             {"Liberty Cap", R.drawable.annc_us_1794__c_liberty_cap_half_cent},
             {"Draped Bust", R.drawable.annc_us_1806__c_draped_bust_half_cent},
             {"Capped Bust", R.drawable.annc_us_1828__c_classic_head_half_cent__proof_},
@@ -72,15 +72,15 @@ public class HalfCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if (i == 1793) {coinList.add(new CoinSlot("`Liberty Cap", String.format("%d", i), coinIndex++));}
+            if (i == 1793) {coinList.add(new CoinSlot("Liberty Cap 1793", "", coinIndex++));}
             if (i > 1793 && i < 1798) {coinList.add(new CoinSlot("Liberty Cap",String.format("%d", i), coinIndex++));}
             if (i > 1799 && i < 1809 && i!=1801) {coinList.add(new CoinSlot("Draped Bust",String.format("%d", i), coinIndex++));}
             if (i>1808 && i<1812) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
             if (i>1824 && i<1836 && i!=1827 && i!= 1830) {coinList.add(new CoinSlot("Capped Bust",String.format("%d", i), coinIndex++));}
-            if (i==1836) {coinList.add(new CoinSlot("Capped Bust",String.format("%d Proofs & Restrikes Only", i), coinIndex++));}
-            if(i>1839 && i<1849){coinList.add(new CoinSlot("Braided Hair",String.format("%d Proofs & Restrikes Only", i), coinIndex++));}
+            if (i==1836) {coinList.add(new CoinSlot("Capped Bust",String.format("%d Proof", i), coinIndex++));}
+            if(i>1839 && i<1849){coinList.add(new CoinSlot("Braided Hair",String.format("%d Proof", i), coinIndex++));}
             if(i>1848 && i<1858 && i!=1852) {coinList.add(new CoinSlot("Braided Hair",String.format("%d", i), coinIndex++));}
-            if(i==1852){coinList.add(new CoinSlot("Braided Hair",String.format("%d Proofs & Restrikes Only", i), coinIndex++));}
+            if(i==1852){coinList.add(new CoinSlot("Braided Hair",String.format("%d Proof", i), coinIndex++));}
         }
     }
     private static final int ATTRIBUTION =R.string.attr_halfcents;

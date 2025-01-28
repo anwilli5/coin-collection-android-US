@@ -38,7 +38,7 @@ public class EarlyQuarters extends CollectionInfo {
     private static final Object[][] OLDCOIN_IDENTIFIERS = {
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
             {"Capped Bust", R.drawable.a1834_bust_half_dollar_obverse},
-            {"Liberty Seated", R.drawable.a1885_half_dollar_obv},
+            {"Seated", R.drawable.a1885_half_dollar_obv},
     };
 
     private static final Object[][] COIN_IDENTIFIERS = {
@@ -163,40 +163,39 @@ public class EarlyQuarters extends CollectionInfo {
             }
             if(showseated){
                 if(showP){
-                    if(i==1838 || i==1839) {coinList.add(new CoinSlot("Liberty Seated", String.format("%d No Drapery", i), coinIndex++));}
-                    if(i>1839 && i<1866 && i!=1853 && i!=1854 && i!=1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d", i), coinIndex++));}
-                    if(i==1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows&Rays", i), coinIndex++));}
-                    if(i==1854 || i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows", i), coinIndex++));}
-                    if(i==1866){coinList.add(new CoinSlot("Liberty Seated", String.format("%d One Known", i), coinIndex++));}
-                    if(i>1865 && i<1892 && i!= 1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Motto", i), coinIndex++));}
-                    if(i==1873 || i==1874){coinList.add(new CoinSlot("Liberty Seated", String.format("%d Arrows&Motto", i), coinIndex++));}
+                    if(i==1838 || i==1839) {coinList.add(new CoinSlot("Seated", String.format("%d No Drapery", i), coinIndex++));}
+                    if(i>1839 && i<1866 && i!=1854 && i!=1855){coinList.add(new CoinSlot("Seated", String.format("%d", i), coinIndex++));}
+                    if(i==1853){coinList.add(new CoinSlot("Seated", String.format("%d Arrows&Rays", i), coinIndex++));}
+                    if(i==1854 || i==1855){coinList.add(new CoinSlot("Seated", String.format("%d Arrows", i), coinIndex++));}
+                    if(i>1865 && i<1892 && i !=1874){coinList.add(new CoinSlot("Seated", String.format("%d Motto", i), coinIndex++));}
+                    if(i==1873 || i==1874){coinList.add(new CoinSlot("Seated", String.format("%d Arrows&Motto", i), coinIndex++));}
                 }
                 if(showO){
-                    if(i==1840){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O No Drapery", i), coinIndex++));}
-                    if(i>1839 && i<1861 && i!=1853 && i!=1854 && i!=1855 && i!=1845 && i!= 1846 && i!=1848) {coinList.add(new CoinSlot("Liberty Seated", String.format("%d O", i), coinIndex++));}
-                    if(i==1853){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O Arrows&Rays", i), coinIndex++));}
-                    if(i==1854 || i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O Arrows", i), coinIndex++));}
-                    if(i==1891){coinList.add(new CoinSlot("Liberty Seated", String.format("%d O Motto", i), coinIndex++));}
+                    if(i==1840){coinList.add(new CoinSlot("Seated", String.format("%d O No Drapery", i), coinIndex++));}
+                    if(i>1839 && i<1861 && i!=1853 && i!=1854 && i!=1855 && i!=1845 && i!= 1846 && i!=1848) {coinList.add(new CoinSlot("Seated", String.format("%d O", i), coinIndex++));}
+                    if(i==1853){coinList.add(new CoinSlot("Seated", String.format("%d O Arrows&Rays", i), coinIndex++));}
+                    if(i==1854 || i==1855){coinList.add(new CoinSlot("Seated", String.format("%d O Arrows", i), coinIndex++));}
+                    if(i==1891){coinList.add(new CoinSlot("Seated", String.format("%d O Motto", i), coinIndex++));}
                 }
                 if (showS){
-                    if(i==1854 || i==1855){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Arrows", i), coinIndex++));}
-                    if(i>1855 && i<1866 && i!=1863){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S", i), coinIndex++));}
-                    if(i>1865 && i<1873 && i!=1870){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto", i), coinIndex++));}
-                    if(i==1873 || i==1874) {coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Arrows", i), coinIndex++));}
-                    if(i>1874 && i<1879){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto", i), coinIndex++));}
-                    if(i==1888 || i==1891){coinList.add(new CoinSlot("Liberty Seated", String.format("%d S Motto", i), coinIndex++));}
+                    if( i==1855){coinList.add(new CoinSlot("Seated", String.format("%d S Arrows", i), coinIndex++));}
+                    if(i>1855 && i<1866 && i!=1863){coinList.add(new CoinSlot("Seated", String.format("%d S", i), coinIndex++));}
+                    if(i>1865 && i<1873 && i!=1870){coinList.add(new CoinSlot("Seated", String.format("%d S Motto", i), coinIndex++));}
+                    if(i==1873 || i==1874) {coinList.add(new CoinSlot("Seated", String.format("%d S Arrows", i), coinIndex++));}
+                    if(i>1874 && i<1879){coinList.add(new CoinSlot("Seated", String.format("%d S Motto", i), coinIndex++));}
+                    if(i==1888 || i==1891){coinList.add(new CoinSlot("Seated", String.format("%d S Motto", i), coinIndex++));}
                 }
                 if(showCC){
-                    if(i>1869 && i<1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC", i), coinIndex++));}
-                    if(i==1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC 5 Known", i), coinIndex++));}
-                    if(i==1873){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Arrows", i), coinIndex++));}
-                    if((i>1874 && i<1879) || i==1888){coinList.add(new CoinSlot("Liberty Seated", String.format("%d CC Motto", i), coinIndex++));}
+                    if(i>1869 && i<1873){coinList.add(new CoinSlot("Seated", String.format("%d CC", i), coinIndex++));}
+                    if(i==1873){coinList.add(new CoinSlot("Seated", String.format("%d CC 5 Known", i), coinIndex++));}
+                    if(i==1873){coinList.add(new CoinSlot("Seated", String.format("%d CC Arrows", i), coinIndex++));}
+                    if(i>1874 && i<1879){coinList.add(new CoinSlot("Seated", String.format("%d CC Motto", i), coinIndex++));}
                 }
             }
 
             if (showbarber && i < 1917 && i>1891) {
                 if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
-                if (showD && i >= 1906 && i != 1912 && i != 1916) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
+                if (showD && i >= 1906 && i != 1912) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 if (showS && i != 1904 && i != 1906 && i != 1910 && i != 1916) {coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
                 if (showO && i <= 1909) {coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));}
             }
@@ -212,10 +211,10 @@ public class EarlyQuarters extends CollectionInfo {
                         coinList.add(new CoinSlot("", String.format("%d Type I S ", i), coinIndex++));
                         coinList.add(new CoinSlot("", String.format("%d Type II S ", i), coinIndex++));}
                 } else {
-                    if (showP) {coinList.add(new CoinSlot("", String.format("%d  ", i), coinIndex++));}
-                    if (showD && i != 1916 && i != 1921 && i != 1925 && i != 1923 && i != 1930) {
+                    if (showP && i!= 1922) {coinList.add(new CoinSlot("", String.format("%d  ", i), coinIndex++));}
+                    if (showD && i != 1916 && i != 1921 && i != 1922 && i != 1925 && i != 1923 && i != 1930) {
                         coinList.add(new CoinSlot("", String.format("%d D  ", i), coinIndex++));}
-                    if (showS && i != 1916 && i != 1921 && i != 1925) {coinList.add(new CoinSlot("", String.format("%d S ", i), coinIndex++));}
+                    if (showS && i != 1916 && i != 1921 && i!= 1922 && i != 1925) {coinList.add(new CoinSlot("", String.format("%d S ", i), coinIndex++));}
                 }
             }
         }

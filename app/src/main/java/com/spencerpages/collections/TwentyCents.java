@@ -71,7 +71,7 @@ public class TwentyCents extends CollectionInfo {
                 coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
             }
             if(i==1877 || i==1878){
-                coinList.add(new CoinSlot(Integer.toString(i), "Proofs Only", coinIndex++));
+                coinList.add(new CoinSlot(Integer.toString(i), "Proof", coinIndex++));
             }
         }
     }

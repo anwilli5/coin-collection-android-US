@@ -50,7 +50,7 @@ public class LargeCents extends CollectionInfo {
     public int getStartYear() {return START_YEAR;}
 
     private static final Integer START_YEAR = 1793;
-    private static final Integer STOP_YEAR = 1855;
+    private static final Integer STOP_YEAR = 1857;
 
     @Override
     public int getStopYear() {return STOP_YEAR;}
@@ -92,7 +92,7 @@ public class LargeCents extends CollectionInfo {
                     coinList.add(new CoinSlot("Flowing Hair Wreath Reverse", date, coinIndex++));}
                 if (i > 1792 && i < 1797) {
                     coinList.add(new CoinSlot("Liberty Cap", mdate, coinIndex++));}
-                if (i > 1796 && i < 1808) {
+                if (i > 1795 && i < 1808) {
                     coinList.add(new CoinSlot("Draped Bust", mdate, coinIndex++));}
                 if (i > 1807 && i < 1815) {
                     coinList.add(new CoinSlot("Capped Bust", mdate, coinIndex++));}

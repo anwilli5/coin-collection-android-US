@@ -85,11 +85,11 @@ public class Trimes extends CollectionInfo {
                     coinList.add(new CoinSlot("Silver", String.format("%2d O", i ), coinIndex++));
                 }
                 if(i>1851 && i<1873) coinList.add(new CoinSlot("Silver", date, coinIndex++));
-                if(i==1873)coinList.add(new CoinSlot("Silver", String.format("%2d Proof Only", i ), coinIndex++));
+                if(i==1873)coinList.add(new CoinSlot("Silver", String.format("%2d Proof", i ), coinIndex++));
             }
             if (shownickel) {
                 if(i>1864 && i<1890 && i!=1877 && i!=1878 && i!=1886) coinList.add(new CoinSlot("Nickel", date, coinIndex++));
-                if(i==1877 || i==1878 || i==1886)coinList.add(new CoinSlot("Nickel", String.format("%2d Proof Only", i ), coinIndex++));
+                if(i==1877 || i==1878 || i==1886)coinList.add(new CoinSlot("Nickel", String.format("%2d Proof", i ), coinIndex++));
             }
         }
     }
