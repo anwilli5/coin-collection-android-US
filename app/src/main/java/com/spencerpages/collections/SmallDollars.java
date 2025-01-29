@@ -145,13 +145,13 @@ public class SmallDollars extends CollectionInfo {
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_sba);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_sba_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_sac);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_sac_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_pres);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_pres_dollars);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
@@ -167,7 +167,7 @@ public class SmallDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_proofs);
 
     }
 

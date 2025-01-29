@@ -60,16 +60,16 @@ public class EarlyDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_draped_bust);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_draped_bust_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_capped_bust);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_capped_bust_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_seated);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_seated_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);

@@ -95,19 +95,19 @@ public class Cartwheels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_Morgan);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_morgan_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_Peace);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_peace_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_Ikes);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_ike_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_Eagles);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_eagle_dollars);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);

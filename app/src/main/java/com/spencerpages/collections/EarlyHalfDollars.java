@@ -64,10 +64,10 @@ public class EarlyHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_seated);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_seated_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);

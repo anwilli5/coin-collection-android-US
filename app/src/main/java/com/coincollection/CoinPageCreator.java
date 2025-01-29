@@ -1028,6 +1028,24 @@ public class CoinPageCreator extends BaseActivity {
                     mintMarkFlags |= CollectionListInfo.MINT_O;
                 } else if (optionStrId.equals(R.string.include_cc)) {
                     mintMarkFlags |= CollectionListInfo.MINT_CC;
+                } else if (optionStrId.equals(R.string.include_w)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_W;
+                } else if (optionStrId.equals(R.string.include_s_proofs)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_S_PROOF;
+                } else if (optionStrId.equals(R.string.include_silver_proofs)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_SILVER_PROOF;
+                } else if (optionStrId.equals(R.string.include_rev_proofs)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_REV_PROOF;
+                } else if (optionStrId.equals(R.string.include_mem_proofs)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_MEM_PROOF;
+                } else if (optionStrId.equals(R.string.include_satin)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_SATIN;
+                } else if (optionStrId.equals(R.string.include_mint_sets)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_SETS;
+                } else if (optionStrId.equals(R.string.include_proof_sets)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_PROOF_SETS;
+                } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_SILVER_PROOF_SETS;
                 }
             }
         }
@@ -1059,6 +1077,80 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.BURNISHED;
                 } else if (optionStrId.equals(R.string.show_territories)) {
                     checkboxFlags |= CollectionListInfo.TERRITORIES;
+                } else if (optionStrId.equals(R.string.include_silver_coins)) {
+                    checkboxFlags |= CollectionListInfo.SILVER_COINS;
+                } else if (optionStrId.equals(R.string.include_nickel_coins)) {
+                    checkboxFlags |= CollectionListInfo.NICKEL_COINS;
+                } else if (optionStrId.equals(R.string.include_old_coins)) {
+                    checkboxFlags |= CollectionListInfo.OLD_COINS;
+                } else if (optionStrId.equals(R.string.include_bust_coins)) {
+                    checkboxFlags |= CollectionListInfo.BUST_COINS;
+                } else if (optionStrId.equals(R.string.include_draped_bust_coins)) {
+                    checkboxFlags |= CollectionListInfo.DRAPED_BUST_COINS;
+                } else if (optionStrId.equals(R.string.include_capped_bust_coins)) {
+                    checkboxFlags |= CollectionListInfo.CAPPED_BUST_COINS;
+                } else if (optionStrId.equals(R.string.include_seated_coins)) {
+                    checkboxFlags |= CollectionListInfo.SEATED_COINS;
+                } else if (optionStrId.equals(R.string.include_coronet_coins)) {
+                    checkboxFlags |= CollectionListInfo.CORONET_COINS;
+                } else if (optionStrId.equals(R.string.include_barber_quarters)) {
+                    checkboxFlags |= CollectionListInfo.BARBER_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_standing_quarters)) {
+                    checkboxFlags |= CollectionListInfo.STANDING_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_classic_quarters)) {
+                    checkboxFlags |= CollectionListInfo.CLASSIC_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_states_quarters)) {
+                    checkboxFlags |= CollectionListInfo.STATES_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_parks_quarters)) {
+                    checkboxFlags |= CollectionListInfo.PARKS_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_women_quarters)) {
+                    checkboxFlags |= CollectionListInfo.WOMEN_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_eagle_cents)) {
+                    checkboxFlags |= CollectionListInfo.EAGLE_CENTS;
+                } else if (optionStrId.equals(R.string.include_indian_cents)) {
+                    checkboxFlags |= CollectionListInfo.INDIAN_CENTS;
+                } else if (optionStrId.equals(R.string.include_wheat_cents)) {
+                    checkboxFlags |= CollectionListInfo.WHEAT_CENTS;
+                } else if (optionStrId.equals(R.string.include_memorial_cents)) {
+                    checkboxFlags |= CollectionListInfo.MEMORIAL_CENTS;
+                } else if (optionStrId.equals(R.string.include_barber_half)) {
+                    checkboxFlags |= CollectionListInfo.BARBER_HALF;
+                } else if (optionStrId.equals(R.string.include_walker_half)) {
+                    checkboxFlags |= CollectionListInfo.WALKER_HALF;
+                } else if (optionStrId.equals(R.string.include_franklin_half)) {
+                    checkboxFlags |= CollectionListInfo.FRANKLIN_HALF;
+                } else if (optionStrId.equals(R.string.include_kennedy_half)) {
+                    checkboxFlags |= CollectionListInfo.KENNEDY_HALF;
+                } else if (optionStrId.equals(R.string.include_shield_nickels)) {
+                    checkboxFlags |= CollectionListInfo.SHIELD_NICKELS;
+                } else if (optionStrId.equals(R.string.include_liberty_nickels)) {
+                    checkboxFlags |= CollectionListInfo.LIBERTY_NICKELS;
+                } else if (optionStrId.equals(R.string.include_buffalo_nickels)) {
+                    checkboxFlags |= CollectionListInfo.BUFFALO_NICKELS;
+                } else if (optionStrId.equals(R.string.include_jefferson_nickels)) {
+                    checkboxFlags |= CollectionListInfo.JEFFERSON_NICKELS;
+                } else if (optionStrId.equals(R.string.include_barber_dimes)) {
+                    checkboxFlags |= CollectionListInfo.BARBER_DIMES;
+                } else if (optionStrId.equals(R.string.include_mercury_dimes)) {
+                    checkboxFlags |= CollectionListInfo.MERCURY_DIMES;
+                } else if (optionStrId.equals(R.string.include_roos_dimes)) {
+                    checkboxFlags |= CollectionListInfo.ROOSEVELT_DIMES;
+                } else if (optionStrId.equals(R.string.include_morgan_dollars)) {
+                    checkboxFlags |= CollectionListInfo.MORGAN_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_peace_dollars)) {
+                    checkboxFlags |= CollectionListInfo.PEACE_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_ike_dollars)) {
+                    checkboxFlags |= CollectionListInfo.IKE_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_eagle_dollars)) {
+                    checkboxFlags |= CollectionListInfo.EAGLE_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_sba_dollars)) {
+                    checkboxFlags |= CollectionListInfo.SBA_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_sac_dollars)) {
+                    checkboxFlags |= CollectionListInfo.SAC_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_pres_dollars)) {
+                    checkboxFlags |= CollectionListInfo.PRES_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_trade_dollars)) {
+                    checkboxFlags |= CollectionListInfo.TRADE_DOLLARS;
                 }
             }
         }
@@ -1141,6 +1233,24 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasOMintMarks());
             } else if (optionStrId.equals(R.string.include_cc)) {
                 parameters.put(optName, existingCollection.hasCCMintMarks());
+            } else if (optionStrId.equals(R.string.include_w)) {
+                parameters.put(optName, existingCollection.hasWMintMarks());
+            } else if (optionStrId.equals(R.string.include_s_proofs)) {
+                parameters.put(optName, existingCollection.hasSProofMintMarks());
+            } else if (optionStrId.equals(R.string.include_silver_proofs)) {
+                parameters.put(optName, existingCollection.hasSilverProofMintMarks());
+            } else if (optionStrId.equals(R.string.include_rev_proofs)) {
+                parameters.put(optName, existingCollection.hasRevProofMintMarks());
+            } else if (optionStrId.equals(R.string.include_mem_proofs)) {
+                parameters.put(optName, existingCollection.hasMemProofMintMarks());
+            } else if (optionStrId.equals(R.string.include_satin)) {
+                parameters.put(optName, existingCollection.hasSatinMintMarks());
+            } else if (optionStrId.equals(R.string.include_mint_sets)) {
+                parameters.put(optName, existingCollection.hasMintSetsMintMarks());
+            } else if (optionStrId.equals(R.string.include_proof_sets)) {
+                parameters.put(optName, existingCollection.hasProofSetsMintMarks());
+            } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
+                parameters.put(optName, existingCollection.hasSilverProofSetsMintMarks());
             }
         }
         // Checkboxes
@@ -1157,6 +1267,80 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasBurnishedCoins());
             } else if (optionStrId.equals(R.string.show_territories)) {
                 parameters.put(optName, existingCollection.hasTerritoryCoins());
+            } else if (optionStrId.equals(R.string.include_silver_coins)) {
+                parameters.put(optName, existingCollection.hasSilverCoins());
+            } else if (optionStrId.equals(R.string.include_nickel_coins)) {
+                parameters.put(optName, existingCollection.hasNickelCoins());
+            } else if (optionStrId.equals(R.string.include_old_coins)) {
+                parameters.put(optName, existingCollection.hasOldCoins());
+            } else if (optionStrId.equals(R.string.include_bust_coins)) {
+                parameters.put(optName, existingCollection.hasBustCoins());
+            } else if (optionStrId.equals(R.string.include_draped_bust_coins)) {
+                parameters.put(optName, existingCollection.hasDrapedBustCoins());
+            } else if (optionStrId.equals(R.string.include_capped_bust_coins)) {
+                parameters.put(optName, existingCollection.hasCappedBustCoins());
+            } else if (optionStrId.equals(R.string.include_seated_coins)) {
+                parameters.put(optName, existingCollection.hasSeatedCoins());
+            } else if (optionStrId.equals(R.string.include_coronet_coins)) {
+                parameters.put(optName, existingCollection.hasCoronetCoins());
+            } else if (optionStrId.equals(R.string.include_barber_quarters)) {
+                parameters.put(optName, existingCollection.hasBarberQuarters());
+            } else if (optionStrId.equals(R.string.include_standing_quarters)) {
+                parameters.put(optName, existingCollection.hasStandingQuarters());
+            } else if (optionStrId.equals(R.string.include_classic_quarters)) {
+                parameters.put(optName, existingCollection.hasClassicQuarters());
+            } else if (optionStrId.equals(R.string.include_states_quarters)) {
+                parameters.put(optName, existingCollection.hasStatesQuarters());
+            } else if (optionStrId.equals(R.string.include_parks_quarters)) {
+                parameters.put(optName, existingCollection.hasParksQuarters());
+            } else if (optionStrId.equals(R.string.include_women_quarters)) {
+                parameters.put(optName, existingCollection.hasWomenQuarters());
+            } else if (optionStrId.equals(R.string.include_eagle_cents)) {
+                parameters.put(optName, existingCollection.hasEagleCents());
+            } else if (optionStrId.equals(R.string.include_indian_cents)) {
+                parameters.put(optName, existingCollection.hasIndianCents());
+            } else if (optionStrId.equals(R.string.include_wheat_cents)) {
+                parameters.put(optName, existingCollection.hasWheatCents());
+            } else if (optionStrId.equals(R.string.include_memorial_cents)) {
+                parameters.put(optName, existingCollection.hasMemorialCents());
+            } else if (optionStrId.equals(R.string.include_barber_half)) {
+                parameters.put(optName, existingCollection.hasBarberHalf());
+            } else if (optionStrId.equals(R.string.include_walker_half)) {
+                parameters.put(optName, existingCollection.hasWalkerHalf());
+            } else if (optionStrId.equals(R.string.include_franklin_half)) {
+                parameters.put(optName, existingCollection.hasFranklinHalf());
+            } else if (optionStrId.equals(R.string.include_kennedy_half)) {
+                parameters.put(optName, existingCollection.hasKennedyHalf());
+            } else if (optionStrId.equals(R.string.include_shield_nickels)) {
+                parameters.put(optName, existingCollection.hasShieldNickels());
+            } else if (optionStrId.equals(R.string.include_liberty_nickels)) {
+                parameters.put(optName, existingCollection.hasLibertyNickels());
+            } else if (optionStrId.equals(R.string.include_buffalo_nickels)) {
+                parameters.put(optName, existingCollection.hasBuffaloNickels());
+            } else if (optionStrId.equals(R.string.include_jefferson_nickels)) {
+                parameters.put(optName, existingCollection.hasJeffersonNickels());
+            } else if (optionStrId.equals(R.string.include_barber_dimes)) {
+                parameters.put(optName, existingCollection.hasBarberDimes());
+            } else if (optionStrId.equals(R.string.include_mercury_dimes)) {
+                parameters.put(optName, existingCollection.hasMercuryDimes());
+            } else if (optionStrId.equals(R.string.include_roos_dimes)) {
+                parameters.put(optName, existingCollection.hasRooseveltDimes());
+            } else if (optionStrId.equals(R.string.include_morgan_dollars)) {
+                parameters.put(optName, existingCollection.hasMorganDollars());
+            } else if (optionStrId.equals(R.string.include_peace_dollars)) {
+                parameters.put(optName, existingCollection.hasPeaceDollars());
+            } else if (optionStrId.equals(R.string.include_ike_dollars)) {
+                parameters.put(optName, existingCollection.hasIkeDollars());
+            } else if (optionStrId.equals(R.string.include_eagle_dollars)) {
+                parameters.put(optName, existingCollection.hasEagleDollars());
+            } else if (optionStrId.equals(R.string.include_sba_dollars)) {
+                parameters.put(optName, existingCollection.hasSBADollars());
+            } else if (optionStrId.equals(R.string.include_sac_dollars)) {
+                parameters.put(optName, existingCollection.hasSACDollars());
+            } else if (optionStrId.equals(R.string.include_pres_dollars)) {
+                parameters.put(optName, existingCollection.hasPresDollars());
+            } else if (optionStrId.equals(R.string.include_trade_dollars)) {
+                parameters.put(optName, existingCollection.hasTradeDollars());
             }
         }
         return parameters;

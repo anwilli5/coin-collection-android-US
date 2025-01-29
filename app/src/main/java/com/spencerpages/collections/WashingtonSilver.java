@@ -210,19 +210,19 @@ public class WashingtonSilver extends CollectionInfo {
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_classic);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_classic_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_states);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_states_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.show_territories);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_parks);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_parks_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_women);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_women_quarters);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 

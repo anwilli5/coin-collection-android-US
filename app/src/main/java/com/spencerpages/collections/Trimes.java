@@ -60,10 +60,10 @@ public class Trimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_silver);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_silver_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_nickel);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_nickel_coins);
     }
 
     @Override

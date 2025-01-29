@@ -92,19 +92,19 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_eagle);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_eagle_cents);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_indian);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_indian_cents);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_wheat);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_wheat_cents);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_memorial);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_memorial_cents);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -122,7 +122,7 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_satin);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_MemProofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_mem_proofs);
     }
 
     // TODO Perform validation and throw exception

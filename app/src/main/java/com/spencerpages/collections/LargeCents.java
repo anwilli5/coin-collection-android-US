@@ -67,10 +67,10 @@ public class LargeCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_coronet);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_coronet_coins);
     }
 
     @Override

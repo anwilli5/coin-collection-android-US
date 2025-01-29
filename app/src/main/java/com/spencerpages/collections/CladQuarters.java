@@ -250,19 +250,16 @@ public class CladQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_classic);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_classic_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_states);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_states_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_parks);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_parks_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_women);
-
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_s_Proofs);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_women_quarters);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -279,6 +276,9 @@ public class CladQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
 
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_s_proofs);
+
     }
 
     @Override
@@ -287,12 +287,12 @@ public class CladQuarters extends CollectionInfo {
         Boolean showstates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showparks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
         Boolean showwomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         Boolean showp = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showd = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean shows = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showw = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showsatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
 
         int coinIndex = 0;
 

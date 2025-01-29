@@ -48,11 +48,12 @@ public class ProofSets extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
+        // TODO Change these to mint marks
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_s_Proofs);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_s_proofs);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_silver_Proofs);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_silver_proofs);
     }
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
