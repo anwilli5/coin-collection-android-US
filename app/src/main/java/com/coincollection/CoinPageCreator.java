@@ -178,22 +178,42 @@ public class CoinPageCreator extends BaseActivity {
     public final static String OPT_SHOW_MINT_MARK_3 = "ShowMintMark3";
     public final static String OPT_SHOW_MINT_MARK_4 = "ShowMintMark4";
     public final static String OPT_SHOW_MINT_MARK_5 = "ShowMintMark5";
+    public final static String OPT_SHOW_MINT_MARK_6 = "ShowMintMark6";
+    public final static String OPT_SHOW_MINT_MARK_7 = "ShowMintMark7";
+    public final static String OPT_SHOW_MINT_MARK_8 = "ShowMintMark8";
+    public final static String OPT_SHOW_MINT_MARK_9 = "ShowMintMark9";
+    public final static String OPT_SHOW_MINT_MARK_10 = "ShowMintMark10";
     public final static String OPT_SHOW_MINT_MARK_1_STRING_ID = "ShowMintMark1StringId";
     public final static String OPT_SHOW_MINT_MARK_2_STRING_ID = "ShowMintMark2StringId";
     public final static String OPT_SHOW_MINT_MARK_3_STRING_ID = "ShowMintMark3StringId";
     public final static String OPT_SHOW_MINT_MARK_4_STRING_ID = "ShowMintMark4StringId";
     public final static String OPT_SHOW_MINT_MARK_5_STRING_ID = "ShowMintMark5StringId";
+    public final static String OPT_SHOW_MINT_MARK_6_STRING_ID = "ShowMintMark6StringId";
+    public final static String OPT_SHOW_MINT_MARK_7_STRING_ID = "ShowMintMark7StringId";
+    public final static String OPT_SHOW_MINT_MARK_8_STRING_ID = "ShowMintMark8StringId";
+    public final static String OPT_SHOW_MINT_MARK_9_STRING_ID = "ShowMintMark9StringId";
+    public final static String OPT_SHOW_MINT_MARK_10_STRING_ID = "ShowMintMark10StringId";
 
     public final static String OPT_CHECKBOX_1 = "ShowCheckbox1";
     public final static String OPT_CHECKBOX_2 = "ShowCheckbox2";
     public final static String OPT_CHECKBOX_3 = "ShowCheckbox3";
     public final static String OPT_CHECKBOX_4 = "ShowCheckbox4";
     public final static String OPT_CHECKBOX_5 = "ShowCheckbox5";
+    public final static String OPT_CHECKBOX_6 = "ShowCheckbox6";
+    public final static String OPT_CHECKBOX_7 = "ShowCheckbox7";
+    public final static String OPT_CHECKBOX_8 = "ShowCheckbox8";
+    public final static String OPT_CHECKBOX_9 = "ShowCheckbox9";
+    public final static String OPT_CHECKBOX_10 = "ShowCheckbox10";
     public final static String OPT_CHECKBOX_1_STRING_ID = "ShowCheckbox1StringId";
     public final static String OPT_CHECKBOX_2_STRING_ID = "ShowCheckbox2StringId";
     public final static String OPT_CHECKBOX_3_STRING_ID = "ShowCheckbox3StringId";
     public final static String OPT_CHECKBOX_4_STRING_ID = "ShowCheckbox4StringId";
     public final static String OPT_CHECKBOX_5_STRING_ID = "ShowCheckbox5StringId";
+    public final static String OPT_CHECKBOX_6_STRING_ID = "ShowCheckbox6StringId";
+    public final static String OPT_CHECKBOX_7_STRING_ID = "ShowCheckbox7StringId";
+    public final static String OPT_CHECKBOX_8_STRING_ID = "ShowCheckbox8StringId";
+    public final static String OPT_CHECKBOX_9_STRING_ID = "ShowCheckbox9StringId";
+    public final static String OPT_CHECKBOX_10_STRING_ID = "ShowCheckbox10StringId";
 
     /**
      * This flag should be used by collections whose year of most recent
@@ -213,6 +233,11 @@ public class CoinPageCreator extends BaseActivity {
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_3, OPT_SHOW_MINT_MARK_3_STRING_ID);
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_4, OPT_SHOW_MINT_MARK_4_STRING_ID);
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_5, OPT_SHOW_MINT_MARK_5_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_6, OPT_SHOW_MINT_MARK_6_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_7, OPT_SHOW_MINT_MARK_7_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_8, OPT_SHOW_MINT_MARK_8_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_9, OPT_SHOW_MINT_MARK_9_STRING_ID);
+        SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_10, OPT_SHOW_MINT_MARK_10_STRING_ID);
     }
 
     private final static HashMap<String, String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
@@ -223,6 +248,11 @@ public class CoinPageCreator extends BaseActivity {
         CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_3, OPT_CHECKBOX_3_STRING_ID);
         CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_4, OPT_CHECKBOX_4_STRING_ID);
         CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_5, OPT_CHECKBOX_5_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_6, OPT_CHECKBOX_6_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_7, OPT_CHECKBOX_7_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_8, OPT_CHECKBOX_8_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_9, OPT_CHECKBOX_9_STRING_ID);
+        CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_10, OPT_CHECKBOX_10_STRING_ID);
     }
 
     @Override
@@ -564,7 +594,7 @@ public class CoinPageCreator extends BaseActivity {
         String collectionName = nameEditText.getText().toString();
 
         // Perform action on click
-        if (collectionName.equals("")) {
+        if (collectionName.isEmpty()) {
             Toast.makeText(CoinPageCreator.this,
                     mRes.getString(R.string.error_missing_name),
                     Toast.LENGTH_SHORT).show();
@@ -902,7 +932,7 @@ public class CoinPageCreator extends BaseActivity {
             ArrayList<CoinSlot> mergedCoinList = new ArrayList<>();
 
             // Add any custom coins at the beginning of the list
-            while ((existingCoinList.size() != 0) && existingCoinList.get(0).isCustomCoin()) {
+            while ((!existingCoinList.isEmpty()) && existingCoinList.get(0).isCustomCoin()) {
                 mergedCoinList.add(existingCoinList.remove(0));
             }
 

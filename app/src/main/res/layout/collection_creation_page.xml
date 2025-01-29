@@ -50,14 +50,14 @@
             android:id="@+id/check_show_mint_mark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="40dp"
+            android:minHeight="48dp"
             android:text="@string/show_mint_mark" />
 
         <CheckBox
             android:id="@+id/check_edit_date_range"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="40dp"
+            android:minHeight="48dp"
             android:text="@string/edit_date_range" />
         <!-- Populated programmatically with any coin-specific options -->
         <LinearLayout
@@ -69,32 +69,63 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowCheckbox1" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowCheckbox2" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowCheckbox3" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowCheckbox4" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowCheckbox5" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowCheckbox6" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowCheckbox7" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowCheckbox8" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowCheckbox9" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowCheckbox10" />
+
         </LinearLayout>
         <!-- The things below here can either appear or disappear based on
              the above options... Putting them at the end seems to be the
@@ -109,32 +140,62 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowMintMark1" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowMintMark2" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowMintMark3" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowMintMark4" />
 
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="48dp"
                 android:tag="ShowMintMark5" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowMintMark6" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowMintMark7" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowMintMark8" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowMintMark9" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:tag="ShowMintMark10" />
         </LinearLayout>
 
         <LinearLayout
