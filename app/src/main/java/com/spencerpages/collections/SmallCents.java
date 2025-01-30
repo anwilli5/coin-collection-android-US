@@ -94,10 +94,10 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_eagle);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_indian);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
@@ -167,14 +167,8 @@ public class SmallCents extends CollectionInfo {
                         coinList.add(new CoinSlot("Indian Head",String.format("%n%d Bronze", i ), coinIndex++));
                         coinList.add(new CoinSlot("Indian Head",String.format("%n%d L", i ), coinIndex++));
                     }
-                    if ( i >1858 && i <1910 && i !=1864)
-                        coinList.add(new CoinSlot("Indian Head",phil, coinIndex++));
-                }
-                if (showS) {
-                    if (i == 1908 || i == 1909) {
-                        coinList.add(new CoinSlot("Indian Head",sf, coinIndex++));
-                    }
-                }
+                    if ( i >1858 && i <1910 && i !=1864) coinList.add(new CoinSlot("Indian Head",phil, coinIndex++));}
+                if (showS) {if (i == 1908 || i == 1909) {coinList.add(new CoinSlot("Indian Head",sf, coinIndex++));}}
             }
             if (showwheat) {
                 if (i == 1909) {
@@ -202,9 +196,16 @@ public class SmallCents extends CollectionInfo {
             }
             if (showmem) {
                 if (i == 1982) {
-                    for (Object[] coinData : A1982_COIN_IDENTIFIERS) {
-                        String identifier = (String) coinData[0];
-                        coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                    if (showP) {
+                        coinList.add(new CoinSlot("Copper Large Date 1982 P", "", coinIndex++));
+                        coinList.add(new CoinSlot("Copper Small Date 1982 P", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Large Date 1982 P", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Small Date1982 P ", "", coinIndex++));
+                    }
+                    if (showD) {
+                        coinList.add(new CoinSlot("Copper Large Date 1982 D", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Large Date 1982 D", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Small Date 1982 D", "", coinIndex++));
                     }
                 } else if (i == 2009) {
                     for (Object[] coinData : COIN_IDENTIFIERS) {
