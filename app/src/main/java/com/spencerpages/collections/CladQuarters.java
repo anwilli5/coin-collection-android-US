@@ -116,7 +116,7 @@ public class CladQuarters extends CollectionInfo {
             {"Northern Mariana Islands 2009", R.drawable.states_2009_northern_mariana_unc},
     };
     private static final Object[][] TEN_COIN_IDENTIFIERS = {
-            {"Hot Springs 2012", R.drawable.parks_2010_hot_springs_unc},
+            {"Hot Springs 2010", R.drawable.parks_2010_hot_springs_unc},
             {"Yellowstone 2010", R.drawable.parks_2010_yellowstone_unc},
             {"Yosemite 2010", R.drawable.parks_2010_yosemite_unc},
             {"Grand Canyon 2010", R.drawable.parks_2010_grand_canyon_unc},
@@ -300,8 +300,10 @@ public class CladQuarters extends CollectionInfo {
         if (showeagle) {
             for (Object[] coinData : SMS_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
-                coinList.add(new CoinSlot(identifier, "SMS", coinIndex++));
+                if (showp) {
+                    coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                    coinList.add(new CoinSlot(identifier, "SMS", coinIndex++));
+                }
             }
             for (Object[] coinData : EAGLE_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
