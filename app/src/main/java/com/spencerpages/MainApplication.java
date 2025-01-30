@@ -32,8 +32,6 @@ import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
-import com.spencerpages.collections.CladDimes;
-import com.spencerpages.collections.CladKennedy;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EarlyDollars;
@@ -72,7 +70,7 @@ import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
-import com.spencerpages.collections.AllNickels;
+import com.spencerpages.collections.moreNickels;
 
 public class MainApplication extends Application {
 
@@ -118,15 +116,13 @@ public class MainApplication extends Application {
 
                     new SmallCents(),
                     new LargeCents(),
-                    new AllNickels(),
+                    new moreNickels(),
                     new HalfDimes(),
-                    new CladDimes(),
                     new SilverDimes(),
                     new EarlyDimes(),
                     new CladQuarters(),
                     new WashingtonSilver(),
                     new EarlyQuarters(),
-                    new CladKennedy(),
                     new SilverHalfDollars(),
                     new EarlyHalfDollars(),
                     new SmallDollars(),

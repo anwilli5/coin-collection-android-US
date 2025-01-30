@@ -103,7 +103,7 @@ public class EisenhowerDollar extends CollectionInfo {
 
         for (int i = startYear; i <= stopYear; i++) {
             String newValue = Integer.toString(i);
-            if (i==1971){
+            if (i==1971 || i ==1972){
                 if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
                 if (showSilver) {
@@ -111,15 +111,7 @@ public class EisenhowerDollar extends CollectionInfo {
                     coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
                 }
             }
-            if (i==1972){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i==1973){
+            if (i==1973 || i == 1974){
                 if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
                 if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
@@ -128,16 +120,6 @@ public class EisenhowerDollar extends CollectionInfo {
                     coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
                 }
             }
-            if (i==1974){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-                if (showSilver) {
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
-                    coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
-                }
-            }
-            if (i == 1975) continue;
             if (i == 1976) {
                 newValue = "1776-1976";
                 if (showP) {
@@ -154,12 +136,7 @@ public class EisenhowerDollar extends CollectionInfo {
                     coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));
                 }
             }
-            if (i==1977){
-                if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
-            }
-            if (i==1978){
+            if (i==1977 || i==1978){
                 if (showP) {coinList.add(new CoinSlot(newValue, "", coinIndex++));}
                 if (showD) {coinList.add(new CoinSlot(newValue, "D", coinIndex++));}
                 if (showProof) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}

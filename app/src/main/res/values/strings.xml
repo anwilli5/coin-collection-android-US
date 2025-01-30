@@ -201,6 +201,7 @@
     <string name="include_abarber">Include Barber Quarters</string>
     <string name="include_standing">Include Liberty Standing Quarters</string>
     <string name="include_pres">Include Presidential Dollars</string>
+    <string name="include_clad">Include Clad coins</string>
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>
     <string name="select_collection_type">Collection Type: </string>
