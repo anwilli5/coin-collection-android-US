@@ -174,7 +174,7 @@ public class KennedyHalfDollars extends CollectionInfo {
                     if (showproofs) {coinList.add(new CoinSlot(newValue, "S Proof", coinIndex++));}
                 }
             }
-            if (i > 1991 && showproofs){coinList.add(new CoinSlot(newValue, "S Silver Proof", coinIndex++));}
+            if (i > 1991 && showsilver && showproofs){coinList.add(new CoinSlot(newValue, "S Silver Proof", coinIndex++));}
         }
     }
 
