@@ -40,10 +40,10 @@ public class SmallCents extends CollectionInfo {
     };
 
     private static final Object[][] A1982_COIN_IDENTIFIERS = {
-            {"Copper Large Date 1982 P", R.drawable.ab1909},
-            {"Copper Small Date 1982 P", R.drawable.ab1909},
-            {"Zinc Large Date 1982 P", R.drawable.obv_lincoln_cent_unc},
-            {"Zinc Small Date 1982 P", R.drawable.obv_lincoln_cent_unc},
+            {"Copper Large Date 1982", R.drawable.ab1909},
+            {"Copper Small Date 1982", R.drawable.ab1909},
+            {"Zinc Large Date 1982", R.drawable.obv_lincoln_cent_unc},
+            {"Zinc Small Date 1982", R.drawable.obv_lincoln_cent_unc},
             {"Copper Large Date 1982 D", R.drawable.ab1909},
             {"Zinc Large Date 1982 D", R.drawable.obv_lincoln_cent_unc},
             {"Zinc Small Date 1982 D", R.drawable.obv_lincoln_cent_unc},
@@ -197,10 +197,10 @@ public class SmallCents extends CollectionInfo {
             if (showmem) {
                 if (i == 1982) {
                     if (showP) {
-                        coinList.add(new CoinSlot("Copper Large Date 1982 P", "", coinIndex++));
-                        coinList.add(new CoinSlot("Copper Small Date 1982 P", "", coinIndex++));
-                        coinList.add(new CoinSlot("Zinc Large Date 1982 P", "", coinIndex++));
-                        coinList.add(new CoinSlot("Zinc Small Date 1982 P", "", coinIndex++));
+                        coinList.add(new CoinSlot("Copper Large Date 1982", "", coinIndex++));
+                        coinList.add(new CoinSlot("Copper Small Date 1982", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Large Date 1982", "", coinIndex++));
+                        coinList.add(new CoinSlot("Zinc Small Date 1982", "", coinIndex++));
                     }
                     if (showD) {
                         coinList.add(new CoinSlot("Copper Large Date 1982 D", "", coinIndex++));
