@@ -233,6 +233,16 @@ public class SmallCents extends CollectionInfo {
                     if (showsatin && i > 2004 && i < 2009) {coinList.add(new CoinSlot("Memorial Zinc",satind, coinIndex++));}
                     if (showsatin && i == 2010) {coinList.add(new CoinSlot("Shield",satind, coinIndex++));}
                 }
+                if ( showsatin){
+                    if (!showP){
+                        if ( i > 2004 && i < 2009) {coinList.add(new CoinSlot("Memorial Zinc",satin, coinIndex++));}
+                        if ( i == 2010) {coinList.add(new CoinSlot("Shield",satin, coinIndex++));}
+                    }
+                    if (!showD){
+                        if ( i > 2004 && i < 2009) {coinList.add(new CoinSlot("Memorial Zinc",satind, coinIndex++));}
+                        if ( i == 2010) {coinList.add(new CoinSlot("Shield",satind, coinIndex++));}
+                    }
+                }
                 if (showS && i > 1967 && i < 1975) {coinList.add(new CoinSlot("Memorial",sf, coinIndex++));}
                 if (showSProof && i > 1958 && i <  1965) {coinList.add(new CoinSlot("Proof",phil, coinIndex++));}
                 if (showSProof && i > 1967 && i!=2009) {coinList.add(new CoinSlot("Proof",sf, coinIndex++));}
