@@ -544,6 +544,18 @@ public class CollectionListInfo implements Parcelable {
         mEndYear = endYear;
     }
 
+    /* setMintMarkFlags() used in unit tests
+     */
+    public void setMintMarkFlags(int flags) {
+        mMintMarkFlags = flags;
+    }
+
+    /* setCheckboxFlags() used in unit tests
+     */
+    public void setCheckboxFlags(int flags) {
+        mCheckboxFlags = flags;
+    }
+
     /**
      * Populates the creation parameters from the coin data itself. This is used to figure out
      * the creation properties of existing collections

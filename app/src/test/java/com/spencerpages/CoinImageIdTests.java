@@ -21,6 +21,7 @@
 package com.spencerpages;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -106,13 +107,14 @@ public class CoinImageIdTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
                         .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
             scenario.onActivity(activity -> {
-                // Mock the mCoinTypeObj.getImgId(String imgIdTag) method
+                // Mock the mCoinTypeObj.getImgId(String imgIdTag) method to check for invalid image IDs
                 CollectionInfo mockCollectionInfo = spy(mCoinTypeObj);
                 doAnswer(invocation -> {
                     String imgIdTag = invocation.getArgument(0);
                     int result = (int) invocation.callRealMethod(); // Call the real method
                     if (result == -1) {
-                        throw new AssertionError("getImgId(\"" + imgIdTag + "\") returned -1, which is invalid");
+                        // Assert that coin image ID is not -1 (not found)
+                        assertNotEquals(-1, result);
                     }
                     return result;
                 }).when(mockCollectionInfo).getImgId(anyString());

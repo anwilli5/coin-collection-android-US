@@ -225,7 +225,7 @@ public class CoinPageCreator extends BaseActivity {
     public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2024;
 
 
-    private final static HashMap<String, String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
+    public final static HashMap<String, String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
 
     static {
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_1, OPT_SHOW_MINT_MARK_1_STRING_ID);
@@ -240,7 +240,7 @@ public class CoinPageCreator extends BaseActivity {
         SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_SHOW_MINT_MARK_10, OPT_SHOW_MINT_MARK_10_STRING_ID);
     }
 
-    private final static HashMap<String, String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
+    public final static HashMap<String, String> CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
 
     static {
         CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.put(OPT_CHECKBOX_1, OPT_CHECKBOX_1_STRING_ID);

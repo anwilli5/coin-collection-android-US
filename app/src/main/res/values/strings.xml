@@ -296,10 +296,10 @@
     <!-- Attribution Strings -->
     <!--Common attribution string - https://www.usmint.gov/consumer/indexf8be.html?action=circCoinPolicy -->
     <string name="attr_mint">United States coin images from the United States Mint</string>
-    <string name="attr_wiki">Large Cent coin images from Wikimedia Commons</string>
-    <string name="attr_wikidimes">Draped Bust, Capped Bust, and Liberty Seated dime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
-    <string name="attr_wikihalfdimes">Draped Bust, Capped Bust, and Liberty Seated halfdime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
-    <string name="attr_wikitrimes">Trime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
+    <string name="attr_large_cents">Large Cent coin images from Wikimedia Commons</string>
+    <string name="attr_dimes">Draped Bust, Capped Bust, and Liberty Seated dime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
+    <string name="attr_half_dimes">Draped Bust, Capped Bust, and Liberty Seated halfdime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
+    <string name="attr_trimes">Trime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
     <string name="attr_icons">Material design icons from Google and available on GitHub</string>
     <string name="attr_barber_dimes">Barber Dime images courtesy of Brandon Grossardt via Wikimedia</string>
     <string name="attr_barber_half_dollars">Barber Half Dollar images courtesy of Lost Dutchman Rare Coins via Wikimedia</string>
@@ -316,11 +316,9 @@
     <string name="attr_standing_liberty_quarters">Standing Liberty Quarter images courtesy of John Baumgart via Wikimedia</string>
     <string name="attr_state_quarters">Quarter-dollar coin images from the United States Mint</string>
     <string name="attr_walking_liberty_half_dollars">Walking Liberty Half Dollar images courtesy of Brandon Grossardt via Wikimedia</string>
-    <string name="attr_TwentyCents">Twenty Cent coin images from Heritage Auctions via Wikimedia Commons</string>
-    <string name="attr_TwoCents">Two Cent coin images from Heritage Auctions via Wikimedia Commons</string>
-    <string name="attr_halfcents">Half Cent images courtesy of the National Numismatic Collection, National Museum of American History via Wikimedia</string>
-    <string name="attr_EarlyHalfs">Flowing Hair, Draped Bust, Capped Bust, and Liberty Seated half Dollar images courtesy of Lost Dutchman Rare Coins and Wikimedia Commons</string>
+    <string name="attr_twenty_cents">Twenty Cent coin images from Heritage Auctions via Wikimedia Commons</string>
+    <string name="attr_two_cents">Two Cent coin images from Heritage Auctions via Wikimedia Commons</string>
+    <string name="attr_half_cents">Half Cent images courtesy of the National Numismatic Collection, National Museum of American History via Wikimedia</string>
+    <string name="attr_early_halfs">Flowing Hair, Draped Bust, Capped Bust, and Liberty Seated half Dollar images courtesy of Lost Dutchman Rare Coins and Wikimedia Commons</string>
     <string name="attr_quarters">Eagle reverse quarter image by 636Buster via wikimedia other Washington quarter images by the US Mint</string>
-
-
 </resources>
