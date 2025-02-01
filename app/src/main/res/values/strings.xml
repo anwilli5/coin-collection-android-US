@@ -150,13 +150,64 @@
     <string name="enter_collection_name">Enter Collection Name</string>
     <string name="show_mint_mark">Show the mint mark on the collection page</string>
     <string name="edit_date_range">Change the collection beginning and ending year</string>
+
+    <!-- Mint Marks (and related) -->
+    <string name="include_p">Include coins from the Philadelphia mint</string>
+    <string name="include_d">Include coins from the Denver mint</string>
+    <string name="include_s">Include coins from the San Francisco mint</string>
+    <string name="include_o">Include coins from the New Orleans mint</string>
+    <string name="include_cc">Include coins from the Carson City mint</string>
+    <string name="include_w">Include coins from the West Point mint</string>
+    <string name="include_s_proofs">Include proofs from San Francisco mint</string>
+    <string name="include_silver_proofs">Include silver proofs from San Francisco mint</string>
+    <string name="include_rev_proofs">Include Reverse Proofs</string>
+    <string name="include_mem_proofs">Include Memorial Proofs</string>
+    <string name="include_satin">Include coins with a satin finish</string>
+    <string name="include_mint_sets">Include Mint Sets</string>
+    <string name="include_proof_sets">Include Proof Sets</string>
+    <string name="include_silver_proof_sets">Include Silver Proof Sets</string>
+
+    <!-- Checkboxes -->
     <string name="show_territories">Include the quarters for D.C. and the U.S. Territories</string>
     <string name="check_show_burnished_eagles">Include the special burnished coins</string>
-    <string name="include_p">Allow space for coins from the Philadelphia mint</string>
-    <string name="include_d">Allow space for coins from the Denver mint</string>
-    <string name="include_s">Allow space for coins from the San Francisco mint</string>
-    <string name="include_o">Allow space for coins from the New Orleans mint</string>
-    <string name="include_cc">Allow space for coins from the Carson City mint</string>
+    <string name="include_silver_coins">Include silver coins</string>
+    <string name="include_nickel_coins">Include Nickel coins</string>
+    <string name="include_old_coins">Include older type coins</string>
+    <string name="include_bust_coins">Include Bust coins</string>
+    <string name="include_draped_bust_coins">Include Draped Bust</string>
+    <string name="include_capped_bust_coins">Include Capped Bust</string>
+    <string name="include_seated_coins">Include Liberty Seated</string>
+    <string name="include_coronet_coins">Include Coronet coins</string>
+    <string name="include_barber_quarters">Include Barber Quarters</string>
+    <string name="include_standing_quarters">Include Liberty Standing Quarters</string>
+    <string name="include_classic_quarters">Include classic Washington Quarters</string>
+    <string name="include_states_quarters">Include States Quarters</string>
+    <string name="include_parks_quarters">Include National Parks Quarters</string>
+    <string name="include_women_quarters">Include American Women Quarters</string>
+    <string name="include_eagle_cents">Include Flying Eagle small cents</string>
+    <string name="include_indian_cents">Include Indian Head cents</string>
+    <string name="include_wheat_cents">Include Lincoln Wheat cents</string>
+    <string name="include_memorial_cents">Include Lincoln Memorial and Shield cents</string>
+    <string name="include_barber_half">Include Barber Halfs</string>
+    <string name="include_walker_half">Include Liberty Walking Halfs</string>
+    <string name="include_franklin_half">Include Franklin Halfs</string>
+    <string name="include_kennedy_half">Include Kennedy Halfs</string>
+    <string name="include_shield_nickels">Include Shield Nickels</string>
+    <string name="include_liberty_nickels">Include Liberty Nickels</string>
+    <string name="include_buffalo_nickels">Include Buffalo Nickels</string>
+    <string name="include_jefferson_nickels">Include Jefferson Nickels</string>
+    <string name="include_barber_dimes">Include Barber dimes</string>
+    <string name="include_mercury_dimes">Include Mercury dimes</string>
+    <string name="include_roos_dimes">Include Roosevelt dimes</string>
+    <string name="include_morgan_dollars">Include Morgan Silver Dollars</string>
+    <string name="include_peace_dollars">Include Peace Silver Dollars</string>
+    <string name="include_ike_dollars">Include Eisenhower Dollars</string>
+    <string name="include_eagle_dollars">Include American Silver Eagles</string>
+    <string name="include_sba_dollars">Include Susan B Anthony Dollars</string>
+    <string name="include_sac_dollars">Include Sacagawea Dollars</string>
+    <string name="include_pres_dollars">Include Presidential Dollars</string>
+    <string name="include_trade_dollars">Include Trade Dollars</string>
+
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>
     <string name="select_collection_type">Collection Type: </string>
@@ -245,6 +296,10 @@
     <!-- Attribution Strings -->
     <!--Common attribution string - https://www.usmint.gov/consumer/indexf8be.html?action=circCoinPolicy -->
     <string name="attr_mint">United States coin images from the United States Mint</string>
+    <string name="attr_large_cents">Large Cent coin images from Wikimedia Commons</string>
+    <string name="attr_dimes">Draped Bust, Capped Bust, and Liberty Seated dime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
+    <string name="attr_half_dimes">Draped Bust, Capped Bust, and Liberty Seated halfdime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
+    <string name="attr_trimes">Trime images courtesy of National Numismatic Collection, National Museum of American History via wikimedia</string>
     <string name="attr_icons">Material design icons from Google and available on GitHub</string>
     <string name="attr_barber_dimes">Barber Dime images courtesy of Brandon Grossardt via Wikimedia</string>
     <string name="attr_barber_half_dollars">Barber Half Dollar images courtesy of Lost Dutchman Rare Coins via Wikimedia</string>
@@ -261,5 +316,11 @@
     <string name="attr_standing_liberty_quarters">Standing Liberty Quarter images courtesy of John Baumgart via Wikimedia</string>
     <string name="attr_state_quarters">Quarter-dollar coin images from the United States Mint</string>
     <string name="attr_walking_liberty_half_dollars">Walking Liberty Half Dollar images courtesy of Brandon Grossardt via Wikimedia</string>
+    <string name="attr_twenty_cents">Twenty Cent coin images from Heritage Auctions via Wikimedia Commons</string>
+    <string name="attr_two_cents">Two Cent coin images from Heritage Auctions via Wikimedia Commons</string>
+    <string name="attr_half_cents">Half Cent images courtesy of the National Numismatic Collection, National Museum of American History via Wikimedia</string>
+    <string name="attr_early_halfs">Flowing Hair, Draped Bust, Capped Bust, and Liberty Seated half Dollar images courtesy of Lost Dutchman Rare Coins and Wikimedia Commons</string>
+    <string name="attr_quarters">Eagle reverse quarter image by 636Buster via wikimedia other Washington quarter images by the US Mint</string>
+
 
 </resources>

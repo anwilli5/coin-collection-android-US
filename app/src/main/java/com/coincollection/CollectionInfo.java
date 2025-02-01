@@ -141,10 +141,25 @@ public abstract class CollectionInfo {
      * populates the image id of coin slots to display a specific image for
      * certain coins. Collections that select the image based solely on the
      * coin name do not need to populate this.
-     *s
+     *
      * @return Array of {"image description", image id}, or empty if unused
      */
     public Object[][] getImageIds() {
         return new Object[][]{};
+    }
+
+    /**
+     * Returns the image id given a string tag
+     * @param imgIdTag tag corresponding to the image id
+     * @return image id, or -1 if not found
+     */
+    public int getImgId(String imgIdTag) {
+        Object[][] imageIds = getImageIds();
+        for (int i = 0; i < imageIds.length; i++) {
+            if (imageIds[i][0].equals(imgIdTag)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
