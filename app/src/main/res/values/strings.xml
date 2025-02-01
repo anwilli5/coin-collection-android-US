@@ -148,7 +148,6 @@
     <string name="enter_collection_name">Enter Collection Name</string>
     <string name="show_mint_mark">Show the mint mark on the collection page</string>
     <string name="edit_date_range">Change the collection beginning and ending year</string>
-    <string name="show_territories">Include the quarters for D.C. and the U.S. Territories</string>
     <string name="check_show_burnished_eagles">Include the special burnished coins</string>
     <string name="include_p">Include coins from the Philadelphia mint</string>
     <string name="include_d">Include coins from the Denver mint</string>
@@ -167,8 +166,13 @@
     <string name="include_nickel">Include Nickel coins</string>
     <string name="include_classic">Include classic Washington Quarters</string>
     <string name="include_states">Include States Quarters</string>
+    <string name="include_states_proof">Include States Quarter Proofs</string>
+    <string name="show_territories">Include the quarters for D.C. and the U.S. Territories</string>
+    <string name="include_territories_proof">Include Proof quarters for D.C. and the U.S. Territories</string>
     <string name="include_parks">Include National Parks Quarters</string>
+    <string name="include_parks_proof">Include National Parks Quarter Proofs</string>
     <string name="include_women">Include American Women Quarters</string>
+    <string name="include_women_proof">Include American Women Quarter Proofs</string>
     <string name="include_old">Include older Type coins</string>
     <string name="include_bust">Include Bust coins</string>
     <string name="include_draped_bust">Include Draped Bust</string>
