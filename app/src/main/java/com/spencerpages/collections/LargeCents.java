@@ -108,7 +108,7 @@ public class LargeCents extends CollectionInfo {
             }
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_wiki;
+    private static final int ATTRIBUTION =R.string.attr_large_cents;
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 

@@ -131,7 +131,7 @@ public class HalfDimes extends CollectionInfo {
     }
     @Override
     public int getAttributionResId () {
-        return R.string.attr_wikihalfdimes;
+        return R.string.attr_half_dimes;
     }
 
     @Override

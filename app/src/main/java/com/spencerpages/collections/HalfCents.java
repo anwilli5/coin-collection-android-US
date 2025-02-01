@@ -89,7 +89,7 @@ public class HalfCents extends CollectionInfo {
             if(i==1852){coinList.add(new CoinSlot("Braided Hair",String.format("%d Proofs & Restrikes Only", i), coinIndex++));}
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_halfcents;
+    private static final int ATTRIBUTION =R.string.attr_half_cents;
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 

@@ -135,7 +135,7 @@ public class EarlyHalfDollars extends CollectionInfo {
         }
     }
     @Override
-    public int getAttributionResId() {return R.string.attr_EarlyHalfs;}
+    public int getAttributionResId() {return R.string.attr_early_halfs;}
 
     @Override
     public int getStartYear() {return START_YEAR;}

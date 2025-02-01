@@ -63,7 +63,7 @@ public class TwoCents extends CollectionInfo {
             if(i==1873)coinList.add(new CoinSlot(Integer.toString(i), "Proofs Only", coinIndex++));
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_TwoCents;
+    private static final int ATTRIBUTION =R.string.attr_two_cents;
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 

@@ -103,11 +103,6 @@ public class SilverDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_roos_dimes);
 
-        // TODO move to mint marks
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_silver_proofs);
-
-
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -121,6 +116,9 @@ public class SilverDimes extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string .include_o);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_silver_proofs);
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
@@ -130,11 +128,11 @@ public class SilverDimes extends CollectionInfo {
         Boolean showBarber = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showMerc = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
         Boolean showRoos = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
 
         int coinIndex = 0;
 

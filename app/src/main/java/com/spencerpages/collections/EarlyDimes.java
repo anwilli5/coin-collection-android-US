@@ -133,7 +133,7 @@ public class EarlyDimes extends CollectionInfo {
         }
     }
     @Override
-    public int getAttributionResId() {return R.string.attr_wikidimes;}
+    public int getAttributionResId() {return R.string.attr_dimes;}
 
     @Override
     public int getStartYear() {return START_YEAR;}
