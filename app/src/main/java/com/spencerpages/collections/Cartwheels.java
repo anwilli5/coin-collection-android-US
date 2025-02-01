@@ -48,7 +48,6 @@ public class Cartwheels extends CollectionInfo {
             {"`", R.drawable.obv_morgan_dollar},
             {" ", R.drawable.obv_peace_dollar},
             {"", R.drawable.obv_eisenhower_dollar},
-            {"SBA", R.drawable.obv_susan_b_anthony_unc},
             {"Eagle",R.drawable.obv_american_eagle_unc},
             {"Morgan", R.drawable.obv_morgan_dollar},
             {"Peace", R.drawable.obv_peace_dollar},
@@ -160,15 +159,18 @@ public class Cartwheels extends CollectionInfo {
             String no = String.format("%d O ", i);
             String cc = String.format("%d CC ", i);
             if (showmorgan && i >1877 && i < 1922) {
-                if (showP && i == 1878) {
-                    coinList.add(new CoinSlot("`",String.format("%d 8 Feathers", i), coinIndex++));
-                    coinList.add(new CoinSlot("`",String.format("%d 7 Feathers", i), coinIndex++));
-                } else if (i != 1895) {coinList.add(new CoinSlot("`",phil, coinIndex++));}
+                if (showP) {
+                    if (i == 1878) {
+                        coinList.add(new CoinSlot("`", String.format("%d 8 Feathers", i), coinIndex++));
+                        coinList.add(new CoinSlot("`", String.format("%d 7 Feathers", i), coinIndex++));
+                    } else if (i != 1895) {
+                        coinList.add(new CoinSlot("`", phil, coinIndex++));
+                    }
+                }
                 if (showD && i == 1921) {coinList.add(new CoinSlot("`",den, coinIndex++));}
                 if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot("`",no, coinIndex++));}
                 if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {coinList.add(new CoinSlot("`",cc, coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot("`",sf, coinIndex++));
-                }
+                if (showS) {coinList.add(new CoinSlot("`",sf, coinIndex++));}
             }
             if (showpeace && i > 1920 && i < 1936){
                 if (showP) {coinList.add(new CoinSlot(" ",String.format("%d  ", i), coinIndex++));}
@@ -205,11 +207,13 @@ public class Cartwheels extends CollectionInfo {
                     if (showS) {coinList.add(new CoinSlot("",String.format("%d S Proof", i), coinIndex++));}
                 }
             }
-            if (showeagle && i >1985){coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                if (i == 2006) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2007) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2008) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                if (i == 2011) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+            if (showeagle){
+                if (showP && i >1985) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                    if (i == 2006) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+                    if (i == 2007) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+                    if (i == 2008) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+                    if (i == 2011) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+                }
             }
         }
     }

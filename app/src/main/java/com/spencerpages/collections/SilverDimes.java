@@ -105,10 +105,6 @@ public class SilverDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_roos);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_silver_Proofs);
-
-
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -122,6 +118,9 @@ public class SilverDimes extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string .include_o);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string .include_silver_Proofs);
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
@@ -131,11 +130,11 @@ public class SilverDimes extends CollectionInfo {
         Boolean showBarber = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showMerc = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
         Boolean showRoos = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
 
         int coinIndex = 0;
 
@@ -151,7 +150,10 @@ public class SilverDimes extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             if (showBarber && i > 1891 && i < 1917) {
                 if (showP) {coinList.add(new CoinSlot("  ",String.format("%d   ", i), coinIndex++));}
-                if (showD && i >= 1906 && i <= 1912 || i == 1914)  {coinList.add(new CoinSlot("  ",String.format("%d D  ", i), coinIndex++));}
+                if (showD) {
+                    if (i >= 1906 && i <= 1912) {coinList.add(new CoinSlot("  ", String.format("%d D  ", i), coinIndex++));}
+                    if (i == 1914) {coinList.add(new CoinSlot("  ", String.format("%d D  ", i), coinIndex++));}
+                }
                 if (showS && i != 1894) {coinList.add(new CoinSlot("  ",String.format("%d S   ", i), coinIndex++));}
                 if (showO && i != 1904 && i < 1910) {coinList.add(new CoinSlot("  ",String.format("%d O   ", i), coinIndex++));}
             }
@@ -163,13 +165,16 @@ public class SilverDimes extends CollectionInfo {
                 if (showS && i != 1921 && i != 1934) {coinList.add(new CoinSlot(" ",String.format("%d S  ", i), coinIndex++));}
             }
 
-            if (showRoos && i > 1945 && i <= 1964) {
-                if (showP) {coinList.add(new CoinSlot("",String.format("%d ", i), coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot("",String.format("%d D ", i), coinIndex++));}
-                if (showS && i < 1956) {coinList.add(new CoinSlot("",String.format("%d S ", i), coinIndex++));}
+            if (showRoos){
+                if (i > 1945 && i <= 1964) {
+                    if (showP) {coinList.add(new CoinSlot("", String.format("%d ", i), coinIndex++));}
+                    if (showD) {coinList.add(new CoinSlot("", String.format("%d D ", i), coinIndex++));}
+                    if (showS && i < 1956) {coinList.add(new CoinSlot("", String.format("%d S ", i), coinIndex++));}
+                }
+                if (showSilver && i > 1991) {coinList.add(new CoinSlot("", String.format("%d Silver Proof", i), coinIndex++));}
             }
 
-            if (showSilver && i > 1991) {coinList.add(new CoinSlot("", String.format("%d Silver Proof", i), coinIndex++));}
+
         }
     }
     @Override

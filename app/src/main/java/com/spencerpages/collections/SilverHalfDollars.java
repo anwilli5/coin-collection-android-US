@@ -173,7 +173,7 @@ public class SilverHalfDollars extends CollectionInfo {
             }
             if (showwalker && i > 1915 && i < 1948) {
                 if (showP && (i < 1923 || i > 1933)) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
-                if (showD && i < 1923 || i > 1928 && i != 1933 && i != 1940) {
+                if (showD && (i < 1923 || i > 1928) && i != 1933 && i != 1940) {
                     if (i == 1917) {
                         coinList.add(new CoinSlot(Integer.toString(i), "D Obverse", coinIndex++));
                         coinList.add(new CoinSlot(Integer.toString(i), "D Reverse", coinIndex++));

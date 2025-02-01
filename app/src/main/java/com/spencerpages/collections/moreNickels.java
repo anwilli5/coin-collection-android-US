@@ -51,6 +51,9 @@ public class moreNickels extends CollectionInfo {
             {" ", R.drawable.obv_jefferson_nickel_unc},
             {"`", R.drawable.jeffersonuncirculated},
             {"'", R.drawable.jeffersonproof},
+    };
+
+    private static final Object[][] MORE_COIN_IDENTIFIERS = {
             {"Shield", R.drawable.obv_shield_nickel},
             {"Liberty", R.drawable.obv_liberty_head_nickel},
             {"Buffalo", R.drawable.obv_buffalo_nickel},
@@ -67,6 +70,9 @@ public class moreNickels extends CollectionInfo {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
         for (Object[] coinData : COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+        for (Object[] coinData : MORE_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
     }
@@ -119,17 +125,20 @@ public class moreNickels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_Shield);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_Liberty);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_Shield);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_Buffalo);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_Liberty);
 
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_Jefferson);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_Buffalo);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_Jefferson);
 
 
     }
@@ -145,15 +154,16 @@ public class moreNickels extends CollectionInfo {
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showSProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showshield = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showLiberty = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showBuffalo = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showJefferson = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
+        Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showshield = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showLiberty = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        Boolean showBuffalo = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
+        Boolean showJefferson = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         int coinIndex = 0;
 
-        if (!showshield) {coinList.add(new CoinSlot("Shield","", coinIndex++));}
-        if (!showLiberty) {coinList.add(new CoinSlot("Liberty","", coinIndex++));}
-        if (!showBuffalo) {coinList.add(new CoinSlot("Buffalo","", coinIndex++));}
+        if (showold && !showshield) {coinList.add(new CoinSlot("Shield","", coinIndex++));}
+        if (showold && !showLiberty) {coinList.add(new CoinSlot("Liberty","", coinIndex++));}
+        if (showold && !showBuffalo) {coinList.add(new CoinSlot("Buffalo","", coinIndex++));}
 
         for (int i = startYear; i <= stopYear; i++) {
             String phil = String.format("%d ", i);
@@ -165,22 +175,18 @@ public class moreNickels extends CollectionInfo {
 
 
             if (showshield) {
-                if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {
-                    coinList.add(new CoinSlot("   ",String.format("%d    ", i  ), coinIndex++));
-                }
+                if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {coinList.add(new CoinSlot("   ",String.format("%d    ", i  ), coinIndex++));}
+                if (i ==1877 || i ==1878){coinList.add(new CoinSlot("   ",String.format("%d Proof   ", i  ), coinIndex++));}
             }
             if (showLiberty) {
-                if (i == 1883) {
-                    coinList.add(new CoinSlot("  ", String.format("%d w Cents  ", i), coinIndex++));
-                    coinList.add(new CoinSlot("  ", String.format("%d No Cents  ", i), coinIndex++));
+                if (showP) {
+                    if (i == 1883) {
+                        coinList.add(new CoinSlot("  ", String.format("%d w Cents  ", i), coinIndex++));
+                        coinList.add(new CoinSlot("  ", String.format("%d No Cents  ", i), coinIndex++));}
+                    if (i > 1883 && i < 1913) {coinList.add(new CoinSlot("  ", String.format("%d   ", i), coinIndex++));}
                 }
-                if (i > 1883 && i < 1913) {
-                    coinList.add(new CoinSlot("  ",String.format("%d   ", i  ), coinIndex++));
-                }
-                if (showS && i == 1912) {
-                    coinList.add(new CoinSlot("  ",String.format("%d D   ", i  ), coinIndex++));
-                    coinList.add(new CoinSlot("  ",String.format("%d S   ", i  ), coinIndex++));
-                }
+                if (showD && i == 1912) {coinList.add(new CoinSlot("  ",String.format("%d D   ", i  ), coinIndex++));}
+                if (showS && i == 1912) {coinList.add(new CoinSlot("  ",String.format("%d S   ", i  ), coinIndex++));}
             }
             if (showBuffalo) {
                 if (i > 1912 && i < 1939 && i != 1922 && i != 1932 && i != 1933) {
@@ -216,7 +222,7 @@ public class moreNickels extends CollectionInfo {
                     }
                 }
             }
-            if (showJefferson && i > 1937 && i < 2025) {
+            if (showJefferson && i > 1937) {
                 if (i == 2004) {
                     // 2004 Jefferson Presidential Nickels
                     for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
