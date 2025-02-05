@@ -24,49 +24,51 @@ import android.app.Application;
 
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseAdapter;
-import com.spencerpages.collections.AmericanEagleSilverDollars;
+//import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
-import com.spencerpages.collections.AmericanWomenQuarters;
-import com.spencerpages.collections.BarberDimes;
-import com.spencerpages.collections.BarberHalfDollars;
-import com.spencerpages.collections.BarberQuarters;
-import com.spencerpages.collections.BuffaloNickels;
+//import com.spencerpages.collections.AmericanWomenQuarters;
+//import com.spencerpages.collections.BarberDimes;
+//import com.spencerpages.collections.BarberHalfDollars;
+//import com.spencerpages.collections.BarberQuarters;
+//import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EarlyDollars;
 import com.spencerpages.collections.EarlyHalfDollars;
 import com.spencerpages.collections.EarlyQuarters;
-import com.spencerpages.collections.EisenhowerDollar;
+//import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
-import com.spencerpages.collections.FranklinHalfDollars;
+//import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.HalfCents;
 import com.spencerpages.collections.HalfDimes;
-import com.spencerpages.collections.IndianHeadCents;
-import com.spencerpages.collections.JeffersonNickels;
-import com.spencerpages.collections.KennedyHalfDollars;
+//import com.spencerpages.collections.IndianHeadCents;
+//import com.spencerpages.collections.JeffersonNickels;
+//import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
-import com.spencerpages.collections.LibertyHeadNickels;
-import com.spencerpages.collections.LincolnCents;
-import com.spencerpages.collections.MercuryDimes;
-import com.spencerpages.collections.MorganDollars;
-import com.spencerpages.collections.NationalParkQuarters;
-import com.spencerpages.collections.NativeAmericanDollars;
-import com.spencerpages.collections.PeaceDollars;
-import com.spencerpages.collections.PresidentialDollars;
-import com.spencerpages.collections.RooseveltDimes;
+//import com.spencerpages.collections.LibertyHeadNickels;
+//import com.spencerpages.collections.LincolnCents;
+//import com.spencerpages.collections.MercuryDimes;
+//import com.spencerpages.collections.MorganDollars;
+//import com.spencerpages.collections.NationalParkQuarters;
+//import com.spencerpages.collections.NativeAmericanDollars;
+//import com.spencerpages.collections.PeaceDollars;
+//import com.spencerpages.collections.PresidentialDollars;
+//import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Roosevelt_Dimes;
 import com.spencerpages.collections.Sets;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.SmallDollars;
-import com.spencerpages.collections.StandingLibertyQuarters;
-import com.spencerpages.collections.StateQuarters;
-import com.spencerpages.collections.SusanBAnthonyDollars;
+//import com.spencerpages.collections.StandingLibertyQuarters;
+//import com.spencerpages.collections.StateQuarters;
+//import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
-import com.spencerpages.collections.WalkingLibertyHalfDollars;
+//import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
@@ -85,48 +87,48 @@ public class MainApplication extends Application {
     // List of all the supported collection types by the app.  New collections
     // should be added here
     public static final CollectionInfo[] COLLECTION_TYPES =
-            {       new LincolnCents(),
-                    new JeffersonNickels(),
-                    new RooseveltDimes(),
-                    new WashingtonQuarters(),
-                    new StateQuarters(),
-                    new NationalParkQuarters(),
-                    new KennedyHalfDollars(),
-                    new EisenhowerDollar(),
-                    new SusanBAnthonyDollars(),
-                    new NativeAmericanDollars(),
-                    new PresidentialDollars(),
-                    new IndianHeadCents(),
-                    new LibertyHeadNickels(),
-                    new BuffaloNickels(),
-                    new BarberDimes(),
-                    new MercuryDimes(),
-                    new BarberQuarters(),
-                    new StandingLibertyQuarters(),
-                    new BarberHalfDollars(),
-                    new WalkingLibertyHalfDollars(),
-                    new FranklinHalfDollars(),
-                    new MorganDollars(),
-                    new PeaceDollars(),
-                    new AmericanEagleSilverDollars(),
-                    new FirstSpouseGoldCoins(),
-                    new AmericanInnovationDollars(),
-                    new AmericanWomenQuarters(),
+            {       // new LincolnCents(),
+                    // new JeffersonNickels(),
+                    // new RooseveltDimes(),
+                    // new StateQuarters(),
+                    // new NationalParkQuarters(),
+                    // new EisenhowerDollar(),
+                    // new SusanBAnthonyDollars(),
+                    // new NativeAmericanDollars(),
+                    // new PresidentialDollars(),
+                    // new IndianHeadCents(),
+                    // new LibertyHeadNickels(),
+                    // new BuffaloNickels(),
+                    // new BarberDimes(),
+                    // new MercuryDimes(),
+                    // new BarberQuarters(),
+                    // new StandingLibertyQuarters(),
+                    // new BarberHalfDollars(),
+                    // new KennedyHalfDollars(),
+                    // new WalkingLibertyHalfDollars(),
+                    // new FranklinHalfDollars(),
+                    // new MorganDollars(),
+                    // new PeaceDollars(),
+                    // new AmericanEagleSilverDollars(),
+                    // new AmericanWomenQuarters(),
 
 
                     new SmallCents(),
                     new LargeCents(),
                     new moreNickels(),
                     new HalfDimes(),
+                    new Roosevelt_Dimes(),
                     new SilverDimes(),
                     new EarlyDimes(),
                     new CladQuarters(),
+                    new WashingtonQuarters(),
                     new WashingtonSilver(),
                     new EarlyQuarters(),
+                    new Kennedy_Halfs(),
                     new SilverHalfDollars(),
                     new EarlyHalfDollars(),
-                    new SmallDollars(),
                     new Cartwheels(),
+                    new SmallDollars(),
                     new EarlyDollars(),
                     new WestPoint(),
                     new Sets(),
@@ -134,7 +136,8 @@ public class MainApplication extends Application {
                     new TwoCents(),
                     new Trimes(),
                     new TwentyCents(),
-
+                    new FirstSpouseGoldCoins(),
+                    new AmericanInnovationDollars(),
 
             };
 
@@ -170,8 +173,9 @@ public class MainApplication extends Application {
      * Version 18 - Used in Version 3.4.0 of the app
      * Version 19 - Used in Version 3.5.0 of the app
      * Version 20 - Used in Version 3.6.0 of the app
+     * Version 21 - Used in Version 3.7.0 of the app
      */
-    public static final int DATABASE_VERSION = 20;
+    public static final int DATABASE_VERSION = 21;
 
     /**
      * Get the collection index from collection type name

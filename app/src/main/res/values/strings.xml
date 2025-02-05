@@ -97,6 +97,7 @@
     <string name="select_coin_type">Select Coin Type</string>
     <string name="select_grade">Grade</string>
     <string name="select_quantity">Quantity</string>
+    <string name="select_image">Coin Image</string>
     <string name="unsaved_message">Unsaved Changes</string>
     <string name="notes">Notes</string>
     <string name="change_view_string">Change Views</string>
@@ -106,6 +107,7 @@
     <string name="okay_exp">Okay!</string>
     <string name="okay">Okay</string>
     <string name="cancel">Cancel</string>
+     <string name="img_default">Default</string>
     <string name="collection_completion_template">%1$d/%2$d"</string>
     <string name="collection_complete">Collection Complete!</string>
     <string name="select_collection_name">Select a new collection name</string>
@@ -243,6 +245,7 @@
     <string name="edit_coin_info">Edit coin details</string>
     <string name="name_label">Name:</string>
     <string name="mint_label">Mint:</string>
+    <string name="image_label">Image:</string>
     <string name="tutorial_edit_copy_delete_coins">Press and hold on a coin image to edit, copy, or delete!</string>
     <string name="save_changes_first">This collection has unsaved changes. Please save changes before performing this action.</string>
 
