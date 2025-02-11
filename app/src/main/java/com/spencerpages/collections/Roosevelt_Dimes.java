@@ -102,6 +102,9 @@ public class Roosevelt_Dimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string .include_satin);
 
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string .include_w);
+
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
 
@@ -125,6 +128,7 @@ public class Roosevelt_Dimes extends CollectionInfo {
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showproofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showsatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
         Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showclad = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showsilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
@@ -149,6 +153,8 @@ public class Roosevelt_Dimes extends CollectionInfo {
                 if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 if (showsatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));}
                 if (showproofs && i > 1967) {coinList.add(new CoinSlot(Integer.toString(i), "S Proof", coinIndex++));}
+                if (showproofs && i == 2018) {coinList.add(new CoinSlot(Integer.toString(i), "S Reverse Proof", coinIndex++));}
+                if (showW && i == 1996) {coinList.add(new CoinSlot(Integer.toString(i), "W", coinIndex++));}
             }
             if (showsilver){
                 if (i<1965) {

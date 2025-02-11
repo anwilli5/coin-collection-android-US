@@ -1,6 +1,6 @@
 /*
  * Coin Collection, an Android app that helps users track the coins that they've collected
- * Copyright (C) 2010-2016 Andrew Williams
+ * Copyright (C) 2010-2016 by Andrew Williams
  *
  * This file is part of Coin Collection.
  *

@@ -45,36 +45,40 @@ public class moreNickels extends CollectionInfo {
             {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},
     };
     private static final Object[][] COIN_IDENTIFIERS = {
-            {"   ", R.drawable.obv_shield_nickel},
-            {"  ", R.drawable.obv_liberty_head_nickel},
-            {"", R.drawable.obv_buffalo_nickel},
-            {" ", R.drawable.obv_jefferson_nickel_unc},
-            {"`", R.drawable.jeffersonuncirculated},
-            {"'", R.drawable.jeffersonproof},
-    };
-
-    private static final Object[][] MORE_COIN_IDENTIFIERS = {
             {"Shield", R.drawable.obv_shield_nickel},
             {"Liberty", R.drawable.obv_liberty_head_nickel},
             {"Buffalo", R.drawable.obv_buffalo_nickel},
+            {"Jefferson", R.drawable.obv_jefferson_nickel_unc},
+            {"Modern Jefferson", R.drawable.jeffersonuncirculated},
+            {"Modern Jefferson Proof", R.drawable.jeffersonproof},
+    };
+
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Shield", R.drawable.anishield_nickel_with_rays___1867_obverse},                         // 0
+            {"Liberty", R.drawable.obv_liberty_head_nickel},                                          // 1
+            {"Buffalo", R.drawable.obv_buffalo_nickel},                                               // 2
+            {"Classic Jefferson", R.drawable.obv_jefferson_nickel_unc},                               // 3
+            {"2024 Modern Jefferson", R.drawable.jeffersonuncirculated},                              // 4
+            {"2024 Proof Jefferson", R.drawable.jeffersonproof},                                      // 5
+            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},                         // 6
+            {"Keelboat", R.drawable.westward_2004_keelboat_unc},                                      // 7
+            {"Bison", R.drawable.westward_2005_american_bison_unc},                                   // 8
+            {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},                            // 9
+            {"2005 Obverse Proof", R.drawable.ani2005o},                                              // 10
+            {"Jefferson Reverse", R.drawable.ani2003r},                                               // 11
+            {"Buffalo Reverse", R.drawable.ani1935r},                                                 // 12
+            {"Liberty Reverse", R.drawable.ani1883r},                                                 // 13
+            {"Shield Reverse", R.drawable.anishield_nickel_without_rays___reverse},                   // 14
+            {"1867 Shield Reverse with Rays", R.drawable.anishield_nickel_with_rays___1867_reverse},  // 15
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-        for (Object[] coinData : COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-        for (Object[] coinData : MORE_COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
+        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
     private static final Integer START_YEAR = 1866;
@@ -94,9 +98,18 @@ public class moreNickels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        Integer slotImage;
+        Integer imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -124,6 +137,9 @@ public class moreNickels extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_w);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
@@ -154,6 +170,7 @@ public class moreNickels extends CollectionInfo {
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showSProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
         Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showshield = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showLiberty = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
@@ -166,111 +183,112 @@ public class moreNickels extends CollectionInfo {
         if (showold && !showBuffalo) {coinList.add(new CoinSlot("Buffalo","", coinIndex++));}
 
         for (int i = startYear; i <= stopYear; i++) {
-            String phil = String.format("%d ", i);
-            String den = String.format("%d D ", i);
-            String sf = String.format("%d S ", i);
-            String satin = String.format("%d Satin", i);
-            String satind = String.format("%d D Satin", i);
-
-
 
             if (showshield) {
-                if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {coinList.add(new CoinSlot("   ",String.format("%d    ", i  ), coinIndex++));}
-                if (i ==1877 || i ==1878){coinList.add(new CoinSlot("   ",String.format("%d Proof   ", i  ), coinIndex++));}
+                if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {
+                    coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,0));}
+                if (i ==1877 || i ==1878){
+                    coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,0));}
             }
             if (showLiberty) {
                 if (showP) {
                     if (i == 1883) {
-                        coinList.add(new CoinSlot("  ", String.format("%d w Cents  ", i), coinIndex++));
-                        coinList.add(new CoinSlot("  ", String.format("%d No Cents  ", i), coinIndex++));}
-                    if (i > 1883 && i < 1913) {coinList.add(new CoinSlot("  ", String.format("%d   ", i), coinIndex++));}
+                        coinList.add(new CoinSlot(Integer.toString(i), "w Cents", coinIndex++,1));
+                        coinList.add(new CoinSlot(Integer.toString(i),"No Cents", coinIndex++,1));}
+                    if (i > 1883 && i < 1913) {coinList.add(new CoinSlot("Liberty", String.format("%d   ", i), coinIndex++));}
                 }
-                if (showD && i == 1912) {coinList.add(new CoinSlot("  ",String.format("%d D   ", i  ), coinIndex++));}
-                if (showS && i == 1912) {coinList.add(new CoinSlot("  ",String.format("%d S   ", i  ), coinIndex++));}
+                if (showD && i == 1912) {coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,1));}
+                if (showS && i == 1912) {coinList.add(new CoinSlot(Integer.toString(i),"S", coinIndex++,1));}
             }
+
             if (showBuffalo) {
                 if (i > 1912 && i < 1939 && i != 1922 && i != 1932 && i != 1933) {
                     if (showP) {
                         if (i != 1931 && i != 1938) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i), "Type I", coinIndex++,2));
+                                coinList.add(new CoinSlot(Integer.toString(i), "Type II", coinIndex++,2));
                             } else {
-                                coinList.add(new CoinSlot("", phil, coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,2));
                             }
                         }
                     }
                     if (showD) {
                         if (i != 1921 && i != 1923 && i != 1930 && i != 1931) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d D Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d D Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i), "D Type I", coinIndex++,2));
+                                coinList.add(new CoinSlot(Integer.toString(i), "D Type II", coinIndex++,2));
                             } else {
-                                coinList.add(new CoinSlot("", den, coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,2));
                             }
                         }
                     }
                     if (showS) {
                         if (i != 1934 && i != 1938) {
                             if (i == 1913) {
-                                coinList.add(new CoinSlot("", String.format("%d S Type I", i), coinIndex++));
-                                coinList.add(new CoinSlot("", String.format("%d S Type II", i), coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i), "S Type I", coinIndex++,2));
+                                coinList.add(new CoinSlot(Integer.toString(i), "S Type II", coinIndex++,2));
                             } else {
-                                coinList.add(new CoinSlot("", sf, coinIndex++));
+                                coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++,2));
                             }
                         }
                     }
                 }
             }
             if (showJefferson && i > 1937) {
-                if (i == 2004) {
-                    // 2004 Jefferson Presidential Nickels
-                    for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
-                        String identifier = (String) coinData[0];
-                        if (showP) {coinList.add(new CoinSlot(identifier, phil, coinIndex++));}
-                        if (showD) {coinList.add(new CoinSlot(identifier, den, coinIndex++));}
-                        if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i), coinIndex++));}
-                    }
-                }
-                if (i == 2005) {
-                    // 2005 Jefferson Presidential Nickels
-                    for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
-                        String identifier = (String) coinData[0];
-                        if (showP) {coinList.add(new CoinSlot(identifier, phil, coinIndex++));}
-                        if (showSatin) {coinList.add(new CoinSlot(identifier, satin, coinIndex++));}
-                        if (showD) {coinList.add(new CoinSlot(identifier, den, coinIndex++));}
-                        if (showSatin) {coinList.add(new CoinSlot(identifier, satind, coinIndex++));}
-                        if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i), coinIndex++));}
-                    }
-                }
                 if ( i == 1942){
                     if (showP) {
-                        coinList.add(new CoinSlot(" ",String.format("%d ", i), coinIndex++));
-                        coinList.add(new CoinSlot(" ",String.format("%d Silver ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(" ",String.format("%d D ", i), coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(" ",String.format("%d S Silver ", i), coinIndex++));}
+                        coinList.add(new CoinSlot("1942","", coinIndex++,3));
+                        coinList.add(new CoinSlot("1942","Silver", coinIndex++,3));}
+                    if (showD) {coinList.add(new CoinSlot("1942","D", coinIndex++,3));}
+                    if (showS) {coinList.add(new CoinSlot("1942","S Silver", coinIndex++,3));}
                 }
                 if ( i > 1942 && i < 1946){
-                    if (showP) {coinList.add(new CoinSlot(" ",String.format("%d Silver ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(" ",String.format("%d D Silver ", i), coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot(" ",String.format("%d S Silver ", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"Silver", coinIndex++,3));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i),"D Silver", coinIndex++,3));}
+                    if (showS) {coinList.add(new CoinSlot(Integer.toString(i),"S Silver", coinIndex++,3));}
                 }
                 if ( i  < 2004 && i != 1942 && i != 1943 && i != 1944 && i != 1945) {
                     if (showP && i != 1968 && i != 1969 && i != 1970) {
-                        if (i >= 1980) {coinList.add(new CoinSlot(" ",String.format("%d P  ", i), coinIndex++));}
-                        if (i < 1980) {coinList.add(new CoinSlot(" ",String.format("%d  ", i), coinIndex++));}
-                        if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(" ",String.format("%d SMS ", i), coinIndex++));}
+                        if (i >= 1980) {coinList.add(new CoinSlot(Integer.toString(i),"P", coinIndex++,3));}
+                        if (i < 1980) {coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,3));}
+                        if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(Integer.toString(i),"SMS", coinIndex++,3));}
                     }
-                    if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(" ",String.format("%d D  ", i), coinIndex++));}
-                    if (showS && i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {coinList.add(new CoinSlot(" ",String.format("%d S  ", i), coinIndex++));}
-                    if (showSProof && i > 1967) {coinList.add(new CoinSlot(" ",String.format("%d S Proof ", i), coinIndex++));}
+                    if (showD && i != 1965 && i != 1966 && i != 1967) {coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,3));}
+                    if (showS && i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {coinList.add(new CoinSlot(Integer.toString(i),"S", coinIndex++,3));}
+                    if (showSProof && i > 1967) {coinList.add(new CoinSlot(Integer.toString(i),"S Proof", coinIndex++,3));}
+                }
+                if (i ==2004){
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Peace Medal ", coinIndex++,6));
+                                coinList.add(new CoinSlot(Integer.toString(i), "P Keelboat", coinIndex++,7));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Peace Medal", coinIndex++,6));
+                                coinList.add(new CoinSlot(Integer.toString(i), "D Keelboat", coinIndex++,7));}
+                    if (showSProof) {coinList.add(new CoinSlot(Integer.toString(i),"S Proof Peace Medal", coinIndex++,6));
+                                coinList.add(new CoinSlot(Integer.toString(i),"S Proof Keelboat", coinIndex++,7));}
+                }
+                if (i == 2005){
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"P Bison", coinIndex++,8));
+                                coinList.add(new CoinSlot(Integer.toString(i),"P Ocean in View", coinIndex++,9));}
+                    if (showSatin) {coinList.add(new CoinSlot(Integer.toString(i),"P Satin Bison", coinIndex++,8));
+                                coinList.add(new CoinSlot(Integer.toString(i),"P Satin Ocean in View", coinIndex++,9));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i),"D Bison", coinIndex++,8));
+                                coinList.add(new CoinSlot(Integer.toString(i),"D Ocean in View", coinIndex++,9));}
+                    if (showSatin) {coinList.add(new CoinSlot(Integer.toString(i),"D Satin Bison", coinIndex++,8));
+                                coinList.add(new CoinSlot(Integer.toString(i),"D Satin Ocean in View", coinIndex++,9));}
+                    if (showSProof) {coinList.add(new CoinSlot(Integer.toString(i),"S Proof Bison", coinIndex++,10));
+                                coinList.add(new CoinSlot(Integer.toString(i),"S Proof Ocean in View", coinIndex++,10));}
                 }
                 if (i > 2005) {
-                    if (showP) {coinList.add(new CoinSlot("`",String.format("%d P  ", i), coinIndex++));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot("`",String.format("%d P Satin ", i), coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("`",String.format("%d D  ", i), coinIndex++));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot("`",String.format("%d D Satin ", i), coinIndex++));}
-                    if (showSProof) {coinList.add(new CoinSlot("'",String.format("%d S Proof ", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"P", coinIndex++,4));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i),"P Satin", coinIndex++,4));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,4));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(Integer.toString(i),"D Satin", coinIndex++,4));}
+                    if (showSProof) {coinList.add(new CoinSlot(Integer.toString(i),"S Proof", coinIndex++,5));}
+                    if (showSProof && i == 2018) {coinList.add(new CoinSlot(Integer.toString(i),"S Reverse Proof", coinIndex++,5));}
+                    if (showW && i == 2020) {
+                        coinList.add(new CoinSlot(Integer.toString(i),"W", coinIndex++,4));
+                        coinList.add(new CoinSlot(Integer.toString(i),"W Proof", coinIndex++,4));
+                    }
                 }
             }
         }

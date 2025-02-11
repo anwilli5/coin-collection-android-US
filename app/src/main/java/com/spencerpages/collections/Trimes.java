@@ -19,8 +19,13 @@ public class Trimes extends CollectionInfo {
     private static final Object[][] COIN_IDENTIFIERS = {
             {"Silver", R.drawable.annc_us_1854_3c_three_cent__silver__tyii_},
             {"Nickel", R.drawable.annc_us_1865_3c_three_cent__nickel},
-
     };
+
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Silver", R.drawable.annc_us_1854_3c_three_cent__silver__tyii_},
+            {"Nickel", R.drawable.annc_us_1865_3c_three_cent__nickel},
+    };
+
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
@@ -51,9 +56,19 @@ public class Trimes extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        Integer slotImage;
+        Integer imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
+
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -78,18 +93,21 @@ public class Trimes extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            String date = String.format("%2d", i );
             if (showsilver) {
-                if(i==1851){
-                    coinList.add(new CoinSlot("Silver", date, coinIndex++));
-                    coinList.add(new CoinSlot("Silver", String.format("%2d O", i ), coinIndex++));
+                if (i == 1851) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));
+                    coinList.add(new CoinSlot(Integer.toString(i), "O Silver", coinIndex++, 0));
                 }
-                if(i>1851 && i<1873) coinList.add(new CoinSlot("Silver", date, coinIndex++));
-                if(i==1873)coinList.add(new CoinSlot("Silver", String.format("%2d Proof", i ), coinIndex++));
+                if (i > 1851 && i < 1873) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));}
+                if (i == 1873) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));}
             }
             if (shownickel) {
-                if(i>1864 && i<1890 && i!=1877 && i!=1878 && i!=1886) coinList.add(new CoinSlot("Nickel", date, coinIndex++));
-                if(i==1877 || i==1878 || i==1886)coinList.add(new CoinSlot("Nickel", String.format("%2d Proof", i ), coinIndex++));
+                if(i>1864 && i<1890 && i!=1877 && i!=1878 && i!=1886) {
+                    coinList.add(new CoinSlot(Integer.toString(i),"Nickel",  coinIndex++,1));}
+                if(i==1877 || i==1878 || i==1886){
+                    coinList.add(new CoinSlot(Integer.toString(i),"Nickel", coinIndex++,1));}
             }
         }
     }

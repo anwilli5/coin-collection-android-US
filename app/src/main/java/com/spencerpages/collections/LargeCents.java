@@ -28,6 +28,38 @@ public class LargeCents extends CollectionInfo {
             {"Mature Braided Hair", R.drawable.a1855},
     };
 
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Flying Eagle", R.drawable.a1858_cent_obv},                            // 0
+            {"Indian Head", R.drawable.obv_indian_head_cent},                       // 1
+            {"Wheat", R.drawable.ab1909},                                           // 2
+            {"Steel", R.drawable.a1943o},                                           // 3
+            {"Memorial Copper", R.drawable.amemorial},                              // 4
+            {"Zinc", R.drawable.obv_lincoln_cent_unc},                              // 5
+            {"Proof", R.drawable.lincolnproof_},                                    // 6
+            {"Reverse Proof", R.drawable.cerevproof},                               // 7
+            {"Flowing Hair", R.drawable.annc_us_1793_1c_flowing_hair_cent},         // 8
+            {"Liberty Cap", R.drawable.a1794_cent_obv_venus_marina},                // 9
+            {"Draped Bust", R.drawable.a1797_cent_obv},                             // 10
+            {"Capped Bust", R.drawable.annc_us_1813_1c_classic_head_cent},          // 11
+            {"Coronet", R.drawable.a1819_cent_obv},                                 // 12
+            {"Young Coronet", R.drawable.a1837_cent_obv},                           // 13
+            {"Young Braided Hair", R.drawable.a1839},                               // 14
+            {"Mature Braided Hair", R.drawable.a1855},                              // 15
+            {"Early Childhood", R.drawable.bicent_2009_early_childhood_unc},        // 16
+            {"Formative Years", R.drawable.bicent_2009_formative_years_unc},        // 17
+            {"Professional Life", R.drawable.bicent_2009_professional_life_unc},    // 18
+            {"Presidency", R.drawable.bicent_2009_presidency_unc},                  // 19
+            {"Indian Reverse", R.drawable.rev_indian_head_cent},                    // 20
+            {"Wheat Reverse", R.drawable.ab1909r},                                  // 21
+            {"Memorial Reverse", R.drawable.rev_lincoln_cent_unc},                  // 22
+            {"Shield Reverse", R.drawable.ashieldr},                                // 23
+            {"1793 Chain Reverse", R.drawable.a1793chainrev},                       // 24
+            {"1794 Reverse", R.drawable.a1794r},                                    // 25
+            {"1819 Reverse", R.drawable.a1819r},                                    // 26
+            {"1839 Reverse", R.drawable.a1839r},                                    // 27
+            {"1858 Reverse", R.drawable.a1858r},                                    // 28
+    };
+
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -57,9 +89,18 @@ public class LargeCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        Integer slotImage;
+        Integer imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -84,28 +125,26 @@ public class LargeCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            String date = String.format("%2d", i );
-            String mdate = String.format("%n%2d", i );
             if (showbust) {
                 if (i == 1793) {
-                    coinList.add(new CoinSlot("Flowing Hair Chain Reverse", date, coinIndex++));
-                    coinList.add(new CoinSlot("Flowing Hair Wreath Reverse", date, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Flowing Hair Chain Reverse", coinIndex++,8));
+                    coinList.add(new CoinSlot(Integer.toString(i), "Flowing Hair Wreath Reverse", coinIndex++,8));}
                 if (i > 1792 && i < 1797) {
-                    coinList.add(new CoinSlot("Liberty Cap", mdate, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Liberty Cap", coinIndex++,9));}
                 if (i > 1795 && i < 1808) {
-                    coinList.add(new CoinSlot("Draped Bust", mdate, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Draped Bust", coinIndex++,10));}
                 if (i > 1807 && i < 1815) {
-                    coinList.add(new CoinSlot("Capped Bust", mdate, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Capped Bust", coinIndex++,11));}
             }
             if (showcoronet) {
                 if (i>1815 && i<1836){
-                    coinList.add(new CoinSlot("Matron Coronet", date, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Matron Coronet", coinIndex++,12));}
                 if (i>1835 && i<1840){
-                    coinList.add(new CoinSlot("Young Coronet", date, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Young Coronet", coinIndex++,13));}
                 if (i>1838 && i<1844){
-                    coinList.add(new CoinSlot("Petite Braided Hair", date, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Petite Braided Hair", coinIndex++,14));}
                 if (i>1843 && i<1858){
-                    coinList.add(new CoinSlot("Mature Braided Hair", date, coinIndex++));}
+                    coinList.add(new CoinSlot(Integer.toString(i), "Mature Braided Hair", coinIndex++,15));}
             }
         }
     }
