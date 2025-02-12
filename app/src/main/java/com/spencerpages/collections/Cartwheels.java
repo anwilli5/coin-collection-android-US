@@ -54,6 +54,18 @@ public class Cartwheels extends CollectionInfo {
             {"Eisenhower", R.drawable.obv_eisenhower_dollar},
     };
 
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Flowing Hair", R.drawable.do1795_flowing_hairo},       // 0
+            {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},  // 1
+            {"Seated Liberty", R.drawable.do1860o},                  // 2
+            {"Trade", R.drawable.do1876tradeo},                      // 3
+            {"Morgan", R.drawable.obv_morgan_dollar},                // 4
+            {"Peace", R.drawable.obv_peace_dollar},                  // 5
+            {"Eisenhower", R.drawable.obv_eisenhower_dollar},        // 6
+            {"Eagle",R.drawable.obv_american_eagle_unc},             // 7
+            {"Liberty Seated Goberecht", R.drawable.anostarsdime},   // 8
+    };
+
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -64,8 +76,6 @@ public class Cartwheels extends CollectionInfo {
 
     private static final Integer START_YEAR = 1878;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
-
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_american_eagle_unc;
 
     private static final int REVERSE_IMAGE =R.drawable.obv_peace_dollar ;
 
@@ -81,9 +91,19 @@ public class Cartwheels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
+        Integer slotImage;
+        Integer imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
+        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
+
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -153,66 +173,63 @@ public class Cartwheels extends CollectionInfo {
             if ((i > 1904 && i < 1921)) {continue;
             }else if (i >= 1929 && i <= 1933) {continue;}
 
-            String phil = String.format("%d ", i);
-            String den = String.format("%d D ", i);
-            String sf = String.format("%d S ", i);
-            String no = String.format("%d O ", i);
-            String cc = String.format("%d CC ", i);
             if (showmorgan && i >1877 && i < 1922) {
                 if (showP) {
                     if (i == 1878) {
-                        coinList.add(new CoinSlot("`", String.format("%d 8 Feathers", i), coinIndex++));
-                        coinList.add(new CoinSlot("`", String.format("%d 7 Feathers", i), coinIndex++));
+                        coinList.add(new CoinSlot(Integer.toString(i),"8 Feathers", coinIndex++,4));
+                        coinList.add(new CoinSlot(Integer.toString(i),"7 Feathers", coinIndex++,4));
                     } else if (i != 1895) {
-                        coinList.add(new CoinSlot("`", phil, coinIndex++));
+                        coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,4));
                     }
                 }
-                if (showD && i == 1921) {coinList.add(new CoinSlot("`",den, coinIndex++));}
-                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot("`",no, coinIndex++));}
-                if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {coinList.add(new CoinSlot("`",cc, coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot("`",sf, coinIndex++));}
+                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot(Integer.toString(i),"O", coinIndex++,4));}
+                if (showS) {coinList.add(new CoinSlot(Integer.toString(i),"S", coinIndex++,4));}
+                if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {
+                    coinList.add(new CoinSlot(Integer.toString(i),"CC", coinIndex++,4));}
+                if (showD && i == 1921) {coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,4));}
             }
             if (showpeace && i > 1920 && i < 1936){
-                if (showP) {coinList.add(new CoinSlot(" ",String.format("%d  ", i), coinIndex++));}
-                if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {coinList.add(new CoinSlot(" ",String.format("%d D  ", i), coinIndex++));}
-                if (showS && i != 1921) {coinList.add(new CoinSlot(" ",String.format("%d S  ", i), coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,5));}
+                if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {
+                    coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,5));}
+                if (showS && i != 1921) {coinList.add(new CoinSlot(Integer.toString(i),"S", coinIndex++,5));}
             }
             if (showike && i > 1970 && i < 1979){
                 if (i < 1975) {
-                    if (showP) {coinList.add(new CoinSlot("",phil, coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("",den, coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,6));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i),"D", coinIndex++,6));}
                     if (showS) {
-                        {coinList.add(new CoinSlot("",String.format("%d S 40%% Silver", i), coinIndex++));}
-                        {coinList.add(new CoinSlot("",String.format("%d S 40%% Silver Proof", i), coinIndex++));}
-                        if (i > 1972){coinList.add(new CoinSlot("",String.format("%2d S Proof", i), coinIndex++));}
+                        {coinList.add(new CoinSlot(Integer.toString(i),"S 40%% Silver", coinIndex++,6));}
+                        {coinList.add(new CoinSlot(Integer.toString(i),"S 40%% Silver Proof", coinIndex++,6));}
+                        if (i > 1972){coinList.add(new CoinSlot(Integer.toString(i),"S Proof", coinIndex++,6));}
                     }
                 }
                 if (i == 1975) {continue;}
                 if (i == 1976) {
                     if (showP) {
-                        coinList.add(new CoinSlot("", String.format("%d Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d Type II", i), coinIndex++));}
+                        coinList.add(new CoinSlot(Integer.toString(i),"Type I", coinIndex++,6));
+                        coinList.add(new CoinSlot(Integer.toString(i),"Type II", coinIndex++,6));}
                     if (showD) {
-                        coinList.add(new CoinSlot("",String.format("%d D Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d D Type II", i), coinIndex++));}
+                        coinList.add(new CoinSlot(Integer.toString(i),"D Type I", coinIndex++,6));
+                        coinList.add(new CoinSlot(Integer.toString(i),"D Type II", coinIndex++,6));}
                     if (showS) {
-                        coinList.add(new CoinSlot("",String.format("%d S Proof Type I", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S Proof Type II", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S 40%% Silver", i), coinIndex++));
-                        coinList.add(new CoinSlot("",String.format("%d S 40%% Silver Proof", i), coinIndex++));}
+                        coinList.add(new CoinSlot(Integer.toString(i),"S Proof Type I", coinIndex++,6));
+                        coinList.add(new CoinSlot(Integer.toString(i),"S Proof Type II", coinIndex++,6));
+                        coinList.add(new CoinSlot(Integer.toString(i),"S 40%% Silver", coinIndex++,6));
+                        coinList.add(new CoinSlot(Integer.toString(i),"S 40%% Silver Proof", coinIndex++,6));}
                 }
                 if ( i > 1976 ){
-                    if (showP) {coinList.add(new CoinSlot("",phil, coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot("",den, coinIndex++));}
-                    if (showS) {coinList.add(new CoinSlot("",String.format("%d S Proof", i), coinIndex++));}
+                    if (showP) {coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,6));}
+                    if (showD) {coinList.add(new CoinSlot(Integer.toString(i),"", coinIndex++,6));}
+                    if (showS) {coinList.add(new CoinSlot(Integer.toString(i),"S Proof", coinIndex++,6));}
                 }
             }
             if (showeagle){
-                if (showP && i >1985) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                    if (i == 2006) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                    if (i == 2007) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                    if (i == 2008) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
-                    if (i == 2011) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++));}
+                if (showP && i >1985) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++,7));
+                    if (i == 2006) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++,7));}
+                    if (i == 2007) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++,7));}
+                    if (i == 2008) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++,7));}
+                    if (i == 2011) {coinList.add(new CoinSlot(Integer.toString(i), "W Burnished", coinIndex++,7));}
                 }
             }
         }
