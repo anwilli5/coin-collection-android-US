@@ -174,9 +174,15 @@ public class Kennedy_Halfs extends CollectionInfo {
                         coinList.add(new CoinSlot(newValue, "S 40% Silver", coinIndex++));
                         coinList.add(new CoinSlot(newValue, "S 40% Silver Proof", coinIndex++));}
                 }
-                if ( showproofs && i > 1991){coinList.add(new CoinSlot(newValue, "S Silver Proof", coinIndex++));}
+                if (showproofs && i>1991) {coinList.add(new CoinSlot(newValue, "S Silver Proof", coinIndex++));}
+                if (showproofs && i == 2014) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "P Proof", coinIndex++));
+                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                    coinList.add(new CoinSlot(Integer.toString(i), "S Enhanced", coinIndex++));
+                    coinList.add(new CoinSlot(Integer.toString(i), "W Reverse Proof", coinIndex++));
+                }
+                if (showproofs && i == 2018) {coinList.add(new CoinSlot(Integer.toString(i), "S Reverse Proof", coinIndex++));}
             }
-
         }
     }
 
