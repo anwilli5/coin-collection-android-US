@@ -36,25 +36,13 @@ public abstract class CollectionInfo {
     /**
      * Returns the image id (R.drawable.image_name) that should be
      * displayed for collections of this type given the specified coin
-     * identifier, coin mint, and whether the coin is in the
-     * collection.  The convention used in Coin Collection for determining
-     * the value to return is:
-     * <p>
-     * For simple collections:
-     * - The obverse coin image is returned if inCollection
-     * - R.drawable.openslot is returned if not inCollection
-     * <p>
-     * For collections with special/individualized coins:
-     * - The reverse (uniquely-styled side) is returned if inCollection
-     * - The reverse at a 25% opacity is returned if not inCollection (there
-     * is a script in the repo that will generate the 25% opacity images
-     * automatically from thee regular images.  See image-prep.py for more
-     * details.)
+     * identifier, coin mint, and image id.
      *
      * @param coinSlot the coin slot to return an image for
+     * @param ignoreImageId when set, image ids should be ignored
      * @return the id of an image to use for this coin
      */
-    abstract public int getCoinSlotImage(CoinSlot coinSlot);
+    abstract public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId);
 
     /**
      * Returns a string used to identify this collection type
@@ -147,4 +135,16 @@ public abstract class CollectionInfo {
      * @return Returns 0 if start/stop years aren't used by this series
      */
     abstract public int getStopYear();
+
+    /**
+     * A collection should populate this if it has multiple coin images and
+     * populates the image id of coin slots to display a specific image for
+     * certain coins. Collections that select the image based solely on the
+     * coin name do not need to populate this.
+     *s
+     * @return Array of {"image description", image id}, or empty if unused
+     */
+    public Object[][] getImageIds() {
+        return new Object[][]{};
+    }
 }

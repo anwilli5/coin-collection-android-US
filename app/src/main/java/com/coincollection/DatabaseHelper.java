@@ -7,6 +7,7 @@ import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
@@ -242,6 +243,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             resultCursor.close();
         }
+
+        // Add image id to coins in each collection
+        // - Skip if importing, since the database will be created with the latest structure
+        if (oldVersion <= 20 && !fromImport) {
+
+            // Get all of the created tables
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_IMAGE_ID + " INTEGER DEFAULT -1");
+
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
     }
 
     /**
@@ -456,7 +475,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static ArrayList<CoinSlot> getCoinList(SQLiteDatabase db, String tableName, boolean populateAdvInfo, boolean useSortOrder) {
 
         ArrayList<String> dbColumns = new ArrayList<>(
-                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION, COL_SORT_ORDER, COL_CUSTOM_COIN));
+                Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION,
+                        COL_SORT_ORDER, COL_CUSTOM_COIN, COL_IMAGE_ID));
         if (populateAdvInfo) {
             dbColumns.addAll(
                     Arrays.asList(COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES));
@@ -480,7 +500,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_QUANTITY_INDEX)),
                             cursor.getString(cursor.getColumnIndexOrThrow(COL_ADV_NOTES)),
                             sortOrder,
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0)));
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
                 } else {
                     coinList.add(new CoinSlot(
                             cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
@@ -488,7 +509,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
                             (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
                             sortOrder,
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0)));
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
                 }
             } while (cursor.moveToNext());
         }
@@ -520,7 +542,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
                         (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) == 1),
                         (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
-                        false));
+                        false,
+                        -1));
             } while (cursor.moveToNext());
         }
         cursor.close();

@@ -72,6 +72,11 @@ public class CoinSlot implements Parcelable {
     private int mSortOrder;
 
     /**
+     * Optional image id, associating coin slot to a specific coin image
+     **/
+    private int mImageId = -1;
+
+    /**
      * Whether the coin is custom (i.e. added by the user after the collection was created)
      */
     private boolean mCustomCoin = false;
@@ -86,6 +91,7 @@ public class CoinSlot implements Parcelable {
     public final static String COL_ADV_NOTES = "advNotes";
     public final static String COL_SORT_ORDER = "sortOrder";
     public final static String COL_CUSTOM_COIN = "customCoin";
+    public final static String COL_IMAGE_ID = "imageId";
 
     // Database helpers
     public final static String COIN_SLOT_COIN_ID_WHERE_CLAUSE = COL_COIN_ID + "=?";
@@ -108,9 +114,11 @@ public class CoinSlot implements Parcelable {
      * @param advancedNotes      coin notes
      * @param sortOrder          sort order in the collection
      * @param customCoin         whether the coin was manually added by the user
+     * @param imageId            optional image id
      */
     public CoinSlot(long databaseId, String identifier, String mint, boolean inCollection, Integer advancedGrades,
-                    Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin) {
+                    Integer advancedQuantities, String advancedNotes, int sortOrder, boolean customCoin,
+                    int imageId) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
@@ -120,6 +128,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedNotes = advancedNotes;
         mSortOrder = sortOrder;
         mCustomCoin = customCoin;
+        mImageId = imageId;
     }
 
     /**
@@ -131,14 +140,17 @@ public class CoinSlot implements Parcelable {
      * @param inCollection whether the coin has been collected
      * @param sortOrder    sort order in the collection
      * @param customCoin   whether the coin was manually added by the user
+     * @param imageId      optional image id
      */
-    public CoinSlot(long databaseId, String identifier, String mint, boolean inCollection, int sortOrder, boolean customCoin) {
+    public CoinSlot(long databaseId, String identifier, String mint, boolean inCollection, int sortOrder,
+                    boolean customCoin, int imageId) {
         mDatabaseId = databaseId;
         mIdentifier = identifier;
         mMint = mint;
         mInCollection = inCollection;
         mSortOrder = sortOrder;
         mCustomCoin = customCoin;
+        mImageId = imageId;
     }
 
     /**
@@ -152,6 +164,21 @@ public class CoinSlot implements Parcelable {
         mIdentifier = identifier;
         mMint = mint;
         mSortOrder = sortOrder;
+    }
+
+    /**
+     * Constructor used when creating a new collection from scratch
+     *
+     * @param identifier coin name
+     * @param mint       coin mint
+     * @param sortOrder  sort order in collection
+     * @param imageId    image id
+     */
+    public CoinSlot(String identifier, String mint, int sortOrder, int imageId) {
+        mIdentifier = identifier;
+        mMint = mint;
+        mSortOrder = sortOrder;
+        mImageId = imageId;
     }
 
     public void setDatabaseId(long databaseId) {
@@ -246,6 +273,14 @@ public class CoinSlot implements Parcelable {
         this.mCustomCoin = customCoin;
     }
 
+    public int getImageId() {
+        return this.mImageId;
+    }
+
+    public void setImageId(int imageId) {
+        this.mImageId = imageId;
+    }
+
     /**
      * Get the coin slot parameters to export to legacy CSV
      *
@@ -275,7 +310,8 @@ public class CoinSlot implements Parcelable {
                 String.valueOf(mAdvancedQuantities),
                 mAdvancedNotes,
                 String.valueOf(mSortOrder),
-                String.valueOf(isCustomCoinInt())};
+                String.valueOf(isCustomCoinInt()),
+                String.valueOf(mImageId)};
     }
 
     /**
@@ -292,7 +328,8 @@ public class CoinSlot implements Parcelable {
                 COL_ADV_QUANTITY_INDEX,
                 COL_ADV_NOTES,
                 COL_SORT_ORDER,
-                COL_CUSTOM_COIN};
+                COL_CUSTOM_COIN,
+                COL_IMAGE_ID};
     }
 
     /**
@@ -312,6 +349,7 @@ public class CoinSlot implements Parcelable {
         writer.name(COL_ADV_NOTES).value(mAdvancedNotes);
         writer.name(COL_SORT_ORDER).value(mSortOrder);
         writer.name(COL_CUSTOM_COIN).value(mCustomCoin);
+        writer.name(COL_IMAGE_ID).value(mImageId);
         writer.endObject();
     }
 
@@ -332,6 +370,7 @@ public class CoinSlot implements Parcelable {
         String advancedNotes = "";
         int sortOrder = coinIndex;
         boolean customCoin = false;
+        int imageId = -1;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -361,6 +400,9 @@ public class CoinSlot implements Parcelable {
                 case COL_CUSTOM_COIN:
                     customCoin = reader.nextBoolean();
                     break;
+                case COL_IMAGE_ID:
+                    imageId = reader.nextInt();
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -376,6 +418,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedNotes = advancedNotes;
         mSortOrder = sortOrder;
         mCustomCoin = customCoin;
+        mImageId = imageId;
     }
 
     /**
@@ -386,7 +429,7 @@ public class CoinSlot implements Parcelable {
      * @return true if the element at the index is present and not empty
      */
     private boolean isPresentInStringArray(String[] in, int index) {
-        return in.length > index && in[index].length() != 0;
+        return in.length > index && !in[index].isEmpty();
     }
 
     /**
@@ -403,6 +446,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedNotes = isPresentInStringArray(in, 5) ? in[5] : "";
         mSortOrder = isPresentInStringArray(in, 6) ? Integer.parseInt(in[6]) : coinIndex;
         mCustomCoin = (isPresentInStringArray(in, 7) && (Integer.parseInt(in[7]) != 0));
+        mImageId = isPresentInStringArray(in, 8) ? Integer.parseInt(in[8]) : -1;
     }
 
     /**
@@ -424,7 +468,8 @@ public class CoinSlot implements Parcelable {
                 mAdvancedQuantities,
                 mAdvancedNotes,
                 mSortOrder + 1,
-                isCustomCoin);
+                isCustomCoin,
+                mImageId);
     }
 
     /* We make this object Parcelable so that the list can be passed between Activities in the case
@@ -449,6 +494,7 @@ public class CoinSlot implements Parcelable {
         mAdvancedNotes = in.readString();
         mSortOrder = in.readInt();
         mCustomCoin = in.readByte() != 0;
+        mImageId = in.readInt();
     }
 
     public static final Creator<CoinSlot> CREATOR = new Creator<CoinSlot>() {
@@ -490,6 +536,7 @@ public class CoinSlot implements Parcelable {
         dest.writeString(mAdvancedNotes);
         dest.writeInt(mSortOrder);
         dest.writeByte((byte) (mCustomCoin ? 1 : 0));
+        dest.writeInt(mImageId);
     }
 
     // NOTE: This will return true if identifier and mint are the same

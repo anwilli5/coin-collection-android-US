@@ -95,12 +95,12 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         activity.copyCoinSlot(activity.mCoinList.get(lastIndex), lastIndex + 1);
 
                         // Update coin names
-                        activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin", "First");
-                        activity.updateCoinDetails(activity.mCoinList.get(1), "Second Coin", "Second");
-                        activity.updateCoinDetails(activity.mCoinList.get(2), "Third Coin", "Third");
+                        activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin", "First", -1);
+                        activity.updateCoinDetails(activity.mCoinList.get(1), "Second Coin", "Second", -1);
+                        activity.updateCoinDetails(activity.mCoinList.get(2), "Third Coin", "Third", -1);
 
                         lastIndex = activity.mCoinList.size() - 1;
-                        activity.updateCoinDetails(activity.mCoinList.get(lastIndex), "Last Coin", "Last");
+                        activity.updateCoinDetails(activity.mCoinList.get(lastIndex), "Last Coin", "Last", -1);
 
                         // Delete coins
                         activity.deleteCoinSlotAtPosition(0);
@@ -110,8 +110,8 @@ public class CollectionPageActivityTests extends BaseTestCase {
 
                         // Add coins
                         activity.copyCoinSlot(activity.mCoinList.get(0), 1);
-                        activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin2", "First2");
-                        activity.addNewCoin("New Coin", "Coin Mint");
+                        activity.updateCoinDetails(activity.mCoinList.get(0), "First Coin2", "First2", -1);
+                        activity.addNewCoin("New Coin", "Coin Mint", -1);
                     }
 
                     // Check that the copied collection was made correctly in the database

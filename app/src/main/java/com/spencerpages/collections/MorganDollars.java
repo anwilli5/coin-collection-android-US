@@ -57,7 +57,7 @@ public class MorganDollars extends CollectionInfo {
     }
 
     @Override
-    public int getCoinSlotImage(CoinSlot coinSlot) {
+    public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         return OBVERSE_IMAGE_COLLECTED;
     }
 
@@ -115,28 +115,18 @@ public class MorganDollars extends CollectionInfo {
                     if (i == 1878) {
                         coinList.add(new CoinSlot("1878 8 Feathers", "", coinIndex++));
                         coinList.add(new CoinSlot("1878 7 Feathers", "", coinIndex++));
-                    } else if (i != 1895) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                    }
+                    } else if (i != 1895) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
                 }
                 if (showD) {
-                    if (i == 1921) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
-                    }
+                    if (i == 1921) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
                 }
                 if (showO) {
-                    if (i != 1878 && i != 1921) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));
-                    }
+                    if (i != 1878 && i != 1921) {coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));}
                 }
                 if (showCC) {
-                    if (i != 1886 && i != 1887 && i != 1888 && i <= 1893) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
-                    }
+                    if (i != 1886 && i != 1887 && i != 1888 && i <= 1893) {coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));}
                 }
-                if (showS) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
-                }
+                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
             } else {
                 coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }

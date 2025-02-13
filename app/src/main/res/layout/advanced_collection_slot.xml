@@ -37,7 +37,7 @@
             android:id="@+id/grade_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="40dp"
+            android:minHeight="48dp"
             android:prompt="@string/select_grade" />
 
         <Spinner
@@ -47,7 +47,7 @@
             android:layout_below="@id/grade_selector"
             android:layout_alignEnd="@id/grade_selector"
             android:layout_alignRight="@id/grade_selector"
-            android:minHeight="40dp"
+            android:minHeight="48dp"
             android:prompt="@string/select_quantity" />
     </RelativeLayout>
 
