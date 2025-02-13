@@ -74,19 +74,68 @@ public class CollectionListInfo implements Parcelable {
     private final CollectionInfo mCollectionInfo;
 
     // Flags for selected mint marks
-    public final static int ALL_MINT_MASK = 0x3F;
+    public final static int ALL_MINT_MASK = 0x7FFF;
     public final static int SHOW_MINT_MARKS = 0x1;
     public final static int MINT_P = 0x2;
     public final static int MINT_D = 0x4;
     public final static int MINT_S = 0x8;
     public final static int MINT_O = 0x10;
     public final static int MINT_CC = 0x20;
+    public final static int MINT_W = 0x40;
+    public final static int MINT_S_PROOF = 0x80;
+    public final static int MINT_SILVER_PROOF = 0x100;
+    public final static int MINT_REV_PROOF = 0x200;
+    public final static int MINT_MEM_PROOF = 0x400;
+    public final static int MINT_SATIN = 0x800;
+    public final static int MINT_SETS = 0x1000;
+    public final static int MINT_PROOF_SETS = 0x2000;
+    public final static int MINT_SILVER_PROOF_SETS = 0x4000;
 
     // Flags for show checkboxes options
-    public final static int ALL_CHECKBOXES_MASK = 0x7;
+    public final static int ALL_CHECKBOXES_MASK = 0xFFFFFFFF;
     public final static int CUSTOM_DATES = 0x1;
     public final static int BURNISHED = 0x2;
     public final static int TERRITORIES = 0x4;
+    public final static int SILVER_COINS = 0x8;
+    public final static int NICKEL_COINS = 0x10;
+    public final static int OLD_COINS = 0x20;
+    public final static int BUST_COINS = 0x40;
+    public final static int DRAPED_BUST_COINS = 0x80;
+    public final static int CAPPED_BUST_COINS = 0x100;
+    public final static int SEATED_COINS = 0x200;
+    public final static int CORONET_COINS = 0x400;
+    public final static int BARBER_QUARTERS = 0x800;
+    public final static int STANDING_QUARTERS = 0x1000;
+    public final static int CLASSIC_QUARTERS = 0x2000;
+    public final static int STATES_QUARTERS = 0x4000;
+    public final static int PARKS_QUARTERS = 0x8000;
+    public final static int WOMEN_QUARTERS = 0x10000;
+    public final static int EAGLE_CENTS = 0x20000;
+    public final static int INDIAN_CENTS = 0x40000;
+    public final static int WHEAT_CENTS = 0x80000;
+    public final static int MEMORIAL_CENTS = 0x100000;
+    public final static int BARBER_HALF = 0x200000;
+    public final static int WALKER_HALF = 0x400000;
+    public final static int FRANKLIN_HALF = 0x800000;
+    public final static int KENNEDY_HALF = 0x1000000;
+    public final static int SHIELD_NICKELS = 0x2000000;
+    public final static int LIBERTY_NICKELS = 0x4000000;
+    public final static int BUFFALO_NICKELS = 0x8000000;
+    public final static int JEFFERSON_NICKELS = 0x10000000;
+    public final static int BARBER_DIMES = 0x20000000;
+    public final static int MERCURY_DIMES = 0x40000000;
+    public final static int ROOSEVELT_DIMES = 0x80000000;
+    // Note: IDs below are shared with those above since currently a max
+    // of 32 are supported. This is fine as long as we don't ever expect
+    // them to be in the same collection together.
+    public final static int MORGAN_DOLLARS = 0x4; // Shared w/ TERRITORIES
+    public final static int PEACE_DOLLARS = 0x800; // Shared w/ BARBER_QUARTERS
+    public final static int IKE_DOLLARS = 0x1000; // Shared w/ STANDING_QUARTERS
+    public final static int EAGLE_DOLLARS = 0x4000; // Shared w/ STATES_QUARTERS
+    public final static int SBA_DOLLARS = 0x8000; // Shared w/ PARKS_QUARTERS
+    public final static int SAC_DOLLARS = 0x20000; // Shared w/ EAGLE_CENTS
+    public final static int PRES_DOLLARS = 0x40000; // Shared w/ INDIAN_CENTS
+    public final static int TRADE_DOLLARS = 0x80000; // Shared w/ WHEAT_CENTS
 
     public final static HashMap<String, Integer> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -255,6 +304,42 @@ public class CollectionListInfo implements Parcelable {
         return (mMintMarkFlags & MINT_CC) != 0;
     }
 
+    public boolean hasWMintMarks() {
+        return (mMintMarkFlags & MINT_W) != 0;
+    }
+
+    public boolean hasSProofMintMarks() {
+        return (mMintMarkFlags & MINT_S_PROOF) != 0;
+    }
+
+    public boolean hasSilverProofMintMarks() {
+        return (mMintMarkFlags & MINT_SILVER_PROOF) != 0;
+    }
+
+    public boolean hasRevProofMintMarks() {
+        return (mMintMarkFlags & MINT_REV_PROOF) != 0;
+    }
+
+    public boolean hasMemProofMintMarks() {
+        return (mMintMarkFlags & MINT_MEM_PROOF) != 0;
+    }
+
+    public boolean hasSatinMintMarks() {
+        return (mMintMarkFlags & MINT_SATIN) != 0;
+    }
+
+    public boolean hasMintSetsMintMarks() {
+        return (mMintMarkFlags & MINT_SETS) != 0;
+    }
+
+    public boolean hasProofSetsMintMarks() {
+        return (mMintMarkFlags & MINT_PROOF_SETS) != 0;
+    }
+
+    public boolean hasSilverProofSetsMintMarks() {
+        return (mMintMarkFlags & MINT_SILVER_PROOF_SETS) != 0;
+    }
+
     public boolean hasCustomDates() {
         return (mCheckboxFlags & CUSTOM_DATES) != 0;
     }
@@ -267,8 +352,168 @@ public class CollectionListInfo implements Parcelable {
         return (mCheckboxFlags & TERRITORIES) != 0;
     }
 
+    public boolean hasSilverCoins() {
+        return (mCheckboxFlags & SILVER_COINS) != 0;
+    }
+
+    public boolean hasNickelCoins() {
+        return (mCheckboxFlags & NICKEL_COINS) != 0;
+    }
+
+    public boolean hasOldCoins() {
+        return (mCheckboxFlags & OLD_COINS) != 0;
+    }
+
+    public boolean hasBustCoins() {
+        return (mCheckboxFlags & BUST_COINS) != 0;
+    }
+
+    public boolean hasDrapedBustCoins() {
+        return (mCheckboxFlags & DRAPED_BUST_COINS) != 0;
+    }
+
+    public boolean hasCappedBustCoins() {
+        return (mCheckboxFlags & CAPPED_BUST_COINS) != 0;
+    }
+
+    public boolean hasSeatedCoins() {
+        return (mCheckboxFlags & SEATED_COINS) != 0;
+    }
+
+    public boolean hasCoronetCoins() {
+        return (mCheckboxFlags & CORONET_COINS) != 0;
+    }
+
+    public boolean hasBarberQuarters() {
+        return (mCheckboxFlags & BARBER_QUARTERS) != 0;
+    }
+
+    public boolean hasStandingQuarters() {
+        return (mCheckboxFlags & STANDING_QUARTERS) != 0;
+    }
+
+    public boolean hasClassicQuarters() {
+        return (mCheckboxFlags & CLASSIC_QUARTERS) != 0;
+    }
+
+    public boolean hasStatesQuarters() {
+        return (mCheckboxFlags & STATES_QUARTERS) != 0;
+    }
+
+    public boolean hasParksQuarters() {
+        return (mCheckboxFlags & PARKS_QUARTERS) != 0;
+    }
+
+    public boolean hasWomenQuarters() {
+        return (mCheckboxFlags & WOMEN_QUARTERS) != 0;
+    }
+
+    public boolean hasEagleCents() {
+        return (mCheckboxFlags & EAGLE_CENTS) != 0;
+    }
+
+    public boolean hasIndianCents() {
+        return (mCheckboxFlags & INDIAN_CENTS) != 0;
+    }
+
+    public boolean hasWheatCents() {
+        return (mCheckboxFlags & WHEAT_CENTS) != 0;
+    }
+
+    public boolean hasMemorialCents() {
+        return (mCheckboxFlags & MEMORIAL_CENTS) != 0;
+    }
+
+    public boolean hasBarberHalf() {
+        return (mCheckboxFlags & BARBER_HALF) != 0;
+    }
+
+    public boolean hasWalkerHalf() {
+        return (mCheckboxFlags & WALKER_HALF) != 0;
+    }
+
+    public boolean hasFranklinHalf() {
+        return (mCheckboxFlags & FRANKLIN_HALF) != 0;
+    }
+
+    public boolean hasKennedyHalf() {
+        return (mCheckboxFlags & KENNEDY_HALF) != 0;
+    }
+
+    public boolean hasShieldNickels() {
+        return (mCheckboxFlags & SHIELD_NICKELS) != 0;
+    }
+
+    public boolean hasLibertyNickels() {
+        return (mCheckboxFlags & LIBERTY_NICKELS) != 0;
+    }
+
+    public boolean hasBuffaloNickels() {
+        return (mCheckboxFlags & BUFFALO_NICKELS) != 0;
+    }
+
+    public boolean hasJeffersonNickels() {
+        return (mCheckboxFlags & JEFFERSON_NICKELS) != 0;
+    }
+
+    public boolean hasBarberDimes() {
+        return (mCheckboxFlags & BARBER_DIMES) != 0;
+    }
+
+    public boolean hasMercuryDimes() {
+        return (mCheckboxFlags & MERCURY_DIMES) != 0;
+    }
+
+    public boolean hasRooseveltDimes() {
+        return (mCheckboxFlags & ROOSEVELT_DIMES) != 0;
+    }
+
+    public boolean hasMorganDollars() {
+        return (mCheckboxFlags & MORGAN_DOLLARS) != 0;
+    }
+
+    public boolean hasPeaceDollars() {
+        return (mCheckboxFlags & PEACE_DOLLARS) != 0;
+    }
+
+    public boolean hasIkeDollars() {
+        return (mCheckboxFlags & IKE_DOLLARS) != 0;
+    }
+
+    public boolean hasEagleDollars() {
+        return (mCheckboxFlags & EAGLE_DOLLARS) != 0;
+    }
+
+    public boolean hasSBADollars() {
+        return (mCheckboxFlags & SBA_DOLLARS) != 0;
+    }
+
+    public boolean hasSACDollars() {
+        return (mCheckboxFlags & SAC_DOLLARS) != 0;
+    }
+
+    public boolean hasPresDollars() {
+        return (mCheckboxFlags & PRES_DOLLARS) != 0;
+    }
+
+    public boolean hasTradeDollars() {
+        return (mCheckboxFlags & TRADE_DOLLARS) != 0;
+    }
+
     public void setEndYear(int endYear) {
         mEndYear = endYear;
+    }
+
+    /* setMintMarkFlags() used in unit tests
+     */
+    public void setMintMarkFlags(int flags) {
+        mMintMarkFlags = flags;
+    }
+
+    /* setCheckboxFlags() used in unit tests
+     */
+    public void setCheckboxFlags(int flags) {
+        mCheckboxFlags = flags;
     }
 
     /**

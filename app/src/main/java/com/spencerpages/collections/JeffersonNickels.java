@@ -1,4 +1,3 @@
-
 /*
  * Coin Collection, an Android app that helps users track the coins that they've collected
  * Copyright (C) 2010-2016 Andrew Williams
@@ -40,12 +39,6 @@ public class JeffersonNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Nickels";
 
-    private static final Object[][] OLDCOINS_COIN_IDENTIFIERS = {
-            {"Shield", R.drawable.obv_shield_nickel},
-            {"Liberty Head", R.drawable.obv_liberty_head_nickel},
-            {"Buffalo", R.drawable.obv_buffalo_nickel},
-    };
-
     private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
             {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
             {"Keelboat", R.drawable.westward_2004_keelboat_unc},
@@ -60,9 +53,6 @@ public class JeffersonNickels extends CollectionInfo {
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
         for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
@@ -100,7 +90,7 @@ public class JeffersonNickels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -113,18 +103,6 @@ public class JeffersonNickels extends CollectionInfo {
         // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
-
-        // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
-
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
-
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
-
-
     }
 
     // TODO Perform validation and throw exception
@@ -133,73 +111,74 @@ public class JeffersonNickels extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showSProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showold = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         int coinIndex = 0;
 
-        if(showold){
-            for (Object[] coinData : OLDCOINS_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
-            }
-        }
         for (int i = startYear; i <= stopYear; i++) {
+
             if (i == 2004) {
                 // 2004 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
                     String identifier = (String) coinData[0];
-                    if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                    if (showSProof) {coinList.add(new CoinSlot(identifier, "S_Proof", coinIndex++));}
+
+                    if (showMintMarks) {
+                        if (showP) {
+                            coinList.add(new CoinSlot(identifier, "P", coinIndex++));
+                        }
+                        if (showD) {
+                            coinList.add(new CoinSlot(identifier, "D", coinIndex++));
+                        }
+                    } else {
+                        coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                    }
                 }
-            }else if (i == 2005) {
+                continue;
+            }
+
+            if (i == 2005) {
                 // 2005 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
                     String identifier = (String) coinData[0];
-                    if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                    if (showSatin) {coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
-                    if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                    if (showSatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
-                    if (showSProof) {coinList.add(new CoinSlot(identifier, "S_Proof", coinIndex++));}
+
+                    if (showMintMarks) {
+                        if (showP) {
+                            coinList.add(new CoinSlot(identifier, "P", coinIndex++));
+                        }
+                        if (showD) {
+                            coinList.add(new CoinSlot(identifier, "D", coinIndex++));
+                        }
+                    } else {
+                        coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                    }
                 }
+                continue;
             }
-            if ( i == 1942){
+
+            if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                    coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
-            }
-            if ( i == 1943 || i == 1944 || i == 1945){
-                if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Silver", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
-            } if (i != 1942 && i != 1943 && i != 1944 && i != 1945 && i != 2004 && i !=2005 ) {
-                if (showP && i != 1968 && i != 1969 && i != 1970) {
-                    if (i >= 1980) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
-                    }
-                    if (i < 1980) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                    if (i != 1968 && i != 1969 && i != 1970) {
+                        if (i >= 1980) {
+                            coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                        } else {
+                            coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        }
                     }
                 }
-                if (showSatin && i > 2004 && i < 2011) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));
-                    coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));
+                if (showD) {
+                    if (i != 1965 && i != 1966 && i != 1967) {
+                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                    }
                 }
-                if (showD && i != 1965 && i != 1966 && i != 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                if (showS) {
+                    if (i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {
+                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                    }
                 }
-                if (showS && i <= 1970 && i != 1950 && (i < 1956 || i > 1967)) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
-                }
-                if (showSProof && i > 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));
-                }
+            } else {
+                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
             }
         }
     }
@@ -294,10 +273,12 @@ public class JeffersonNickels extends CollectionInfo {
             // Add in new 2023 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
         }
+
         if (oldVersion <= 20) {
             // Add in new 2024 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
         }
-            return total;
+
+        return total;
     }
 }

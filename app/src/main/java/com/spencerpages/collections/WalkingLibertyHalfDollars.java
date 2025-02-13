@@ -96,7 +96,10 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
 
         for (int i = startYear; i <= stopYear; i++) {
 
-            if (i == 1922 || i == 1924 || i == 1925 || i == 1926 || i == 1930 || i == 1931 || i == 1932) {continue;}
+            if (i == 1922 || i == 1924 || i == 1925 || i == 1926 ||
+                    i == 1930 || i == 1931 || i == 1932) {
+                continue;
+            }
 
             if (showMintMarks) {
                 if (showP) {

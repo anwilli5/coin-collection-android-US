@@ -72,4 +72,3 @@ public class ImageSpinnerAdapter extends ArrayAdapter<String> {
         return view;
     }
 }
-
