@@ -164,7 +164,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     @Override
     public void asyncProgressOnPostExecute(String resultStr) {
-        if (!resultStr.equals("")) {
+        if (!resultStr.isEmpty()) {
             showCancelableAlert(resultStr);
         }
     }

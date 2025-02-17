@@ -32,6 +32,7 @@ import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
 import static com.spencerpages.MainApplication.DATABASE_NAME;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -133,7 +134,7 @@ public class BaseTestCase {
                 0,
                 MainApplication.getIndexFromCollectionNameStr(collectionInfo.getCoinType()),
                 SIMPLE_DISPLAY,
-                0, 0, 0, 0);
+                0, 0, "", "");
     }
 
     /**
@@ -374,7 +375,7 @@ public class BaseTestCase {
     void checkCreationParamsFromCoinList(ArrayList<CoinSlot> coinList, CollectionInfo coinClass) {
         // Note: Skips configurations resulting in 0 coins, as there's no way to recreate these.
         //       In this case, editing the collection will reset back to the original start/year
-        if (coinList.size() != 0) {
+        if (!coinList.isEmpty()) {
             CollectionListInfo collectionListInfo = getCollectionListInfo("X", coinClass, coinList);
             collectionListInfo.setCreationParametersFromCoinData(coinList);
             ParcelableHashMap checkParameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
@@ -408,12 +409,11 @@ public class BaseTestCase {
     /**
      * Compare two lists of CoinSlot lists to ensure they're the same
      *
-     * @param base           list of CoinSlots lists
-     * @param check          list of CoinSlots lists
-     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @param base  list of CoinSlots lists
+     * @param check list of CoinSlots lists
      */
-    void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareAdvInfo) {
-        assertTrue(SharedTest.compareListOfCoinSlotLists(base, check, compareAdvInfo));
+    void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check) {
+        assertTrue(SharedTest.compareListOfCoinSlotLists(base, check, true));
     }
 
     /**
@@ -453,7 +453,7 @@ public class BaseTestCase {
         // Make sure the collection list info is correct in the database
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         activity.mDbAdapter.getAllTables(collectionListEntries);
-        assertTrue(collectionListEntries.size() > 0);
+        assertFalse(collectionListEntries.isEmpty());
         CollectionListInfo matchingDbCollectionListInfo = null;
         for (CollectionListInfo dbCollectionListInfo : collectionListEntries) {
             if (dbCollectionListInfo.getName().equals(collectionListInfo.getName())) {
@@ -581,8 +581,8 @@ public class BaseTestCase {
                 displayType,
                 startDate,
                 endDate,
-                random.nextInt() & CollectionListInfo.ALL_MINT_MASK,
-                random.nextInt() & CollectionListInfo.ALL_CHECKBOXES_MASK);
+                Long.toString(random.nextLong() & CollectionListInfo.ALL_MINT_MASK),
+                Long.toString(random.nextLong() & CollectionListInfo.ALL_CHECKBOXES_MASK));
 
         // Populate coin list
         ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
@@ -695,13 +695,12 @@ public class BaseTestCase {
     /**
      * @param dbAdapter       database adapter
      * @param collectionNames List of collection names
-     * @param populateAdvInfo if true, populates the advanced info
      * @return a list of coin slot lists
      */
-    ArrayList<ArrayList<CoinSlot>> getCoinSlotListsFromCollectionNames(DatabaseAdapter dbAdapter, ArrayList<String> collectionNames, boolean populateAdvInfo) {
+    ArrayList<ArrayList<CoinSlot>> getCoinSlotListsFromCollectionNames(DatabaseAdapter dbAdapter, ArrayList<String> collectionNames) {
         ArrayList<ArrayList<CoinSlot>> coinSlotLists = new ArrayList<>();
         for (String collectionName : collectionNames) {
-            coinSlotLists.add(dbAdapter.getCoinList(collectionName, populateAdvInfo, false));
+            coinSlotLists.add(dbAdapter.getCoinList(collectionName, true, false));
         }
         return coinSlotLists;
     }

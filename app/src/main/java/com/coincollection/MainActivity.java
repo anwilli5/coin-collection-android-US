@@ -59,7 +59,6 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -364,8 +363,6 @@ public class MainActivity extends BaseActivity {
                         } else {
                             return helper.importCollectionsFromJson(inputStream);
                         }
-                    } catch (FileNotFoundException e) {
-                        return mRes.getString(R.string.error_importing, e.getMessage());
                     } catch (IOException e) {
                         return mRes.getString(R.string.error_importing, e.getMessage());
                     }
@@ -383,8 +380,6 @@ public class MainActivity extends BaseActivity {
                         } else {
                             return helper.exportCollectionsToJson(outputStream, fileName);
                         }
-                    } catch (FileNotFoundException e) {
-                        return mRes.getString(R.string.error_exporting, e.getMessage());
                     } catch (IOException e) {
                         return mRes.getString(R.string.error_exporting, e.getMessage());
                     }
@@ -974,7 +969,7 @@ public class MainActivity extends BaseActivity {
                 continue;
             }
             String attributionStr = mRes.getString(attributionResId);
-            if (attributionStr.equals("")) {
+            if (attributionStr.isEmpty()) {
                 continue;
             }
             attributions.add(attributionStr);

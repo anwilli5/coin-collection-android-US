@@ -17,7 +17,9 @@ import static com.coincollection.CollectionListInfo.COL_END_YEAR;
 import static com.coincollection.CollectionListInfo.COL_ID;
 import static com.coincollection.CollectionListInfo.COL_NAME;
 import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES_LEGACY;
 import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS_LEGACY;
 import static com.coincollection.CollectionListInfo.COL_START_YEAR;
 import static com.coincollection.CollectionListInfo.COL_TOTAL;
 import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
@@ -73,8 +75,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " " + COL_DISPLAY_ORDER + " integer,"
                 + " " + COL_START_YEAR + " integer default 0,"
                 + " " + COL_END_YEAR + " integer default 0,"
-                + " " + COL_SHOW_MINT_MARKS + " integer default 0,"
-                + " " + COL_SHOW_CHECKBOXES + " integer default 0"
+                + " " + COL_SHOW_MINT_MARKS + " text not null default '',"
+                + " " + COL_SHOW_CHECKBOXES + " text not null default ''"
                 + ");";
 
         db.execSQL(makeCollectionInfoTable);
@@ -212,13 +214,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // Add columns that keep track of the creation parameters (so these can be changed later)
                 db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_START_YEAR + " INTEGER DEFAULT 0");
                 db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_END_YEAR + " INTEGER DEFAULT 0");
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_MINT_MARKS + " INTEGER DEFAULT 0");
-                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES + " INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_MINT_MARKS_LEGACY + " INTEGER DEFAULT 0");
+                db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES_LEGACY + " INTEGER DEFAULT 0");
             }
 
             // Determine the collection parameters for each existing collection
-            for (CollectionListInfo collectionListInfo : DatabaseHelper.getLegacyCollectionParams(db)) {
-                DatabaseHelper.updateExistingCollection(db, collectionListInfo.getName(), collectionListInfo, null);
+            for (CollectionListInfo collectionListInfo : DatabaseHelper.getLegacyCollectionParams(db, !fromImport)) {
+                // Imported collections will have the updated columns names
+                DatabaseHelper.updateExistingCollection(db, collectionListInfo.getName(), collectionListInfo, null, !fromImport);
             }
         }
 
@@ -257,6 +260,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_IMAGE_ID + " INTEGER DEFAULT -1");
 
                     // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
+
+        // Add new mint mark/checkbox columns of string type to support any number of options
+        // Note: Leaving the existing columns in existing databases since SQLite doesn't support
+        // changing column types.
+        if (oldVersion <= 21 && !fromImport) {
+            db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_MINT_MARKS + " TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES + " TEXT NOT NULL DEFAULT ''");
+
+            // Set the new columns to the value of the old columns
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_SHOW_MINT_MARKS_LEGACY, COL_SHOW_CHECKBOXES_LEGACY}, null, null, null, null, COL_DISPLAY_ORDER);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                    int mintMarks = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS_LEGACY));
+                    int checkboxes = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES_LEGACY));
+                    ContentValues values = new ContentValues();
+                    values.put(COL_SHOW_MINT_MARKS, Integer.toString(mintMarks));
+                    values.put(COL_SHOW_CHECKBOXES, Integer.toString(checkboxes));
+                    runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
                 } while (resultCursor.moveToNext());
             }
             resultCursor.close();
@@ -300,7 +326,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Now get a list of the collections and call each one's onCollectionDatabaseUpgrade method
         ArrayList<CollectionListInfo> collectionList = new ArrayList<>();
-        getAllTables(db, collectionList);
+        getAllTables(db, collectionList, false);
         for (CollectionListInfo collectionListInfo : collectionList) {
             String tableName = collectionListInfo.getName();
             int numCoinsAdded = collectionListInfo.getCollectionObj().onCollectionDatabaseUpgrade(
@@ -347,8 +373,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         for (int i = 0; i < values.size(); i++) {
             if (collectionListInfo.hasMintMarks()) {
                 for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
-                    Integer mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
-                    if (mintFlag != null && ((collectionListInfo.getMintMarkFlags() & mintFlag) != 0)) {
+                    Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
+                    if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
                         ContentValues insertValues = new ContentValues();
                         insertValues.put(COL_COIN_IDENTIFIER, values.get(i));
                         insertValues.put(COL_IN_COLLECTION, 0);
@@ -428,11 +454,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int newSortOrder = getNextCoinSortOrder(db, tableName);
         if (collectionListInfo.hasMintMarks()) {
             for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
-                Integer mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
+                Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
                 if (!mintsToAdd.contains(flagStr)) {
                     continue;
                 }
-                if (mintFlag != null && ((collectionListInfo.getMintMarkFlags() & mintFlag) != 0)) {
+                if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
                     ContentValues insertValues = new ContentValues();
                     insertValues.put(COL_COIN_IDENTIFIER, identifier);
                     insertValues.put(COL_IN_COLLECTION, 0);
@@ -572,15 +598,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @param db                    database
      * @param collectionListEntries List of CollectionListInfo to populate
+     * @param legacyOptions         if true, uses the legacy mint marks / checkbox columns
      * @throws SQLException if a database error occurs
      */
-    public static void getAllTables(SQLiteDatabase db, ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
+    public static void getAllTables(SQLiteDatabase db, ArrayList<CollectionListInfo> collectionListEntries, boolean legacyOptions) throws SQLException {
 
         // Get rid of the other items in the list (if any)
         collectionListEntries.clear();
+        String colShowMintMarks = legacyOptions ? COL_SHOW_MINT_MARKS_LEGACY : COL_SHOW_MINT_MARKS;
+        String colShowCheckboxes = legacyOptions ? COL_SHOW_CHECKBOXES_LEGACY : COL_SHOW_CHECKBOXES;
         Cursor cursor = db.query(TBL_COLLECTION_INFO,
                 new String[]{COL_NAME, COL_COIN_TYPE, COL_TOTAL, COL_DISPLAY, COL_START_YEAR,
-                        COL_END_YEAR, COL_SHOW_MINT_MARKS, COL_SHOW_CHECKBOXES},
+                        COL_END_YEAR, colShowMintMarks, colShowCheckboxes},
                 null, null, null, null, COL_DISPLAY_ORDER);
         if (cursor.moveToFirst()) {
             do {
@@ -607,8 +636,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_DISPLAY)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_START_YEAR)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(COL_END_YEAR)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES))));
+                        cursor.getString(cursor.getColumnIndexOrThrow(colShowMintMarks)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(colShowCheckboxes))));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -618,13 +647,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Gets the collection parameters based on the collection contents,
      * which is needed for database upgrade.
      *
-     * @param db database
+     * @param db            database
+     * @param legacyOptions if true, uses the legacy mint marks / checkbox columns
      * @return List of CollectionListInfo populated based on contents
      */
-    public static ArrayList<CollectionListInfo> getLegacyCollectionParams(SQLiteDatabase db) {
+    public static ArrayList<CollectionListInfo> getLegacyCollectionParams(SQLiteDatabase db, boolean legacyOptions) throws SQLException {
 
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
-        getAllTables(db, collectionListEntries);
+        getAllTables(db, collectionListEntries, legacyOptions);
         for (CollectionListInfo collectionListEntry : collectionListEntries) {
             ArrayList<CoinSlot> coinList = getCoinListForLegacyCollectionParams(db, collectionListEntry.getName());
             collectionListEntry.setCreationParametersFromCoinData(coinList);
@@ -670,14 +700,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param oldTableName       the original collection name
      * @param collectionListInfo new collection info
      * @param coinData           new coin data
+     * @param legacyOptions      if true, uses the legacy mint marks / checkbox columns
      * @throws SQLException if a database error occurs
      */
-    public static void updateExistingCollection(SQLiteDatabase db, String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
+    public static void updateExistingCollection(SQLiteDatabase db, String oldTableName, CollectionListInfo collectionListInfo,
+                                                ArrayList<CoinSlot> coinData, boolean legacyOptions) throws SQLException {
 
         // Update the coin data
         if (coinData != null) {
             updateCoinList(db, oldTableName, coinData, false);
         }
+
+        String colShowMintMarks = legacyOptions ? COL_SHOW_MINT_MARKS_LEGACY : COL_SHOW_MINT_MARKS;
+        String colShowCheckboxes = legacyOptions ? COL_SHOW_CHECKBOXES_LEGACY : COL_SHOW_CHECKBOXES;
 
         // Update the collection info
         ContentValues values = new ContentValues();
@@ -686,8 +721,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_DISPLAY, collectionListInfo.getDisplayType());
         values.put(COL_START_YEAR, collectionListInfo.getStartYear());
         values.put(COL_END_YEAR, collectionListInfo.getEndYear());
-        values.put(COL_SHOW_MINT_MARKS, collectionListInfo.getMintMarkFlags());
-        values.put(COL_SHOW_CHECKBOXES, collectionListInfo.getCheckboxFlags());
+        values.put(colShowMintMarks, collectionListInfo.getMintMarkFlags());
+        values.put(colShowCheckboxes, collectionListInfo.getCheckboxFlags());
         runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{oldTableName});
 
         // Rename the collection if needed

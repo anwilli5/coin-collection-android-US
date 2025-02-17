@@ -93,9 +93,6 @@ public abstract class CollectionInfo {
     /**
      * Performs any updates to a collection's database tables.  This allows
      * new coins to be added, incorrect coins to be fixed, etc.
-     * <p>
-     * TODO Document collection database fields
-     * <p>
      * The function should only operate on the tableName provided, and MUST
      * return the total number of coins added or removed from the collection
      * (this is used to keep an accurate count in the database table that

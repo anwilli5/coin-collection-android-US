@@ -425,9 +425,8 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
-        DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData);
+        DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData, false);
     }
-
 
     /**
      * Creates the table of metadata for all the current collections
@@ -444,7 +443,7 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
-        DatabaseHelper.getAllTables(mDb, collectionListEntries);
+        DatabaseHelper.getAllTables(mDb, collectionListEntries, false);
     }
 
     /**

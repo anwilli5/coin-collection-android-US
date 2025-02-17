@@ -43,34 +43,34 @@ public class SharedTest {
 
     public static final CollectionListInfo[] COLLECTION_LIST_INFO_SCENARIOS =
             {
-                    new CollectionListInfo("My Pennies", 275, 0, getIndexFromCollectionNameStr("Pennies"), 0, 1909, 2020, 15, 1),
-                    new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionNameStr("Nickels"), 0, 1938, 2020, 9, 0),
-                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionNameStr("Dimes"), 0, 1950, 1951, 2, 1),
-                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionNameStr("Quarters"), 0, 1932, 1998, 3, 0),
-                    new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, 7, 4),
-                    new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, 5, 0),
-                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionNameStr("Half-Dollars"), 0, 1964, 2020, 2, 1),
-                    new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionNameStr("Eisenhower Dollars"), 0, 1971, 1971, 7, 1),
-                    new CollectionListInfo("Susan's \"Dollars!", 4, 0, getIndexFromCollectionNameStr("Susan B. Anthony Dollars"), 0, 1979, 1999, 2, 0),
-                    new CollectionListInfo("; DROP TABLES;", 16, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2002, 2009, 7, 1),
-                    new CollectionListInfo("😁😁😁😁😁😍😄", 80, 0, getIndexFromCollectionNameStr("Presidential Dollars"), 0, 0, 0, 7, 0),
-                    new CollectionListInfo("| | | | | ", 2, 0, getIndexFromCollectionNameStr("Indian Head Cents"), 0, 1859, 1909, 9, 0),
-                    new CollectionListInfo(" ", 32, 0, getIndexFromCollectionNameStr("Liberty Head Nickels"), 0, 1883, 1912, 7, 1),
-                    new CollectionListInfo("  ", 25, 0, getIndexFromCollectionNameStr("Barber Dimes"), 0, 1892, 1916, 2, 0),
-                    new CollectionListInfo("Barb Quarts", 25, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, 2, 0),
-                    new CollectionListInfo("_)(*&^%", 12, 0, getIndexFromCollectionNameStr("Standing Liberty Quarters"), 0, 1916, 1930, 9, 0),
-                    new CollectionListInfo("Frankline", 19, 0, getIndexFromCollectionNameStr("Franklin Half Dollars"), 0, 1948, 1963, 13, 1),
-                    new CollectionListInfo("✓✓✓✓✓™", 96, 0, getIndexFromCollectionNameStr("Morgan Dollars"), 0, 1878, 1921, 63, 0),
-                    new CollectionListInfo("🐶✌️", 1, 0, getIndexFromCollectionNameStr("Peace Dollars"), 0, 1921, 1921, 2, 1),
-                    new CollectionListInfo("Eagles", 39, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 2020, 0, 2),
-                    new CollectionListInfo("()", 42, 0, getIndexFromCollectionNameStr("First Spouse Gold Coins"), 0, 0, 0, 0, 0),
-                    new CollectionListInfo("S Pennies", 0, 0, getIndexFromCollectionNameStr("Pennies"), 0, 2000, 2020, 9, 1),
-                    new CollectionListInfo("50-States", 50, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, 3, 0),
-                    new CollectionListInfo("$PATH", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, 5, 0),
-                    new CollectionListInfo("CHAR(0x54)", 11, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2010, 2020, 2, 1),
-                    new CollectionListInfo("<a href=\"#\">Click Here</a>", 14, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 1999, 0, 1),
-                    new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, 17, 0),
-                    new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr("American Women Quarters"), 0, 0, 0, 15, 0),
+                    new CollectionListInfo("My Pennies", 275, 0, getIndexFromCollectionNameStr("Pennies"), 0, 1909, 2020, "15", "1"),
+                    new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionNameStr("Nickels"), 0, 1938, 2020, "9", "0"),
+                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionNameStr("Dimes"), 0, 1950, 1951, "2", "1"),
+                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionNameStr("Quarters"), 0, 1932, 1998, "3", "0"),
+                    new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, "7", "4"),
+                    new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, "5", "0"),
+                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionNameStr("Half-Dollars"), 0, 1964, 2020, "2", "1"),
+                    new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionNameStr("Eisenhower Dollars"), 0, 1971, 1971, "7", "1"),
+                    new CollectionListInfo("Susan's \"Dollars!", 4, 0, getIndexFromCollectionNameStr("Susan B. Anthony Dollars"), 0, 1979, 1999, "2", "0"),
+                    new CollectionListInfo("; DROP TABLES;", 16, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2002, 2009, "7", "1"),
+                    new CollectionListInfo("😁😁😁😁😁😍😄", 80, 0, getIndexFromCollectionNameStr("Presidential Dollars"), 0, 0, 0, "7", "0"),
+                    new CollectionListInfo("| | | | | ", 2, 0, getIndexFromCollectionNameStr("Indian Head Cents"), 0, 1859, 1909, "9", "0"),
+                    new CollectionListInfo(" ", 32, 0, getIndexFromCollectionNameStr("Liberty Head Nickels"), 0, 1883, 1912, "7", "1"),
+                    new CollectionListInfo("  ", 25, 0, getIndexFromCollectionNameStr("Barber Dimes"), 0, 1892, 1916, "2", "0"),
+                    new CollectionListInfo("Barb Quarts", 25, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "2", "0"),
+                    new CollectionListInfo("_)(*&^%", 12, 0, getIndexFromCollectionNameStr("Standing Liberty Quarters"), 0, 1916, 1930, "9", "0"),
+                    new CollectionListInfo("Frankline", 19, 0, getIndexFromCollectionNameStr("Franklin Half Dollars"), 0, 1948, 1963, "13", "1"),
+                    new CollectionListInfo("✓✓✓✓✓™", 96, 0, getIndexFromCollectionNameStr("Morgan Dollars"), 0, 1878, 1921, "63", "0"),
+                    new CollectionListInfo("🐶✌️", 1, 0, getIndexFromCollectionNameStr("Peace Dollars"), 0, 1921, 1921, "2", "1"),
+                    new CollectionListInfo("Eagles", 39, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 2020, "0", "2"),
+                    new CollectionListInfo("()", 42, 0, getIndexFromCollectionNameStr("First Spouse Gold Coins"), 0, 0, 0, "0", "0"),
+                    new CollectionListInfo("S Pennies", 0, 0, getIndexFromCollectionNameStr("Pennies"), 0, 2000, 2020, "9", "1"),
+                    new CollectionListInfo("50-States", 50, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, "3", "0"),
+                    new CollectionListInfo("$PATH", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, "5", "0"),
+                    new CollectionListInfo("CHAR(0x54)", 11, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2010, 2020, "2", "1"),
+                    new CollectionListInfo("<a href=\"#\">Click Here</a>", 14, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 1999, "0", "1"),
+                    new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "17", "0"),
+                    new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr("American Women Quarters"), 0, 0, 0, "15", "0"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
@@ -136,8 +136,8 @@ public class SharedTest {
                 (base.getCoinImageIdentifier() == check.getCoinImageIdentifier()) &&
                 (base.getStartYear() == check.getStartYear()) &&
                 (base.getEndYear() == check.getEndYear()) &&
-                (base.getMintMarkFlags() == check.getMintMarkFlags()) &&
-                (base.getCheckboxFlags() == check.getCheckboxFlags()));
+                (base.getMintMarkFlags().equals(check.getMintMarkFlags())) &&
+                (base.getCheckboxFlags().equals(check.getCheckboxFlags())));
     }
 
     /**
