@@ -46,6 +46,7 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
@@ -93,6 +94,7 @@ public class MainApplication extends Application {
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
+                    new SmallCents()
             };
 
     public static final String DATABASE_NAME = "CoinCollection";

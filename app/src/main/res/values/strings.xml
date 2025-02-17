@@ -187,7 +187,8 @@
     <string name="include_eagle_cents">Include Flying Eagle small cents</string>
     <string name="include_indian_cents">Include Indian Head cents</string>
     <string name="include_wheat_cents">Include Lincoln Wheat cents</string>
-    <string name="include_memorial_cents">Include Lincoln Memorial and Shield cents</string>
+    <string name="include_memorial_cents">Include Lincoln Memorial cents</string>
+    <string name="include_shield_cents">Include Shield cents</string>
     <string name="include_barber_half">Include Barber Halfs</string>
     <string name="include_walker_half">Include Liberty Walking Halfs</string>
     <string name="include_franklin_half">Include Franklin Halfs</string>
