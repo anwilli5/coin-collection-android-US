@@ -71,6 +71,7 @@ public class SharedTest {
                     new CollectionListInfo("<a href=\"#\">Click Here</a>", 14, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 1999, "0", "1"),
                     new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "17", "0"),
                     new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr("American Women Quarters"), 0, 0, 0, "15", "0"),
+                    new CollectionListInfo("Small Cents", 442, 0, getIndexFromCollectionNameStr("Small Cents"), 0, 1856, 2023, "3151", "4063265"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

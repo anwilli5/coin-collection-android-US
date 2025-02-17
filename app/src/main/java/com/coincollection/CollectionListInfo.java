@@ -46,6 +46,7 @@ import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
@@ -92,7 +93,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_SILVER_PROOF_SETS = 0x4000L;
 
     // Flags for show checkboxes options
-    public final static long ALL_CHECKBOXES_MASK = 0xFFFFFFFFFFL;
+    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFL;
     public final static long CUSTOM_DATES = 0x1L;
     public final static long BURNISHED = 0x2L;
     public final static long TERRITORIES = 0x4L;
@@ -114,25 +115,26 @@ public class CollectionListInfo implements Parcelable {
     public final static long INDIAN_CENTS = 0x40000L;
     public final static long WHEAT_CENTS = 0x80000L;
     public final static long MEMORIAL_CENTS = 0x100000L;
-    public final static long BARBER_HALF = 0x200000L;
-    public final static long WALKER_HALF = 0x400000L;
-    public final static long FRANKLIN_HALF = 0x800000L;
-    public final static long KENNEDY_HALF = 0x1000000L;
-    public final static long SHIELD_NICKELS = 0x2000000L;
-    public final static long LIBERTY_NICKELS = 0x4000000L;
-    public final static long BUFFALO_NICKELS = 0x8000000L;
-    public final static long JEFFERSON_NICKELS = 0x10000000L;
-    public final static long BARBER_DIMES = 0x20000000L;
-    public final static long MERCURY_DIMES = 0x40000000L;
-    public final static long ROOSEVELT_DIMES = 0x80000000L;
-    public final static long MORGAN_DOLLARS = 0x100000000L;
-    public final static long PEACE_DOLLARS = 0x200000000L;
-    public final static long IKE_DOLLARS = 0x400000000L;
-    public final static long EAGLE_DOLLARS = 0x800000000L;
-    public final static long SBA_DOLLARS = 0x1000000000L;
-    public final static long SAC_DOLLARS = 0x2000000000L;
-    public final static long PRES_DOLLARS = 0x4000000000L;
-    public final static long TRADE_DOLLARS = 0x8000000000L;
+    public final static long SHIELD_CENTS = 0x200000L;
+    public final static long BARBER_HALF = 0x400000L;
+    public final static long WALKER_HALF = 0x800000L;
+    public final static long FRANKLIN_HALF = 0x1000000L;
+    public final static long KENNEDY_HALF = 0x2000000L;
+    public final static long SHIELD_NICKELS = 0x4000000L;
+    public final static long LIBERTY_NICKELS = 0x8000000L;
+    public final static long BUFFALO_NICKELS = 0x10000000L;
+    public final static long JEFFERSON_NICKELS = 0x20000000L;
+    public final static long BARBER_DIMES = 0x40000000L;
+    public final static long MERCURY_DIMES = 0x80000000L;
+    public final static long ROOSEVELT_DIMES = 0x100000000L;
+    public final static long MORGAN_DOLLARS = 0x200000000L;
+    public final static long PEACE_DOLLARS = 0x400000000L;
+    public final static long IKE_DOLLARS = 0x800000000L;
+    public final static long EAGLE_DOLLARS = 0x1000000000L;
+    public final static long SBA_DOLLARS = 0x2000000000L;
+    public final static long SAC_DOLLARS = 0x4000000000L;
+    public final static long PRES_DOLLARS = 0x8000000000L;
+    public final static long TRADE_DOLLARS = 0x10000000000L;
 
     public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -182,7 +184,8 @@ public class CollectionListInfo implements Parcelable {
             StandingLibertyQuarters.COLLECTION_TYPE,
             SusanBAnthonyDollars.COLLECTION_TYPE,
             WalkingLibertyHalfDollars.COLLECTION_TYPE,
-            WashingtonQuarters.COLLECTION_TYPE));
+            WashingtonQuarters.COLLECTION_TYPE,
+            SmallCents.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
                               int startYear, int stopYear, String mintMarkFlags,
@@ -437,6 +440,10 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasMemorialCents() {
         return (getCheckboxFlagsAsLong() & MEMORIAL_CENTS) != 0;
+    }
+
+    public boolean hasShieldCents() {
+        return (getCheckboxFlagsAsLong() & SHIELD_CENTS) != 0;
     }
 
     public boolean hasBarberHalf() {
