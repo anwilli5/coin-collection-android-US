@@ -113,8 +113,8 @@ public class CoinPageCreatorTests extends BaseTestCase {
     public void test_getCreationParameters() {
         for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
             CollectionListInfo collectionListInfo = getCollectionListInfo("X", collectionInfo, new ArrayList<>());
-            collectionListInfo.setMintMarkFlags(-1); // All possible mint marks set
-            collectionListInfo.setCheckboxFlags(-1); // All possible checkboxes set
+            collectionListInfo.setMintMarkFlags(Long.toString(-1L)); // All possible mint marks set
+            collectionListInfo.setCheckboxFlags(Long.toString(-1L)); // All possible checkboxes set
             ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(collectionListInfo);
 
             // Assert that collections don't provide the same option twice
@@ -142,7 +142,6 @@ public class CoinPageCreatorTests extends BaseTestCase {
             }
 
             // Assert that parameters aren't outside the expected range
-            // noinspection ConstantValue
             assertEquals(0, (CoinPageCreator.getCheckboxFlagsFromParameters(parameters) & ~ALL_CHECKBOXES_MASK));
             assertEquals(0, (CoinPageCreator.getMintMarkFlagsFromParameters(parameters) & ~ALL_MINT_MASK));
         }

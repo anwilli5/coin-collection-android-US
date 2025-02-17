@@ -555,8 +555,8 @@ public class CoinPageCreator extends BaseActivity {
 
         // Show a warning if changing the mint marks would remove some coins
         if (warningResId == -1) {
-            int mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
-            int checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
+            long mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
+            long checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
             if (mExistingCollection.checkIfNewFlagsRemoveCoins(mintMarkFlags, checkboxFlags)) {
                 warningResId = R.string.warning_collection_options_changed;
             }
@@ -1008,8 +1008,8 @@ public class CoinPageCreator extends BaseActivity {
      * @param parameters the user-selected parameters
      * @return mint mark flags
      */
-    public static int getMintMarkFlagsFromParameters(HashMap<String, Object> parameters) {
-        int mintMarkFlags = 0;
+    public static long getMintMarkFlagsFromParameters(HashMap<String, Object> parameters) {
+        long mintMarkFlags = 0;
         for (String optName : SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             String stringIdOptName = SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
             Boolean optionValue = (Boolean) parameters.get(optName);
@@ -1063,8 +1063,8 @@ public class CoinPageCreator extends BaseActivity {
      * @param parameters the user-selected parameters
      * @return checkbox flags
      */
-    public static int getCheckboxFlagsFromParameters(HashMap<String, Object> parameters) {
-        int checkboxFlags = 0;
+    public static long getCheckboxFlagsFromParameters(HashMap<String, Object> parameters) {
+        long checkboxFlags = 0;
         for (String optName : CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.keySet()) {
             String stringIdOptName = CUSTOMIZABLE_CHECKBOX_STRING_ID_OPT_MAP.get(optName);
             Boolean optionValue = (Boolean) parameters.get(optName);
@@ -1173,8 +1173,8 @@ public class CoinPageCreator extends BaseActivity {
         for (CoinSlot coinSlot : mCoinList) {
             totalCollected += coinSlot.isInCollectionInt();
         }
-        int mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
-        int checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
+        long mintMarkFlags = getMintMarkFlagsFromParameters(mParameters);
+        long checkboxFlags = getCheckboxFlagsFromParameters(mParameters);
         int displayType = (mExistingCollection != null)
                 ? mExistingCollection.getDisplayType() : SIMPLE_DISPLAY;
         Integer startYear = (Integer) mParameters.get(OPT_START_YEAR);
@@ -1187,8 +1187,8 @@ public class CoinPageCreator extends BaseActivity {
                 displayType,
                 (startYear != null) ? startYear : 0,
                 (stopYear != null) ? stopYear : 0,
-                mintMarkFlags,
-                checkboxFlags);
+                Long.toString(mintMarkFlags),
+                Long.toString(checkboxFlags));
     }
 
     /**
