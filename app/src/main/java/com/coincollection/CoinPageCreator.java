@@ -1113,6 +1113,8 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.WHEAT_CENTS;
                 } else if (optionStrId.equals(R.string.include_memorial_cents)) {
                     checkboxFlags |= CollectionListInfo.MEMORIAL_CENTS;
+                } else if (optionStrId.equals(R.string.include_shield_cents)) {
+                    checkboxFlags |= CollectionListInfo.SHIELD_CENTS;
                 } else if (optionStrId.equals(R.string.include_barber_half)) {
                     checkboxFlags |= CollectionListInfo.BARBER_HALF;
                 } else if (optionStrId.equals(R.string.include_walker_half)) {
@@ -1303,6 +1305,8 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasWheatCents());
             } else if (optionStrId.equals(R.string.include_memorial_cents)) {
                 parameters.put(optName, existingCollection.hasMemorialCents());
+            } else if (optionStrId.equals(R.string.include_shield_cents)) {
+                parameters.put(optName, existingCollection.hasShieldCents());
             } else if (optionStrId.equals(R.string.include_barber_half)) {
                 parameters.put(optName, existingCollection.hasBarberHalf());
             } else if (optionStrId.equals(R.string.include_walker_half)) {
