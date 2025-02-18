@@ -72,6 +72,7 @@ public class SharedTest {
                     new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "17", "0"),
                     new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr("American Women Quarters"), 0, 0, 0, "15", "0"),
                     new CollectionListInfo("Small Cents", 442, 0, getIndexFromCollectionNameStr("Small Cents"), 0, 1856, 2023, "3151", "4063265"),
+                    new CollectionListInfo("Large Cents", 68, 0, getIndexFromCollectionNameStr("Large Cents"), 0, 1793, 1857, "0", "1089"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

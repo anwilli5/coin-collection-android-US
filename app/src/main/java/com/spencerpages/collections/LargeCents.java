@@ -1,3 +1,23 @@
+/*
+ * Coin Collection, an Android app that helps users track the coins that they've collected
+ * Copyright (C) 2010-2016 Andrew Williams
+ *
+ * This file is part of Coin Collection.
+ *
+ * Coin Collection is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coin Collection is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -10,7 +30,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 
 public class LargeCents extends CollectionInfo {
 
@@ -90,7 +109,7 @@ public class LargeCents extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         } else {
@@ -109,46 +128,47 @@ public class LargeCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_bust_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_coronet);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_coronet_coins);
     }
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showbust = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showcoronet = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showBust = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showCoronet = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
 
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if (showbust) {
+            String year = Integer.toString(i);
+            if (showBust) {
                 if (i == 1793) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Flowing Hair Chain Reverse", coinIndex++,8));
-                    coinList.add(new CoinSlot(Integer.toString(i), "Flowing Hair Wreath Reverse", coinIndex++,8));}
+                    coinList.add(new CoinSlot(year, "Flowing Hair Chain Reverse", coinIndex++, getImgId("Flowing Hair")));
+                    coinList.add(new CoinSlot(year, "Flowing Hair Wreath Reverse", coinIndex++, getImgId("Flowing Hair")));}
                 if (i > 1792 && i < 1797) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Liberty Cap", coinIndex++,9));}
+                    coinList.add(new CoinSlot(year, "Liberty Cap", coinIndex++, getImgId("Liberty Cap")));}
                 if (i > 1795 && i < 1808) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Draped Bust", coinIndex++,10));}
+                    coinList.add(new CoinSlot(year, "Draped Bust", coinIndex++, getImgId("Draped Bust")));}
                 if (i > 1807 && i < 1815) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Capped Bust", coinIndex++,11));}
+                    coinList.add(new CoinSlot(year, "Capped Bust", coinIndex++, getImgId("Capped Bust")));}
             }
-            if (showcoronet) {
+            if (showCoronet) {
                 if (i>1815 && i<1836){
-                    coinList.add(new CoinSlot(Integer.toString(i), "Matron Coronet", coinIndex++,12));}
+                    coinList.add(new CoinSlot(year, "Matron Coronet", coinIndex++, getImgId("Coronet")));}
                 if (i>1835 && i<1840){
-                    coinList.add(new CoinSlot(Integer.toString(i), "Young Coronet", coinIndex++,13));}
+                    coinList.add(new CoinSlot(year, "Young Coronet", coinIndex++, getImgId("Young Coronet")));}
                 if (i>1838 && i<1844){
-                    coinList.add(new CoinSlot(Integer.toString(i), "Petite Braided Hair", coinIndex++,14));}
+                    coinList.add(new CoinSlot(year, "Petite Braided Hair", coinIndex++, getImgId("Young Braided Hair")));}
                 if (i>1843 && i<1858){
-                    coinList.add(new CoinSlot(Integer.toString(i), "Mature Braided Hair", coinIndex++,15));}
+                    coinList.add(new CoinSlot(year, "Mature Braided Hair", coinIndex++, getImgId("Mature Braided Hair")));}
             }
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_wiki;
+    private static final int ATTRIBUTION = R.string.attr_large_cents;
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 
