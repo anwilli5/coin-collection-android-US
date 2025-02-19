@@ -37,6 +37,7 @@ import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -94,7 +95,8 @@ public class MainApplication extends Application {
                     new FirstSpouseGoldCoins(),
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
-                    new SmallCents()
+                    new SmallCents(),
+                    new LargeCents()
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
