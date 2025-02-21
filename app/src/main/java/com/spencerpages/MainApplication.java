@@ -24,6 +24,7 @@ import android.app.Application;
 
 import com.coincollection.CollectionInfo;
 import com.coincollection.DatabaseAdapter;
+import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.AmericanWomenQuarters;
@@ -96,7 +97,8 @@ public class MainApplication extends Application {
                     new AmericanInnovationDollars(),
                     new AmericanWomenQuarters(),
                     new SmallCents(),
-                    new LargeCents()
+                    new LargeCents(),
+                    new AllNickels()
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
