@@ -42,11 +42,10 @@ jobs:
 
     # Setup required Java version
     - name: Setup Java JDK
-      uses: actions/setup-java@v1.3.0
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      uses: actions/setup-java@v4.7.0
       with:
         java-version: 17
+        distribution: 'temurin'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
