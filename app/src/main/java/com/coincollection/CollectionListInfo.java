@@ -29,6 +29,7 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import com.spencerpages.MainApplication;
+import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
@@ -187,7 +188,8 @@ public class CollectionListInfo implements Parcelable {
             WalkingLibertyHalfDollars.COLLECTION_TYPE,
             WashingtonQuarters.COLLECTION_TYPE,
             SmallCents.COLLECTION_TYPE,
-            LargeCents.COLLECTION_TYPE));
+            LargeCents.COLLECTION_TYPE,
+            AllNickels.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
                               int startYear, int stopYear, String mintMarkFlags,
