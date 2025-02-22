@@ -78,7 +78,6 @@ public class HalfDimes extends CollectionInfo {
     @Override
     public Object[][] getImageIds() {return COIN_IMG_IDS;}
 
-
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
@@ -196,11 +195,3 @@ public class HalfDimes extends CollectionInfo {
         return 0;
     }
 }
-
-
-
-
-
-
-
-
