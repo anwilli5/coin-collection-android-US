@@ -32,6 +32,7 @@ import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
@@ -102,7 +103,8 @@ public class MainApplication extends Application {
                     new LargeCents(),
                     new AllNickels(),
                     new HalfDimes(),
-                    new SilverDimes()
+                    new SilverDimes(),
+                    new EarlyDimes()
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
