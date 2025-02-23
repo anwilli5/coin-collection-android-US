@@ -75,6 +75,7 @@ public class SharedTest {
                     new CollectionListInfo("Large Cents", 68, 0, getIndexFromCollectionNameStr("Large Cents"), 0, 1793, 1857, "0", "1089"),
                     new CollectionListInfo("All Nickels", 380, 0, getIndexFromCollectionNameStr("All Nickels"), 0, 1866, 2022, "2255", "1006632993"),
                     new CollectionListInfo("Half Dimes", 96, 0, getIndexFromCollectionNameStr("Half Dimes"), 0, 1794, 1873, "27", "577"),
+                    new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionNameStr("Silver Dimes"), 0, 1793, 2023, "287", "7516192801"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
