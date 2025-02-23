@@ -14,46 +14,7 @@ import java.util.HashMap;
 public class CladQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Clad Quarters";
 
-    private static final Object[][] SMS_COIN_IDENTIFIERS = {
-            {"1965", R.drawable.quarter_front_92px},
-            {"1966", R.drawable.quarter_front_92px},
-            {"1967", R.drawable.quarter_front_92px},
-    };
-    private static final Object[][] EAGLE_COIN_IDENTIFIERS = {
-            {"1968", R.drawable.quarter_front_92px},
-            {"1969", R.drawable.quarter_front_92px},
-            {"1970", R.drawable.quarter_front_92px},
-            {"1971", R.drawable.quarter_front_92px},
-            {"1972", R.drawable.quarter_front_92px},
-            {"1973", R.drawable.quarter_front_92px},
-            {"1974", R.drawable.quarter_front_92px},
-            {"1776-1976", R.drawable.quarter_front_92px},
-            {"1977", R.drawable.quarter_front_92px},
-            {"1978", R.drawable.quarter_front_92px},
-            {"1979", R.drawable.quarter_front_92px},
-    };
-    private static final Object[][] MORE_EAGLE_COIN_IDENTIFIERS = {
-            {"1980", R.drawable.quarter_front_92px},
-            {"1981", R.drawable.quarter_front_92px},
-            {"1982", R.drawable.quarter_front_92px},
-            {"1983", R.drawable.quarter_front_92px},
-            {"1984", R.drawable.quarter_front_92px},
-            {"1985", R.drawable.quarter_front_92px},
-            {"1986", R.drawable.quarter_front_92px},
-            {"1987", R.drawable.quarter_front_92px},
-            {"1988", R.drawable.quarter_front_92px},
-            {"1989", R.drawable.quarter_front_92px},
-            {"1990", R.drawable.quarter_front_92px},
-            {"1991", R.drawable.quarter_front_92px},
-            {"1992", R.drawable.quarter_front_92px},
-            {"1993", R.drawable.quarter_front_92px},
-            {"1994", R.drawable.quarter_front_92px},
-            {"1995", R.drawable.quarter_front_92px},
-            {"1996", R.drawable.quarter_front_92px},
-            {"1997", R.drawable.quarter_front_92px},
-            {"1998", R.drawable.quarter_front_92px},
-    };
-    private static final Object[][] STATES_COIN_IDENTIFIERS = {
+    private static final Object[][] STATES_COIN_IDENTIFIERS_PT1 = {
             {"Delaware 1999", R.drawable.states_1999_delaware_unc},
             {"Pennsylvania 1999", R.drawable.states_1999_pennsylvania_unc},
             {"New Jersey 1999", R.drawable.states_1999_new_jersey_unc},
@@ -85,7 +46,7 @@ public class CladQuarters extends CollectionInfo {
             {"Iowa 2004", R.drawable.states_2004_iowa_unc},
             {"Wisconsin 2004", R.drawable.states_2004_wisconsin_unc},
     };
-    private static final Object[][] MORE_STATES_COIN_IDENTIFIERS = {
+    private static final Object[][] STATES_COIN_IDENTIFIERS_PT2 = {
             {"California 2005", R.drawable.states_2005_california_unc},
             {"Minnesota 2005", R.drawable.states_2005_minnesota_unc},
             {"Oregon 2005", R.drawable.states_2005_oregon_unc},
@@ -115,21 +76,21 @@ public class CladQuarters extends CollectionInfo {
             {"U.S. Virgin Islands 2009", R.drawable.states_2009_virgin_islands_unc},
             {"Northern Mariana Islands 2009", R.drawable.states_2009_northern_mariana_unc},
     };
-    private static final Object[][] TEN_COIN_IDENTIFIERS = {
+    private static final Object[][] PARKS_COIN_IDENTIFIERS_2010 = {
             {"Hot Springs 2010", R.drawable.parks_2010_hot_springs_unc},
             {"Yellowstone 2010", R.drawable.parks_2010_yellowstone_unc},
             {"Yosemite 2010", R.drawable.parks_2010_yosemite_unc},
             {"Grand Canyon 2010", R.drawable.parks_2010_grand_canyon_unc},
             {"Mt. Hood 2010", R.drawable.parks_2010_mount_hood_unc},
     };
-    private static final Object[][] ELEVEN_COIN_IDENTIFIERS = {
+    private static final Object[][] PARKS_COIN_IDENTIFIERS_2011 = {
             {"Gettysburg 2011", R.drawable.parks_2011_gettysburg_unc},
             {"Glacier 2011", R.drawable.parks_2011_glacier_unc},
             {"Olympic 2011", R.drawable.parks_2011_olympic_unc},
             {"Vicksburg 2011", R.drawable.parks_2011_vicksburg_unc},
             {"Chickasaw 2011", R.drawable.parks_2011_chickasaw_unc},
     };
-    private static final Object[][] MORE_COIN_IDENTIFIERS = {
+    private static final Object[][] PARKS_COIN_IDENTIFIERS_PT3 = {
             {"El Yunque 2012", R.drawable.parks_2012_el_yunque_unc},
             {"Chaco Culture 2012", R.drawable.parks_2012_chaco_culture_unc},
             {"Acadia 2012", R.drawable.parks_2012_acadia_unc},
@@ -166,7 +127,7 @@ public class CladQuarters extends CollectionInfo {
             {"Cumberland Island 2018", R.drawable.parks_2018_cumberland_island_proof},
             {"Block Island 2018", R.drawable.parks_2018_block_island_proof},
     };
-    private static final Object[][] W_COIN_IDENTIFIERS = {
+    private static final Object[][] PARKS_COIN_IDENTIFIERS_PT4 = {
             {"Lowell 2019", R.drawable.parks_2019_lowell_proof},
             {"American Memorial 2019", R.drawable.parks_2019_american_memorial_proof},
             {"War in the Pacific 2019", R.drawable.parks_2019_war_in_the_pacific_proof},
@@ -178,11 +139,10 @@ public class CladQuarters extends CollectionInfo {
             {"Marsh-Billings-Rockefeller 2020", R.drawable.parks_2020_marsh_billings_rockefeller_unc},
             {"Tallgrass Prairie 2020", R.drawable.parks_2020_tallgrass_prairie_unc},
     };
-    private static final Object[][] TWENTYONE_COIN_IDENTIFIERS = {
+    private static final Object[][] COIN_IDENTIFIERS_2021 = {
             {"Tuskegee Airmen 2021", R.drawable.parks_2021_tuskegee_airmen_unc},
             {"Crossing The Delaware 2021", R.drawable.rev_2021_crossing_delaware_quarter_unc},
     };
-
     private static final Object[][] WOMEN_COIN_IDENTIFIERS = {
             {"Maya Angelou 2022", R.drawable.women_2022_maya_angelou_unc},
             {"Dr. Sally Ride 2022", R.drawable.women_2022_sally_ride_unc},
@@ -195,27 +155,23 @@ public class CladQuarters extends CollectionInfo {
             {"Jovita Idar 2023", R.drawable.women_2023_jovita_idar_unc},
             {"Maria Tallchief 2023", R.drawable.women_2023_maria_tallchief_unc},
             {"Rev. Dr. Pauli Murray 2024", R.drawable.women_2024_pauli_murray_unc},
-            {"Patsy Takemoto 2024", R.drawable.women_2024_patsy_takemoto_unc},
+            {"Patsy Takemoto Mink 2024", R.drawable.women_2024_patsy_takemoto_unc},
             {"Dr. Mary Edwards Walker 2024", R.drawable.women_2024_mary_edwards_walker_unc},
             {"Celia Cruz 2024", R.drawable.women_2024_celia_cruz_unc},
-            {"Zitkala Sa 2024", R.drawable.women_2024_zitkala_sa_unc},
-
+            {"Zitkala-Ša 2024", R.drawable.women_2024_zitkala_sa_unc},
     };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : SMS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : EAGLE_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : MORE_EAGLE_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : STATES_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : MORE_STATES_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : STATES_COIN_IDENTIFIERS_PT1) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : STATES_COIN_IDENTIFIERS_PT2) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : TEN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : ELEVEN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : MORE_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : W_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : TWENTYONE_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : PARKS_COIN_IDENTIFIERS_2010) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : PARKS_COIN_IDENTIFIERS_2011) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : PARKS_COIN_IDENTIFIERS_PT3) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : PARKS_COIN_IDENTIFIERS_PT4) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : COIN_IDENTIFIERS_2021) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : WOMEN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
@@ -227,8 +183,10 @@ public class CladQuarters extends CollectionInfo {
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
 
-    private static final Integer START_YEAR = 1965;
-    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
+    private static final Integer START_YEAR = 0;
+    private static final Integer STOP_YEAR = 0;
+
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 
     @Override
     public int getStartYear() {return START_YEAR;}
@@ -244,7 +202,7 @@ public class CladQuarters extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : (int) MORE_COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -279,114 +237,114 @@ public class CladQuarters extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_silver_proofs);
-
     }
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Boolean showeagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showstates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showparks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showwomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showp = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showd = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean shows = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showw = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showsatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showStates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showParks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        Boolean showWomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
+        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
 
         int coinIndex = 0;
 
-        if (showeagle) {
-            for (Object[] coinData : SMS_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                if (showp) {
-                    coinList.add(new CoinSlot(identifier, "", coinIndex++));
-                    coinList.add(new CoinSlot(identifier, "SMS", coinIndex++));
+        if (showEagle) {
+            for (int i = 1965; i <= 1967; i++) {
+                String year = Integer.toString(i);
+                if (showP) {
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "SMS", coinIndex++));
                 }
             }
-            for (Object[] coinData : EAGLE_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, " S Proof", coinIndex++));}
+            for (int i = 1968; i <= 1979; i++) {
+                String year = (i == 1976) ? "1776-1976" : Integer.toString(i);
+                if (i == 1975){ continue; }
+                if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : MORE_EAGLE_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, " S Proof", coinIndex++));}
+            for (int i = 1980; i <= 1998; i++) {
+                String year = Integer.toString(i);
+                if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
             }
         }
-        if (showstates) {
-            for (Object[] coinData : STATES_COIN_IDENTIFIERS) {
+        if (showStates) {
+            for (Object[] coinData : STATES_COIN_IDENTIFIERS_PT1) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, " S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : MORE_STATES_COIN_IDENTIFIERS) {
+            for (Object[] coinData : STATES_COIN_IDENTIFIERS_PT2) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if (showsatin) { coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showsatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, " S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showSatin) { coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showSatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
             for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if (showsatin) {coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showsatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showSatin) {coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showSatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
         }
-        if (showparks) {
-            for (Object[] coinData : TEN_COIN_IDENTIFIERS) {
+        if (showParks) {
+            for (Object[] coinData : PARKS_COIN_IDENTIFIERS_2010) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if (showsatin) {coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showsatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showSatin) {coinList.add(new CoinSlot(identifier, "P Satin", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showSatin) {coinList.add(new CoinSlot(identifier, "D Satin", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : ELEVEN_COIN_IDENTIFIERS) {
+            for (Object[] coinData : PARKS_COIN_IDENTIFIERS_2011) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : MORE_COIN_IDENTIFIERS) {
+            for (Object[] coinData : PARKS_COIN_IDENTIFIERS_PT3) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if(shows) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : W_COIN_IDENTIFIERS) {
+            for (Object[] coinData : PARKS_COIN_IDENTIFIERS_PT4) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if(shows) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
-                if(showw) {coinList.add(new CoinSlot(identifier, "W", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
+                if (showW) {coinList.add(new CoinSlot(identifier, "W", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
-            for (Object[] coinData : TWENTYONE_COIN_IDENTIFIERS) {
+            for (Object[] coinData : COIN_IDENTIFIERS_2021) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if(shows) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
         }
-        if (showwomen){
+        if (showWomen){
             for (Object[] coinData : WOMEN_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
-                if(showp) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if(showd) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if(shows) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
-                if (showproof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(identifier, "S", coinIndex++));}
+                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
             }
         }
     }
