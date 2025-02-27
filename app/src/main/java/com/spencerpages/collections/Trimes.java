@@ -95,19 +95,19 @@ public class Trimes extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             if (showsilver) {
                 if (i == 1851) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));
-                    coinList.add(new CoinSlot(Integer.toString(i), "O Silver", coinIndex++, 0));
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver"), coinIndex++, 0));
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("O %nSilver") , coinIndex++, 0));
                 }
                 if (i > 1851 && i < 1873) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));}
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver"), coinIndex++, 0));}
                 if (i == 1873) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Silver", coinIndex++, 0));}
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver Proof"), coinIndex++, 0));}
             }
             if (shownickel) {
                 if(i>1864 && i<1890 && i!=1877 && i!=1878 && i!=1886) {
-                    coinList.add(new CoinSlot(Integer.toString(i),"Nickel",  coinIndex++,1));}
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nNickel"),  coinIndex++,1));}
                 if(i==1877 || i==1878 || i==1886){
-                    coinList.add(new CoinSlot(Integer.toString(i),"Nickel", coinIndex++,1));}
+                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nNickel Proof"), coinIndex++,1));}
             }
         }
     }
