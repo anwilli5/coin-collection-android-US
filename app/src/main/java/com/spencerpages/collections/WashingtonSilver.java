@@ -34,18 +34,6 @@ import java.util.HashMap;
 public class WashingtonSilver extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Washington Silver Quarters";
 
-    private static final Object[][] CLASSIC_COIN_IDENTIFIERS = {
-            {"1776-1976 S 40% Silver BU", R.drawable.quarter_front_92px},
-            {"1776-1976 S 40% Silver Proof", R.drawable.quarter_front_92px},
-            {"1992 S Proof", R.drawable.quarter_front_92px},
-            {"1993 S Proof", R.drawable.quarter_front_92px},
-            {"1994 S Proof", R.drawable.quarter_front_92px},
-            {"1995 S Proof", R.drawable.quarter_front_92px},
-            {"1996 S Proof", R.drawable.quarter_front_92px},
-            {"1997 S Proof", R.drawable.quarter_front_92px},
-            {"1998 S Proof", R.drawable.quarter_front_92px},
-    };
-
     private static final Object[][] STATES_COIN_IDENTIFIERS = {
             {"Delaware 1999", R.drawable.states_1999_delaware_unc},
             {"Pennsylvania 1999", R.drawable.states_1999_pennsylvania_unc},
@@ -184,15 +172,14 @@ public class WashingtonSilver extends CollectionInfo {
             {"Jovita Idar 2023", R.drawable.women_2023_jovita_idar_unc},
             {"Maria Tallchief 2023", R.drawable.women_2023_maria_tallchief_unc},
             {"Rev. Dr. Pauli Murray 2024", R.drawable.women_2024_pauli_murray_unc},
-            {"Patsy Takemoto 2024", R.drawable.women_2024_patsy_takemoto_unc},
+            {"Patsy Takemoto Mink 2024", R.drawable.women_2024_patsy_takemoto_unc},
             {"Dr. Mary Edwards Walker 2024", R.drawable.women_2024_mary_edwards_walker_unc},
             {"Celia Cruz 2024", R.drawable.women_2024_celia_cruz_unc},
-            {"Zitkala Sa 2024", R.drawable.women_2024_zitkala_sa_unc},
+            {"Zitkala-Ša 2024", R.drawable.women_2024_zitkala_sa_unc},
     };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
-        for (Object[] coinData : CLASSIC_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : STATES_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : PARKS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
@@ -208,8 +195,8 @@ public class WashingtonSilver extends CollectionInfo {
     @Override
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
 
-    private static final Integer START_YEAR = 1932;
-    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
+    private static final Integer START_YEAR = 0;
+    private static final Integer STOP_YEAR = 0;
 
     @Override
     public int getStartYear() {return START_YEAR;}
@@ -260,51 +247,52 @@ public class WashingtonSilver extends CollectionInfo {
     }
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Boolean showeagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showstates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showterr = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showparks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showwomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
+        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showStates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showTerr = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        Boolean showParks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
+        Boolean showWomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
 
         int coinIndex = 0;
 
-
-        if (showeagle) {
+        if (showEagle) {
             for (int i = 1932; i <= 1964; i++) {
-                if (showP && i != 1933) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
-                if (showD && i != 1933 && i != 1938) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
+                String year = Integer.toString(i);
+                if (showP && i != 1933) {coinList.add(new CoinSlot(year, "", coinIndex++));}
+                if (showD && i != 1933 && i != 1938) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
                 if (showS && i < 1955 && i != 1933 && i != 1934 && i != 1949){
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));}
+                    coinList.add(new CoinSlot(year, "S", coinIndex++));}
             }
             if (showS){
-                for (Object[] coinData : CLASSIC_COIN_IDENTIFIERS) {
-                    String identifier = (String) coinData[0];
-                    coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                coinList.add(new CoinSlot("1776-1976", "S 40% Silver BU", coinIndex++));
+                coinList.add(new CoinSlot("1776-1976", "S 40% Silver Proof", coinIndex++));
+                for (int i = 1992; i <= 1998; i++) {
+                    coinList.add(new CoinSlot(Integer.toString(i), "S Proof", coinIndex++));
                 }
             }
         }
-        if (showstates) {
+        if (showStates) {
             for (Object[] coinData : STATES_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
                 coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
             }
         }
-        if (showterr) {
+        if (showTerr) {
             for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
                 coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
             }
         }
-        if (showparks) {
+        if (showParks) {
             for (Object[] coinData : PARKS_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
                 coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
             }
         }
-        if (showwomen) {
+        if (showWomen) {
             for (Object[] coinData : WOMEN_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
                 coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
@@ -316,5 +304,3 @@ public class WashingtonSilver extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-

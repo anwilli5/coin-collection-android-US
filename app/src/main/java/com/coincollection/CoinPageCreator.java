@@ -1153,6 +1153,14 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.PRES_DOLLARS;
                 } else if (optionStrId.equals(R.string.include_trade_dollars)) {
                     checkboxFlags |= CollectionListInfo.TRADE_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_states_quarters_proof)) {
+                    checkboxFlags |= CollectionListInfo.STATES_QUARTERS_PROOF;
+                } else if (optionStrId.equals(R.string.include_parks_quarters_proof)) {
+                    checkboxFlags |= CollectionListInfo.PARKS_QUARTERS_PROOF;
+                } else if (optionStrId.equals(R.string.include_women_quarters_proof)) {
+                    checkboxFlags |= CollectionListInfo.WOMEN_QUARTERS_PROOF;
+                } else if (optionStrId.equals(R.string.include_territories_quarters_proof)) {
+                    checkboxFlags |= CollectionListInfo.TERRITORIES_QUARTERS_PROOF;
                 }
             }
         }
@@ -1345,6 +1353,14 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasPresDollars());
             } else if (optionStrId.equals(R.string.include_trade_dollars)) {
                 parameters.put(optName, existingCollection.hasTradeDollars());
+            } else if (optionStrId.equals(R.string.include_states_quarters_proof)) {
+                parameters.put(optName, existingCollection.hasStatesQuartersProof());
+            } else if (optionStrId.equals(R.string.include_parks_quarters_proof)) {
+                parameters.put(optName, existingCollection.hasParksQuartersProof());
+            } else if (optionStrId.equals(R.string.include_women_quarters_proof)) {
+                parameters.put(optName, existingCollection.hasWomenQuartersProof());
+            } else if (optionStrId.equals(R.string.include_territories_quarters_proof)) {
+                parameters.put(optName, existingCollection.hasTerritoriesQuartersProof());
             }
         }
         return parameters;

@@ -98,7 +98,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_SILVER_PROOF_SETS = 0x4000L;
 
     // Flags for show checkboxes options
-    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFL;
+    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFL;
     public final static long CUSTOM_DATES = 0x1L;
     public final static long BURNISHED = 0x2L;
     public final static long TERRITORIES = 0x4L;
@@ -140,6 +140,10 @@ public class CollectionListInfo implements Parcelable {
     public final static long SAC_DOLLARS = 0x4000000000L;
     public final static long PRES_DOLLARS = 0x8000000000L;
     public final static long TRADE_DOLLARS = 0x10000000000L;
+    public final static long STATES_QUARTERS_PROOF = 0x20000000000L;
+    public final static long PARKS_QUARTERS_PROOF = 0x40000000000L;
+    public final static long WOMEN_QUARTERS_PROOF = 0x80000000000L;
+    public final static long TERRITORIES_QUARTERS_PROOF = 0x100000000000L;
 
     public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -530,6 +534,22 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasTradeDollars() {
         return (getCheckboxFlagsAsLong() & TRADE_DOLLARS) != 0;
+    }
+
+    public boolean hasStatesQuartersProof() {
+        return (getCheckboxFlagsAsLong() & STATES_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasParksQuartersProof() {
+        return (getCheckboxFlagsAsLong() & PARKS_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasWomenQuartersProof() {
+        return (getCheckboxFlagsAsLong() & WOMEN_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasTerritoriesQuartersProof() {
+        return (getCheckboxFlagsAsLong() & TERRITORIES_QUARTERS_PROOF) != 0;
     }
 
     public void setEndYear(int endYear) {
