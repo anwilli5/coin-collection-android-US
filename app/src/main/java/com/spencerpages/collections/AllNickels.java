@@ -186,14 +186,14 @@ public class AllNickels extends CollectionInfo {
                 if (i > 1865 && i < 1884 && i != 1877 && i != 1878) {
                     coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Shield")));}
                 if (i ==1877 || i ==1878){
-                    coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Shield")));}
+                    coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Shield")));}
             }
             if (showLiberty) {
                 if (showP) {
                     if (i == 1883) {
                         coinList.add(new CoinSlot(year, "w Cents", coinIndex++, getImgId("Liberty")));
                         coinList.add(new CoinSlot(year, "No Cents", coinIndex++, getImgId("Liberty")));}
-                    if (i > 1883 && i < 1913) {coinList.add(new CoinSlot(year, "Liberty", coinIndex++));}
+                    if (i > 1883 && i < 1913) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Liberty")));}
                 }
                 if (showD && i == 1912) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Liberty")));}
                 if (showS && i == 1912) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Liberty")));}
