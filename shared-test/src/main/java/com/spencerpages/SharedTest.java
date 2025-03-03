@@ -79,6 +79,7 @@ public class SharedTest {
                     new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionNameStr("Early Dimes"), 0, 1796, 1891, "59", "929"),
                     new CollectionListInfo("Clad Quarters", 614, 0, getIndexFromCollectionNameStr("Clad Quarters"), 0, 0, 0, "2383", "122880"),
                     new CollectionListInfo("Washington Silver", 225, 0, getIndexFromCollectionNameStr("Washington Silver Quarters"), 0, 0, 0, "15", "32985348841472"),
+                    new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionNameStr("Silver Half Dollars"), 0, 1892, 2023, "287", "62914593"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
