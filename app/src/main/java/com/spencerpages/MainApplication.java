@@ -52,6 +52,7 @@ import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
@@ -109,6 +110,7 @@ public class MainApplication extends Application {
                     new EarlyDimes(),
                     new CladQuarters(),
                     new WashingtonSilver(),
+                    new SilverHalfDollars(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
