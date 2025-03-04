@@ -87,27 +87,28 @@ public class Trimes extends CollectionInfo {
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showsilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean shownickel = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean show_silver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean show_nickel = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
 
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if (showsilver) {
+            String year = Integer.toString(i);
+            if (show_silver) {
                 if (i == 1851) {
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver"), coinIndex++, 0));
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("O %nSilver") , coinIndex++, 0));
+                    coinList.add(new CoinSlot(year,String.format("%nSilver"), coinIndex++, getImgId("Silver")));
+                    coinList.add(new CoinSlot(year,String.format("O %nSilver") , coinIndex++,getImgId("Silver") ));
                 }
                 if (i > 1851 && i < 1873) {
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver"), coinIndex++, 0));}
+                    coinList.add(new CoinSlot(year,String.format("%nSilver"), coinIndex++, getImgId("Silver")));}
                 if (i == 1873) {
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nSilver Proof"), coinIndex++, 0));}
+                    coinList.add(new CoinSlot(year,String.format("%nSilver Proof"), coinIndex++, getImgId("Silver")));}
             }
-            if (shownickel) {
+            if (show_nickel) {
                 if(i>1864 && i<1890 && i!=1877 && i!=1878 && i!=1886) {
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nNickel"),  coinIndex++,1));}
+                    coinList.add(new CoinSlot(year,String.format("%nNickel"),  coinIndex++,getImgId("Nickel")));}
                 if(i==1877 || i==1878 || i==1886){
-                    coinList.add(new CoinSlot(Integer.toString(i),String.format("%nNickel Proof"), coinIndex++,1));}
+                    coinList.add(new CoinSlot(year,String.format("%nNickel Proof"), coinIndex++,getImgId("Nickel")));}
             }
         }
     }

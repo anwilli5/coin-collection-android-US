@@ -22,6 +22,11 @@ public class Sets extends CollectionInfo {
             {"Silver Proof Set", R.drawable.a24rh},
     };
 
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Proof Set", R.drawable.a24rg},              //0
+            {"Mint Set", R.drawable.a24rj},               //1
+            {"Silver Proof Set", R.drawable.a24rh},       //2
+    };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -56,9 +61,19 @@ public class Sets extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        Integer slotImage;
+        Integer imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        } else {
+            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        }
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
+
 
     public void getCreationParameters(HashMap<String, Object> parameters) {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -78,27 +93,28 @@ public class Sets extends CollectionInfo {
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showmint = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showproof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showsilver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        Boolean show_mint = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean show_proof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean show_silver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
 
 
 
         int coinIndex = 0;
-        //string mint = "Integer.toString(i)";
+
 
         for (int i = startYear; i <= stopYear;  i++) {
-            if (showmint && i > 1946 && i != 1950){
-                coinList.add(new CoinSlot("Mint Set", Integer.toString(i), coinIndex++));
+            String year = Integer.toString(i);
+            if (show_mint && i > 1946 && i != 1950){
+                coinList.add(new CoinSlot(year,String.format("%nMint Set"), coinIndex++,getImgId("Mint Set")));
             }
-            if ( showproof && i > 1964 ){
-                coinList.add(new CoinSlot("Proof Set", Integer.toString(i), coinIndex++));
+            if ( show_proof && i > 1964 ){
+                coinList.add(new CoinSlot(year,String.format("%nProof Set"), coinIndex++,getImgId("Proof Set")));
             }
-            if ( showsilver && i > 1949 && i < 1965) {
-                coinList.add(new CoinSlot("Silver Proof Set", Integer.toString(i), coinIndex++));
+            if ( show_silver && i > 1949 && i < 1965) {
+                coinList.add(new CoinSlot(year,String.format("Silver %nProof Set"), coinIndex++,getImgId("Silver Proof Set")));
             }
-            if (showsilver && i >1991) {
-                coinList.add(new CoinSlot("Silver Proof Set",Integer.toString(i), coinIndex++));
+            if (show_silver && i >1991) {
+                coinList.add(new CoinSlot(year,String.format("Silver %nProof Set"), coinIndex++,getImgId("Silver Proof Set")));
             }
         }
     }

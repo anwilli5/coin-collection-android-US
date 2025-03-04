@@ -60,9 +60,10 @@ public class TwoCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            if(i==1864)coinList.add(new CoinSlot(Integer.toString(i), "Sm Motto", coinIndex++));
-            if(i>1864 && i<1873)coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-            if(i==1873)coinList.add(new CoinSlot(Integer.toString(i), "Proof", coinIndex++));
+            String year = Integer.toString(i);
+            if(i==1864)coinList.add(new CoinSlot(year, "Sm Motto", coinIndex++));
+            if(i>1864 && i<1873)coinList.add(new CoinSlot(year, "", coinIndex++));
+            if(i==1873)coinList.add(new CoinSlot(year, "Proof", coinIndex++));
         }
     }
     private static final int ATTRIBUTION =R.string.attr_TwoCents;

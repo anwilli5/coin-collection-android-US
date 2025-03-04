@@ -61,17 +61,18 @@ public class TwentyCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (Integer i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
             if(i==1875){
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
-                coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "S", coinIndex++));
+                coinList.add(new CoinSlot(year, "CC", coinIndex++));
             }
             if(i==1876){
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "CC", coinIndex++));
             }
             if(i==1877 || i==1878){
-                coinList.add(new CoinSlot(Integer.toString(i), "Proof", coinIndex++));
+                coinList.add(new CoinSlot(year, "Proof", coinIndex++));
             }
         }
     }
