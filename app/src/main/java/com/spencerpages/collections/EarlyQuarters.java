@@ -35,17 +35,6 @@ public class EarlyQuarters extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Quarters";
 
-    private static final Object[][] OLDCOIN_IDENTIFIERS = {
-            {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},
-            {"Capped Bust", R.drawable.a1834_bust_half_dollar_obverse},
-            {"Seated", R.drawable.a1885_half_dollar_obv},
-    };
-
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"", R.drawable.obv_standing_liberty_quarter},
-            {"Barber", R.drawable.obv_barber_quarter},
-    };
-
     private static final Object[][] COIN_IMG_IDS = {
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},  // 0
             {"Capped Bust", R.drawable.a1834_bust_half_dollar_obverse},      // 1
@@ -53,13 +42,6 @@ public class EarlyQuarters extends CollectionInfo {
             {"Standing Liberty", R.drawable.obv_standing_liberty_quarter},   // 3
             {"Barber", R.drawable.obv_barber_quarter},                       // 4
     };
-
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        for (Object[] coinData : OLDCOIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
 
     private static final Integer START_YEAR = 1776;
     private static final Integer STOP_YEAR = 1930;
@@ -81,12 +63,10 @@ public class EarlyQuarters extends CollectionInfo {
     }
 
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
         return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
@@ -156,11 +136,11 @@ public class EarlyQuarters extends CollectionInfo {
         int coinIndex = 0;
 
         if (showOld && !showBust) {
-            coinList.add(new CoinSlot("Draped Bust", "", coinIndex++));
-            coinList.add(new CoinSlot("Capped Bust", "", coinIndex++));
+            coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust")));
+            coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust")));
         }
-        if (showOld && !showSeated) {coinList.add(new CoinSlot("Liberty Seated", "", coinIndex++));}
-        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++));}
+        if (showOld && !showSeated) {coinList.add(new CoinSlot("Liberty Seated", "", coinIndex++, getImgId("Seated")));}
+        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++, getImgId("Barber")));}
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
