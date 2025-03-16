@@ -34,6 +34,7 @@ import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
@@ -109,6 +110,7 @@ public class MainApplication extends Application {
                     new EarlyDimes(),
                     new CladQuarters(),
                     new WashingtonSilver(),
+                    new EarlyQuarters(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
