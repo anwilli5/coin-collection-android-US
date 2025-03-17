@@ -35,19 +35,6 @@ public class SilverHalfDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Silver Half Dollars";
 
-    private static final Object[][] OLD_COINS_COIN_IDENTIFIERS = {
-            {"Flowing Hair", R.drawable.ha1795o},
-            {"Draped Bust", R.drawable.ha1796o},
-            {"Capped Bust", R.drawable.ha1837o},
-            {"Seated Liberty", R.drawable.ha1853o},
-    };
-
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Walker", R.drawable.obv_walking_liberty_half},
-            {"Barber", R.drawable.obv_barber_half},
-            {"Franklin", R.drawable.obv_franklin_half},
-    };
-
     static final Object[][] COIN_IMG_IDS = {
             {"Flowing Hair", R.drawable.a1795_half_dollar_obv},                     // 0
             {"Draped Bust", R.drawable.a1796_half_dollar_obverse_15_stars},         // 1
@@ -64,20 +51,11 @@ public class SilverHalfDollars extends CollectionInfo {
             {"Franklin Reverse", R.drawable.rev_franklin_half},                     // 12
             {"Walking Liberty Reverse", R.drawable.rev_walking_liberty_half},       // 13
             {"Barber Reverse", R.drawable.rev_barber_half},                         // 14
-
+            {"Flowing Hair (Old)", R.drawable.ha1795o},                             // 15
+            {"Draped Bust (Old)", R.drawable.ha1796o},                              // 16
+            {"Capped Bust (Old)", R.drawable.ha1837o},                              // 17
+            {"Seated Liberty (Old)", R.drawable.ha1853o},                           // 18
     };
-
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLD_COINS_COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-        for (Object[] coinData : COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-    }
 
     private static final Integer START_YEAR = 1892;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
@@ -96,12 +74,10 @@ public class SilverHalfDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
         return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
@@ -170,14 +146,14 @@ public class SilverHalfDollars extends CollectionInfo {
         int coinIndex = 0;
 
         if (showOld) {
-            for (Object[] coinData : OLD_COINS_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
-            }
+            coinList.add(new CoinSlot("Flowing Hair", "", coinIndex++, getImgId("Flowing Hair (Old)")));
+            coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust (Old)")));
+            coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust (Old)")));
+            coinList.add(new CoinSlot("Seated Liberty", "", coinIndex++, getImgId("Seated Liberty (Old)")));
         }
-        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++));}
-        if (showOld && !showWalker) {coinList.add(new CoinSlot("Walker", "", coinIndex++));}
-        if (showOld && !showFrank) {coinList.add(new CoinSlot("Franklin", "", coinIndex++));}
+        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++, getImgId("Barber")));}
+        if (showOld && !showWalker) {coinList.add(new CoinSlot("Walker", "", coinIndex++, getImgId("Walking Liberty")));}
+        if (showOld && !showFrank) {coinList.add(new CoinSlot("Franklin", "", coinIndex++, getImgId("Franklin")));}
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
