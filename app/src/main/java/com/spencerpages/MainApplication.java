@@ -62,6 +62,7 @@ import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.WestPoint;
 
 public class MainApplication extends Application {
 
@@ -115,6 +116,7 @@ public class MainApplication extends Application {
                     new EarlyQuarters(),
                     new SmallDollars(),
                     new SilverHalfDollars(),
+                    new WestPoint(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
