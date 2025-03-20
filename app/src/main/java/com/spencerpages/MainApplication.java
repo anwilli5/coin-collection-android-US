@@ -55,6 +55,7 @@ import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
+import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
@@ -112,6 +113,7 @@ public class MainApplication extends Application {
                     new CladQuarters(),
                     new WashingtonSilver(),
                     new EarlyQuarters(),
+                    new SmallDollars(),
                     new SilverHalfDollars(),
             };
 

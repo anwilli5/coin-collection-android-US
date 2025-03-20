@@ -80,6 +80,7 @@ public class SharedTest {
                     new CollectionListInfo("Clad Quarters", 614, 0, getIndexFromCollectionNameStr("Clad Quarters"), 0, 0, 0, "2383", "122880"),
                     new CollectionListInfo("Washington Silver", 225, 0, getIndexFromCollectionNameStr("Washington Silver Quarters"), 0, 0, 0, "15", "32985348841472"),
                     new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionNameStr("Early Quarters"), 0, 1776, 1930, "63", "6753"),
+                    new CollectionListInfo("Small Dollars", 206, 0, getIndexFromCollectionNameStr("Small Dollars"), 0, 0, 0, "143", "962072674304"),
                     new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionNameStr("Silver Half Dollars"), 0, 1892, 2023, "287", "62914593"),
             };
 
