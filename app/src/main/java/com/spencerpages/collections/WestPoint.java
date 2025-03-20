@@ -32,7 +32,7 @@ import java.util.HashMap;
 
 public class WestPoint extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "WestPoint Mint";
+    public static final String COLLECTION_TYPE = "West Point Mint";
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"2019 W Lincoln Cent", R.drawable.obv_lincoln_cent_unc},
@@ -87,7 +87,7 @@ public class WestPoint extends CollectionInfo {
     @Override
     public int getStopYear() {return 0;}
 
-    private static final int ATTRIBUTION =R.string.attr_mint;
+    private static final int ATTRIBUTION = R.string.attr_mint;
 
     @Override
     public int getAttributionResId() { return ATTRIBUTION;}
@@ -97,8 +97,8 @@ public class WestPoint extends CollectionInfo {
         Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
     }
-    public void getCreationParameters(HashMap<String, Object> parameters) {
-    }
+
+    public void getCreationParameters(HashMap<String, Object> parameters) {}
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         int coinIndex = 0;
@@ -108,12 +108,8 @@ public class WestPoint extends CollectionInfo {
             coinList.add(new CoinSlot(identifier, "", coinIndex++));
         }
     }
+
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
-
-
-
