@@ -82,6 +82,9 @@ public class SharedTest {
                     new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionNameStr("Early Quarters"), 0, 1776, 1930, "63", "6753"),
                     new CollectionListInfo("Small Dollars", 206, 0, getIndexFromCollectionNameStr("Small Dollars"), 0, 0, 0, "143", "962072674304"),
                     new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionNameStr("Silver Half Dollars"), 0, 1892, 2023, "287", "62914593"),
+                    new CollectionListInfo("Trimes", 49, 0, getIndexFromCollectionNameStr("Three Cents"), 0, 1851, 1889, "0", "25"),
+                    new CollectionListInfo("Twenty Cents", 7, 0, getIndexFromCollectionNameStr("Twenty Cents"), 0, 1875, 1878, "0", "1"),
+                    new CollectionListInfo("Two Cents", 10, 0, getIndexFromCollectionNameStr("Two Cents"), 0, 1864, 1873, "0", "1"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

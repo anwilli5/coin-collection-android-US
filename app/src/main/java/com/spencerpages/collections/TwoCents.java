@@ -1,3 +1,23 @@
+/*
+ * Coin Collection, an Android app that helps users track the coins that they've collected
+ * Copyright (C) 2010-2016 Andrew Williams
+ *
+ * This file is part of Coin Collection.
+ *
+ * Coin Collection is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coin Collection is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -10,7 +30,6 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 
 public class TwoCents extends CollectionInfo {
 
@@ -44,7 +63,6 @@ public class TwoCents extends CollectionInfo {
         return OBVERSE_IMAGE_COLLECTED;
     }
 
-
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
@@ -67,6 +85,7 @@ public class TwoCents extends CollectionInfo {
         }
     }
     private static final int ATTRIBUTION =R.string.attr_two_cents;
+
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 
@@ -74,5 +93,3 @@ public class TwoCents extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-

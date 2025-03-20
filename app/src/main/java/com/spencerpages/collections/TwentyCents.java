@@ -31,11 +31,9 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class TwentyCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Twenty Cents";
-
 
     private static final int REVERSE_IMAGE = R.drawable.a1876_cc_20c;
 
@@ -64,7 +62,6 @@ public class TwentyCents extends CollectionInfo {
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         return OBVERSE_IMAGE_COLLECTED;
     }
-
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -97,6 +94,7 @@ public class TwentyCents extends CollectionInfo {
         }
     }
     private static final int ATTRIBUTION =R.string.attr_twenty_cents;
+
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}
 
@@ -104,5 +102,3 @@ public class TwentyCents extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
