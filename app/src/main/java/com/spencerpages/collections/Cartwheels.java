@@ -32,7 +32,6 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class Cartwheels extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Cartwheels";
 
@@ -41,17 +40,6 @@ public class Cartwheels extends CollectionInfo {
             {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},
             {"Seated Liberty", R.drawable.do1860o},
             {"Trade", R.drawable.do1876tradeo},
-
-    };
-
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"`", R.drawable.obv_morgan_dollar},
-            {" ", R.drawable.obv_peace_dollar},
-            {"", R.drawable.obv_eisenhower_dollar},
-            {"Eagle",R.drawable.obv_american_eagle_unc},
-            {"Morgan", R.drawable.obv_morgan_dollar},
-            {"Peace", R.drawable.obv_peace_dollar},
-            {"Eisenhower", R.drawable.obv_eisenhower_dollar},
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -62,22 +50,14 @@ public class Cartwheels extends CollectionInfo {
             {"Morgan", R.drawable.obv_morgan_dollar},                // 4
             {"Peace", R.drawable.obv_peace_dollar},                  // 5
             {"Eisenhower", R.drawable.obv_eisenhower_dollar},        // 6
-            {"Eagle",R.drawable.obv_american_eagle_unc},             // 7
+            {"Eagle", R.drawable.obv_american_eagle_unc},            // 7
             {"Liberty Seated Gobrecht", R.drawable.anostarsdime},    // 8
     };
-
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLD_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
 
     private static final Integer START_YEAR = 1878;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
-    private static final int REVERSE_IMAGE =R.drawable.obv_peace_dollar ;
+    private static final int REVERSE_IMAGE = R.drawable.obv_peace_dollar ;
 
     @Override
     public String getCoinType() {
@@ -91,14 +71,12 @@ public class Cartwheels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -112,19 +90,19 @@ public class Cartwheels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_Morgan);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_morgan_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_Peace);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_peace_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_Ikes);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_ike_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_Eagles);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_eagle_dollars);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -141,6 +119,7 @@ public class Cartwheels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_cc);
     }
+
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -150,89 +129,90 @@ public class Cartwheels extends CollectionInfo {
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean show_old = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean show_morgan = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean show_peace = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean show_ike = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean show_eagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
+        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showMorgan = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showPeace = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        Boolean showIke = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
+        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
 
         int coinIndex = 0;
 
-        if (show_old) {
+        if (showOld) {
             for (Object[] coinData : OLD_COIN_IDENTIFIERS) {
                 String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
+                coinList.add(new CoinSlot(identifier, "", coinIndex++, getImgId(identifier)));
             }
         }
-        if (show_old && !show_morgan){coinList.add(new CoinSlot("Morgan","", coinIndex++));}
-        if (show_old && !show_peace){coinList.add(new CoinSlot("Peace","", coinIndex++));}
-        if (show_old && !show_ike){coinList.add(new CoinSlot("Eisenhower","", coinIndex++));}
+        if (showOld && !showMorgan){coinList.add(new CoinSlot("Morgan", "", coinIndex++, getImgId("Morgan")));}
+        if (showOld && !showPeace){coinList.add(new CoinSlot("Peace", "", coinIndex++, getImgId("Peace")));}
+        if (showOld && !showIke){coinList.add(new CoinSlot("Eisenhower", "", coinIndex++, getImgId("Eisenhower")));}
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
 
-            if ((i > 1904 && i < 1921)) {continue;
-            }else if (i >= 1929 && i <= 1933) {continue;}
+            if ((i > 1904 && i < 1921)) {continue;}
+            else if (i >= 1929 && i <= 1933) {continue;}
 
-            if (show_morgan && i >1877 && i < 1922) {
+            if (showMorgan && i >1877 && i < 1922) {
                 if (showP) {
                     if (i == 1878) {
-                        coinList.add(new CoinSlot(year,"8 Feathers", coinIndex++,getImgId("Morgan")));
-                        coinList.add(new CoinSlot(year,"7 Feathers", coinIndex++,getImgId("Morgan")));
-                    } else if (i != 1895) {coinList.add(new CoinSlot(year,"", coinIndex++,getImgId("Morgan")));}
+                        coinList.add(new CoinSlot(year, "8 Feathers", coinIndex++, getImgId("Morgan")));
+                        coinList.add(new CoinSlot(year, "7 Feathers", coinIndex++, getImgId("Morgan")));
+                    } else if (i != 1895) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Morgan")));}
                 }
-                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot(year,"O", coinIndex++,getImgId("Morgan")));}
-                if (showS) {coinList.add(new CoinSlot(year,"S", coinIndex++,getImgId("Morgan")));}
+                if (showO && i != 1878 && i != 1921) {coinList.add(new CoinSlot(year, "O", coinIndex++, getImgId("Morgan")));}
+                if (showS) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Morgan")));}
                 if (showCC && i != 1886 && i != 1887 && i != 1888 && i <= 1893) {
-                    coinList.add(new CoinSlot(year,"CC", coinIndex++,getImgId("Morgan")));}
-                if (showD && i == 1921) {coinList.add(new CoinSlot(year,"D", coinIndex++,getImgId("Morgan")));}
+                    coinList.add(new CoinSlot(year, "CC", coinIndex++, getImgId("Morgan")));}
+                if (showD && i == 1921) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Morgan")));}
             }
-            if (show_peace && i > 1920 && i < 1936){
-                if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++,getImgId("Peace")));}
+            if (showPeace && i > 1920 && i < 1936){
+                if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Peace")));}
                 if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {
-                    coinList.add(new CoinSlot(year,"D", coinIndex++,getImgId("Peace")));}
-                if (showS && i != 1921) {coinList.add(new CoinSlot(year,"S", coinIndex++,getImgId("Peace")));}
+                    coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Peace")));}
+                if (showS && i != 1921) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Peace")));}
             }
-            if (show_ike && i > 1970 && i < 1979){
+            if (showIke && i > 1970 && i < 1979){
                 if (i < 1975) {
-                    if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++,getImgId("Eisenhower")));}
-                    if (showD) {coinList.add(new CoinSlot(year,"D", coinIndex++,getImgId("Eisenhower")));}
+                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        {coinList.add(new CoinSlot(year,"S 40%% Silver", coinIndex++,getImgId("Eisenhower")));}
-                        {coinList.add(new CoinSlot(year,"S 40%% Silver Proof", coinIndex++,getImgId("Eisenhower")));}
-                        if (i > 1972){coinList.add(new CoinSlot(year,"S Proof", coinIndex++,getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, "S 40%% Silver", coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, "S 40%% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
+                        if (i > 1972){coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                     }
                 }
                 if (i == 1975) {continue;}
                 if (i == 1976) {
                     if (showP) {
-                        coinList.add(new CoinSlot("1776-1976","Type I", coinIndex++,getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976","Type II", coinIndex++,getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", "Type I", coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", "Type II", coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {
-                        coinList.add(new CoinSlot("1776-1976","D Type I", coinIndex++,getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976","D Type II", coinIndex++,getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", "D Type I", coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", "D Type II", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        coinList.add(new CoinSlot("1776-1976","S Proof Type I", coinIndex++,getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976","S Proof Type II", coinIndex++,getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976","S 40% Silver", coinIndex++,getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976","S 40% Silver Proof", coinIndex++,getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", "S Proof Type I", coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", "S Proof Type II", coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", "S 40% Silver", coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", "S 40% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
                 }
                 if ( i > 1976 ){
-                    if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++,getImgId("Eisenhower")));}
-                    if (showD) {coinList.add(new CoinSlot(year,"", coinIndex++,getImgId("Eisenhower")));}
-                    if (showS) {coinList.add(new CoinSlot(year,"S Proof", coinIndex++,getImgId("Eisenhower")));}
+                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
+                    if (showD) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
+                    if (showS) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                 }
             }
-            if (show_eagle){
-                if (showP && i >1985) {coinList.add(new CoinSlot(year, "", coinIndex++,getImgId("Eagle")));
-                    if (i == 2006) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++,getImgId("Eagle")));}
-                    if (i == 2007) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++,getImgId("Eagle")));}
-                    if (i == 2008) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++,getImgId("Eagle")));}
-                    if (i == 2011) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++,getImgId("Eagle")));}
+            if (showEagle){
+                if (showP && i >1985) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eagle")));
+                    if (i == 2006) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                    if (i == 2007) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                    if (i == 2008) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
+                    if (i == 2011) {coinList.add(new CoinSlot(year, "W Burnished", coinIndex++, getImgId("Eagle")));}
                 }
             }
         }
     }
+
     @Override
     public int getAttributionResId() {return R.string.attr_mint;}
 
@@ -246,4 +226,3 @@ public class Cartwheels extends CollectionInfo {
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
