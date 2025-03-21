@@ -59,6 +59,9 @@ import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
@@ -116,6 +119,9 @@ public class MainApplication extends Application {
                     new EarlyQuarters(),
                     new SmallDollars(),
                     new SilverHalfDollars(),
+                    new Trimes(),
+                    new TwentyCents(),
+                    new TwoCents(),
                     new WestPoint(),
             };
 
