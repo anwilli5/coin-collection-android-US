@@ -34,6 +34,8 @@ import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
 import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
@@ -123,6 +125,8 @@ public class MainApplication extends Application {
                     new TwentyCents(),
                     new TwoCents(),
                     new WestPoint(),
+                    new EarlyDollars(),
+                    new EarlyHalfDollars(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
