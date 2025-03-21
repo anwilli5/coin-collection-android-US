@@ -85,6 +85,7 @@ public class SharedTest {
                     new CollectionListInfo("Trimes", 49, 0, getIndexFromCollectionNameStr("Three Cents"), 0, 1851, 1889, "0", "25"),
                     new CollectionListInfo("Twenty Cents", 7, 0, getIndexFromCollectionNameStr("Twenty Cents"), 0, 1875, 1878, "0", "1"),
                     new CollectionListInfo("Two Cents", 10, 0, getIndexFromCollectionNameStr("Two Cents"), 0, 1864, 1873, "0", "1"),
+                    new CollectionListInfo("West Point", 21, 0, getIndexFromCollectionNameStr("West Point Mint"), 0, 0, 0, "0", "0"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
