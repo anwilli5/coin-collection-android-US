@@ -37,6 +37,8 @@ import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
 import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FranklinHalfDollars;
@@ -211,6 +213,8 @@ public class CollectionListInfo implements Parcelable {
             Trimes.COLLECTION_TYPE,
             TwentyCents.COLLECTION_TYPE,
             TwoCents.COLLECTION_TYPE,
+            EarlyDollars.COLLECTION_TYPE,
+            EarlyHalfDollars.COLLECTION_TYPE,
             Cartwheels.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
