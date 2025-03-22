@@ -42,6 +42,7 @@ import com.spencerpages.collections.EarlyHalfDollars;
 import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
 import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
@@ -215,7 +216,8 @@ public class CollectionListInfo implements Parcelable {
             TwoCents.COLLECTION_TYPE,
             EarlyDollars.COLLECTION_TYPE,
             EarlyHalfDollars.COLLECTION_TYPE,
-            Cartwheels.COLLECTION_TYPE));
+            Cartwheels.COLLECTION_TYPE,
+            HalfCents.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
                               int startYear, int stopYear, String mintMarkFlags,
