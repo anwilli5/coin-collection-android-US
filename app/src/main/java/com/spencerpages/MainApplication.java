@@ -32,6 +32,7 @@ import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EarlyQuarters;
@@ -123,6 +124,7 @@ public class MainApplication extends Application {
                     new TwentyCents(),
                     new TwoCents(),
                     new WestPoint(),
+                    new Cartwheels(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
