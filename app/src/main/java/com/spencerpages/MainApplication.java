@@ -50,12 +50,15 @@ import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
+import com.spencerpages.collections.MintSets;
 import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
+import com.spencerpages.collections.ProofSets;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.CoinSets;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -131,6 +134,9 @@ public class MainApplication extends Application {
                     new EarlyHalfDollars(),
                     new Cartwheels(),
                     new HalfCents(),
+                    new ProofSets(),
+                    new MintSets(),
+                    new CoinSets(),
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
