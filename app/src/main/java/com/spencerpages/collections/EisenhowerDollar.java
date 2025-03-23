@@ -94,27 +94,27 @@ public class EisenhowerDollar extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-            String newValue = Integer.toString(i);
+            String year = Integer.toString(i);
             if (i == 1975 || i == 1976) {
-                newValue = "1776-1976";
+                year = "1776-1976";
             }
             if (i == 1976 && startYear != 1976)
                 continue; // (what if start date is 1976)
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
-                    coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
 
             //if(i < 1973){
             //	if(mShowS){
-            //	    mIdentifierList.add(newValue);
+            //	    mIdentifierList.add(year);
             //	    mMintList.add("S");
             //	}
             //}

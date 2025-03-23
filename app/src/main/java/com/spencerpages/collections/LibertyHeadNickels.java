@@ -96,33 +96,29 @@ public class LibertyHeadNickels extends CollectionInfo {
 
         boolean added1883WithCents = false;
         for (int i = startYear; i <= stopYear; i++) {
-
-            String newValue = Integer.toString(i);
-
+            String year = Integer.toString(i);
             if (i == 1883) {
                 if (!added1883WithCents) {
-                    newValue = "1883 w/ Cents";
+                    year = "1883 w/ Cents";
                 } else {
-                    newValue = "1883 w/o Cents";
+                    year = "1883 w/o Cents";
                 }
             }
-
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (i == 1912) {
                     if (showD) {
-                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                     if (showS) {
-                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
-
             if (i == 1883 && !added1883WithCents) {
                 added1883WithCents = true;
                 i--;

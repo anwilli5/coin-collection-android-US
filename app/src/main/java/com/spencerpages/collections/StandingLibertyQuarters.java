@@ -102,33 +102,33 @@ public class StandingLibertyQuarters extends CollectionInfo {
                 continue;
             }
 
-            String newValue;
+            String year;
             if (i == 1917) {
                 if (!addedTypeOne) {
-                    newValue = "1917 Type 1";
+                    year = "1917 Type 1";
                 } else {
-                    newValue = "1917 Type 2";
+                    year = "1917 Type 2";
                 }
             } else {
-                newValue = Integer.toString(i);
+                year = Integer.toString(i);
             }
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1916 && i != 1921 && i != 1925 && i != 1923 && i != 1930) {
-                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i != 1916 && i != 1921 && i != 1925) {
-                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
 
             if (i == 1917 && !addedTypeOne) {

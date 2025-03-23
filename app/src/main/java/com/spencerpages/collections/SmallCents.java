@@ -36,27 +36,15 @@ public class SmallCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Small Cents";
 
-    private static final Object[][] OLD_COIN_COIN_IDENTIFIERS = {
-            {"Flowing Hair", R.drawable.annc_us_1793_1c_flowing_hair_cent},
-            {"Liberty Cap", R.drawable.a1794_cent_obv_venus_marina},
-            {"Draped Bust", R.drawable.a1797_cent_obv},
-            {"Capped Bust", R.drawable.annc_us_1813_1c_classic_head_cent},
-            {"Coronet", R.drawable.a1819_cent_obv},
-            {"Young Coronet", R.drawable.a1837_cent_obv},
-            {"Young Braided Hair", R.drawable.a1839},
-            {"Mature Braided Hair", R.drawable.a1855},
-
-    };
-    private static final Object[][] STEEL_COIN_IDENTIFIERS = {
-            {"Flying Eagle", R.drawable.a1858_cent_obv},
-            {"Indian Head", R.drawable.obv_indian_head_cent},
-            {"Wheat", R.drawable.ab1909},
-            {"Steel", R.drawable.a1943o},
-            {"Memorial", R.drawable.amemorial},
-            {"Memorial Zinc", R.drawable.obv_lincoln_cent_unc},
-            {"Shield", R.drawable.obv_lincoln_cent_unc},
-            {"Proof", R.drawable.lincolnproof_},
-            {"Reverse Proof", R.drawable.cerevproof},
+    private static final String[] OLD_COIN_STRS = {
+            "Flowing Hair",
+            "Liberty Cap",
+            "Draped Bust",
+            "Capped Bust",
+            "Coronet",
+            "Young Coronet",
+            "Young Braided Hair",
+            "Mature Braided Hair",
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -98,15 +86,6 @@ public class SmallCents extends CollectionInfo {
             {"Presidency", R.drawable.bicent_2009_presidency_unc},
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLD_COIN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : STEEL_COIN_IDENTIFIERS) {COIN_MAP.put( (String) coinData[0],(Integer) coinData[1]);}
-        for (Object[] coinData : BICENT_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
-
     private static final Integer START_YEAR = 1856;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
@@ -120,14 +99,12 @@ public class SmallCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) STEEL_COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -203,12 +180,11 @@ public class SmallCents extends CollectionInfo {
         int coinIndex = 0;
 
         if (showOld) {
-            for (Object[] coinData : OLD_COIN_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));}
+            for (String identifier : OLD_COIN_STRS) {
+                coinList.add(new CoinSlot(identifier, "", coinIndex++, getImgId(identifier)));}
         }
-        if (showOld && !showEagle) {coinList.add(new CoinSlot("Flying Eagle","", coinIndex++));}
-        if (showOld && !showIndian) {coinList.add(new CoinSlot("Indian Head","", coinIndex++));}
+        if (showOld && !showEagle) {coinList.add(new CoinSlot("Flying Eagle","", coinIndex++, getImgId("Flying Eagle")));}
+        if (showOld && !showIndian) {coinList.add(new CoinSlot("Indian Head","", coinIndex++, getImgId("Indian Head")));}
 
         for (Integer i = startYear; i <= stopYear; i++) {
             String phil =String.format("%d", i );

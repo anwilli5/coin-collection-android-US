@@ -35,24 +35,6 @@ public class AllNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "All Nickels";
 
-    private static final Object[][] WESTWARD_2004_COIN_IDENTIFIERS = {
-            {"Peace Medal", R.drawable.westward_2004_louisiana_purchase_unc},
-            {"Keelboat", R.drawable.westward_2004_keelboat_unc},
-    };
-
-    private static final Object[][] WESTWARD_2005_COIN_IDENTIFIERS = {
-            {"Bison", R.drawable.westward_2005_american_bison_unc},
-            {"Ocean in View", R.drawable.westward_2005_ocean_in_view_unc},
-    };
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Shield", R.drawable.obv_shield_nickel},
-            {"Liberty", R.drawable.obv_liberty_head_nickel},
-            {"Buffalo", R.drawable.obv_buffalo_nickel},
-            {"Jefferson", R.drawable.obv_jefferson_nickel_unc},
-            {"Modern Jefferson", R.drawable.jeffersonuncirculated},
-            {"Modern Jefferson Proof", R.drawable.jeffersonproof},
-    };
-
     private static final Object[][] COIN_IMG_IDS = {
             {"Shield", R.drawable.anishield_nickel_with_rays___1867_obverse},                         // 0
             {"Liberty", R.drawable.obv_liberty_head_nickel},                                          // 1
@@ -72,15 +54,6 @@ public class AllNickels extends CollectionInfo {
             {"1867 Shield Reverse with Rays", R.drawable.anishield_nickel_with_rays___1867_reverse},  // 15
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
-
     private static final Integer START_YEAR = 1866;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
@@ -98,14 +71,12 @@ public class AllNickels extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -176,9 +147,9 @@ public class AllNickels extends CollectionInfo {
         Boolean showJefferson = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
         int coinIndex = 0;
 
-        if (showOld && !showShield) {coinList.add(new CoinSlot("Shield", "", coinIndex++));}
-        if (showOld && !showLiberty) {coinList.add(new CoinSlot("Liberty", "", coinIndex++));}
-        if (showOld && !showBuffalo) {coinList.add(new CoinSlot("Buffalo", "", coinIndex++));}
+        if (showOld && !showShield) {coinList.add(new CoinSlot("Shield", "", coinIndex++, getImgId("Shield")));}
+        if (showOld && !showLiberty) {coinList.add(new CoinSlot("Liberty", "", coinIndex++, getImgId("Liberty")));}
+        if (showOld && !showBuffalo) {coinList.add(new CoinSlot("Buffalo", "", coinIndex++, getImgId("Buffalo")));}
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);

@@ -35,16 +35,6 @@ public class EarlyDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Early Dimes";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Draped Bust", R.drawable.a1797drapeddime},
-            {"Capped Bust", R.drawable.a1820cappeddime},
-            {"Seated No Stars", R.drawable.anostarsdime},
-            {"Seated Stars", R.drawable.astarsdime},
-            {"Seated Arrows", R.drawable.astars_arrowsdime},
-            {"Seated Legend", R.drawable.alegenddime},
-            {"Seated Arrows ", R.drawable.alegendarrowsdime},
-    };
-
     private static final Object[][] COIN_IMG_IDS = {
             {"Draped Bust", R.drawable.a1797drapeddime},                                     // 0
             {"Capped Bust", R.drawable.a1820cappeddime},                                     // 1
@@ -67,13 +57,6 @@ public class EarlyDimes extends CollectionInfo {
             {"2016 Roosevelt Reverse", R.drawable.adi2016r},                                 // 18
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
-
     private static final Integer START_YEAR = 1796;
     private static final Integer STOP_YEAR = 1891;
 
@@ -87,14 +70,12 @@ public class EarlyDimes extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -149,8 +130,8 @@ public class EarlyDimes extends CollectionInfo {
 
         int coinIndex = 0;
 
-        if (showOld && !showDraped) {coinList.add(new CoinSlot("Draped Bust", "", coinIndex++));}
-        if (showOld && !showCapped) {coinList.add(new CoinSlot("Capped Bust", "", coinIndex++));}
+        if (showOld && !showDraped) {coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust")));}
+        if (showOld && !showCapped) {coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust")));}
 
         for (Integer i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);

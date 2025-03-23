@@ -94,6 +94,7 @@ public class SusanBAnthonyDollars extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
             if (i > 1981 && i < 1999)
                 continue;
 
@@ -101,21 +102,21 @@ public class SusanBAnthonyDollars extends CollectionInfo {
                 // 1979 showed the P mint mark
                 if (showP) {
                     if (i >= 1979) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showD) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D", coinIndex++));
                 }
                 if (showS) {
                     if (i != 1999) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

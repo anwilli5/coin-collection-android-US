@@ -100,24 +100,24 @@ public class PeaceDollars extends CollectionInfo {
                 continue;
             }
 
-            String newValue = Integer.toString(i);
+            String year = Integer.toString(i);
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {
-                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i != 1921) {
-                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

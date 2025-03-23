@@ -90,7 +90,7 @@ public class IndianHeadCents extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if (showMintMarks) {
                 if (showP) {
                     // A few special ones
@@ -99,21 +99,21 @@ public class IndianHeadCents extends CollectionInfo {
                     // 1864 L
 
                     if (i == 1864) {
-                        coinList.add(new CoinSlot(Integer.toString(i), " Copper", coinIndex++));
-                        coinList.add(new CoinSlot(Integer.toString(i), " Bronze", coinIndex++));
-                        coinList.add(new CoinSlot(Integer.toString(i), " L", coinIndex++));
+                        coinList.add(new CoinSlot(year, " Copper", coinIndex++));
+                        coinList.add(new CoinSlot(year, " Bronze", coinIndex++));
+                        coinList.add(new CoinSlot(year, " L", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i == 1908 || i == 1909) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
 
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

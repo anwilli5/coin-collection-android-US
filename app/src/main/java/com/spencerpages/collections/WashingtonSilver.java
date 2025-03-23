@@ -204,7 +204,7 @@ public class WashingtonSilver extends CollectionInfo {
     @Override
     public int getStopYear() {return STOP_YEAR;}
 
-    private static final int ATTRIBUTION =R.string.attr_mint;
+    private static final int ATTRIBUTION = R.string.attr_mint;
 
     @Override
     public int getAttributionResId() { return ATTRIBUTION;}

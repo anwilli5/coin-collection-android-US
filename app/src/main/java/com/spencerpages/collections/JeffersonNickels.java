@@ -118,7 +118,7 @@ public class JeffersonNickels extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if (i == 2004) {
                 // 2004 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
@@ -161,24 +161,24 @@ public class JeffersonNickels extends CollectionInfo {
                 if (showP) {
                     if (i != 1968 && i != 1969 && i != 1970) {
                         if (i >= 1980) {
-                            coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                            coinList.add(new CoinSlot(year, "P", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                            coinList.add(new CoinSlot(year, "", coinIndex++));
                         }
                     }
                 }
                 if (showD) {
                     if (i != 1965 && i != 1966 && i != 1967) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i <= 1970 && i != 1950 && (i < 1955 || i > 1967)) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

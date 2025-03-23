@@ -92,18 +92,18 @@ public class RooseveltDimes extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if (showMintMarks) {
                 if (showP) {
                     if (i >= 1980) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showD) {
                     if (i != 1965 && i != 1966 && i != 1967) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
@@ -111,11 +111,11 @@ public class RooseveltDimes extends CollectionInfo {
                     // Greater than 1967 were only in proof sets
                     // TODO - Check and simplify weird logic here
                     if (i < 1975 && (i < 1956)) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }
