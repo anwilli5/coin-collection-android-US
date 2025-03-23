@@ -90,6 +90,9 @@ public class SharedTest {
                     new CollectionListInfo("Early Half Dollars", 158, 0, getIndexFromCollectionNameStr("Early Half Dollars"), 0, 1794, 1891, "59", "577"),
                     new CollectionListInfo("Cartwheels", 198, 0, getIndexFromCollectionNameStr("Cartwheels"), 0, 1878, 2023, "63", "128849018913"),
                     new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionNameStr("Half Cents"), 0, 1793, 1857, "0", "1"),
+                    new CollectionListInfo("Proof Sets", 103, 0, getIndexFromCollectionNameStr("Proof Sets"), 0, 1950, 2023, "384", "1"),
+                    new CollectionListInfo("Mint Sets", 94, 0, getIndexFromCollectionNameStr("Proof Sets"), 0, 1959, 2023, "384", "1"),
+                    new CollectionListInfo("All Sets", 182, 0, getIndexFromCollectionNameStr("Coin Sets"), 0, 1947, 2023, "28672", "1"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

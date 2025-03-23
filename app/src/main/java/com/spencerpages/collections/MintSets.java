@@ -1,3 +1,23 @@
+/*
+ * Coin Collection, an Android app that helps users track the coins that they've collected
+ * Copyright (C) 2010-2016 Andrew Williams
+ *
+ * This file is part of Coin Collection.
+ *
+ * Coin Collection is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coin Collection is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Coin Collection.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.spencerpages.collections;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -25,7 +45,7 @@ public class MintSets extends CollectionInfo {
     public int getCoinImageIdentifier() {return REVERSE_IMAGE;}
 
     private static final Integer START_YEAR = 1959;
-    private static final Integer STOP_YEAR = 2024;
+    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     @Override
     public int getStartYear() {return START_YEAR;}
@@ -48,6 +68,7 @@ public class MintSets extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
     }
+
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
@@ -56,15 +77,15 @@ public class MintSets extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-            if ( i == 1965 ){coinList.add(new CoinSlot(Integer.toString(i), "Special Mint Set", coinIndex++));}
-            if ( i == 1966 ) {coinList.add(new CoinSlot(Integer.toString(i), "Special Mint Set", coinIndex++));}
-            if ( i == 1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "Special Mint Set", coinIndex++));}
-            else  {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
+            String year = Integer.toString(i);
+            if ( i == 1965 ){coinList.add(new CoinSlot(year, "Special Mint Set", coinIndex++));}
+            if ( i == 1966 ) {coinList.add(new CoinSlot(year, "Special Mint Set", coinIndex++));}
+            if ( i == 1967 ) {coinList.add(new CoinSlot(year, "Special Mint Set", coinIndex++));}
+            else  {coinList.add(new CoinSlot(year, "", coinIndex++));}
         }
     }
+
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {return 0;}
 }
-
-
