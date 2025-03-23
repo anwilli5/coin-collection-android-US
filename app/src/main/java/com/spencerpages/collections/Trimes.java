@@ -116,7 +116,7 @@ public class Trimes extends CollectionInfo {
             }
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_trimes;
+    private static final int ATTRIBUTION = R.string.attr_trimes;
 
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}

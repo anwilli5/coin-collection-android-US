@@ -119,9 +119,9 @@ public class LincolnCents extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
 
             // Support V.D.B.
-            String newValue = Integer.toString(i);
+            String year = Integer.toString(i);
             if (i == 1909 && !addedVdb) {
-                newValue = "1909 V.D.B";
+                year = "1909 V.D.B";
             }
 
             if (i == 2009) {
@@ -147,20 +147,20 @@ public class LincolnCents extends CollectionInfo {
             if (showMintMarks) {
                 if (showP) {
                     // The P was never on any Pennies
-                    coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
-                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
-                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
 
             // If we are adding in the VDB, turn this off

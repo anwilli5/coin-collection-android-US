@@ -93,7 +93,7 @@ public class TwentyCents extends CollectionInfo {
             }
         }
     }
-    private static final int ATTRIBUTION =R.string.attr_twenty_cents;
+    private static final int ATTRIBUTION = R.string.attr_twenty_cents;
 
     @Override
     public int getAttributionResId() {return ATTRIBUTION;}

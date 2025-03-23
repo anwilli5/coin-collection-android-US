@@ -116,17 +116,17 @@ public class NativeAmericanDollars extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                    coinList.add(new CoinSlot(year, "P", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
 
             if (showMintMarks && showD) {
-                coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                coinList.add(new CoinSlot(year, "D", coinIndex++));
             }
         }
     }

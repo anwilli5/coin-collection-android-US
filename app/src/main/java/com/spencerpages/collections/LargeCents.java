@@ -35,18 +35,6 @@ public class LargeCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Large Cents";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Flowing Hair Chain Reverse", R.drawable.annc_us_1793_1c_flowing_hair_cent},
-            {"Flowing Hair Wreath Reverse", R.drawable.annc_us_1793_1c_flowing_hair_cent},
-            {"Liberty Cap", R.drawable.a1794_cent_obv_venus_marina},
-            {"Draped Bust", R.drawable.a1797cent_obv},
-            {"Capped Bust", R.drawable.annc_us_1813_1c_classic_head_cent},
-            {"Matron Coronet", R.drawable.a1819centrev},
-            {"Young Coronet", R.drawable.a1837_cent_obv},
-            {"Petite Braided Hair", R.drawable.a1839},
-            {"Mature Braided Hair", R.drawable.a1855},
-    };
-
     private static final Object[][] COIN_IMG_IDS = {
             {"Flying Eagle", R.drawable.a1858_cent_obv},                            // 0
             {"Indian Head", R.drawable.obv_indian_head_cent},                       // 1
@@ -79,12 +67,6 @@ public class LargeCents extends CollectionInfo {
             {"1858 Reverse", R.drawable.a1858r},                                    // 28
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
-
     private static final int REVERSE_IMAGE = R.drawable.a1819_cent_obv;
 
     @Override
@@ -108,14 +90,12 @@ public class LargeCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override

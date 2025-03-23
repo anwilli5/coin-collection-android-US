@@ -35,16 +35,10 @@ public class SilverDimes extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Silver Dimes";
 
-    private static final Object[][] OLD_COINS_COIN_IDENTIFIERS = {
-            {"Draped Bust", R.drawable.a1797drapeddime},
-            {"Capped Bust", R.drawable.a1820cappeddime},
-            {"Seated Liberty", R.drawable.astarsdime},
-    };
-
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Roosevelt", R.drawable.obv_roosevelt_dime_unc},
-            {"Barber", R.drawable.obv_barber_dime},
-            {"Mercury", R.drawable.obv_mercury_dime},
+    private static final String[][] OLD_COINS_COIN_STRS = {
+            {"Draped Bust", "Draped Bust"},
+            {"Capped Bust", "Capped Bust"},
+            {"Seated Liberty", "Seated Stars"},
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -69,14 +63,6 @@ public class SilverDimes extends CollectionInfo {
             {"2016 Roosevelt Reverse", R.drawable.adi2016r},                                 // 18
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : OLD_COINS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-    }
-
     private static final Integer START_YEAR = 1793;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
@@ -92,14 +78,12 @@ public class SilverDimes extends CollectionInfo {
     
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage;
+        Integer slotImage = null;
         Integer imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
-        } else {
-            slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -159,13 +143,12 @@ public class SilverDimes extends CollectionInfo {
         int coinIndex = 0;
 
         if (showOld) {
-            for (Object[] coinData : OLD_COINS_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
+            for (String[] coinData : OLD_COINS_COIN_STRS) {
+                coinList.add(new CoinSlot(coinData[0], "", coinIndex++, getImgId(coinData[1])));
             }
         }
-        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++));}
-        if (showOld && !showMercury) {coinList.add(new CoinSlot("Mercury", "", coinIndex++));}
+        if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++, getImgId("Barber")));}
+        if (showOld && !showMercury) {coinList.add(new CoinSlot("Mercury", "", coinIndex++, getImgId("Mercury")));}
 
         for (Integer i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);

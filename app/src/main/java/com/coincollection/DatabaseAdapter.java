@@ -141,9 +141,9 @@ public class DatabaseAdapter {
      */
     public void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         int result = fetchIsInCollection(tableName, coinSlot);
-        int newValue = (result + 1) % 2;
+        int toggleResult = (result + 1) % 2;
         ContentValues args = new ContentValues();
-        args.put(COL_IN_COLLECTION, newValue);
+        args.put(COL_IN_COLLECTION, toggleResult);
         String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
         runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }

@@ -105,7 +105,7 @@ public class MorganDollars extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if ((i > 1904 && i < 1921)) {
                 continue;
             }
@@ -116,29 +116,29 @@ public class MorganDollars extends CollectionInfo {
                         coinList.add(new CoinSlot("1878 8 Feathers", "", coinIndex++));
                         coinList.add(new CoinSlot("1878 7 Feathers", "", coinIndex++));
                     } else if (i != 1895) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showD) {
                     if (i == 1921) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showO) {
                     if (i != 1878 && i != 1921) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));
+                        coinList.add(new CoinSlot(year, "O", coinIndex++));
                     }
                 }
                 if (showCC) {
                     if (i != 1886 && i != 1887 && i != 1888 && i <= 1893) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "CC", coinIndex++));
+                        coinList.add(new CoinSlot(year, "CC", coinIndex++));
                     }
                 }
                 if (showS) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                    coinList.add(new CoinSlot(year, "S", coinIndex++));
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }
