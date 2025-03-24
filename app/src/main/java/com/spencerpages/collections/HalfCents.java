@@ -98,10 +98,10 @@ public class HalfCents extends CollectionInfo {
             if (i > 1799 && i < 1809 && i!=1801) {coinList.add(new CoinSlot(year, String.format("%nDraped Bust"), coinIndex++, getImgId("Draped Bust")));}
             if (i>1808 && i<1812) {coinList.add(new CoinSlot(year, String.format("%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
             if (i>1824 && i<1836 && i!=1827 && i!= 1830) {coinList.add(new CoinSlot(year, String.format("%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
-            if (i==1836) {coinList.add(new CoinSlot(year, String.format("%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
-            if(i>1839 && i<1849){coinList.add(new CoinSlot(year, String.format("%nBraided Hair"), coinIndex++, getImgId("Braided Hair")));}
+            if (i==1836) {coinList.add(new CoinSlot(year, String.format("Proof%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
+            if(i>1839 && i<1849){coinList.add(new CoinSlot(year, String.format("Proof%nBraided Hair"), coinIndex++, getImgId("Braided Hair")));}
             if(i>1848 && i<1858 && i!=1852) {coinList.add(new CoinSlot(year, String.format("%nBraided Hair"), coinIndex++, getImgId("Braided Hair")));}
-            if(i==1852){coinList.add(new CoinSlot(year, String.format("%nBraided Hair"), coinIndex++, getImgId("Braided Hair")));}
+            if(i==1852){coinList.add(new CoinSlot(year, String.format("Proof%nBraided Hair"), coinIndex++, getImgId("Braided Hair")));}
         }
     }
 

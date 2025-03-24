@@ -43,7 +43,7 @@ public class EarlyQuarters extends CollectionInfo {
             {"Barber", R.drawable.obv_barber_quarter},                       // 4
     };
 
-    private static final Integer START_YEAR = 1776;
+    private static final Integer START_YEAR = 1796;
     private static final Integer STOP_YEAR = 1930;
 
     private static final int REVERSE_IMAGE = R.drawable.obv_barber_quarter;
@@ -145,7 +145,7 @@ public class EarlyQuarters extends CollectionInfo {
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if(showBust){
-                if(i==1776){coinList.add(new CoinSlot(year, "Sm Eagle", coinIndex++, getImgId("Draped Bust")));}
+                if(i==1796){coinList.add(new CoinSlot(year, "Sm Eagle", coinIndex++, getImgId("Draped Bust")));}
                 if(i==1804 || i==1805 || i==1806 || i==1807){
                     coinList.add(new CoinSlot(year, "Heraldic Eagle", coinIndex++, getImgId("Draped Bust")));}
                 if(i==1815){coinList.add(new CoinSlot(year, "Lg Dia", coinIndex++, getImgId("Capped Bust")));}
