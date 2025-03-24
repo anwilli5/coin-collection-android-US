@@ -192,17 +192,17 @@ public class SilverHalfDollars extends CollectionInfo {
                 }
                 if (i > 1964 && i < 1968) {
                     if (showP) {
-                        coinList.add(new CoinSlot(year, "40%% Silver", coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, "SMS 40%% Silver", coinIndex++, getImgId("Kennedy")));
+                        coinList.add(new CoinSlot(year, "40% Silver", coinIndex++, getImgId("Kennedy")));
+                        coinList.add(new CoinSlot(year, "SMS 40% Silver", coinIndex++, getImgId("Kennedy")));
                     }
                 }
                 if (i > 1967 && i < 1971) {
-                    if (showD) {coinList.add(new CoinSlot(year, "D 40%% Silver", coinIndex++, getImgId("Kennedy")));}
-                    if (showSilver) {coinList.add(new CoinSlot(year, "S 40%% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D 40% Silver", coinIndex++, getImgId("Kennedy")));}
+                    if (showSilver) {coinList.add(new CoinSlot(year, "S 40% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
                 }
                 if (i == 1976) {
-                    if (showS) {coinList.add(new CoinSlot("1776-1796", "S BU 40%% Silver", coinIndex++, getImgId("Kennedy")));}
-                    if (showSilver) {coinList.add(new CoinSlot("1776-1976", "S 40%% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showS) {coinList.add(new CoinSlot("1776-1796", "S BU 40% Silver", coinIndex++, getImgId("Kennedy")));}
+                    if (showSilver) {coinList.add(new CoinSlot("1776-1976", "S 40% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
                 }
                 if (showSilver && i > 1991) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Kennedy Proof")));
                     if (i == 2014) {
