@@ -93,9 +93,6 @@ public abstract class CollectionInfo {
     /**
      * Performs any updates to a collection's database tables.  This allows
      * new coins to be added, incorrect coins to be fixed, etc.
-     * <p>
-     * TODO Document collection database fields
-     * <p>
      * The function should only operate on the tableName provided, and MUST
      * return the total number of coins added or removed from the collection
      * (this is used to keep an accurate count in the database table that
@@ -141,10 +138,25 @@ public abstract class CollectionInfo {
      * populates the image id of coin slots to display a specific image for
      * certain coins. Collections that select the image based solely on the
      * coin name do not need to populate this.
-     *s
+     *
      * @return Array of {"image description", image id}, or empty if unused
      */
     public Object[][] getImageIds() {
         return new Object[][]{};
+    }
+
+    /**
+     * Returns the image id given a string tag
+     * @param imgIdTag tag corresponding to the image id
+     * @return image id, or -1 if not found
+     */
+    public int getImgId(String imgIdTag) {
+        Object[][] imageIds = getImageIds();
+        for (int i = 0; i < imageIds.length; i++) {
+            if (imageIds[i][0].equals(imgIdTag)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

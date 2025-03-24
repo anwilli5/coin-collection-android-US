@@ -95,26 +95,26 @@ public class MercuryDimes extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
+            String year = Integer.toString(i);
             if (i == 1922 || i == 1932 || i == 1933)
                 continue;
 
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1923 && i != 1930) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i != 1921 && i != 1934) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

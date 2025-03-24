@@ -100,25 +100,26 @@ public class BarberHalfDollars extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
             if (showMintMarks) {
                 if (showP) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
                 }
                 if (showD) {
                     if (i >= 1906 && i != 1909 && i != 1910 && i != 1914) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                    coinList.add(new CoinSlot(year, "S", coinIndex++));
                 }
                 if (showO) {
                     if (i <= 1909) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "O", coinIndex++));
+                        coinList.add(new CoinSlot(year, "O", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

@@ -94,6 +94,7 @@ public class BuffaloNickels extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
 
             if (i == 1922 || i == 1932 || i == 1933) {
                 continue;
@@ -103,35 +104,35 @@ public class BuffaloNickels extends CollectionInfo {
                 if (showP) {
                     if (i != 1931 && i != 1938) {
                         if (i == 1913) {
-                            coinList.add(new CoinSlot(Integer.toString(i), " Type 1", coinIndex++));
-                            coinList.add(new CoinSlot(Integer.toString(i), " Type 2", coinIndex++));
+                            coinList.add(new CoinSlot(year, " Type 1", coinIndex++));
+                            coinList.add(new CoinSlot(year, " Type 2", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                            coinList.add(new CoinSlot(year, "", coinIndex++));
                         }
                     }
                 }
                 if (showD) {
                     if (i != 1921 && i != 1923 && i != 1930 && i != 1931) {
                         if (i == 1913) {
-                            coinList.add(new CoinSlot(Integer.toString(i), " D Type 1", coinIndex++));
-                            coinList.add(new CoinSlot(Integer.toString(i), " D Type 2", coinIndex++));
+                            coinList.add(new CoinSlot(year, " D Type 1", coinIndex++));
+                            coinList.add(new CoinSlot(year, " D Type 2", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                            coinList.add(new CoinSlot(year, "D", coinIndex++));
                         }
                     }
                 }
                 if (showS) {
                     if (i != 1934 && i != 1938) {
                         if (i == 1913) {
-                            coinList.add(new CoinSlot(Integer.toString(i), " S Type 1", coinIndex++));
-                            coinList.add(new CoinSlot(Integer.toString(i), " S Type 2", coinIndex++));
+                            coinList.add(new CoinSlot(year, " S Type 1", coinIndex++));
+                            coinList.add(new CoinSlot(year, " S Type 2", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                            coinList.add(new CoinSlot(year, "S", coinIndex++));
                         }
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

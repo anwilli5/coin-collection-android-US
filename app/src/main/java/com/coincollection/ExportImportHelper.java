@@ -43,7 +43,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class ExportImportHelper {
@@ -130,7 +129,7 @@ public class ExportImportHelper {
         ArrayList<ArrayList<CoinSlot>> importedCollectionContents = new ArrayList<>();
         try {
             ArrayList<String[]> fileContents = getCsvFileContents(inputFile);
-            if (fileContents.size() > 0 && fileContents.get(0).length > 0) {
+            if (!fileContents.isEmpty() && fileContents.get(0).length > 0) {
                 importDatabaseVersion = Integer.parseInt(fileContents.get(0)[0]);
             } else {
                 return mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath());
@@ -180,7 +179,7 @@ public class ExportImportHelper {
             importedCollectionContents.add(collectionContent);
         }
 
-        if (collectionErrorMessages.size() != 0) {
+        if (!collectionErrorMessages.isEmpty()) {
             // An error occurred in one or more of the databases so show an error
             StringBuilder problems = new StringBuilder();
             for (String message : collectionErrorMessages) {
@@ -322,8 +321,6 @@ public class ExportImportHelper {
             // All data has been parsed from CSV files so perform the DB steps to import
             return updateDatabaseFromImport(importDatabaseVersion, importedCollectionInfoList,
                     importedCollectionContents);
-        } catch (UnsupportedEncodingException e) {
-            return mRes.getString(R.string.error_importing, e.getMessage());
         } catch (IOException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
         }
@@ -486,7 +483,7 @@ public class ExportImportHelper {
                     // Make sure any cells following '-----', 'section' are blank, to avoid possible data row
                     boolean foundNonEmptyCell = false;
                     for (int i = 2; i < lineValues.length; i++) {
-                        if (lineValues[i].length() != 0) {
+                        if (!lineValues[i].isEmpty()) {
                             foundNonEmptyCell = true;
                             break;
                         }

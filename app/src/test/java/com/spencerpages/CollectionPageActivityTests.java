@@ -84,7 +84,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                             .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
                 scenario.onActivity(activity -> {
 
-                    if (activity.mCoinList.size() > 0) {
+                    if (!activity.mCoinList.isEmpty()) {
 
                         // Make copy of coins
                         activity.copyCoinSlot(activity.mCoinList.get(0), 1);

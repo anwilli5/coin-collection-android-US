@@ -124,7 +124,7 @@ public class LincolnCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -142,7 +142,7 @@ public class LincolnCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_satin);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_MemProofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_mem_proofs);
     }
 
     // TODO Perform validation and throw exception
@@ -166,14 +166,15 @@ public class LincolnCents extends CollectionInfo {
             }
         }
         for (Integer i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
             if (i == 1909) {
                     if (showP) {
-                         coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                         coinList.add(new CoinSlot(Integer.toString(i), "VDB", coinIndex++));
+                         coinList.add(new CoinSlot(year, "", coinIndex++));
+                         coinList.add(new CoinSlot(year, "VDB", coinIndex++));
                     }
                     if (showS) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
-                        coinList.add(new CoinSlot(Integer.toString(i), "S VDB", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S VDB", coinIndex++));
                     }
             }
             if (i == 1943) {
@@ -194,7 +195,7 @@ public class LincolnCents extends CollectionInfo {
                     coinList.add(new CoinSlot("1982 D Zinc Small Date", "", coinIndex++));
                 }
                 if (showSProof) {
-                   coinList.add(new CoinSlot(Integer.toString(i), "S Proof", coinIndex++));
+                   coinList.add(new CoinSlot(year, "S Proof", coinIndex++));
                 }
             }
             if (i == 2009) {
@@ -210,22 +211,22 @@ public class LincolnCents extends CollectionInfo {
             }
             if (i!=1909 && i!= 1943 && i!= 1982 && i!=2009) {
                 if (showP) {
-                    if (i == 2017) {coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));}
-                    if (i != 2017) {coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));}
+                    if (i == 2017) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
+                    if (i != 2017) {coinList.add(new CoinSlot(year, "", coinIndex++));}
                 }
                 if (showsatin && i > 2004 && i < 2011) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));
-                    coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));
+                    coinList.add(new CoinSlot(year, "Satin", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D Satin", coinIndex++));
                 }
                 if (showD && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D", coinIndex++));
                 }
                 if (showS && i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                    coinList.add(new CoinSlot(year, "S", coinIndex++));
                 }
                 if (showSProof && i > 1958) {
-                    if ( i< 1965){coinList.add(new CoinSlot(Integer.toString(i), "Proof", coinIndex++));}
-                    if ( i>1967 ) {coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));}
+                    if ( i< 1965){coinList.add(new CoinSlot(year, "Proof", coinIndex++));}
+                    if ( i>1967 ) {coinList.add(new CoinSlot(year, "S_Proof", coinIndex++));}
                 }
             }
         }

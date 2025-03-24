@@ -95,37 +95,40 @@ public class WalkingLibertyHalfDollars extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-
-            if (i == 1922 || i == 1924 || i == 1925 || i == 1926 || i == 1930 || i == 1931 || i == 1932) {continue;}
+            String year = Integer.toString(i);
+            if (i == 1922 || i == 1924 || i == 1925 || i == 1926 ||
+                    i == 1930 || i == 1931 || i == 1932) {
+                continue;
+            }
 
             if (showMintMarks) {
                 if (showP) {
                     if ((i < 1923 || i > 1933)) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showD) {
                     if ((i < 1923 || i > 1928) && i != 1933 && i != 1940) {
                         if (i == 1917) {
-                            coinList.add(new CoinSlot(Integer.toString(i), " D Obv", coinIndex++));
-                            coinList.add(new CoinSlot(Integer.toString(i), " D Rev", coinIndex++));
+                            coinList.add(new CoinSlot(year, " D Obv", coinIndex++));
+                            coinList.add(new CoinSlot(year, " D Rev", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                            coinList.add(new CoinSlot(year, "D", coinIndex++));
                         }
                     }
                 }
                 if (showS) {
                     if (i != 1938 && i != 1947) {
                         if (i == 1917) {
-                            coinList.add(new CoinSlot(Integer.toString(i), " S Obv", coinIndex++));
-                            coinList.add(new CoinSlot(Integer.toString(i), " S Rev", coinIndex++));
+                            coinList.add(new CoinSlot(year, " S Obv", coinIndex++));
+                            coinList.add(new CoinSlot(year, " S Rev", coinIndex++));
                         } else {
-                            coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                            coinList.add(new CoinSlot(year, "S", coinIndex++));
                         }
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

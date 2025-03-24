@@ -141,9 +141,9 @@ public class DatabaseAdapter {
      */
     public void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         int result = fetchIsInCollection(tableName, coinSlot);
-        int newValue = (result + 1) % 2;
+        int toggleResult = (result + 1) % 2;
         ContentValues args = new ContentValues();
-        args.put(COL_IN_COLLECTION, newValue);
+        args.put(COL_IN_COLLECTION, toggleResult);
         String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
         runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
@@ -425,9 +425,8 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
-        DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData);
+        DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData, false);
     }
-
 
     /**
      * Creates the table of metadata for all the current collections
@@ -444,7 +443,7 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
-        DatabaseHelper.getAllTables(mDb, collectionListEntries);
+        DatabaseHelper.getAllTables(mDb, collectionListEntries, false);
     }
 
     /**

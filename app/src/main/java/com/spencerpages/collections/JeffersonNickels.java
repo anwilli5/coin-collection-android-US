@@ -116,13 +116,13 @@ public class JeffersonNickels extends CollectionInfo {
 
         // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_Proofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_proofs);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
 
 
     }
@@ -148,6 +148,7 @@ public class JeffersonNickels extends CollectionInfo {
             }
         }
         for (int i = startYear; i <= stopYear; i++) {
+            String year = Integer.toString(i);
             if (i == 2004) {
                 // 2004 Jefferson Presidential Nickels
                 for (Object[] coinData : WESTWARD_2004_COIN_IDENTIFIERS) {
@@ -169,36 +170,36 @@ public class JeffersonNickels extends CollectionInfo {
             }
             if ( i == 1942){
                 if (showP) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
-                    coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "P Silver", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(year, "S Silver", coinIndex++));}
             }
             if ( i == 1943 || i == 1944 || i == 1945){
-                if (showP) {coinList.add(new CoinSlot(Integer.toString(i), "P Silver", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(Integer.toString(i), "D Silver", coinIndex++));}
-                if (showS) {coinList.add(new CoinSlot(Integer.toString(i), "S Silver", coinIndex++));}
+                if (showP) {coinList.add(new CoinSlot(year, "P Silver", coinIndex++));}
+                if (showD) {coinList.add(new CoinSlot(year, "D Silver", coinIndex++));}
+                if (showS) {coinList.add(new CoinSlot(year, "S Silver", coinIndex++));}
             } if (i != 1942 && i != 1943 && i != 1944 && i != 1945 && i != 2004 && i !=2005 ) {
                 if (showP && i != 1968 && i != 1969 && i != 1970) {
                     if (i >= 1980) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "P", coinIndex++));
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
                     }
                     if (i < 1980) {
-                        coinList.add(new CoinSlot(Integer.toString(i), "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showSatin && i > 2004 && i < 2011) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "Satin", coinIndex++));
-                    coinList.add(new CoinSlot(Integer.toString(i), "D Satin", coinIndex++));
+                    coinList.add(new CoinSlot(year, "Satin", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D Satin", coinIndex++));
                 }
                 if (showD && i != 1965 && i != 1966 && i != 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "D", coinIndex++));
+                    coinList.add(new CoinSlot(year, "D", coinIndex++));
                 }
                 if (showS && i <= 1970 && i != 1950 && (i < 1956 || i > 1967)) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S", coinIndex++));
+                    coinList.add(new CoinSlot(year, "S", coinIndex++));
                 }
                 if (showSProof && i > 1967) {
-                    coinList.add(new CoinSlot(Integer.toString(i), "S_Proof", coinIndex++));
+                    coinList.add(new CoinSlot(year, "S_Proof", coinIndex++));
                 }
             }
         }

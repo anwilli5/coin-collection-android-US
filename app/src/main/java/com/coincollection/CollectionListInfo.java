@@ -29,26 +29,44 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import com.spencerpages.MainApplication;
+import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CoinSets;
+import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
+import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
+import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
+import com.spencerpages.collections.MintSets;
 import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
+import com.spencerpages.collections.ProofSets;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 
@@ -69,26 +87,77 @@ public class CollectionListInfo implements Parcelable {
     private final int mDisplayType;
     private int mStartYear;
     private int mEndYear;
-    private int mMintMarkFlags;
-    private int mCheckboxFlags;
+    private String mMintMarkFlags;
+    private String mCheckboxFlags;
     private final CollectionInfo mCollectionInfo;
 
     // Flags for selected mint marks
-    public final static int ALL_MINT_MASK = 0x3F;
-    public final static int SHOW_MINT_MARKS = 0x1;
-    public final static int MINT_P = 0x2;
-    public final static int MINT_D = 0x4;
-    public final static int MINT_S = 0x8;
-    public final static int MINT_O = 0x10;
-    public final static int MINT_CC = 0x20;
+    public final static long ALL_MINT_MASK = 0x7FFFL;
+    public final static long SHOW_MINT_MARKS = 0x1L;
+    public final static long MINT_P = 0x2L;
+    public final static long MINT_D = 0x4L;
+    public final static long MINT_S = 0x8L;
+    public final static long MINT_O = 0x10L;
+    public final static long MINT_CC = 0x20L;
+    public final static long MINT_W = 0x40L;
+    public final static long MINT_S_PROOF = 0x80L;
+    public final static long MINT_SILVER_PROOF = 0x100L;
+    public final static long MINT_REV_PROOF = 0x200L;
+    public final static long MINT_MEM_PROOF = 0x400L;
+    public final static long MINT_SATIN = 0x800L;
+    public final static long MINT_SETS = 0x1000L;
+    public final static long MINT_PROOF_SETS = 0x2000L;
+    public final static long MINT_SILVER_PROOF_SETS = 0x4000L;
 
     // Flags for show checkboxes options
-    public final static int ALL_CHECKBOXES_MASK = 0x7;
-    public final static int CUSTOM_DATES = 0x1;
-    public final static int BURNISHED = 0x2;
-    public final static int TERRITORIES = 0x4;
+    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFL;
+    public final static long CUSTOM_DATES = 0x1L;
+    public final static long BURNISHED = 0x2L;
+    public final static long TERRITORIES = 0x4L;
+    public final static long SILVER_COINS = 0x8L;
+    public final static long NICKEL_COINS = 0x10L;
+    public final static long OLD_COINS = 0x20L;
+    public final static long BUST_COINS = 0x40L;
+    public final static long DRAPED_BUST_COINS = 0x80L;
+    public final static long CAPPED_BUST_COINS = 0x100L;
+    public final static long SEATED_COINS = 0x200L;
+    public final static long CORONET_COINS = 0x400L;
+    public final static long BARBER_QUARTERS = 0x800L;
+    public final static long STANDING_QUARTERS = 0x1000L;
+    public final static long CLASSIC_QUARTERS = 0x2000L;
+    public final static long STATES_QUARTERS = 0x4000L;
+    public final static long PARKS_QUARTERS = 0x8000L;
+    public final static long WOMEN_QUARTERS = 0x10000L;
+    public final static long EAGLE_CENTS = 0x20000L;
+    public final static long INDIAN_CENTS = 0x40000L;
+    public final static long WHEAT_CENTS = 0x80000L;
+    public final static long MEMORIAL_CENTS = 0x100000L;
+    public final static long SHIELD_CENTS = 0x200000L;
+    public final static long BARBER_HALF = 0x400000L;
+    public final static long WALKER_HALF = 0x800000L;
+    public final static long FRANKLIN_HALF = 0x1000000L;
+    public final static long KENNEDY_HALF = 0x2000000L;
+    public final static long SHIELD_NICKELS = 0x4000000L;
+    public final static long LIBERTY_NICKELS = 0x8000000L;
+    public final static long BUFFALO_NICKELS = 0x10000000L;
+    public final static long JEFFERSON_NICKELS = 0x20000000L;
+    public final static long BARBER_DIMES = 0x40000000L;
+    public final static long MERCURY_DIMES = 0x80000000L;
+    public final static long ROOSEVELT_DIMES = 0x100000000L;
+    public final static long MORGAN_DOLLARS = 0x200000000L;
+    public final static long PEACE_DOLLARS = 0x400000000L;
+    public final static long IKE_DOLLARS = 0x800000000L;
+    public final static long EAGLE_DOLLARS = 0x1000000000L;
+    public final static long SBA_DOLLARS = 0x2000000000L;
+    public final static long SAC_DOLLARS = 0x4000000000L;
+    public final static long PRES_DOLLARS = 0x8000000000L;
+    public final static long TRADE_DOLLARS = 0x10000000000L;
+    public final static long STATES_QUARTERS_PROOF = 0x20000000000L;
+    public final static long PARKS_QUARTERS_PROOF = 0x40000000000L;
+    public final static long WOMEN_QUARTERS_PROOF = 0x80000000000L;
+    public final static long TERRITORIES_QUARTERS_PROOF = 0x100000000000L;
 
-    public final static HashMap<String, Integer> MINT_STRING_TO_FLAGS = new HashMap<>();
+    public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
     static {
         MINT_STRING_TO_FLAGS.put("P", MINT_P);
@@ -108,8 +177,10 @@ public class CollectionListInfo implements Parcelable {
     public final static String COL_DISPLAY = "display";
     public final static String COL_START_YEAR = "startYear";
     public final static String COL_END_YEAR = "endYear";
-    public final static String COL_SHOW_MINT_MARKS = "showMintMarks";
-    public final static String COL_SHOW_CHECKBOXES = "showCheckboxes";
+    public final static String COL_SHOW_MINT_MARKS_LEGACY = "showMintMarks";
+    public final static String COL_SHOW_MINT_MARKS = "showMintMarksStr";
+    public final static String COL_SHOW_CHECKBOXES_LEGACY = "showCheckboxes";
+    public final static String COL_SHOW_CHECKBOXES = "showCheckboxesStr";
     public final static String JSON_KEY_COLLECTED = "collected";
 
     // Collections in this list use the start/end years
@@ -134,11 +205,29 @@ public class CollectionListInfo implements Parcelable {
             StandingLibertyQuarters.COLLECTION_TYPE,
             SusanBAnthonyDollars.COLLECTION_TYPE,
             WalkingLibertyHalfDollars.COLLECTION_TYPE,
-            WashingtonQuarters.COLLECTION_TYPE));
+            WashingtonQuarters.COLLECTION_TYPE,
+            SmallCents.COLLECTION_TYPE,
+            LargeCents.COLLECTION_TYPE,
+            AllNickels.COLLECTION_TYPE,
+            HalfDimes.COLLECTION_TYPE,
+            SilverDimes.COLLECTION_TYPE,
+            EarlyDimes.COLLECTION_TYPE,
+            EarlyQuarters.COLLECTION_TYPE,
+            SilverHalfDollars.COLLECTION_TYPE,
+            Trimes.COLLECTION_TYPE,
+            TwentyCents.COLLECTION_TYPE,
+            TwoCents.COLLECTION_TYPE,
+            EarlyDollars.COLLECTION_TYPE,
+            EarlyHalfDollars.COLLECTION_TYPE,
+            Cartwheels.COLLECTION_TYPE,
+            HalfCents.COLLECTION_TYPE,
+            ProofSets.COLLECTION_TYPE,
+            MintSets.COLLECTION_TYPE,
+            CoinSets.COLLECTION_TYPE));
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
-                              int startYear, int stopYear, int mintMarkFlags,
-                              int checkboxFlags) {
+                              int startYear, int stopYear, String mintMarkFlags,
+                              String checkboxFlags) {
         mCollectionName = name;
         mTotalCoinsInCollection = max;
         mTotalCoinsCollected = collected;
@@ -223,52 +312,284 @@ public class CollectionListInfo implements Parcelable {
         return mEndYear;
     }
 
-    public int getMintMarkFlags() {
+    public String getMintMarkFlags() {
         return mMintMarkFlags;
     }
 
-    public int getCheckboxFlags() {
+    public long getMintMarkFlagsAsLong() {
+        if (mMintMarkFlags.isEmpty()){
+            return 0L;
+        } else {
+            return Long.parseLong(mMintMarkFlags);
+        }
+    }
+
+    public String getCheckboxFlags() {
         return mCheckboxFlags;
     }
 
+    public long getCheckboxFlagsAsLong() {
+        if (mCheckboxFlags.isEmpty()){
+            return 0L;
+        } else {
+            return Long.parseLong(mCheckboxFlags);
+        }
+    }
+
     public boolean hasMintMarks() {
-        return (mMintMarkFlags & SHOW_MINT_MARKS) != 0;
+        return (getMintMarkFlagsAsLong() & SHOW_MINT_MARKS) != 0;
     }
 
     public boolean hasPMintMarks() {
-        return (mMintMarkFlags & MINT_P) != 0;
+        return (getMintMarkFlagsAsLong() & MINT_P) != 0;
     }
 
     public boolean hasDMintMarks() {
-        return (mMintMarkFlags & MINT_D) != 0;
+        return (getMintMarkFlagsAsLong() & MINT_D) != 0;
     }
 
     public boolean hasSMintMarks() {
-        return (mMintMarkFlags & MINT_S) != 0;
+        return (getMintMarkFlagsAsLong() & MINT_S) != 0;
     }
 
     public boolean hasOMintMarks() {
-        return (mMintMarkFlags & MINT_O) != 0;
+        return (getMintMarkFlagsAsLong() & MINT_O) != 0;
     }
 
     public boolean hasCCMintMarks() {
-        return (mMintMarkFlags & MINT_CC) != 0;
+        return (getMintMarkFlagsAsLong() & MINT_CC) != 0;
+    }
+
+    public boolean hasWMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_W) != 0;
+    }
+
+    public boolean hasSProofMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_S_PROOF) != 0;
+    }
+
+    public boolean hasSilverProofMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_SILVER_PROOF) != 0;
+    }
+
+    public boolean hasRevProofMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_REV_PROOF) != 0;
+    }
+
+    public boolean hasMemProofMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_MEM_PROOF) != 0;
+    }
+
+    public boolean hasSatinMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_SATIN) != 0;
+    }
+
+    public boolean hasMintSetsMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_SETS) != 0;
+    }
+
+    public boolean hasProofSetsMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_PROOF_SETS) != 0;
+    }
+
+    public boolean hasSilverProofSetsMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_SILVER_PROOF_SETS) != 0;
     }
 
     public boolean hasCustomDates() {
-        return (mCheckboxFlags & CUSTOM_DATES) != 0;
+        return (getCheckboxFlagsAsLong() & CUSTOM_DATES) != 0;
     }
 
     public boolean hasBurnishedCoins() {
-        return (mCheckboxFlags & BURNISHED) != 0;
+        return (getCheckboxFlagsAsLong() & BURNISHED) != 0;
     }
 
     public boolean hasTerritoryCoins() {
-        return (mCheckboxFlags & TERRITORIES) != 0;
+        return (getCheckboxFlagsAsLong() & TERRITORIES) != 0;
+    }
+
+    public boolean hasSilverCoins() {
+        return (getCheckboxFlagsAsLong() & SILVER_COINS) != 0;
+    }
+
+    public boolean hasNickelCoins() {
+        return (getCheckboxFlagsAsLong() & NICKEL_COINS) != 0;
+    }
+
+    public boolean hasOldCoins() {
+        return (getCheckboxFlagsAsLong() & OLD_COINS) != 0;
+    }
+
+    public boolean hasBustCoins() {
+        return (getCheckboxFlagsAsLong() & BUST_COINS) != 0;
+    }
+
+    public boolean hasDrapedBustCoins() {
+        return (getCheckboxFlagsAsLong() & DRAPED_BUST_COINS) != 0;
+    }
+
+    public boolean hasCappedBustCoins() {
+        return (getCheckboxFlagsAsLong() & CAPPED_BUST_COINS) != 0;
+    }
+
+    public boolean hasSeatedCoins() {
+        return (getCheckboxFlagsAsLong() & SEATED_COINS) != 0;
+    }
+
+    public boolean hasCoronetCoins() {
+        return (getCheckboxFlagsAsLong() & CORONET_COINS) != 0;
+    }
+
+    public boolean hasBarberQuarters() {
+        return (getCheckboxFlagsAsLong() & BARBER_QUARTERS) != 0;
+    }
+
+    public boolean hasStandingQuarters() {
+        return (getCheckboxFlagsAsLong() & STANDING_QUARTERS) != 0;
+    }
+
+    public boolean hasClassicQuarters() {
+        return (getCheckboxFlagsAsLong() & CLASSIC_QUARTERS) != 0;
+    }
+
+    public boolean hasStatesQuarters() {
+        return (getCheckboxFlagsAsLong() & STATES_QUARTERS) != 0;
+    }
+
+    public boolean hasParksQuarters() {
+        return (getCheckboxFlagsAsLong() & PARKS_QUARTERS) != 0;
+    }
+
+    public boolean hasWomenQuarters() {
+        return (getCheckboxFlagsAsLong() & WOMEN_QUARTERS) != 0;
+    }
+
+    public boolean hasEagleCents() {
+        return (getCheckboxFlagsAsLong() & EAGLE_CENTS) != 0;
+    }
+
+    public boolean hasIndianCents() {
+        return (getCheckboxFlagsAsLong() & INDIAN_CENTS) != 0;
+    }
+
+    public boolean hasWheatCents() {
+        return (getCheckboxFlagsAsLong() & WHEAT_CENTS) != 0;
+    }
+
+    public boolean hasMemorialCents() {
+        return (getCheckboxFlagsAsLong() & MEMORIAL_CENTS) != 0;
+    }
+
+    public boolean hasShieldCents() {
+        return (getCheckboxFlagsAsLong() & SHIELD_CENTS) != 0;
+    }
+
+    public boolean hasBarberHalf() {
+        return (getCheckboxFlagsAsLong() & BARBER_HALF) != 0;
+    }
+
+    public boolean hasWalkerHalf() {
+        return (getCheckboxFlagsAsLong() & WALKER_HALF) != 0;
+    }
+
+    public boolean hasFranklinHalf() {
+        return (getCheckboxFlagsAsLong() & FRANKLIN_HALF) != 0;
+    }
+
+    public boolean hasKennedyHalf() {
+        return (getCheckboxFlagsAsLong() & KENNEDY_HALF) != 0;
+    }
+
+    public boolean hasShieldNickels() {
+        return (getCheckboxFlagsAsLong() & SHIELD_NICKELS) != 0;
+    }
+
+    public boolean hasLibertyNickels() {
+        return (getCheckboxFlagsAsLong() & LIBERTY_NICKELS) != 0;
+    }
+
+    public boolean hasBuffaloNickels() {
+        return (getCheckboxFlagsAsLong() & BUFFALO_NICKELS) != 0;
+    }
+
+    public boolean hasJeffersonNickels() {
+        return (getCheckboxFlagsAsLong() & JEFFERSON_NICKELS) != 0;
+    }
+
+    public boolean hasBarberDimes() {
+        return (getCheckboxFlagsAsLong() & BARBER_DIMES) != 0;
+    }
+
+    public boolean hasMercuryDimes() {
+        return (getCheckboxFlagsAsLong() & MERCURY_DIMES) != 0;
+    }
+
+    public boolean hasRooseveltDimes() {
+        return (getCheckboxFlagsAsLong() & ROOSEVELT_DIMES) != 0;
+    }
+
+    public boolean hasMorganDollars() {
+        return (getCheckboxFlagsAsLong() & MORGAN_DOLLARS) != 0;
+    }
+
+    public boolean hasPeaceDollars() {
+        return (getCheckboxFlagsAsLong() & PEACE_DOLLARS) != 0;
+    }
+
+    public boolean hasIkeDollars() {
+        return (getCheckboxFlagsAsLong() & IKE_DOLLARS) != 0;
+    }
+
+    public boolean hasEagleDollars() {
+        return (getCheckboxFlagsAsLong() & EAGLE_DOLLARS) != 0;
+    }
+
+    public boolean hasSBADollars() {
+        return (getCheckboxFlagsAsLong() & SBA_DOLLARS) != 0;
+    }
+
+    public boolean hasSACDollars() {
+        return (getCheckboxFlagsAsLong() & SAC_DOLLARS) != 0;
+    }
+
+    public boolean hasPresDollars() {
+        return (getCheckboxFlagsAsLong() & PRES_DOLLARS) != 0;
+    }
+
+    public boolean hasTradeDollars() {
+        return (getCheckboxFlagsAsLong() & TRADE_DOLLARS) != 0;
+    }
+
+    public boolean hasStatesQuartersProof() {
+        return (getCheckboxFlagsAsLong() & STATES_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasParksQuartersProof() {
+        return (getCheckboxFlagsAsLong() & PARKS_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasWomenQuartersProof() {
+        return (getCheckboxFlagsAsLong() & WOMEN_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasTerritoriesQuartersProof() {
+        return (getCheckboxFlagsAsLong() & TERRITORIES_QUARTERS_PROOF) != 0;
     }
 
     public void setEndYear(int endYear) {
         mEndYear = endYear;
+    }
+
+    /* setMintMarkFlags() used in unit tests
+     */
+    public void setMintMarkFlags(String flags) {
+        mMintMarkFlags = flags;
+    }
+
+    /* setCheckboxFlags() used in unit tests
+     */
+    public void setCheckboxFlags(String flags) {
+        mCheckboxFlags = flags;
     }
 
     /**
@@ -295,7 +616,7 @@ public class CollectionListInfo implements Parcelable {
         for (int i = 0; i < coinList.size(); i++) {
             String mintMark = coinList.get(i).getMint();
             String coinId = coinList.get(i).getIdentifier();
-            if (mintMark.equals("")) {
+            if (mintMark.isEmpty()) {
                 hasBlankMint = true;
             }
             if (mintMark.equals("P") || mintMark.equals(" P") || mintMark.contains(" P ")
@@ -340,7 +661,7 @@ public class CollectionListInfo implements Parcelable {
         // Get the start and end date
         boolean useCustomDateRange = false;
         if (doesCollectionTypeUseDates(coinType)) {
-            if (coinList.size() > 0) {
+            if (!coinList.isEmpty()) {
                 try {
                     // Start Year
                     int newStartYear = parseDateString(coinList.get(0).getIdentifier());
@@ -357,7 +678,7 @@ public class CollectionListInfo implements Parcelable {
         }
 
         // Combine flags for mint marks
-        int mintMarkFlags = showMintMarks ? CollectionListInfo.SHOW_MINT_MARKS : 0;
+        long mintMarkFlags = showMintMarks ? CollectionListInfo.SHOW_MINT_MARKS : 0;
         mintMarkFlags |= showP ? CollectionListInfo.MINT_P : 0;
         mintMarkFlags |= showD ? CollectionListInfo.MINT_D : 0;
         mintMarkFlags |= showS ? CollectionListInfo.MINT_S : 0;
@@ -365,7 +686,7 @@ public class CollectionListInfo implements Parcelable {
         mintMarkFlags |= showCC ? CollectionListInfo.MINT_CC : 0;
 
         // Combine flags for checkboxes
-        int checkboxFlags = useCustomDateRange ? CollectionListInfo.CUSTOM_DATES : 0;
+        long checkboxFlags = useCustomDateRange ? CollectionListInfo.CUSTOM_DATES : 0;
         checkboxFlags |= showBurnished ? CollectionListInfo.BURNISHED : 0;
         checkboxFlags |= showTerritories ? CollectionListInfo.TERRITORIES : 0;
 
@@ -373,8 +694,8 @@ public class CollectionListInfo implements Parcelable {
         this.setCreationParameters(
                 startYear,
                 endYear,
-                mintMarkFlags,
-                checkboxFlags
+                Long.toString(mintMarkFlags),
+                Long.toString(checkboxFlags)
         );
     }
 
@@ -416,7 +737,7 @@ public class CollectionListInfo implements Parcelable {
      * @return true if the coin is a special case of no mint marks, false otherwise
      */
     private boolean isHideMintMarkSpecialCase(String coinType, String coinId, String mintMark) {
-        if (coinType.equals(WalkingLibertyHalfDollars.COLLECTION_TYPE) && mintMark.equals("")) {
+        if (coinType.equals(WalkingLibertyHalfDollars.COLLECTION_TYPE) && mintMark.isEmpty()) {
             int dateInt = Integer.parseInt(coinId.substring(0, 4));
             return (dateInt >= 1923 && dateInt <= 1933);
         }
@@ -431,7 +752,7 @@ public class CollectionListInfo implements Parcelable {
      * @param mintMarkFlags int flags indicating which mint marks were used
      * @param checkboxFlags int flags indicating which checkboxes were check
      */
-    void setCreationParameters(int startYear, int endYear, int mintMarkFlags, int checkboxFlags) {
+    void setCreationParameters(int startYear, int endYear, String mintMarkFlags, String checkboxFlags) {
         mStartYear = startYear;
         mEndYear = endYear;
         mMintMarkFlags = mintMarkFlags;
@@ -460,8 +781,10 @@ public class CollectionListInfo implements Parcelable {
                 displayType, // See note above
                 String.valueOf(mStartYear),
                 String.valueOf(mEndYear),
-                String.valueOf(mMintMarkFlags),
-                String.valueOf(mCheckboxFlags)};
+                "0", // Legacy mint mark flags
+                "0", // Legacy checkbox flags
+                mMintMarkFlags,
+                mCheckboxFlags};
     }
 
     /**
@@ -499,12 +822,12 @@ public class CollectionListInfo implements Parcelable {
      * @param checkboxFlags new checkbox flags
      * @return true if the number of coins may be less, false otherwise
      */
-    public boolean checkIfNewFlagsRemoveCoins(int mintMarkFlags, int checkboxFlags) {
+    public boolean checkIfNewFlagsRemoveCoins(long mintMarkFlags, long checkboxFlags) {
         // Return true if:
         // - A mint mark that is set is unset
         // - a checkbox option that is set is unset (ignores custom dates)
-        return ((mMintMarkFlags & ~mintMarkFlags)
-                | (mCheckboxFlags & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
+        return ((getMintMarkFlagsAsLong() & ~mintMarkFlags)
+                | (getCheckboxFlagsAsLong() & ~checkboxFlags & ~CUSTOM_DATES)) != 0;
     }
 
     /**
@@ -557,8 +880,8 @@ public class CollectionListInfo implements Parcelable {
         int displayType = SIMPLE_DISPLAY;
         int startYear = 0;
         int endYear = 0;
-        int mintMarkFlags = 0;
-        int checkboxFlags = 0;
+        String mintMarkFlags = "";
+        String checkboxFlags = "";
         int collectionTypeIndex = 0;
 
         reader.beginObject();
@@ -584,11 +907,17 @@ public class CollectionListInfo implements Parcelable {
                 case COL_END_YEAR:
                     endYear = reader.nextInt();
                     break;
+                case COL_SHOW_MINT_MARKS_LEGACY:
+                    mintMarkFlags = Integer.toString(reader.nextInt());
+                    break;
                 case COL_SHOW_MINT_MARKS:
-                    mintMarkFlags = reader.nextInt();
+                    mintMarkFlags = reader.nextString();
+                    break;
+                case COL_SHOW_CHECKBOXES_LEGACY:
+                    checkboxFlags = Integer.toString(reader.nextInt());
                     break;
                 case COL_SHOW_CHECKBOXES:
-                    checkboxFlags = reader.nextInt();
+                    checkboxFlags = reader.nextString();
                     break;
                 case COL_COIN_TYPE:
                     // If the coin type isn't recognized, an error occurred so just choose a safe value
@@ -641,8 +970,10 @@ public class CollectionListInfo implements Parcelable {
         // using setCreationParametersFromCoinData()
         mStartYear = (in.length > 5) ? Integer.parseInt(in[5]) : 0;
         mEndYear = (in.length > 6) ? Integer.parseInt(in[6]) : 0;
-        mMintMarkFlags = (in.length > 7) ? Integer.parseInt(in[7]) : 0;
-        mCheckboxFlags = (in.length > 8) ? Integer.parseInt(in[8]) : 0;
+        int mintMarkFlagsLegacy = (in.length > 7) ? Integer.parseInt(in[7]) : 0;
+        int checkboxFlagsLegacy = (in.length > 8) ? Integer.parseInt(in[8]) : 0;
+        mMintMarkFlags = (in.length > 9) ? in[9] : Integer.toString(mintMarkFlagsLegacy);
+        mCheckboxFlags = (in.length > 10) ? in[10] : Integer.toString(checkboxFlagsLegacy);
 
         // If the coin type isn't recognized, an error occurred so just choose a safe value
         int collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(in[1]);
@@ -663,8 +994,8 @@ public class CollectionListInfo implements Parcelable {
         mDisplayType = in.readInt();
         mStartYear = in.readInt();
         mEndYear = in.readInt();
-        mMintMarkFlags = in.readInt();
-        mCheckboxFlags = in.readInt();
+        mMintMarkFlags = in.readString();
+        mCheckboxFlags = in.readString();
         mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
 
@@ -677,8 +1008,8 @@ public class CollectionListInfo implements Parcelable {
         dest.writeInt(mDisplayType);
         dest.writeInt(mStartYear);
         dest.writeInt(mEndYear);
-        dest.writeInt(mMintMarkFlags);
-        dest.writeInt(mCheckboxFlags);
+        dest.writeString(mMintMarkFlags);
+        dest.writeString(mCheckboxFlags);
     }
 
     @Override

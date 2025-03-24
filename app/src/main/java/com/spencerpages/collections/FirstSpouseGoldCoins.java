@@ -230,7 +230,6 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             values.put(COL_COIN_IDENTIFIER, "James Buchanan's Liberty");
             runSqlUpdate(db, tableName, values, COL_COIN_IDENTIFIER + "=?", new String[]{"James Buchanan’s Liberty"});
             values.clear();
-
         }
 
         if (oldVersion <= 16) {

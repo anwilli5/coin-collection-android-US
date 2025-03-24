@@ -111,38 +111,38 @@ public class WashingtonQuarters extends CollectionInfo {
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
-            String newValue = Integer.toString(i);
+            String year = Integer.toString(i);
             if (i == 1975 || i == 1976) {
-                newValue = "1776-1976";
+                year = "1776-1976";
             }
             if (i == 1933 || (i == 1976 && startYear != 1976))
                 continue;
             if (i > 1998 && i < 2021)
                 continue;
             if (i == 2021) {
-                newValue = "Crossing the Delaware";
+                year = "Crossing the Delaware";
             }
 
             if (showMintMarks) {
                 if (showP) {
                     if (i >= 1980) {
-                        coinList.add(new CoinSlot(newValue, "P", coinIndex++));
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
                     } else {
-                        coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
                     }
                 }
                 if (showD) {
                     if (i != 1938 && (i < 1965 || i > 1967)) {
-                        coinList.add(new CoinSlot(newValue, "D", coinIndex++));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
                     if (i < 1955 && i != 1934 && i != 1949) {
-                        coinList.add(new CoinSlot(newValue, "S", coinIndex++));
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
-                coinList.add(new CoinSlot(newValue, "", coinIndex++));
+                coinList.add(new CoinSlot(year, "", coinIndex++));
             }
         }
     }

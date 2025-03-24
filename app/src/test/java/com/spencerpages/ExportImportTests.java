@@ -106,7 +106,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames);
 
                 // Export and check output
                 File exportDir = new File(activity.getLegacyExportFolderName());
@@ -139,10 +139,10 @@ public class ExportImportTests extends BaseTestCase {
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
             });
         }
     }
@@ -162,7 +162,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames);
 
                 // Export and check output
                 File exportFile = getTempFile("json-export.json");
@@ -184,10 +184,10 @@ public class ExportImportTests extends BaseTestCase {
                 InputStream inputStream = openInputStream(exportFile);
                 assertEquals("", helper.importCollectionsFromJson(inputStream));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
                 closeStream(inputStream);
             });
         }
@@ -208,7 +208,7 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
                 ArrayList<String> beforeCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> beforeCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeCollectionNames);
 
                 // Export and check output
                 File exportFile = getTempFile("csv-export.csv");
@@ -230,10 +230,10 @@ public class ExportImportTests extends BaseTestCase {
                 InputStream inputStream = openInputStream(exportFile);
                 assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
-                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames, true);
+                ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
                 closeStream(inputStream);
             });
         }
