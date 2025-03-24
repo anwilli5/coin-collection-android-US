@@ -176,8 +176,8 @@ public class Cartwheels extends CollectionInfo {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        {coinList.add(new CoinSlot(year, "S 40%% Silver", coinIndex++, getImgId("Eisenhower")));}
-                        {coinList.add(new CoinSlot(year, "S 40%% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, "S 40% Silver", coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, "S 40% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
                         if (i > 1972){coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                     }
                 }
