@@ -208,12 +208,12 @@ public class AllNickels extends CollectionInfo {
                 if ( i == 1942){
                     if (showP) {
                         coinList.add(new CoinSlot("1942", "", coinIndex++, getImgId("Classic Jefferson")));
-                        coinList.add(new CoinSlot("1942", "Silver", coinIndex++, getImgId("Classic Jefferson")));}
+                        coinList.add(new CoinSlot("1942", "P Silver", coinIndex++, getImgId("Classic Jefferson")));}
                     if (showD) {coinList.add(new CoinSlot("1942", "D", coinIndex++, getImgId("Classic Jefferson")));}
                     if (showS) {coinList.add(new CoinSlot("1942", "S Silver", coinIndex++, getImgId("Classic Jefferson")));}
                 }
                 if ( i > 1942 && i < 1946){
-                    if (showP) {coinList.add(new CoinSlot(year, "Silver", coinIndex++, getImgId("Classic Jefferson")));}
+                    if (showP) {coinList.add(new CoinSlot(year, "P Silver", coinIndex++, getImgId("Classic Jefferson")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D Silver", coinIndex++, getImgId("Classic Jefferson")));}
                     if (showS) {coinList.add(new CoinSlot(year, "S Silver", coinIndex++, getImgId("Classic Jefferson")));}
                 }
@@ -244,8 +244,8 @@ public class AllNickels extends CollectionInfo {
                                 coinList.add(new CoinSlot(year, "D Ocean in View", coinIndex++, getImgId("Ocean in View")));}
                     if (showSatin) {coinList.add(new CoinSlot(year, "D Satin Bison", coinIndex++, getImgId("Bison")));
                                 coinList.add(new CoinSlot(year, "D Satin Ocean in View", coinIndex++, getImgId("Ocean in View")));}
-                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof Bison", coinIndex++, getImgId("Liberty")));
-                                coinList.add(new CoinSlot(year, "S Proof Ocean in View", coinIndex++, getImgId("Liberty")));}
+                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof Bison", coinIndex++, getImgId("2005 Obverse Proof")));
+                                coinList.add(new CoinSlot(year, "S Proof Ocean in View", coinIndex++, getImgId("2005 Obverse Proof")));}
                 }
                 if (i > 2005) {
                     if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
