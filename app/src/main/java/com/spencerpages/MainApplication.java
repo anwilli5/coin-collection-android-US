@@ -134,8 +134,8 @@ public class MainApplication extends Application {
                     new EarlyHalfDollars(),
                     new Cartwheels(),
                     new HalfCents(),
-                    new ProofSets(),
-                    new MintSets(),
+                   // new ProofSets(),
+                    // new MintSets(),
                     new CoinSets(),
             };
 
