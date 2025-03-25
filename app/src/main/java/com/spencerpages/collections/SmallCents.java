@@ -36,6 +36,7 @@ public class SmallCents extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Small Cents";
 
+
     private static final String[] OLD_COIN_STRS = {
             "Flowing Hair",
             "Liberty Cap",
@@ -45,6 +46,13 @@ public class SmallCents extends CollectionInfo {
             "Young Coronet",
             "Young Braided Hair",
             "Mature Braided Hair",
+    };
+
+    private static final String[] BICENT_COIN_STRS = {
+            "Early Childhood",
+            "Formative Years",
+            "Professional Life",
+            "Presidency",
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -79,12 +87,6 @@ public class SmallCents extends CollectionInfo {
             {"1858 Reverse", R.drawable.a1858r},                                    // 28
     };
 
-    private static final Object[][] BICENT_COIN_IDENTIFIERS = {
-            {"Early Childhood", R.drawable.bicent_2009_early_childhood_unc},
-            {"Formative Years", R.drawable.bicent_2009_formative_years_unc},
-            {"Professional Life", R.drawable.bicent_2009_professional_life_unc},
-            {"Presidency", R.drawable.bicent_2009_presidency_unc},
-    };
 
     private static final Integer START_YEAR = 1856;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
@@ -104,7 +106,7 @@ public class SmallCents extends CollectionInfo {
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
-        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE ;
     }
 
     @Override
@@ -248,13 +250,12 @@ public class SmallCents extends CollectionInfo {
                         coinList.add(new CoinSlot(year,"D Zinc Small Date", coinIndex++, getImgId("Zinc")));
                     }
                 } else if (i == 2009) {
-                    for (Object[] coinData : BICENT_COIN_IDENTIFIERS) {
-                        String bicentIdentifier = (String) coinData[0];
-                        if (showP) {coinList.add(new CoinSlot(bicentIdentifier,phil, coinIndex++));}
-                        if (showSatin) {coinList.add(new CoinSlot(bicentIdentifier,satin, coinIndex++));}
-                        if (showD) {coinList.add(new CoinSlot(bicentIdentifier,den, coinIndex++));}
-                        if (showSatin) {coinList.add(new CoinSlot(bicentIdentifier,satinDen, coinIndex++));}
-                        if (showSProof) {coinList.add(new CoinSlot(bicentIdentifier,String.format("%d S Proof", i ), coinIndex++));}
+                    for (String identifier : BICENT_COIN_STRS) {
+                        if (showP) {coinList.add(new CoinSlot(identifier,phil, coinIndex++,getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(identifier,satin, coinIndex++,getImgId(identifier)));}
+                        if (showD) {coinList.add(new CoinSlot(identifier,den, coinIndex++,getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(identifier,satinDen, coinIndex++,getImgId(identifier)));}
+                        if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i ), coinIndex++,getImgId(identifier)));}
                     }
                 }
                 if (showP) {
@@ -264,7 +265,8 @@ public class SmallCents extends CollectionInfo {
                 }
                 if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year,"Satin", coinIndex++, getImgId("Zinc")));}
                 if (showD) {
-                    if (i > 1958 && i < 1982 && i != 1965 && i != 1966 && i != 1967){coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Memorial Copper")));}
+                    if (i > 1958 && i < 1982 && i != 1965 && i != 1966 && i != 1967){
+                        coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Memorial Copper")));}
                     if (i > 1982 && i < 2009) {coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Zinc")));}
                 }
                 if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year,"D Satin", coinIndex++, getImgId("Zinc")));}
