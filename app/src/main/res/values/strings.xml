@@ -172,6 +172,7 @@
     <string name="check_show_burnished_eagles">Include the special burnished coins</string>
     <string name="include_silver_coins">Include silver coins</string>
     <string name="include_nickel_coins">Include Nickel coins</string>
+    <string name="include_clad_coins">Include Clad coins</string>
     <string name="include_old_coins">Include older type coins</string>
     <string name="include_bust_coins">Include Bust coins</string>
     <string name="include_draped_bust_coins">Include Draped Bust</string>
