@@ -48,16 +48,16 @@ import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
-import com.spencerpages.collections.MintSets;
 import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
-import com.spencerpages.collections.ProofSets;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Roosevelt_Dimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -69,6 +69,7 @@ import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.Washington_Quarters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,12 +106,9 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_REV_PROOF = 0x200L;
     public final static long MINT_MEM_PROOF = 0x400L;
     public final static long MINT_SATIN = 0x800L;
-    public final static long MINT_SETS = 0x1000L;
-    public final static long MINT_PROOF_SETS = 0x2000L;
-    public final static long MINT_SILVER_PROOF_SETS = 0x4000L;
 
     // Flags for show checkboxes options
-    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFL;
+    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFFL;
     public final static long CUSTOM_DATES = 0x1L;
     public final static long BURNISHED = 0x2L;
     public final static long TERRITORIES = 0x4L;
@@ -156,6 +154,10 @@ public class CollectionListInfo implements Parcelable {
     public final static long PARKS_QUARTERS_PROOF = 0x40000000000L;
     public final static long WOMEN_QUARTERS_PROOF = 0x80000000000L;
     public final static long TERRITORIES_QUARTERS_PROOF = 0x100000000000L;
+    public final static long CLAD_COINS = 0x200000000000L;
+    public final static long MINT_SETS = 0x400000000000L;
+    public final static long PROOF_SETS = 0x800000000000L;
+    public final static long SILVER_PROOF_SETS = 0x1000000000000L;
 
     public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -221,9 +223,11 @@ public class CollectionListInfo implements Parcelable {
             EarlyHalfDollars.COLLECTION_TYPE,
             Cartwheels.COLLECTION_TYPE,
             HalfCents.COLLECTION_TYPE,
-            ProofSets.COLLECTION_TYPE,
-            MintSets.COLLECTION_TYPE,
-            CoinSets.COLLECTION_TYPE));
+            CoinSets.COLLECTION_TYPE,
+            Kennedy_Halfs.COLLECTION_TYPE,
+            Roosevelt_Dimes.COLLECTION_TYPE,
+            Washington_Quarters.COLLECTION_TYPE));
+
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,
                               int startYear, int stopYear, String mintMarkFlags,
@@ -382,18 +386,6 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasSatinMintMarks() {
         return (getMintMarkFlagsAsLong() & MINT_SATIN) != 0;
-    }
-
-    public boolean hasMintSetsMintMarks() {
-        return (getMintMarkFlagsAsLong() & MINT_SETS) != 0;
-    }
-
-    public boolean hasProofSetsMintMarks() {
-        return (getMintMarkFlagsAsLong() & MINT_PROOF_SETS) != 0;
-    }
-
-    public boolean hasSilverProofSetsMintMarks() {
-        return (getMintMarkFlagsAsLong() & MINT_SILVER_PROOF_SETS) != 0;
     }
 
     public boolean hasCustomDates() {
@@ -574,6 +566,22 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasTerritoriesQuartersProof() {
         return (getCheckboxFlagsAsLong() & TERRITORIES_QUARTERS_PROOF) != 0;
+    }
+
+    public boolean hasCladCoins() {
+        return (getCheckboxFlagsAsLong() & CLAD_COINS) != 0;
+    }
+
+    public boolean hasMintSets() {
+        return (getCheckboxFlagsAsLong() & MINT_SETS) != 0;
+    }
+
+    public boolean hasProofSets() {
+        return (getCheckboxFlagsAsLong() & PROOF_SETS) != 0;
+    }
+
+    public boolean hasSilverProofSets() {
+        return (getCheckboxFlagsAsLong() & SILVER_PROOF_SETS) != 0;
     }
 
     public void setEndYear(int endYear) {

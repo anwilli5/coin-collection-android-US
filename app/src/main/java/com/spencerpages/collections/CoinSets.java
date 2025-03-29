@@ -80,25 +80,24 @@ public class CoinSets extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_mint_sets);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_mint_sets);
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_proof_sets);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_proof_sets);
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_silver_proof_sets);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_silver_proof_sets);
     }
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMint = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showSilver= (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showMint = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showSilver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
 
         int coinIndex = 0;
 
