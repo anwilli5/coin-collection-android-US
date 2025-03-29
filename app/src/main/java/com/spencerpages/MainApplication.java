@@ -46,19 +46,19 @@ import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
-import com.spencerpages.collections.MintSets;
 import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
-import com.spencerpages.collections.ProofSets;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.CoinSets;
+import com.spencerpages.collections.Roosevelt_Dimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -72,6 +72,7 @@ import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.Washington_Quarters;
 import com.spencerpages.collections.WestPoint;
 
 public class MainApplication extends Application {
@@ -134,9 +135,10 @@ public class MainApplication extends Application {
                     new EarlyHalfDollars(),
                     new Cartwheels(),
                     new HalfCents(),
-                   // new ProofSets(),
-                    // new MintSets(),
                     new CoinSets(),
+                    new Kennedy_Halfs(),
+                    new Roosevelt_Dimes(),
+                    new Washington_Quarters()
             };
 
     public static final String DATABASE_NAME = "CoinCollection";
