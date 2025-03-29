@@ -36,6 +36,51 @@ import static com.spencerpages.MainApplication.getIndexFromCollectionNameStr;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.helper.ParcelableHashMap;
+import com.spencerpages.collections.AllNickels;
+import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanWomenQuarters;
+import com.spencerpages.collections.BarberDimes;
+import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.CoinSets;
+import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
+import com.spencerpages.collections.EarlyQuarters;
+import com.spencerpages.collections.EisenhowerDollar;
+import com.spencerpages.collections.FirstSpouseGoldCoins;
+import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
+import com.spencerpages.collections.HalfDimes;
+import com.spencerpages.collections.IndianHeadCents;
+import com.spencerpages.collections.JeffersonNickels;
+import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.Kennedy_Halfs;
+import com.spencerpages.collections.LargeCents;
+import com.spencerpages.collections.LibertyHeadNickels;
+import com.spencerpages.collections.LincolnCents;
+import com.spencerpages.collections.MorganDollars;
+import com.spencerpages.collections.NationalParkQuarters;
+import com.spencerpages.collections.NativeAmericanDollars;
+import com.spencerpages.collections.PeaceDollars;
+import com.spencerpages.collections.PresidentialDollars;
+import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Roosevelt_Dimes;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SmallCents;
+import com.spencerpages.collections.SmallDollars;
+import com.spencerpages.collections.StandingLibertyQuarters;
+import com.spencerpages.collections.StateQuarters;
+import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
+import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.Washington_Quarters;
+import com.spencerpages.collections.WestPoint;
 
 import java.util.ArrayList;
 
@@ -43,56 +88,57 @@ public class SharedTest {
 
     public static final CollectionListInfo[] COLLECTION_LIST_INFO_SCENARIOS =
             {
-                    new CollectionListInfo("My Pennies", 275, 0, getIndexFromCollectionNameStr("Pennies"), 0, 1909, 2020, "15", "1"),
-                    new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionNameStr("Nickels"), 0, 1938, 2020, "9", "0"),
-                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionNameStr("Dimes"), 0, 1950, 1951, "2", "1"),
-                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionNameStr("Quarters"), 0, 1932, 1998, "3", "0"),
-                    new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, "7", "4"),
-                    new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, "5", "0"),
-                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionNameStr("Half-Dollars"), 0, 1964, 2020, "2", "1"),
-                    new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionNameStr("Eisenhower Dollars"), 0, 1971, 1971, "7", "1"),
-                    new CollectionListInfo("Susan's \"Dollars!", 4, 0, getIndexFromCollectionNameStr("Susan B. Anthony Dollars"), 0, 1979, 1999, "2", "0"),
-                    new CollectionListInfo("; DROP TABLES;", 16, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2002, 2009, "7", "1"),
-                    new CollectionListInfo("😁😁😁😁😁😍😄", 80, 0, getIndexFromCollectionNameStr("Presidential Dollars"), 0, 0, 0, "7", "0"),
-                    new CollectionListInfo("| | | | | ", 2, 0, getIndexFromCollectionNameStr("Indian Head Cents"), 0, 1859, 1909, "9", "0"),
-                    new CollectionListInfo(" ", 32, 0, getIndexFromCollectionNameStr("Liberty Head Nickels"), 0, 1883, 1912, "7", "1"),
-                    new CollectionListInfo("  ", 25, 0, getIndexFromCollectionNameStr("Barber Dimes"), 0, 1892, 1916, "2", "0"),
-                    new CollectionListInfo("Barb Quarts", 25, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "2", "0"),
-                    new CollectionListInfo("_)(*&^%", 12, 0, getIndexFromCollectionNameStr("Standing Liberty Quarters"), 0, 1916, 1930, "9", "0"),
-                    new CollectionListInfo("Frankline", 19, 0, getIndexFromCollectionNameStr("Franklin Half Dollars"), 0, 1948, 1963, "13", "1"),
-                    new CollectionListInfo("✓✓✓✓✓™", 96, 0, getIndexFromCollectionNameStr("Morgan Dollars"), 0, 1878, 1921, "63", "0"),
-                    new CollectionListInfo("🐶✌️", 1, 0, getIndexFromCollectionNameStr("Peace Dollars"), 0, 1921, 1921, "2", "1"),
-                    new CollectionListInfo("Eagles", 39, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 2020, "0", "2"),
-                    new CollectionListInfo("()", 42, 0, getIndexFromCollectionNameStr("First Spouse Gold Coins"), 0, 0, 0, "0", "0"),
-                    new CollectionListInfo("S Pennies", 0, 0, getIndexFromCollectionNameStr("Pennies"), 0, 2000, 2020, "9", "1"),
-                    new CollectionListInfo("50-States", 50, 0, getIndexFromCollectionNameStr("State Quarters"), 0, 0, 0, "3", "0"),
-                    new CollectionListInfo("$PATH", 56, 0, getIndexFromCollectionNameStr("National Park Quarters"), 0, 0, 0, "5", "0"),
-                    new CollectionListInfo("CHAR(0x54)", 11, 0, getIndexFromCollectionNameStr("Sacagawea/Native American Dollars"), 0, 2010, 2020, "2", "1"),
-                    new CollectionListInfo("<a href=\"#\">Click Here</a>", 14, 0, getIndexFromCollectionNameStr("American Eagle Silver Dollars"), 0, 1986, 1999, "0", "1"),
-                    new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr("Barber Quarters"), 0, 1892, 1916, "17", "0"),
-                    new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr("American Women Quarters"), 0, 0, 0, "15", "0"),
-                    new CollectionListInfo("Small Cents", 442, 0, getIndexFromCollectionNameStr("Small Cents"), 0, 1856, 2023, "3151", "4063265"),
-                    new CollectionListInfo("Large Cents", 68, 0, getIndexFromCollectionNameStr("Large Cents"), 0, 1793, 1857, "0", "1089"),
-                    new CollectionListInfo("All Nickels", 380, 0, getIndexFromCollectionNameStr("All Nickels"), 0, 1866, 2022, "2255", "1006632993"),
-                    new CollectionListInfo("Half Dimes", 96, 0, getIndexFromCollectionNameStr("Half Dimes"), 0, 1794, 1873, "27", "577"),
-                    new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionNameStr("Silver Dimes"), 0, 1793, 2023, "287", "7516192801"),
-                    new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionNameStr("Early Dimes"), 0, 1796, 1891, "59", "929"),
-                    new CollectionListInfo("Clad Quarters", 614, 0, getIndexFromCollectionNameStr("Clad Quarters"), 0, 0, 0, "2383", "122880"),
-                    new CollectionListInfo("Washington Silver", 225, 0, getIndexFromCollectionNameStr("Washington Silver Quarters"), 0, 0, 0, "15", "32985348841472"),
-                    new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionNameStr("Early Quarters"), 0, 1796, 1930, "63", "6753"),
-                    new CollectionListInfo("Small Dollars", 206, 0, getIndexFromCollectionNameStr("Small Dollars"), 0, 0, 0, "143", "962072674304"),
-                    new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionNameStr("Silver Half Dollars"), 0, 1892, 2023, "287", "62914593"),
-                    new CollectionListInfo("Trimes", 49, 0, getIndexFromCollectionNameStr("Three Cents"), 0, 1851, 1889, "0", "25"),
-                    new CollectionListInfo("Twenty Cents", 7, 0, getIndexFromCollectionNameStr("Twenty Cents"), 0, 1875, 1878, "0", "1"),
-                    new CollectionListInfo("Two Cents", 10, 0, getIndexFromCollectionNameStr("Two Cents"), 0, 1864, 1873, "0", "1"),
-                    new CollectionListInfo("West Point", 21, 0, getIndexFromCollectionNameStr("West Point Mint"), 0, 0, 0, "0", "0"),
-                    new CollectionListInfo("Early Dollars", 86, 0, getIndexFromCollectionNameStr("Early Dollars"), 0, 1794, 1885, "59", "1099511628353"),
-                    new CollectionListInfo("Early Half Dollars", 158, 0, getIndexFromCollectionNameStr("Early Half Dollars"), 0, 1794, 1891, "59", "577"),
-                    new CollectionListInfo("Cartwheels", 198, 0, getIndexFromCollectionNameStr("Cartwheels"), 0, 1878, 2023, "63", "128849018913"),
-                    new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionNameStr("Half Cents"), 0, 1793, 1857, "0", "1"),
-                   // new CollectionListInfo("Proof Sets", 103, 0, getIndexFromCollectionNameStr("Proof Sets"), 0, 1950, 2023, "384", "1"),
-                   // new CollectionListInfo("Mint Sets", 94, 0, getIndexFromCollectionNameStr("Proof Sets"), 0, 1959, 2023, "384", "1"),
-                    new CollectionListInfo("All Sets", 182, 0, getIndexFromCollectionNameStr("Coin Sets"), 0, 1947, 2023, "28673", "1"),
+                    new CollectionListInfo("My Pennies", 275, 0, getIndexFromCollectionNameStr(LincolnCents.COLLECTION_TYPE), 0, 1909, 2020, "15", "1"),
+                    new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionNameStr(JeffersonNickels.COLLECTION_TYPE), 0, 1938, 2020, "9", "0"),
+                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionNameStr(RooseveltDimes.COLLECTION_TYPE), 0, 1950, 1951, "2", "1"),
+                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionNameStr(WashingtonQuarters.COLLECTION_TYPE), 0, 1932, 1998, "3", "0"),
+                    new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionNameStr(StateQuarters.COLLECTION_TYPE), 0, 0, 0, "7", "4"),
+                    new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionNameStr(NationalParkQuarters.COLLECTION_TYPE), 0, 0, 0, "5", "0"),
+                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionNameStr(KennedyHalfDollars.COLLECTION_TYPE), 0, 1964, 2020, "2", "1"),
+                    new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionNameStr(EisenhowerDollar.COLLECTION_TYPE), 0, 1971, 1971, "7", "1"),
+                    new CollectionListInfo("Susan's \"Dollars!", 4, 0, getIndexFromCollectionNameStr(SusanBAnthonyDollars.COLLECTION_TYPE), 0, 1979, 1999, "2", "0"),
+                    new CollectionListInfo("; DROP TABLES;", 16, 0, getIndexFromCollectionNameStr(NativeAmericanDollars.COLLECTION_TYPE), 0, 2002, 2009, "7", "1"),
+                    new CollectionListInfo("😁😁😁😁😁😍😄", 80, 0, getIndexFromCollectionNameStr(PresidentialDollars.COLLECTION_TYPE), 0, 0, 0, "7", "0"),
+                    new CollectionListInfo("| | | | | ", 2, 0, getIndexFromCollectionNameStr(IndianHeadCents.COLLECTION_TYPE), 0, 1859, 1909, "9", "0"),
+                    new CollectionListInfo(" ", 32, 0, getIndexFromCollectionNameStr(LibertyHeadNickels.COLLECTION_TYPE), 0, 1883, 1912, "7", "1"),
+                    new CollectionListInfo("  ", 25, 0, getIndexFromCollectionNameStr(BarberDimes.COLLECTION_TYPE), 0, 1892, 1916, "2", "0"),
+                    new CollectionListInfo("Barb Quarts", 25, 0, getIndexFromCollectionNameStr(BarberQuarters.COLLECTION_TYPE), 0, 1892, 1916, "2", "0"),
+                    new CollectionListInfo("_)(*&^%", 12, 0, getIndexFromCollectionNameStr(StandingLibertyQuarters.COLLECTION_TYPE), 0, 1916, 1930, "9", "0"),
+                    new CollectionListInfo("Frankline", 19, 0, getIndexFromCollectionNameStr(FranklinHalfDollars.COLLECTION_TYPE), 0, 1948, 1963, "13", "1"),
+                    new CollectionListInfo("✓✓✓✓✓™", 96, 0, getIndexFromCollectionNameStr(MorganDollars.COLLECTION_TYPE), 0, 1878, 1921, "63", "0"),
+                    new CollectionListInfo("🐶✌️", 1, 0, getIndexFromCollectionNameStr(PeaceDollars.COLLECTION_TYPE), 0, 1921, 1921, "2", "1"),
+                    new CollectionListInfo("Eagles", 39, 0, getIndexFromCollectionNameStr(AmericanEagleSilverDollars.COLLECTION_TYPE), 0, 1986, 2020, "0", "2"),
+                    new CollectionListInfo("()", 42, 0, getIndexFromCollectionNameStr(FirstSpouseGoldCoins.COLLECTION_TYPE), 0, 0, 0, "0", "0"),
+                    new CollectionListInfo("S Pennies", 0, 0, getIndexFromCollectionNameStr(LincolnCents.COLLECTION_TYPE), 0, 2000, 2020, "9", "1"),
+                    new CollectionListInfo("50-States", 50, 0, getIndexFromCollectionNameStr(StateQuarters.COLLECTION_TYPE), 0, 0, 0, "3", "0"),
+                    new CollectionListInfo("$PATH", 56, 0, getIndexFromCollectionNameStr(NationalParkQuarters.COLLECTION_TYPE), 0, 0, 0, "5", "0"),
+                    new CollectionListInfo("CHAR(0x54)", 11, 0, getIndexFromCollectionNameStr(NativeAmericanDollars.COLLECTION_TYPE), 0, 2010, 2020, "2", "1"),
+                    new CollectionListInfo("<a href=\"#\">Click Here</a>", 14, 0, getIndexFromCollectionNameStr(AmericanEagleSilverDollars.COLLECTION_TYPE), 0, 1986, 1999, "0", "1"),
+                    new CollectionListInfo("# comment", 18, 0, getIndexFromCollectionNameStr(BarberQuarters.COLLECTION_TYPE), 0, 1892, 1916, "17", "0"),
+                    new CollectionListInfo("American_Women", 45, 0, getIndexFromCollectionNameStr(AmericanWomenQuarters.COLLECTION_TYPE), 0, 0, 0, "15", "0"),
+                    new CollectionListInfo("Small Cents", 442, 0, getIndexFromCollectionNameStr(SmallCents.COLLECTION_TYPE), 0, 1856, 2023, "3151", "4063265"),
+                    new CollectionListInfo("Large Cents", 68, 0, getIndexFromCollectionNameStr(LargeCents.COLLECTION_TYPE), 0, 1793, 1857, "0", "1089"),
+                    new CollectionListInfo("All Nickels", 380, 0, getIndexFromCollectionNameStr(AllNickels.COLLECTION_TYPE), 0, 1866, 2022, "2255", "1006632993"),
+                    new CollectionListInfo("Half Dimes", 96, 0, getIndexFromCollectionNameStr(HalfDimes.COLLECTION_TYPE), 0, 1794, 1873, "27", "577"),
+                    new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionNameStr(SilverDimes.COLLECTION_TYPE), 0, 1793, 2023, "287", "7516192801"),
+                    new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionNameStr(EarlyDimes.COLLECTION_TYPE), 0, 1796, 1891, "59", "929"),
+                    new CollectionListInfo("Clad Quarters", 614, 0, getIndexFromCollectionNameStr(CladQuarters.COLLECTION_TYPE), 0, 0, 0, "2383", "122880"),
+                    new CollectionListInfo("Washington Silver", 225, 0, getIndexFromCollectionNameStr(WashingtonSilver.COLLECTION_TYPE), 0, 0, 0, "15", "32985348841472"),
+                    new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionNameStr(EarlyQuarters.COLLECTION_TYPE), 0, 1796, 1930, "63", "6753"),
+                    new CollectionListInfo("Small Dollars", 206, 0, getIndexFromCollectionNameStr(SmallDollars.COLLECTION_TYPE), 0, 0, 0, "143", "962072674304"),
+                    new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionNameStr(SilverHalfDollars.COLLECTION_TYPE), 0, 1892, 2023, "287", "62914593"),
+                    new CollectionListInfo("Trimes", 49, 0, getIndexFromCollectionNameStr(Trimes.COLLECTION_TYPE), 0, 1851, 1889, "0", "25"),
+                    new CollectionListInfo("Twenty Cents", 7, 0, getIndexFromCollectionNameStr(TwentyCents.COLLECTION_TYPE), 0, 1875, 1878, "0", "1"),
+                    new CollectionListInfo("Two Cents", 10, 0, getIndexFromCollectionNameStr(TwoCents.COLLECTION_TYPE), 0, 1864, 1873, "0", "1"),
+                    new CollectionListInfo("West Point", 21, 0, getIndexFromCollectionNameStr(WestPoint.COLLECTION_TYPE), 0, 0, 0, "0", "0"),
+                    new CollectionListInfo("Early Dollars", 86, 0, getIndexFromCollectionNameStr(EarlyDollars.COLLECTION_TYPE), 0, 1794, 1885, "59", "1099511628353"),
+                    new CollectionListInfo("Early Half Dollars", 158, 0, getIndexFromCollectionNameStr(EarlyHalfDollars.COLLECTION_TYPE), 0, 1794, 1891, "59", "577"),
+                    new CollectionListInfo("Cartwheels", 198, 0, getIndexFromCollectionNameStr(Cartwheels.COLLECTION_TYPE), 0, 1878, 2023, "63", "128849018913"),
+                    new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionNameStr(HalfCents.COLLECTION_TYPE), 0, 1793, 1857, "0", "1"),
+                    new CollectionListInfo("Coin Sets", 182, 0, getIndexFromCollectionNameStr(CoinSets.COLLECTION_TYPE), 0, 1947, 2023, "0", "492581209243649"),
+                    new CollectionListInfo("All Kennedy Half Dollars", 232, 0, getIndexFromCollectionNameStr(Kennedy_Halfs.COLLECTION_TYPE), 0, 1964, 2023, "2439", "35184372088873"),
+                    new CollectionListInfo("All Roosevelt Dimes", 284, 0, getIndexFromCollectionNameStr(Roosevelt_Dimes.COLLECTION_TYPE), 0, 1946, 2023, "2511", "35184372088873"),
+                    new CollectionListInfo("All Washington Quarters", 271, 0, getIndexFromCollectionNameStr(Washington_Quarters.COLLECTION_TYPE), 0, 1932, 1998, "399", "35184372088841"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

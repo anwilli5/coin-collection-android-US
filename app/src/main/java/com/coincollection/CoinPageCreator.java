@@ -1040,12 +1040,6 @@ public class CoinPageCreator extends BaseActivity {
                     mintMarkFlags |= CollectionListInfo.MINT_MEM_PROOF;
                 } else if (optionStrId.equals(R.string.include_satin)) {
                     mintMarkFlags |= CollectionListInfo.MINT_SATIN;
-                } else if (optionStrId.equals(R.string.include_mint_sets)) {
-                    mintMarkFlags |= CollectionListInfo.MINT_SETS;
-                } else if (optionStrId.equals(R.string.include_proof_sets)) {
-                    mintMarkFlags |= CollectionListInfo.MINT_PROOF_SETS;
-                } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
-                    mintMarkFlags |= CollectionListInfo.MINT_SILVER_PROOF_SETS;
                 }
             }
         }
@@ -1161,6 +1155,14 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.WOMEN_QUARTERS_PROOF;
                 } else if (optionStrId.equals(R.string.include_territories_quarters_proof)) {
                     checkboxFlags |= CollectionListInfo.TERRITORIES_QUARTERS_PROOF;
+                } else if (optionStrId.equals(R.string.include_clad_coins)) {
+                    checkboxFlags |= CollectionListInfo.CLAD_COINS;
+                } else if (optionStrId.equals(R.string.include_mint_sets)) {
+                    checkboxFlags |= CollectionListInfo.MINT_SETS;
+                } else if (optionStrId.equals(R.string.include_proof_sets)) {
+                    checkboxFlags |= CollectionListInfo.PROOF_SETS;
+                } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
+                    checkboxFlags |= CollectionListInfo.SILVER_PROOF_SETS;
                 }
             }
         }
@@ -1255,12 +1257,6 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasMemProofMintMarks());
             } else if (optionStrId.equals(R.string.include_satin)) {
                 parameters.put(optName, existingCollection.hasSatinMintMarks());
-            } else if (optionStrId.equals(R.string.include_mint_sets)) {
-                parameters.put(optName, existingCollection.hasMintSetsMintMarks());
-            } else if (optionStrId.equals(R.string.include_proof_sets)) {
-                parameters.put(optName, existingCollection.hasProofSetsMintMarks());
-            } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
-                parameters.put(optName, existingCollection.hasSilverProofSetsMintMarks());
             }
         }
         // Checkboxes
@@ -1361,6 +1357,14 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasWomenQuartersProof());
             } else if (optionStrId.equals(R.string.include_territories_quarters_proof)) {
                 parameters.put(optName, existingCollection.hasTerritoriesQuartersProof());
+            } else if (optionStrId.equals(R.string.include_clad_coins)) {
+                parameters.put(optName, existingCollection.hasCladCoins());
+            } else if (optionStrId.equals(R.string.include_mint_sets)) {
+                parameters.put(optName, existingCollection.hasMintSets());
+            } else if (optionStrId.equals(R.string.include_proof_sets)) {
+                parameters.put(optName, existingCollection.hasProofSets());
+            } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
+                parameters.put(optName, existingCollection.hasSilverProofSets());
             }
         }
         return parameters;
