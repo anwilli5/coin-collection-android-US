@@ -20,8 +20,13 @@
 
 package com.spencerpages;
 
+import static com.spencerpages.MainApplication.ADVANCED_COLLECTIONS;
+import static com.spencerpages.MainApplication.BASIC_COLLECTIONS;
+import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.MainApplication.getIndexFromCollectionClass;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.content.Intent;
 import android.os.Build;
@@ -31,6 +36,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
+import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.CollectionPage;
 import com.coincollection.helper.ParcelableHashMap;
@@ -60,7 +66,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                     activity.mCoinList = new ArrayList<>();
                     ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
                     int index = info.getCollectionTypeIndex();
-                    activity.setInternalStateFromCollectionIndex(index, parameters);
+                    activity.setInternalStateFromCollectionIndex(index, activity.getCollectionListPos(index), parameters);
                     activity.createOrUpdateCoinListForAsyncThread();
                     // Create the collection in the database
                     activity.mDbAdapter.createAndPopulateNewTable(info, 0, activity.mCoinList);
@@ -121,6 +127,38 @@ public class CollectionPageActivityTests extends BaseTestCase {
                     assertEquals(getSortOrderList(activity.mCoinList), getSortOrderList(checkCoinList));
                 });
             }
+        }
+    }
+
+    /**
+     * Test that all classes listed in COLLECTION_TYPES are included in
+     * BASIC_COLLECTIONS and ADVANCED_COLLECTIONS
+     */
+    @Test
+    public void test_collectionTypes() {
+        assertEquals(COLLECTION_TYPES.length, (BASIC_COLLECTIONS.length + ADVANCED_COLLECTIONS.length));
+        for (Class<?> collectionClass : BASIC_COLLECTIONS) {
+            // All basic collections should be in the collection types list
+            assertNotEquals(-1, getIndexFromCollectionClass(collectionClass));
+        }
+        for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
+            // All advanced collections should be in the collection types list
+            assertNotEquals(-1, getIndexFromCollectionClass(collectionClass));
+        }
+        // Each class should be in the collection types list at least and only once
+        for (CollectionInfo collectionType : COLLECTION_TYPES) {
+            int numFound = 0;
+            for (Class<?> collectionClass : BASIC_COLLECTIONS) {
+                if (collectionType.getClass() == collectionClass) {
+                    numFound++;
+                }
+            }
+            for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
+                if (collectionType.getClass() == collectionClass) {
+                    numFound++;
+                }
+            }
+            assertEquals(1, numFound);
         }
     }
 }

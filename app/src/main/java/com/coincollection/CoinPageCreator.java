@@ -36,8 +36,6 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -68,6 +66,11 @@ public class CoinPageCreator extends BaseActivity {
     public int mCoinTypeIndex;
 
     /**
+     * mCoinTypeListPos The list position of the currently selected coin type
+     */
+    public int mCoinTypeListPos;
+
+    /**
      * mCollectionObj The CollectionInfo object associated with this index.
      */
     public CollectionInfo mCollectionObj;
@@ -93,9 +96,15 @@ public class CoinPageCreator extends BaseActivity {
 
     /* Internal keys to use for passing data via saved instance state */
     private final static String _COIN_TYPE_INDEX = "CoinTypeIndex";
+    private final static String _COIN_TYPE_LIST_POS = "CoinTypeListPos";
     private final static String _PARAMETERS = "Parameters";
 
     public CollectionListInfo mExistingCollection = null;
+
+    // Variables used for collection types
+    private final ArrayList<String> mCoinNames = new ArrayList<>();
+    private final ArrayList<Integer> mCoinImages = new ArrayList<>();
+    private final ArrayList<Integer> mCoinValues = new ArrayList<>();
 
     /**
      * These are the options supported in the parameter HashMaps.  In general,
@@ -266,6 +275,9 @@ public class CoinPageCreator extends BaseActivity {
 
         setContentView(R.layout.collection_creation_page);
 
+        // Prepare the Spinner that gets what type of collection they want to make
+        setupCollectionSpinnerValues();
+
         // Get the existing collection info if provided
         mExistingCollection = mCallingIntent.getParcelableExtra(EXISTING_COLLECTION_EXTRA);
 
@@ -274,15 +286,17 @@ public class CoinPageCreator extends BaseActivity {
             // Screen rotated - Load the previous settings
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
+                    savedInstanceState.getInt(_COIN_TYPE_LIST_POS),
                     savedInstanceState.getParcelable(_PARAMETERS));
         } else if (mExistingCollection != null) {
             // Updating collection - Setup the parameters based on the existing collection
             setInternalStateFromCollectionIndex(
                     mExistingCollection.getCollectionTypeIndex(),
+                    getCollectionListPos(mExistingCollection.getCollectionTypeIndex()),
                     getParametersFromCollectionListInfo(mExistingCollection));
         } else {
             // New collection - Setup default options
-            setInternalStateFromCollectionIndex(0, null);
+            setInternalStateFromCollectionIndex(0, -1, null);
         }
 
         // Restore the progress dialog if the previous task was running
@@ -297,30 +311,25 @@ public class CoinPageCreator extends BaseActivity {
         // adapters, listeners, etc..  We won't set any of the values yet -
         // we will do that at the end.
 
-        // Prepare the Spinner that gets what type of collection they want to make
-        ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        for (int i = 0; i < MainApplication.COLLECTION_TYPES.length; i++) {
-            spinnerAdapter.add(MainApplication.COLLECTION_TYPES[i].getCoinType());
-        }
-
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ImageSpinnerAdapter spinnerAdapter = new ImageSpinnerAdapter(this, mCoinNames, mCoinImages, 0.5f);
 
         Spinner coinTypeSelector = findViewById(R.id.coin_selector);
         coinTypeSelector.setAdapter(spinnerAdapter);
-        coinTypeSelector.setOnItemSelectedListener(new OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent,
-                                       View view, int position, long id) {
-
-                // No need to do anything if onItemSelected was called but the selected index hasn't
-                // changed since:
-                //  - first activity initialization, or
-                //  - activity initialization from SavedInstanceState
-                if (mCoinTypeIndex == position) {
+        coinTypeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int newCoinTypeIndex = mCoinValues.get(position);
+                // No need to do anything if onItemSelected was called but the selected index hasn't changed
+                if (newCoinTypeIndex == mCoinTypeIndex) {
                     return;
                 }
 
+                // If the users selects a non-coin option, keep index in range
+                if (newCoinTypeIndex == -1) {
+                    newCoinTypeIndex = 0;
+                }
+
                 // When an item is selected, switch our internal state based on the collection type
-                setInternalStateFromCollectionIndex(position, null);
+                setInternalStateFromCollectionIndex(newCoinTypeIndex, position, null);
 
                 // Reset the view for the new coin type
                 updateViewFromState();
@@ -601,6 +610,14 @@ public class CoinPageCreator extends BaseActivity {
             return;
         }
 
+        // Make sure a collection was selected
+        if (mCoinValues.get(mCoinTypeListPos) == -1) {
+            Toast.makeText(CoinPageCreator.this,
+                    mRes.getString(R.string.error_missing_type),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Validate the last year in the collection, if necessary
         if (mParameters.containsKey(OPT_EDIT_DATE_RANGE) &&
                 mParameters.get(OPT_EDIT_DATE_RANGE) == Boolean.TRUE) {
@@ -702,13 +719,15 @@ public class CoinPageCreator extends BaseActivity {
      * Updates the internal state based on a new coin type index
      *
      * @param index      The index of this coin type in the list of all collection types
+     * @param position   The list position associated with the coin type
      * @param parameters If not null, set mParameters to parameters.  Otherwise,
      *                   create a new HashMap for mParameters and assign it default
      *                   values based on the new collection type.
      */
-    public void setInternalStateFromCollectionIndex(int index, ParcelableHashMap parameters) {
+    public void setInternalStateFromCollectionIndex(int index, int position, ParcelableHashMap parameters) {
 
         mCoinTypeIndex = index;
+        mCoinTypeListPos = position;
 
         mCollectionObj = MainApplication.COLLECTION_TYPES[mCoinTypeIndex];
 
@@ -731,6 +750,7 @@ public class CoinPageCreator extends BaseActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
 
         savedInstanceState.putInt(_COIN_TYPE_INDEX, mCoinTypeIndex);
+        savedInstanceState.putInt(_COIN_TYPE_LIST_POS, mCoinTypeListPos);
         savedInstanceState.putSerializable(_PARAMETERS, mParameters);
 
         super.onSaveInstanceState(savedInstanceState);
@@ -757,7 +777,7 @@ public class CoinPageCreator extends BaseActivity {
         LinearLayout customizableCheckboxContainer = findViewById(R.id.customizable_checkbox_container);
 
         // Start with the Collection Type list index
-        coinTypeSelector.setSelection(mCoinTypeIndex, false);
+        coinTypeSelector.setSelection(mCoinTypeListPos, false);
 
         // Handle the showMintMarks checkbox
         Boolean showMintMarks = (Boolean) mParameters.get(OPT_SHOW_MINT_MARKS);
@@ -1402,5 +1422,46 @@ public class CoinPageCreator extends BaseActivity {
             return mRes.getString(R.string.error_creating_database);
         }
         return "";
+    }
+
+    /**
+     * Setup lists used for collection list
+     */
+    private void setupCollectionSpinnerValues() {
+        mCoinNames.add(getResources().getString(R.string.select_collection_type));
+        mCoinImages.add(-1);
+        mCoinValues.add(-1);
+        mCoinNames.add(getResources().getString(R.string.basic_collections));
+        mCoinImages.add(-1);
+        mCoinValues.add(-1);
+        for (int i = 0; i < MainApplication.BASIC_COLLECTIONS.length; i++) {
+            int idx = MainApplication.getIndexFromCollectionClass(MainApplication.BASIC_COLLECTIONS[i]);
+            mCoinNames.add(MainApplication.COLLECTION_TYPES[idx].getCoinType());
+            mCoinImages.add(MainApplication.COLLECTION_TYPES[idx].getCoinImageIdentifier());
+            mCoinValues.add(idx);
+        }
+        mCoinNames.add(getResources().getString(R.string.advanced_collections));
+        mCoinImages.add(-1);
+        mCoinValues.add(-1);
+        for (int i = 0; i < MainApplication.ADVANCED_COLLECTIONS.length; i++) {
+            int idx = MainApplication.getIndexFromCollectionClass(MainApplication.ADVANCED_COLLECTIONS[i]);
+            mCoinNames.add(MainApplication.COLLECTION_TYPES[idx].getCoinType());
+            mCoinImages.add(MainApplication.COLLECTION_TYPES[idx].getCoinImageIdentifier());
+            mCoinValues.add(idx);
+        }
+    }
+
+    /**
+     * Get the list index from the collection type index
+     * @param collectionTypeIdx collection type index
+     * @return position in the list
+     */
+    public int getCollectionListPos(int collectionTypeIdx) {
+        for (int i = 0; i < mCoinValues.size(); i++) {
+            if (mCoinValues.get(i) == collectionTypeIdx) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

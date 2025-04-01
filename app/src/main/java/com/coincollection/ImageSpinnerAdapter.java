@@ -21,12 +21,15 @@
 package com.coincollection;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -39,12 +42,23 @@ public class ImageSpinnerAdapter extends ArrayAdapter<String> {
     private final Context mContext;
     private final ArrayList<String> mNames;
     private final ArrayList<Integer> mResIds;
+    private final Float mImgScale;
 
     public ImageSpinnerAdapter(Context context, ArrayList<String> names, ArrayList<Integer> resIds) {
         super(context, R.layout.coin_image_spinner_item, names);
         this.mContext = context;
         this.mNames = names;
         this.mResIds = resIds;
+        this.mImgScale = 1.0f;
+    }
+
+    public ImageSpinnerAdapter(Context context, ArrayList<String> names, ArrayList<Integer> resIds,
+                               Float imgScale) {
+        super(context, R.layout.coin_image_spinner_item, names);
+        this.mContext = context;
+        this.mNames = names;
+        this.mResIds = resIds;
+        this.mImgScale = imgScale;
     }
 
     @NonNull
@@ -67,8 +81,19 @@ public class ImageSpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(mNames.get(position));
 
         // Set the image
-        Drawable image = ContextCompat.getDrawable(mContext, mResIds.get(position));
-        textView.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+        int imageId = mResIds.get(position);
+        if (imageId > 0) {
+            Drawable image = ContextCompat.getDrawable(mContext, mResIds.get(position));
+            if (mImgScale != 1.0) {
+                // Scale the image if desired
+                Bitmap bitmap = ((BitmapDrawable) image).getBitmap();
+                int width = (int) ((float) bitmap.getWidth() * mImgScale);
+                int height = (int) ((float) bitmap.getHeight() * mImgScale);
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+                image = new BitmapDrawable(mContext.getResources(), scaledBitmap);
+            }
+            textView.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+        }
         return view;
     }
 }
