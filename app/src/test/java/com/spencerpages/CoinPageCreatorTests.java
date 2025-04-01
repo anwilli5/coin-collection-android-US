@@ -68,7 +68,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
                     activity.mCoinList = new ArrayList<>();
                     ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
                     int index = info.getCollectionTypeIndex();
-                    activity.setInternalStateFromCollectionIndex(index, parameters);
+                    activity.setInternalStateFromCollectionIndex(index, activity.getCollectionListPos(index), parameters);
                     activity.createOrUpdateCoinListForAsyncThread();
                     CollectionListInfo checkInfo = activity.getCollectionInfoFromParameters(info.getName());
                     assertTrue(SharedTest.compareCollectionListInfos(info, checkInfo));

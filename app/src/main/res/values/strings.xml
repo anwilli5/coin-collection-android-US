@@ -150,6 +150,9 @@
     <string name="enter_collection_name">Enter Collection Name</string>
     <string name="show_mint_mark">Show the mint mark on the collection page</string>
     <string name="edit_date_range">Change the collection beginning and ending year</string>
+    <string name="select_collection_type">Select Collection Type</string>
+    <string name="basic_collections">Basic Collections</string>
+    <string name="advanced_collections">Advanced Collections</string>
 
     <!-- Mint Marks (and related) -->
     <string name="include_p">Include coins from the Philadelphia mint</string>
@@ -216,11 +219,12 @@
 
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>
-    <string name="select_collection_type">Collection Type: </string>
+    <string name="collection_type">Collection Type: </string>
     <string name="enter_start_year">Starting Year: </string>
     <string name="enter_stop_year">Ending Year: </string>
     <string name="creating_collection">Creating Collection…</string>
     <string name="error_missing_name">Please enter a name for the collection</string>
+    <string name="error_missing_type">Please select a collection type from the dropdown menu</string>
     <string name="error_no_mint_selected">Please select at least one mint to collect coins from</string>
     <string name="error_ending_year_too_high">Highest possible ending year is %1$d.  Note, new years will automatically be added as they come.</string>
     <string name="error_ending_year_too_low">Ending year can\'t be less than the collection starting year (%1$d)</string>

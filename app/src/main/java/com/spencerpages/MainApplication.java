@@ -86,60 +86,118 @@ public class MainApplication extends Application {
     public static final String PREFS = "mainPreferences";
 
     // List of all the supported collection types by the app.  New collections
-    // should be added here
-    public static final CollectionInfo[] COLLECTION_TYPES =
-            {
-                    new LincolnCents(),
-                    new JeffersonNickels(),
-                    new RooseveltDimes(),
-                    new WashingtonQuarters(),
-                    new StateQuarters(),
-                    new NationalParkQuarters(),
-                    new KennedyHalfDollars(),
-                    new EisenhowerDollar(),
-                    new SusanBAnthonyDollars(),
-                    new NativeAmericanDollars(),
-                    new PresidentialDollars(),
-                    new IndianHeadCents(),
-                    new LibertyHeadNickels(),
-                    new BuffaloNickels(),
-                    new BarberDimes(),
-                    new MercuryDimes(),
-                    new BarberQuarters(),
-                    new StandingLibertyQuarters(),
-                    new BarberHalfDollars(),
-                    new WalkingLibertyHalfDollars(),
-                    new FranklinHalfDollars(),
-                    new MorganDollars(),
-                    new PeaceDollars(),
-                    new AmericanEagleSilverDollars(),
-                    new FirstSpouseGoldCoins(),
-                    new AmericanInnovationDollars(),
-                    new AmericanWomenQuarters(),
-                    new SmallCents(),
-                    new LargeCents(),
-                    new AllNickels(),
-                    new HalfDimes(),
-                    new SilverDimes(),
-                    new EarlyDimes(),
-                    new CladQuarters(),
-                    new WashingtonSilver(),
-                    new EarlyQuarters(),
-                    new SmallDollars(),
-                    new SilverHalfDollars(),
-                    new Trimes(),
-                    new TwentyCents(),
-                    new TwoCents(),
-                    new WestPoint(),
-                    new EarlyDollars(),
-                    new EarlyHalfDollars(),
-                    new Cartwheels(),
-                    new HalfCents(),
-                    new CoinSets(),
-                    new Kennedy_Halfs(),
-                    new Roosevelt_Dimes(),
-                    new Washington_Quarters()
-            };
+    // should be added here, but don't reorder (reorder lists below)
+    public static final CollectionInfo[] COLLECTION_TYPES = {
+            new LincolnCents(),
+            new JeffersonNickels(),
+            new RooseveltDimes(),
+            new WashingtonQuarters(),
+            new StateQuarters(),
+            new NationalParkQuarters(),
+            new KennedyHalfDollars(),
+            new EisenhowerDollar(),
+            new SusanBAnthonyDollars(),
+            new NativeAmericanDollars(),
+            new PresidentialDollars(),
+            new IndianHeadCents(),
+            new LibertyHeadNickels(),
+            new BuffaloNickels(),
+            new BarberDimes(),
+            new MercuryDimes(),
+            new BarberQuarters(),
+            new StandingLibertyQuarters(),
+            new BarberHalfDollars(),
+            new WalkingLibertyHalfDollars(),
+            new FranklinHalfDollars(),
+            new MorganDollars(),
+            new PeaceDollars(),
+            new AmericanEagleSilverDollars(),
+            new FirstSpouseGoldCoins(),
+            new AmericanInnovationDollars(),
+            new AmericanWomenQuarters(),
+            new SmallCents(),
+            new LargeCents(),
+            new AllNickels(),
+            new HalfDimes(),
+            new SilverDimes(),
+            new EarlyDimes(),
+            new CladQuarters(),
+            new WashingtonSilver(),
+            new EarlyQuarters(),
+            new SmallDollars(),
+            new SilverHalfDollars(),
+            new Trimes(),
+            new TwentyCents(),
+            new TwoCents(),
+            new WestPoint(),
+            new EarlyDollars(),
+            new EarlyHalfDollars(),
+            new Cartwheels(),
+            new HalfCents(),
+            new CoinSets(),
+            new Kennedy_Halfs(),
+            new Roosevelt_Dimes(),
+            new Washington_Quarters()
+    };
+
+    // Display order and groups in Collection Page Creator
+    // Sorted roughly be denomination and alphabetical (can be re-ordered as needed)
+    public static final Class<?>[] BASIC_COLLECTIONS = {
+            LincolnCents.class,
+            JeffersonNickels.class,
+            RooseveltDimes.class,
+            WashingtonQuarters.class,
+            AmericanWomenQuarters.class,
+            NationalParkQuarters.class,
+            StateQuarters.class,
+            KennedyHalfDollars.class,
+            AmericanInnovationDollars.class,
+            FirstSpouseGoldCoins.class,
+            NativeAmericanDollars.class,
+            PresidentialDollars.class,
+    };
+
+    // Sorted roughly be denomination and alphabetical (can be re-ordered as needed)
+    public static final Class<?>[] ADVANCED_COLLECTIONS = {
+            HalfCents.class,
+            IndianHeadCents.class,
+            SmallCents.class,
+            LargeCents.class,
+            TwoCents.class,
+            Trimes.class,
+            HalfDimes.class,
+            AllNickels.class,
+            BuffaloNickels.class,
+            LibertyHeadNickels.class,
+            BarberDimes.class,
+            EarlyDimes.class,
+            MercuryDimes.class,
+            Roosevelt_Dimes.class,
+            SilverDimes.class,
+            TwentyCents.class,
+            BarberQuarters.class,
+            CladQuarters.class,
+            EarlyQuarters.class,
+            StandingLibertyQuarters.class,
+            Washington_Quarters.class,
+            WashingtonSilver.class,
+            BarberHalfDollars.class,
+            EarlyHalfDollars.class,
+            Kennedy_Halfs.class,
+            SilverHalfDollars.class,
+            WalkingLibertyHalfDollars.class,
+            AmericanEagleSilverDollars.class,
+            Cartwheels.class,
+            EarlyDollars.class,
+            EisenhowerDollar.class,
+            FranklinHalfDollars.class,
+            MorganDollars.class,
+            PeaceDollars.class,
+            SmallDollars.class,
+            SusanBAnthonyDollars.class,
+            WestPoint.class,
+            CoinSets.class,
+    };
 
     public static final String DATABASE_NAME = "CoinCollection";
 
@@ -186,6 +244,21 @@ public class MainApplication extends Application {
     public static int getIndexFromCollectionNameStr(String collectionTypeName) {
         for (int i = 0; i < COLLECTION_TYPES.length; i++) {
             if (COLLECTION_TYPES[i].getCoinType().equals(collectionTypeName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get the collection index from collection type name
+     *
+     * @param collectionClass collection class
+     * @return int index or -1 if not found
+     */
+    public static int getIndexFromCollectionClass(Class<?> collectionClass) {
+        for (int i = 0; i < COLLECTION_TYPES.length; i++) {
+            if (collectionClass.isInstance(COLLECTION_TYPES[i])) {
                 return i;
             }
         }
