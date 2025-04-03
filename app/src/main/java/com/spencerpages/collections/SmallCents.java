@@ -189,10 +189,6 @@ public class SmallCents extends CollectionInfo {
         if (showOld && !showIndian) {coinList.add(new CoinSlot("Indian Head","", coinIndex++, getImgId("Indian Head")));}
 
         for (Integer i = startYear; i <= stopYear; i++) {
-            String phil =String.format("%d", i );
-            String den =String.format("%d D", i );
-            String satin =String.format("%d Satin", i );
-            String satinDen =String.format("%d D Satin", i );
             String year = Integer.toString(i);
             if (showEagle && i>1855 && i<1859 ) {
                 coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Flying Eagle")));
@@ -239,23 +235,23 @@ public class SmallCents extends CollectionInfo {
             if (showMem) {
                 if (i == 1982) {
                     if (showP) {
-                        coinList.add(new CoinSlot(year,"Copper Large Date", coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,"Copper Small Date", coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,"Zinc Large Date", coinIndex++, getImgId("Zinc")));
-                        coinList.add(new CoinSlot(year,"Zinc Small Date", coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year,String.format("Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year,String.format("Copper%nSmall Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year,String.format("Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year,String.format("Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
                     }
                     if (showD) {
-                        coinList.add(new CoinSlot(year,"D Copper Large Date", coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,"D Zinc Large Date", coinIndex++, getImgId("Zinc")));
-                        coinList.add(new CoinSlot(year,"D Zinc Small Date", coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year,String.format("D Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year,String.format("D Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year,String.format("D Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
                     }
                 } else if (i == 2009) {
                     for (String identifier : BICENT_COIN_STRS) {
-                        if (showP) {coinList.add(new CoinSlot(identifier,phil, coinIndex++,getImgId(identifier)));}
-                        if (showSatin) {coinList.add(new CoinSlot(identifier,satin, coinIndex++,getImgId(identifier)));}
-                        if (showD) {coinList.add(new CoinSlot(identifier,den, coinIndex++,getImgId(identifier)));}
-                        if (showSatin) {coinList.add(new CoinSlot(identifier,satinDen, coinIndex++,getImgId(identifier)));}
-                        if (showSProof) {coinList.add(new CoinSlot(identifier,String.format("%d S Proof", i ), coinIndex++,getImgId(identifier)));}
+                        if (showP) {coinList.add(new CoinSlot(year,String.format("%n%s",identifier), coinIndex++,getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year,String.format("Satin%n%s",identifier), coinIndex++,getImgId(identifier)));}
+                        if (showD) {coinList.add(new CoinSlot(year,String.format("D%n%s",identifier), coinIndex++,getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year,String.format("D Satin%n%s",identifier), coinIndex++,getImgId(identifier)));}
+                        if (showSProof) {coinList.add(new CoinSlot(year,String.format("S Proof%n%s",identifier), coinIndex++,getImgId(identifier)));}
                     }
                 }
                 if (showP) {

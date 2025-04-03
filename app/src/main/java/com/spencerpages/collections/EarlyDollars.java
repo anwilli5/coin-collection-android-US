@@ -124,15 +124,15 @@ public class EarlyDollars extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if(showBust){
-                if(i==1794 || i==1795){coinList.add(new CoinSlot(year, "Flowing Hair", coinIndex++, getImgId("Flowing Hair")));}
-                if(i>1794 && i<1799){coinList.add(new CoinSlot(year, "Draped Bust", coinIndex++, getImgId("Draped Bust")));}
-                if(i>1797 && i<1804){coinList.add(new CoinSlot(year, "Draped Bust Heraldic Eagle",coinIndex++, getImgId("Draped Bust")));}
-                if(i==1804){coinList.add(new CoinSlot(year, "Draped Bust Rare", coinIndex++, getImgId("Draped Bust")));}
+                if(i==1794 || i==1795){coinList.add(new CoinSlot(year, String.format("%nFlowing Hair"), coinIndex++, getImgId("Flowing Hair")));}
+                if(i>1794 && i<1799){coinList.add(new CoinSlot(year, String.format("%nDraped Bust"), coinIndex++, getImgId("Draped Bust")));}
+                if(i>1797 && i<1804){coinList.add(new CoinSlot(year, String.format("%nDraped Bust%nHeraldic Eagle"),coinIndex++, getImgId("Draped Bust")));}
+                if(i==1804){coinList.add(new CoinSlot(year, String.format("Rare%nDraped Bust"), coinIndex++, getImgId("Draped Bust")));}
             }
             if(showSeated){
                 if (showP) {
-                    if (i == 1836) {coinList.add(new CoinSlot(year, "Gobrecht",coinIndex++, getImgId("Liberty Seated Gobrecht")));}
-                    if (i == 1838 || i == 1839) {coinList.add(new CoinSlot(year, "Gobrecht Proof", coinIndex++, getImgId("Seated Liberty")));}
+                    if (i == 1836) {coinList.add(new CoinSlot(year, String.format("%nGobrecht"),coinIndex++, getImgId("Liberty Seated Gobrecht")));}
+                    if (i == 1838 || i == 1839) {coinList.add(new CoinSlot(year, String.format("Proof%nGobrecht"), coinIndex++, getImgId("Seated Liberty")));}
                     if (i > 1839 && i < 1866 && i != 1858) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Seated Liberty")));}
                     if (i > 1865 && i < 1874) {coinList.add(new CoinSlot(year, "Motto", coinIndex++, getImgId("Seated Liberty")));}
                 }

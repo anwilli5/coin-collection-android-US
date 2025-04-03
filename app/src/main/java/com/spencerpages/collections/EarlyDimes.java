@@ -136,9 +136,9 @@ public class EarlyDimes extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showDraped && i > 1795 && i < 1798) {
-                coinList.add(new CoinSlot(year, "Small Eagle", coinIndex++, getImgId("Draped Bust")));}
+                coinList.add(new CoinSlot(year, String.format("%nSmall Eagle"), coinIndex++, getImgId("Draped Bust")));}
             if (showDraped && i > 1797 && i < 1808 && i !=1799 && i != 1806) {
-                coinList.add(new CoinSlot(year, "Heraldic Eagle", coinIndex++, getImgId("Draped Bust")));}
+                coinList.add(new CoinSlot(year, String.format("%nHeraldic Eagle"), coinIndex++, getImgId("Draped Bust")));}
             if (showCapped && i==1809) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Capped Bust")));}
             if (showCapped && i==1811) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Capped Bust")));}
             if (showCapped && i==1814) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Capped Bust")));}
