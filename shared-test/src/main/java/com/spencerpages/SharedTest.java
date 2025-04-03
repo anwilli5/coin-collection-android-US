@@ -41,6 +41,8 @@ import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicDimes;
+import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.CoinSets;
@@ -56,7 +58,6 @@ import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
-import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
@@ -66,7 +67,6 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
-import com.spencerpages.collections.Roosevelt_Dimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -77,9 +77,9 @@ import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
-import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.WashingtonSilver;
-import com.spencerpages.collections.Washington_Quarters;
+import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
 import java.util.ArrayList;
@@ -90,11 +90,11 @@ public class SharedTest {
             {
                     new CollectionListInfo("My Pennies", 275, 0, getIndexFromCollectionClass(LincolnCents.class), 0, 1909, 2020, "15", "1"),
                     new CollectionListInfo("@#$#@%$#^$#$%^%$&^^&%$", 19, 0, getIndexFromCollectionClass(JeffersonNickels.class), 0, 1938, 2020, "9", "0"),
-                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1950, 1951, "2", "1"),
-                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "3", "0"),
+                    new CollectionListInfo("My\\Collection/", 2, 0, getIndexFromCollectionClass(BasicDimes.class), 0, 1950, 1951, "2", "1"),
+                    new CollectionListInfo("my,coll,ection.", 65, 0, getIndexFromCollectionClass(BasicQuarters.class), 0, 1932, 1998, "3", "0"),
                     new CollectionListInfo("<>STATE QUARTERS\n\n", 112, 0, getIndexFromCollectionClass(StateQuarters.class), 0, 0, 0, "7", "4"),
                     new CollectionListInfo("</></>", 56, 0, getIndexFromCollectionClass(NationalParkQuarters.class), 0, 0, 0, "5", "0"),
-                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2020, "2", "1"),
+                    new CollectionListInfo("~", 56, 0, getIndexFromCollectionClass(BasicHalfDollars.class), 0, 1964, 2020, "2", "1"),
                     new CollectionListInfo("Eisenhower", 2, 0, getIndexFromCollectionClass(EisenhowerDollar.class), 0, 1971, 1971, "7", "1"),
                     new CollectionListInfo("Susan's \"Dollars!", 4, 0, getIndexFromCollectionClass(SusanBAnthonyDollars.class), 0, 1979, 1999, "2", "0"),
                     new CollectionListInfo("; DROP TABLES;", 16, 0, getIndexFromCollectionClass(NativeAmericanDollars.class), 0, 2002, 2009, "7", "1"),
@@ -136,9 +136,9 @@ public class SharedTest {
                     new CollectionListInfo("Cartwheels", 198, 0, getIndexFromCollectionClass(Cartwheels.class), 0, 1878, 2023, "63", "128849018913"),
                     new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionClass(HalfCents.class), 0, 1793, 1857, "0", "1"),
                     new CollectionListInfo("Coin Sets", 182, 0, getIndexFromCollectionClass(CoinSets.class), 0, 1947, 2023, "0", "492581209243649"),
-                    new CollectionListInfo("All Kennedy Half Dollars", 232, 0, getIndexFromCollectionClass(Kennedy_Halfs.class), 0, 1964, 2023, "2439", "35184372088873"),
-                    new CollectionListInfo("All Roosevelt Dimes", 284, 0, getIndexFromCollectionClass(Roosevelt_Dimes.class), 0, 1946, 2023, "2511", "35184372088873"),
-                    new CollectionListInfo("All Washington Quarters", 271, 0, getIndexFromCollectionClass(Washington_Quarters.class), 0, 1932, 1998, "399", "35184372088841"),
+                    new CollectionListInfo("Kennedy Half Dollars", 232, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
+                    new CollectionListInfo("Roosevelt Dimes", 284, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
+                    new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

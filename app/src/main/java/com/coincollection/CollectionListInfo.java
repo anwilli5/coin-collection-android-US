@@ -34,6 +34,7 @@ import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CoinSets;
@@ -48,7 +49,6 @@ import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
-import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
@@ -56,8 +56,8 @@ import com.spencerpages.collections.MercuryDimes;
 import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
+import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.RooseveltDimes;
-import com.spencerpages.collections.Roosevelt_Dimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -68,8 +68,8 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
+import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.WashingtonQuarters;
-import com.spencerpages.collections.Washington_Quarters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -196,18 +196,18 @@ public class CollectionListInfo implements Parcelable {
             FranklinHalfDollars.COLLECTION_TYPE,
             IndianHeadCents.COLLECTION_TYPE,
             JeffersonNickels.COLLECTION_TYPE,
-            KennedyHalfDollars.COLLECTION_TYPE,
+            BasicHalfDollars.COLLECTION_TYPE,
             LibertyHeadNickels.COLLECTION_TYPE,
             LincolnCents.COLLECTION_TYPE,
             MercuryDimes.COLLECTION_TYPE,
             MorganDollars.COLLECTION_TYPE,
             NativeAmericanDollars.COLLECTION_TYPE,
             PeaceDollars.COLLECTION_TYPE,
-            RooseveltDimes.COLLECTION_TYPE,
+            BasicDimes.COLLECTION_TYPE,
             StandingLibertyQuarters.COLLECTION_TYPE,
             SusanBAnthonyDollars.COLLECTION_TYPE,
             WalkingLibertyHalfDollars.COLLECTION_TYPE,
-            WashingtonQuarters.COLLECTION_TYPE,
+            BasicQuarters.COLLECTION_TYPE,
             SmallCents.COLLECTION_TYPE,
             LargeCents.COLLECTION_TYPE,
             AllNickels.COLLECTION_TYPE,
@@ -224,9 +224,9 @@ public class CollectionListInfo implements Parcelable {
             Cartwheels.COLLECTION_TYPE,
             HalfCents.COLLECTION_TYPE,
             CoinSets.COLLECTION_TYPE,
-            Kennedy_Halfs.COLLECTION_TYPE,
-            Roosevelt_Dimes.COLLECTION_TYPE,
-            Washington_Quarters.COLLECTION_TYPE));
+            KennedyHalfDollars.COLLECTION_TYPE,
+            RooseveltDimes.COLLECTION_TYPE,
+            WashingtonQuarters.COLLECTION_TYPE));
 
 
     public CollectionListInfo(String name, int max, int collected, int index, int displayType,

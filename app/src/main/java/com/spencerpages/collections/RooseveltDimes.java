@@ -26,7 +26,6 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
-import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -34,7 +33,23 @@ import java.util.HashMap;
 
 public class RooseveltDimes extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "Dimes";
+    public static final String COLLECTION_TYPE = "Roosevelt Dimes";
+
+    private static final String[] OLD_COINS_STRS = {
+            "Draped Bust",
+            "Capped Bust",
+            "Seated",
+            "Barber",
+            "Mercury",
+    };
+
+    private static final Object[][] COIN_IMG_IDS = {
+            {"Draped Bust", R.drawable.a1797drapeddime},
+            {"Capped Bust", R.drawable.a1820cappeddime},
+            {"Seated", R.drawable.astarsdime},
+            {"Barber", R.drawable.obv_barber_dime},
+            {"Mercury", R.drawable.obv_mercury_dime},
+    };
 
     private static final Integer START_YEAR = 1946;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
@@ -55,8 +70,16 @@ public class RooseveltDimes extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        return OBVERSE_IMAGE_COLLECTED;
+        Integer slotImage = null;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        }
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED ;
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -64,7 +87,16 @@ public class RooseveltDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_silver_coins);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_clad_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -77,7 +109,22 @@ public class RooseveltDimes extends CollectionInfo {
         // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_w);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_satin);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_s_proofs);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7_STRING_ID, R.string.include_silver_proofs);
+
+
     }
+
 
     // TODO Perform validation and throw exception
     @Override
@@ -85,37 +132,51 @@ public class RooseveltDimes extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        Boolean showSilverProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_7);
+        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
+        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        Boolean showClad = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
         int coinIndex = 0;
+
+        if (showOld) {
+            for (String identifier : OLD_COINS_STRS) {
+                coinList.add(new CoinSlot(identifier, "", coinIndex++, getImgId(identifier)));
+            }
+        }
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
-            if (showMintMarks) {
+            if(showSilver) {
+                if (i > 1945 && i <= 1964) {
+                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                    if (showS && i < 1956) {coinList.add(new CoinSlot(year, "S", coinIndex++));}
+                }
+                if (showSilverProofs) {
+                    if (i > 1949 && i < 1965) {coinList.add(new CoinSlot(year, "Silver Proof", coinIndex++));}
+                    if (i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++));}
+                    if (i > 2918) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
+                }
+            }
+            if(showClad) {
+                if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(year, "SMS", coinIndex++));}
                 if (showP) {
-                    if (i >= 1980) {
-                        coinList.add(new CoinSlot(year, "P", coinIndex++));
-                    } else {
-                        coinList.add(new CoinSlot(year, "", coinIndex++));
-                    }
+                    if (i > 1967 && i < 1980) {coinList.add(new CoinSlot(year, "", coinIndex++));}
+                    if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
+                    if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++));}
                 }
                 if (showD) {
-                    if (i != 1965 && i != 1966 && i != 1967) {
-                        coinList.add(new CoinSlot(year, "D", coinIndex++));
-                    }
+                    if (i > 1967) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                    if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++));}
                 }
-                if (showS) {
-                    // if(i < 1975 && (i < 1956 || i > 1967)){
-                    // Greater than 1967 were only in proof sets
-                    // TODO - Check and simplify weird logic here
-                    if (i < 1975 && (i < 1956)) {
-                        coinList.add(new CoinSlot(year, "S", coinIndex++));
-                    }
-                }
-            } else {
-                coinList.add(new CoinSlot(year, "", coinIndex++));
+                if (showW && i == 1996) {coinList.add(new CoinSlot(year, "W", coinIndex++));}
+                if (showProofs && i > 1967) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
             }
         }
     }
@@ -137,70 +198,5 @@ public class RooseveltDimes extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {
-
-        int total = 0;
-
-        if (oldVersion <= 3) {
-            // Add in new 2013 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
-        }
-
-        if (oldVersion <= 4) {
-            // Add in new 2014 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);
-        }
-
-        if (oldVersion <= 6) {
-            // Add in new 2015 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);
-        }
-
-        if (oldVersion <= 7) {
-            // Add in new 2016 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);
-        }
-
-        if (oldVersion <= 8) {
-            // Add in new 2017 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);
-        }
-
-        if (oldVersion <= 11) {
-            // Add in new 2018 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);
-        }
-
-        if (oldVersion <= 12) {
-            // Add in new 2019 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);
-        }
-
-        if (oldVersion <= 13) {
-            // Add in new 2020 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
-        }
-
-        if (oldVersion <= 16) {
-            // Add in new 2021 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
-        }
-
-        if (oldVersion <= 18) {
-            // Add in new 2022 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
-        }
-
-        if (oldVersion <= 19) {
-            // Add in new 2023 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
-        }
-
-        if (oldVersion <= 20) {
-            // Add in new 2024 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
-        }
-
-        return total;
-    }
+                                           int oldVersion, int newVersion) {return 0;}
 }
