@@ -20,6 +20,9 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -32,15 +35,30 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Washington_Quarters extends CollectionInfo {
+public class BasicQuarters extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "Washington Quarters";
+    public static final String COLLECTION_TYPE = "Quarters";
+
+    private static final Object[][] COIN_IDENTIFIERS = {
+            {"1776-1976", R.drawable.rev_1976_washington_quarter_unc},
+            {"Crossing the Delaware", R.drawable.rev_2021_crossing_delaware_quarter_unc},
+    };
+
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
+
+    static {
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+    }
 
     private static final Integer START_YEAR = 1932;
-    private static final Integer STOP_YEAR = 1998;
+    private static final Integer STOP_YEAR = 2021;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 
+    // TODO Replace with standard back when good image becomes available
     private static final int REVERSE_IMAGE = R.drawable.rev_1976_washington_quarter_unc;
 
     @Override
@@ -55,7 +73,9 @@ public class Washington_Quarters extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        return OBVERSE_IMAGE_COLLECTED;}
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
+    }
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
@@ -64,13 +84,6 @@ public class Washington_Quarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_START_YEAR, START_YEAR);
         parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
-
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_silver_coins);
-
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.include_clad_coins);
-
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -83,12 +96,6 @@ public class Washington_Quarters extends CollectionInfo {
         // Use the MINT_MARK_3 checkbox for whether to include 'S' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s);
-
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_s_proofs);
-
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_silver_proofs);
     }
 
     // TODO Perform validation and throw exception
@@ -97,52 +104,46 @@ public class Washington_Quarters extends CollectionInfo {
 
         Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
         Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSilverProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showClad = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
-            if ( i == 1976) {year = "1776-1976";}
-            if (i == 1933 || (i == 1975))
+            if (i == 1975 || i == 1976) {
+                year = "1776-1976";
+            }
+            if (i == 1933 || (i == 1976 && startYear != 1976))
                 continue;
+            if (i > 1998 && i < 2021)
+                continue;
+            if (i == 2021) {
+                year = "Crossing the Delaware";
+            }
 
-           if (showClad){
-               if (showP) {
-                   if (i >= 1980) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
-                   if (i < 1980){coinList.add(new CoinSlot(year, "", coinIndex++));}
-                   if(i > 1964 && i < 1968 ){coinList.add(new CoinSlot(year, "SMS", coinIndex++));}
-               }
-               if (showD) {
-                   if (i != 1938 && (i < 1965 || i > 1967)) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
-               }
-               if (showS) {
-                   if (i < 1955 && i != 1934 && i != 1949) {coinList.add(new CoinSlot(year, "S", coinIndex++));}
-               }
-               if (showProofs){
-                   if (i > 1967){coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
-               }
-           }
-           if (showSilver){
-               if ( i > 1931 && i <= 1964) {
-                   if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++));}
-                   if (showD && i != 1938) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
-                   if (showS && i < 1955 && i != 1934 && i != 1949){
-                       coinList.add(new CoinSlot(year, "S", coinIndex++));}
-               }
-               if (showSilverProofs) {
-                   if ( i == 1976) {
-                       coinList.add(new CoinSlot("1776-1976",String.format( "S%n40%% Silver BU"), coinIndex++));
-                       coinList.add(new CoinSlot("1776-1976",String.format( "S%n40%% Silver Proof"), coinIndex++));
-                   }
-                   if (i > 1991) {coinList.add(new CoinSlot(Integer.toString(i), String.format("S%nSilver Proof"), coinIndex++));}
-               }
-           }
+            if (showMintMarks) {
+                if (showP) {
+                    if (i >= 1980) {
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
+                    } else {
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
+                    }
+                }
+                if (showD) {
+                    if (i != 1938 && (i < 1965 || i > 1967)) {
+                        coinList.add(new CoinSlot(year, "D", coinIndex++));
+                    }
+                }
+                if (showS) {
+                    if (i < 1955 && i != 1934 && i != 1949) {
+                        coinList.add(new CoinSlot(year, "S", coinIndex++));
+                    }
+                }
+            } else {
+                coinList.add(new CoinSlot(year, "", coinIndex++));
+            }
         }
     }
 
@@ -163,6 +164,22 @@ public class Washington_Quarters extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
-}
+                                           int oldVersion, int newVersion) {
+        String tableName = collectionListInfo.getName();
+        int total = 0;
 
+        if (oldVersion <= 2) {
+            // Remove 1965 - 1967 D quarters
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1965", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1966", "D"});
+            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1967", "D"});
+        }
+
+        if (oldVersion <= 16) {
+            // Add in new 2021 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 1998, 2021, "Crossing the Delaware");
+        }
+
+        return total;
+    }
+}

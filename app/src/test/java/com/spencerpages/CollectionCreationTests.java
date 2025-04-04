@@ -31,13 +31,15 @@ import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicDimes;
+import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
-import com.spencerpages.collections.KennedyHalfDollars;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -46,12 +48,10 @@ import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
-import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
-import com.spencerpages.collections.WashingtonQuarters;
 
 import org.junit.Test;
 
@@ -438,14 +438,14 @@ public class CollectionCreationTests extends BaseTestCase {
     }
 
     /**
-     * For KennedyHalfDollars
+     * For BasicHalfDollars
      * - Test that the number of coins is correct upon collection creation
      */
     @Test
     public void test_KennedyHalfDollarsCreationCounts() {
 
         ParcelableHashMap parameters = new ParcelableHashMap();
-        KennedyHalfDollars coinClass = new KennedyHalfDollars();
+        BasicHalfDollars coinClass = new BasicHalfDollars();
         coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, Expected Result
@@ -760,14 +760,14 @@ public class CollectionCreationTests extends BaseTestCase {
     }
 
     /**
-     * For RooseveltDimes
+     * For BasicDimes
      * - Test that the number of coins is correct upon collection creation
      */
     @Test
     public void test_RooseveltDimesCreationCounts() {
 
         ParcelableHashMap parameters = new ParcelableHashMap();
-        RooseveltDimes coinClass = new RooseveltDimes();
+        BasicDimes coinClass = new BasicDimes();
         coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
@@ -936,14 +936,14 @@ public class CollectionCreationTests extends BaseTestCase {
     }
 
     /**
-     * For WashingtonQuarters
+     * For BasicQuarters
      * - Test that the number of coins is correct upon collection creation
      */
     @Test
     public void test_WashingtonQuartersCreationCounts() {
 
         HashMap<String, Object> parameters = new ParcelableHashMap();
-        WashingtonQuarters coinClass = new WashingtonQuarters();
+        BasicQuarters coinClass = new BasicQuarters();
         coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result
