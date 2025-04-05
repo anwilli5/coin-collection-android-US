@@ -121,10 +121,7 @@ public class RooseveltDimes extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7_STRING_ID, R.string.include_silver_proofs);
-
-
     }
-
 
     // TODO Perform validation and throw exception
     @Override
