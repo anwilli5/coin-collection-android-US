@@ -54,7 +54,7 @@ public class SmallDollars extends CollectionInfo {
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"2007 George Washington", R.drawable.pres_2007_george_washington_unc},
-            {"1207 John Adams", R.drawable.pres_2007_john_adam_unc},
+            {"2007 John Adams", R.drawable.pres_2007_john_adam_unc},
             {"2007 Thomas Jefferson", R.drawable.pres_2007_thomas_jefferson_unc},
             {"2007 James Madison", R.drawable.pres_2007_james_madison_unc},
             {"2008 James Monroe", R.drawable.pres_2008_james_monroe_unc},
