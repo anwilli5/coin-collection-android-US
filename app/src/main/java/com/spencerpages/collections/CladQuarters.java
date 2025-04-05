@@ -179,6 +179,11 @@ public class CladQuarters extends CollectionInfo {
             {"Dr. Mary Edwards Walker 2024", R.drawable.women_2024_mary_edwards_walker_unc},
             {"Celia Cruz 2024", R.drawable.women_2024_celia_cruz_unc},
             {"Zitkala-Ša 2024", R.drawable.women_2024_zitkala_sa_unc},
+            {"Ida B. Wells 2025", R.drawable.women_2025_ida_b_wells_unc},
+            {"Juliette Gordon Low 2025", R.drawable.women_2025_juliette_gordon_low_unc},
+            {"Dr. Vera Rubin 2025", R.drawable.women_2025_vera_rubin_unc},
+            {"Stacey Park Milbern 2025", R.drawable.women_2025_stacey_park_milbern_unc},
+            {"Althea Gibson 2025", R.drawable.women_2025_althea_gibson_unc},
     };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
