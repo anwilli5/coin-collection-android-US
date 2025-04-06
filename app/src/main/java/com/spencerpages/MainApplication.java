@@ -231,9 +231,9 @@ public class MainApplication extends Application {
      * Version 18 - Used in Version 3.4.0 of the app
      * Version 19 - Used in Version 3.5.0 of the app
      * Version 20 - Used in Version 3.6.0 of the app
-     * Version 21-22 - Used in Version 3.7.0 of the app
+     * Version 21-23 - Used in Version 3.7.0 of the app
      */
-    public static final int DATABASE_VERSION = 22;
+    public static final int DATABASE_VERSION = 23;
 
     /**
      * Get the collection index from collection type name

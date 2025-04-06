@@ -50,7 +50,10 @@ public class SmallDollars extends CollectionInfo {
             {"2020", R.drawable.native_2020_unc},
             {"2021", R.drawable.native_2021_unc},
             {"2022", R.drawable.native_2022_unc},
-            {"2023", R.drawable.native_2023_unc},};
+            {"2023", R.drawable.native_2023_unc},
+            {"2024", R.drawable.native_2024_unc},
+            {"2025", R.drawable.native_2025_unc},
+    };
 
     private static final Object[][] COIN_IDENTIFIERS = {
             {"2007 George Washington", R.drawable.pres_2007_george_washington_unc},

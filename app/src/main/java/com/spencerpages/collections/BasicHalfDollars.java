@@ -201,6 +201,11 @@ public class BasicHalfDollars extends CollectionInfo {
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
         }
 
+        if (oldVersion <= 22) {
+            // Add in new 2025 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+        }
+
         return total;
     }
 }
