@@ -227,65 +227,65 @@ public class SmallCents extends CollectionInfo {
                 if (i > 1909 && i < 1959 && i !=1922 && i != 1943) {
                     if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Wheat")));}
                     if (showD && i != 1910 && i != 1921 && i != 1923) {
-                        coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Wheat")));}
+                        coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Wheat")));}
                     if (showS && i != 1932 && i != 1933 && i != 1934 && i != 1956 && i != 1957 && i != 1958) {
-                        coinList.add(new CoinSlot(year,"S", coinIndex++, getImgId("Wheat")));}
+                        coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Wheat")));}
                 }
             }
             if (showMem) {
                 if (i == 1982) {
                     if (showP) {
-                        coinList.add(new CoinSlot(year,String.format("Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,String.format("Copper%nSmall Date"), coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,String.format("Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
-                        coinList.add(new CoinSlot(year,String.format("Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year, String.format("Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year, String.format("Copper%nSmall Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year, String.format("Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year, String.format("Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
                     }
                     if (showD) {
-                        coinList.add(new CoinSlot(year,String.format("D Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
-                        coinList.add(new CoinSlot(year,String.format("D Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
-                        coinList.add(new CoinSlot(year,String.format("D Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year, String.format("D Copper%nLarge Date"), coinIndex++, getImgId("Memorial Copper")));
+                        coinList.add(new CoinSlot(year, String.format("D Zinc%nLarge Date"), coinIndex++, getImgId("Zinc")));
+                        coinList.add(new CoinSlot(year, String.format("D Zinc%nSmall Date"), coinIndex++, getImgId("Zinc")));
                     }
                 } else if (i == 2009) {
                     for (String identifier : BICENT_COIN_STRS) {
-                        if (showP) {coinList.add(new CoinSlot(year,String.format("%n%s",identifier), coinIndex++,getImgId(identifier)));}
-                        if (showSatin) {coinList.add(new CoinSlot(year,String.format("Satin%n%s",identifier), coinIndex++,getImgId(identifier)));}
-                        if (showD) {coinList.add(new CoinSlot(year,String.format("D%n%s",identifier), coinIndex++,getImgId(identifier)));}
-                        if (showSatin) {coinList.add(new CoinSlot(year,String.format("D Satin%n%s",identifier), coinIndex++,getImgId(identifier)));}
-                        if (showSProof) {coinList.add(new CoinSlot(year,String.format("S Proof%n%s",identifier), coinIndex++,getImgId(identifier)));}
+                        if (showP) {coinList.add(new CoinSlot(year, String.format("%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year, String.format("Satin%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year, String.format("D Satin%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
                     }
                 }
                 if (showP) {
-                    if (i > 1958 && i < 1982) {coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Memorial Copper")));}
-                    if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(year,"SMS", coinIndex++, getImgId("Memorial Copper")));}
-                    if (i > 1982 && i < 2009) {coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Zinc")));}
+                    if (i > 1958 && i < 1982) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Memorial Copper")));}
+                    if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(year, "SMS", coinIndex++, getImgId("Memorial Copper")));}
+                    if (i > 1982 && i < 2009) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Zinc")));}
                 }
-                if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year,"Satin", coinIndex++, getImgId("Zinc")));}
+                if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year, "Satin", coinIndex++, getImgId("Zinc")));}
                 if (showD) {
                     if (i > 1958 && i < 1982 && i != 1965 && i != 1966 && i != 1967){
-                        coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Memorial Copper")));}
-                    if (i > 1982 && i < 2009) {coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Zinc")));}
+                        coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Memorial Copper")));}
+                    if (i > 1982 && i < 2009) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Zinc")));}
                 }
-                if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year,"D Satin", coinIndex++, getImgId("Zinc")));}
-                if (showS && i > 1967 && i < 1975) {coinList.add(new CoinSlot(year,"S", coinIndex++, getImgId("Memorial Copper")));}
-                if (showSProof && i > 1958 && i <  1965) {coinList.add(new CoinSlot(year,"Proof", coinIndex++, getImgId("Proof")));}
-                if (showSProof && i > 1967 && i<2009) {coinList.add(new CoinSlot(year,"S Proof", coinIndex++, getImgId("Proof")));}
+                if (showSatin && i > 2004 && i < 2009){coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Zinc")));}
+                if (showS && i > 1967 && i < 1975) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Memorial Copper")));}
+                if (showSProof && i > 1958 && i <  1965) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Proof")));}
+                if (showSProof && i > 1967 && i<2009) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Proof")));}
             }
             if (showShield){
                 if (showP){
-                    if (i > 2009 && i != 2017) {coinList.add(new CoinSlot(year,"",coinIndex++, getImgId("Zinc")));}
-                    if (i == 2017) {coinList.add(new CoinSlot(year,"P", coinIndex++, getImgId("Zinc")));}
+                    if (i > 2009 && i != 2017) {coinList.add(new CoinSlot(year, "",coinIndex++, getImgId("Zinc")));}
+                    if (i == 2017) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Zinc")));}
                 }
-                if (showSatin && i == 2010){coinList.add(new CoinSlot(year,"Satin", coinIndex++, getImgId("Zinc")));}
-                if (showD && i > 2009){coinList.add(new CoinSlot(year,"D", coinIndex++, getImgId("Zinc")));}
-                if (showSatin && i == 2010) {coinList.add(new CoinSlot(year,"D Satin", coinIndex++, getImgId("Zinc")));}
+                if (showSatin && i == 2010){coinList.add(new CoinSlot(year, "Satin", coinIndex++, getImgId("Zinc")));}
+                if (showD && i > 2009){coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Zinc")));}
+                if (showSatin && i == 2010) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Zinc")));}
                 if (showW && i ==2019){
-                    coinList.add(new CoinSlot(year,"W", coinIndex++, getImgId("Zinc")));
-                    coinList.add(new CoinSlot(year,"W Proof", coinIndex++, getImgId("Proof")));
-                    coinList.add(new CoinSlot(year,"W Reverse Proof", coinIndex++, getImgId("Reverse Proof")));
+                    coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Zinc")));
+                    coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Proof")));
+                    coinList.add(new CoinSlot(year, "W Reverse Proof", coinIndex++, getImgId("Reverse Proof")));
                 }
                 if(showSProof){
-                    if (i>2009){coinList.add(new CoinSlot(year,"S Proof", coinIndex++, getImgId("Proof")));}
-                    if ( i == 2018) {coinList.add(new CoinSlot(year,"S Reverse Proof", coinIndex++, getImgId("Reverse Proof")));}
+                    if (i>2009){coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Proof")));}
+                    if ( i == 2018) {coinList.add(new CoinSlot(year, "S Reverse Proof", coinIndex++, getImgId("Reverse Proof")));}
                 }
             }
         }

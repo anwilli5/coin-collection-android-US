@@ -136,8 +136,8 @@ public class WashingtonQuarters extends CollectionInfo {
                }
                if (showSilverProofs) {
                    if ( i == 1976) {
-                       coinList.add(new CoinSlot("1776-1976",String.format( "S%n40%% Silver BU"), coinIndex++));
-                       coinList.add(new CoinSlot("1776-1976",String.format( "S%n40%% Silver Proof"), coinIndex++));
+                       coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Silver BU"), coinIndex++));
+                       coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Silver Proof"), coinIndex++));
                    }
                    if (i > 1991) {coinList.add(new CoinSlot(Integer.toString(i), String.format("S%nSilver Proof"), coinIndex++));}
                }
