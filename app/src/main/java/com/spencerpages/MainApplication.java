@@ -31,9 +31,12 @@ import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EarlyDollars;
 import com.spencerpages.collections.EarlyHalfDollars;
@@ -46,7 +49,6 @@ import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
-import com.spencerpages.collections.Kennedy_Halfs;
 import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
@@ -56,9 +58,8 @@ import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
-import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.CoinSets;
-import com.spencerpages.collections.Roosevelt_Dimes;
+import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SmallCents;
@@ -70,9 +71,8 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
-import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WashingtonSilver;
-import com.spencerpages.collections.Washington_Quarters;
+import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
 public class MainApplication extends Application {
@@ -90,11 +90,11 @@ public class MainApplication extends Application {
     public static final CollectionInfo[] COLLECTION_TYPES = {
             new LincolnCents(),
             new JeffersonNickels(),
-            new RooseveltDimes(),
-            new WashingtonQuarters(),
+            new BasicDimes(),
+            new BasicQuarters(),
             new StateQuarters(),
             new NationalParkQuarters(),
-            new KennedyHalfDollars(),
+            new BasicHalfDollars(),
             new EisenhowerDollar(),
             new SusanBAnthonyDollars(),
             new NativeAmericanDollars(),
@@ -135,9 +135,9 @@ public class MainApplication extends Application {
             new Cartwheels(),
             new HalfCents(),
             new CoinSets(),
-            new Kennedy_Halfs(),
-            new Roosevelt_Dimes(),
-            new Washington_Quarters()
+            new KennedyHalfDollars(),
+            new RooseveltDimes(),
+            new WashingtonQuarters()
     };
 
     // Display order and groups in Collection Page Creator
@@ -145,12 +145,12 @@ public class MainApplication extends Application {
     public static final Class<?>[] BASIC_COLLECTIONS = {
             LincolnCents.class,
             JeffersonNickels.class,
-            RooseveltDimes.class,
-            WashingtonQuarters.class,
+            BasicDimes.class,
+            BasicQuarters.class,
             AmericanWomenQuarters.class,
             NationalParkQuarters.class,
             StateQuarters.class,
-            KennedyHalfDollars.class,
+            BasicHalfDollars.class,
             AmericanInnovationDollars.class,
             FirstSpouseGoldCoins.class,
             NativeAmericanDollars.class,
@@ -163,14 +163,14 @@ public class MainApplication extends Application {
             LargeCents.class,
             AllNickels.class,
             HalfDimes.class,
-            Roosevelt_Dimes.class,
+            RooseveltDimes.class,
             SilverDimes.class,
             EarlyDimes.class,
             CladQuarters.class,
-            Washington_Quarters.class,
+            WashingtonQuarters.class,
             WashingtonSilver.class,
             EarlyQuarters.class,
-            Kennedy_Halfs.class,
+            KennedyHalfDollars.class,
             SilverHalfDollars.class,
             EarlyHalfDollars.class,
             Cartwheels.class,
@@ -234,9 +234,9 @@ public class MainApplication extends Application {
      * Version 18 - Used in Version 3.4.0 of the app
      * Version 19 - Used in Version 3.5.0 of the app
      * Version 20 - Used in Version 3.6.0 of the app
-     * Version 21-22 - Used in Version 3.7.0 of the app
+     * Version 21-23 - Used in Version 3.7.0 of the app
      */
-    public static final int DATABASE_VERSION = 22;
+    public static final int DATABASE_VERSION = 23;
 
     /**
      * Get the collection index from collection type name

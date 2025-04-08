@@ -33,13 +33,15 @@ import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
-import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -48,12 +50,10 @@ import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
-import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
-import com.spencerpages.collections.WashingtonQuarters;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -417,14 +417,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For KennedyHalfDollars
+     * For BasicHalfDollars
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
     public void test_KennedyHalfDollarsUpgrade() {
 
         // Test Parameters
-        CollectionInfo collection = new KennedyHalfDollars();
+        CollectionInfo collection = new BasicHalfDollars();
         String coinType = "Half-Dollars";
         String collectionName = coinType + " Upgrade";
         int startYear = 1964;
@@ -726,14 +726,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For RooseveltDimes
+     * For BasicDimes
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
     public void test_RooseveltDimesUpgrade() {
 
         // Test Parameters
-        CollectionInfo collection = new RooseveltDimes();
+        CollectionInfo collection = new BasicDimes();
         String coinType = "Dimes";
         String collectionName = coinType + " Upgrade";
         int startYear = 1946;
@@ -936,14 +936,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For WashingtonQuarters
+     * For BasicQuarters
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
     public void test_WashingtonQuartersUpgrade() {
 
         // Test Parameters
-        CollectionInfo collection = new WashingtonQuarters();
+        CollectionInfo collection = new BasicQuarters();
         String coinType = "Quarters";
         String collectionName = coinType + " Upgrade";
         int startYear = 1932;

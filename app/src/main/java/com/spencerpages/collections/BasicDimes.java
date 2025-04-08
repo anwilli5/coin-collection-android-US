@@ -20,12 +20,6 @@
 
 package com.spencerpages.collections;
 
-import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
-import static com.coincollection.CoinSlot.COL_COIN_MINT;
-import static com.coincollection.DatabaseHelper.runSqlDelete;
-import static com.coincollection.DatabaseHelper.runSqlUpdate;
-
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -38,32 +32,16 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class LincolnCents extends CollectionInfo {
+public class BasicDimes extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "Pennies";
+    public static final String COLLECTION_TYPE = "Dimes";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"Early Childhood", R.drawable.bicent_2009_early_childhood_unc},
-            {"Formative Years", R.drawable.bicent_2009_formative_years_unc},
-            {"Professional Life", R.drawable.bicent_2009_professional_life_unc},
-            {"Presidency", R.drawable.bicent_2009_presidency_unc},
-    };
-
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-    }
-
-    private static final Integer START_YEAR = 1909;
+    private static final Integer START_YEAR = 1946;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
-    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_lincoln_cent_unc;
+    private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_roosevelt_dime_unc;
 
-    private static final int REVERSE_IMAGE = R.drawable.rev_lincoln_cent_unc;
+    private static final int REVERSE_IMAGE = R.drawable.rev_roosevelt_dime_unc;
 
     @Override
     public String getCoinType() {
@@ -77,8 +55,7 @@ public class LincolnCents extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
+        return OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override
@@ -114,59 +91,31 @@ public class LincolnCents extends CollectionInfo {
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         int coinIndex = 0;
 
-        boolean addedVdb = false;
-
-        for (Integer i = startYear; i <= stopYear; i++) {
-
-            // Support V.D.B.
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
-            if (i == 1909 && !addedVdb) {
-                year = "1909 V.D.B";
-            }
-
-            if (i == 2009) {
-
-                // Add support for 2009 Lincoln Presidential Pennies
-                for (Object[] coinData : COIN_IDENTIFIERS) {
-                    String bicentIdentifier = (String) coinData[0];
-
-                    if (showMintMarks) {
-                        if (showP) {
-                            coinList.add(new CoinSlot(bicentIdentifier, "", coinIndex++));
-                        }
-                        if (showD) {
-                            coinList.add(new CoinSlot(bicentIdentifier, "D", coinIndex++));
-                        }
-                    } else {
-                        coinList.add(new CoinSlot(bicentIdentifier, "", coinIndex++));
-                    }
-                }
-                continue;
-            }
-
             if (showMintMarks) {
                 if (showP) {
-                    // The P was never on any Pennies
-                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    if (i >= 1980) {
+                        coinList.add(new CoinSlot(year, "P", coinIndex++));
+                    } else {
+                        coinList.add(new CoinSlot(year, "", coinIndex++));
+                    }
                 }
                 if (showD) {
-                    if (i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
+                    if (i != 1965 && i != 1966 && i != 1967) {
                         coinList.add(new CoinSlot(year, "D", coinIndex++));
                     }
                 }
                 if (showS) {
-                    if (i <= 1974 && i != 1922 && i != 1932 && i != 1933 && i != 1934 && (i < 1956 || i > 1967)) {
+                    // if(i < 1975 && (i < 1956 || i > 1967)){
+                    // Greater than 1967 were only in proof sets
+                    // TODO - Check and simplify weird logic here
+                    if (i < 1975 && (i < 1956)) {
                         coinList.add(new CoinSlot(year, "S", coinIndex++));
                     }
                 }
             } else {
                 coinList.add(new CoinSlot(year, "", coinIndex++));
-            }
-
-            // If we are adding in the VDB, turn this off
-            if (i == 1909 && !addedVdb) {
-                i--;
-                addedVdb = true;
             }
         }
     }
@@ -189,29 +138,10 @@ public class LincolnCents extends CollectionInfo {
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
-        String tableName = collectionListInfo.getName();
+
         int total = 0;
 
-        if (oldVersion <= 2) {
-
-            // Remove 1921 D Penny
-            total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1921", "D"});
-
-            // TODO What should we do?
-            // We can't add the new identifiers, just delete the old ones
-            //total -= runSqlDelete(db, "[" + name + "]", COL_COIN_IDENTIFIER + "=?", new String[] { "2009" });
-        }
-
         if (oldVersion <= 3) {
-
-            // 1. Bug fix: The bicentennials should not display mint mark "P"
-            ContentValues values = new ContentValues();
-            values.put(COL_COIN_MINT, "");
-            // This shortcut works because pennies never carried the "P" mint mark
-            runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
-
-            // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
-
             // Add in new 2013 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
         }
