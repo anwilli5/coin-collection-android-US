@@ -63,6 +63,7 @@ import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
@@ -73,7 +74,6 @@ import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
-import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
 
 import org.junit.Test;
@@ -1827,14 +1827,14 @@ public class CollectionCreationTests extends BaseTestCase {
     }
 
     /**
-     * For WashingtonSilver
+     * For SilverQuarters
      * - Test that the number of coins is correct upon collection creation
      */
     @Test
     public void test_WashingtonSilverCreationCounts() {
 
         ParcelableHashMap parameters = new ParcelableHashMap();
-        WashingtonSilver coinClass = new WashingtonSilver();
+        SilverQuarters coinClass = new SilverQuarters();
         coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result

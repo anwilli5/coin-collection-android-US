@@ -71,7 +71,7 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
-import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
@@ -122,7 +122,7 @@ public class MainApplication extends Application {
             new SilverDimes(),
             new EarlyDimes(),
             new CladQuarters(),
-            new WashingtonSilver(),
+            new SilverQuarters(),
             new EarlyQuarters(),
             new SmallDollars(),
             new SilverHalfDollars(),
@@ -168,7 +168,7 @@ public class MainApplication extends Application {
             EarlyDimes.class,
             CladQuarters.class,
             WashingtonQuarters.class,
-            WashingtonSilver.class,
+            SilverQuarters.class,
             EarlyQuarters.class,
             KennedyHalfDollars.class,
             SilverHalfDollars.class,
