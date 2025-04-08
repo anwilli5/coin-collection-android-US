@@ -23,6 +23,7 @@ package com.spencerpages;
 import static com.spencerpages.MainApplication.ADVANCED_COLLECTIONS;
 import static com.spencerpages.MainApplication.BASIC_COLLECTIONS;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
+import static com.spencerpages.MainApplication.MORE_COLLECTIONS;
 import static com.spencerpages.MainApplication.getIndexFromCollectionClass;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
@@ -136,12 +137,16 @@ public class CollectionPageActivityTests extends BaseTestCase {
      */
     @Test
     public void test_collectionTypes() {
-        assertEquals(COLLECTION_TYPES.length, (BASIC_COLLECTIONS.length + ADVANCED_COLLECTIONS.length));
+        assertEquals(COLLECTION_TYPES.length, (BASIC_COLLECTIONS.length + ADVANCED_COLLECTIONS.length + MORE_COLLECTIONS.length));
         for (Class<?> collectionClass : BASIC_COLLECTIONS) {
             // All basic collections should be in the collection types list
             assertNotEquals(-1, getIndexFromCollectionClass(collectionClass));
         }
         for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
+            // All advanced collections should be in the collection types list
+            assertNotEquals(-1, getIndexFromCollectionClass(collectionClass));
+        }
+        for (Class<?> collectionClass : MORE_COLLECTIONS) {
             // All advanced collections should be in the collection types list
             assertNotEquals(-1, getIndexFromCollectionClass(collectionClass));
         }
@@ -154,6 +159,11 @@ public class CollectionPageActivityTests extends BaseTestCase {
                 }
             }
             for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
+                if (collectionType.getClass() == collectionClass) {
+                    numFound++;
+                }
+            }
+            for (Class<?> collectionClass : MORE_COLLECTIONS) {
                 if (collectionType.getClass() == collectionClass) {
                     numFound++;
                 }

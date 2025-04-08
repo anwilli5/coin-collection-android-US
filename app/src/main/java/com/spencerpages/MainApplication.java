@@ -71,7 +71,7 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
-import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
@@ -122,7 +122,7 @@ public class MainApplication extends Application {
             new SilverDimes(),
             new EarlyDimes(),
             new CladQuarters(),
-            new WashingtonSilver(),
+            new SilverQuarters(),
             new EarlyQuarters(),
             new SmallDollars(),
             new SilverHalfDollars(),
@@ -159,44 +159,47 @@ public class MainApplication extends Application {
 
     // Sorted roughly be denomination and alphabetical (can be re-ordered as needed)
     public static final Class<?>[] ADVANCED_COLLECTIONS = {
-            HalfCents.class,
-            IndianHeadCents.class,
             SmallCents.class,
             LargeCents.class,
+            AllNickels.class,
+            HalfDimes.class,
+            RooseveltDimes.class,
+            SilverDimes.class,
+            EarlyDimes.class,
+            CladQuarters.class,
+            WashingtonQuarters.class,
+            SilverQuarters.class,
+            EarlyQuarters.class,
+            KennedyHalfDollars.class,
+            SilverHalfDollars.class,
+            EarlyHalfDollars.class,
+            Cartwheels.class,
+            EarlyDollars.class,
+            SmallDollars.class,
+    };
+
+    public static final Class<?>[] MORE_COLLECTIONS = {
+            CoinSets.class,
+            WestPoint.class,
+            HalfCents.class,
+            IndianHeadCents.class,
             TwoCents.class,
             Trimes.class,
-            HalfDimes.class,
-            AllNickels.class,
             BuffaloNickels.class,
             LibertyHeadNickels.class,
             BarberDimes.class,
-            EarlyDimes.class,
             MercuryDimes.class,
-            RooseveltDimes.class,
-            SilverDimes.class,
             TwentyCents.class,
             BarberQuarters.class,
-            CladQuarters.class,
-            EarlyQuarters.class,
             StandingLibertyQuarters.class,
-            WashingtonQuarters.class,
-            WashingtonSilver.class,
             BarberHalfDollars.class,
-            EarlyHalfDollars.class,
-            KennedyHalfDollars.class,
-            SilverHalfDollars.class,
             WalkingLibertyHalfDollars.class,
             AmericanEagleSilverDollars.class,
-            Cartwheels.class,
-            EarlyDollars.class,
             EisenhowerDollar.class,
             FranklinHalfDollars.class,
             MorganDollars.class,
             PeaceDollars.class,
-            SmallDollars.class,
             SusanBAnthonyDollars.class,
-            WestPoint.class,
-            CoinSets.class,
     };
 
     public static final String DATABASE_NAME = "CoinCollection";

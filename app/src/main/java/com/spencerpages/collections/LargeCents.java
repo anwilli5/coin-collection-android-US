@@ -127,14 +127,14 @@ public class LargeCents extends CollectionInfo {
             String year = Integer.toString(i);
             if (showBust) {
                 if (i == 1793) {
-                    coinList.add(new CoinSlot(year, "Flowing Hair Chain Reverse", coinIndex++, getImgId("Flowing Hair")));
-                    coinList.add(new CoinSlot(year, "Flowing Hair Wreath Reverse", coinIndex++, getImgId("Flowing Hair")));}
+                    coinList.add(new CoinSlot(year, String.format("%nFlowing Hair%nChain Reverse"), coinIndex++, getImgId("Flowing Hair")));
+                    coinList.add(new CoinSlot(year, String.format("%nFlowing Hair%nWreath Reverse"), coinIndex++, getImgId("Flowing Hair")));}
                 if (i > 1792 && i < 1797) {
-                    coinList.add(new CoinSlot(year, "Liberty Cap", coinIndex++, getImgId("Liberty Cap")));}
+                    coinList.add(new CoinSlot(year, String.format("%nLiberty Cap"), coinIndex++, getImgId("Liberty Cap")));}
                 if (i > 1795 && i < 1808) {
-                    coinList.add(new CoinSlot(year, "Draped Bust", coinIndex++, getImgId("Draped Bust")));}
+                    coinList.add(new CoinSlot(year, String.format("%nDraped Bust"), coinIndex++, getImgId("Draped Bust")));}
                 if (i > 1807 && i < 1815) {
-                    coinList.add(new CoinSlot(year, "Capped Bust", coinIndex++, getImgId("Capped Bust")));}
+                    coinList.add(new CoinSlot(year, String.format("%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
             }
             if (showCoronet) {
                 if (i>1815 && i<1836){

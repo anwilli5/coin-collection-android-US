@@ -61,6 +61,7 @@ import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
@@ -71,7 +72,6 @@ import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
-import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
 
 import org.junit.Test;
@@ -117,7 +117,7 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(31, getIndexFromCollectionClass(SilverDimes.class));
         assertEquals(32, getIndexFromCollectionClass(EarlyDimes.class));
         assertEquals(33, getIndexFromCollectionClass(CladQuarters.class));
-        assertEquals(34, getIndexFromCollectionClass(WashingtonSilver.class));
+        assertEquals(34, getIndexFromCollectionClass(SilverQuarters.class));
         assertEquals(35, getIndexFromCollectionClass(EarlyQuarters.class));
         assertEquals(36, getIndexFromCollectionClass(SmallDollars.class));
         assertEquals(37, getIndexFromCollectionClass(SilverHalfDollars.class));

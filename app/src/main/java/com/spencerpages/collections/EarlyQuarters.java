@@ -145,16 +145,16 @@ public class EarlyQuarters extends CollectionInfo {
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if(showBust){
-                if(i==1796){coinList.add(new CoinSlot(year, "Sm Eagle", coinIndex++, getImgId("Draped Bust")));}
+                if(i==1796){coinList.add(new CoinSlot(year, String.format("%nSm Eagle"), coinIndex++, getImgId("Draped Bust")));}
                 if(i==1804 || i==1805 || i==1806 || i==1807){
-                    coinList.add(new CoinSlot(year, "Heraldic Eagle", coinIndex++, getImgId("Draped Bust")));}
+                    coinList.add(new CoinSlot(year, String.format("%nHeraldic Eagle"), coinIndex++, getImgId("Draped Bust")));}
                 if(i==1815){coinList.add(new CoinSlot(year, "Lg Dia", coinIndex++, getImgId("Capped Bust")));}
                 if(i>1817 && i<1829 && i!= 1826){coinList.add(new CoinSlot(year, "Lg Dia", coinIndex++, getImgId("Capped Bust")));}
                 if(i>1830 && i<1839){coinList.add(new CoinSlot(year, "Sm Dia", coinIndex++, getImgId("Capped Bust")));}
             }
             if(showSeated){
                 if(showP){
-                    if(i==1838 || i==1839) {coinList.add(new CoinSlot(year, "No Drapery", coinIndex++, getImgId("Seated")));}
+                    if(i==1838 || i==1839) {coinList.add(new CoinSlot(year, String.format("%nNo Drapery"), coinIndex++, getImgId("Seated")));}
                     if(i>1839 && i<1866 && i!=1854 && i!=1855){coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Seated")));}
                     if(i==1853){coinList.add(new CoinSlot(year, "Arrows&Rays", coinIndex++, getImgId("Seated")));}
                     if(i==1854 || i==1855){coinList.add(new CoinSlot(year, "Arrows", coinIndex++, getImgId("Seated")));}
@@ -162,7 +162,7 @@ public class EarlyQuarters extends CollectionInfo {
                     if(i==1873 || i==1874){coinList.add(new CoinSlot(year, "Arrows&Motto", coinIndex++, getImgId("Seated")));}
                 }
                 if(showO){
-                    if(i==1840){coinList.add(new CoinSlot(year, "O No Drapery", coinIndex++, getImgId("Seated")));}
+                    if(i==1840){coinList.add(new CoinSlot(year, String.format("O%nNo Drapery"), coinIndex++, getImgId("Seated")));}
                     if(i>1839 && i<1861 && i!=1853 && i!=1854 && i!=1855 && i!=1845 && i!= 1846 && i!=1848) {
                         coinList.add(new CoinSlot(year, "O", coinIndex++, getImgId("Seated")));}
                     if(i==1853){coinList.add(new CoinSlot(year, "O Arrows&Rays", coinIndex++, getImgId("Seated")));}
@@ -179,7 +179,7 @@ public class EarlyQuarters extends CollectionInfo {
                 }
                 if(showCC){
                     if(i>1869 && i<1873){coinList.add(new CoinSlot(year, "CC", coinIndex++, getImgId("Seated")));}
-                    if(i==1873){coinList.add(new CoinSlot(year, "CC 5 Known", coinIndex++, getImgId("Seated")));}
+                    if(i==1873){coinList.add(new CoinSlot(year, String.format("CC%n5 Known"), coinIndex++, getImgId("Seated")));}
                     if(i==1873){coinList.add(new CoinSlot(year, "CC Arrows", coinIndex++, getImgId("Seated")));}
                     if(i>1874 && i<1879){coinList.add(new CoinSlot(year, "CC Motto", coinIndex++, getImgId("Seated")));}
                 }

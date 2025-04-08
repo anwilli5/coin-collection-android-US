@@ -63,6 +63,7 @@ import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
@@ -73,7 +74,6 @@ import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
-import com.spencerpages.collections.WashingtonSilver;
 import com.spencerpages.collections.WestPoint;
 
 import org.junit.Test;
@@ -1017,11 +1017,11 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {true, true, false, false, false, false, true, true, true, 70},
+                {true, true, false, false, false, false, true, true, true, 67},
                 {true, false, true, false, false, false, true, true, true, 67},
                 {true, false, false, true, false, false, true, true, true, 8},
                 {true, false, false, false, true, false, true, true, true, 63},
-                {true, false, false, false, false, true, true, true, true, 52},
+                {true, false, false, false, false, true, true, true, true, 55},
                 {true, true, true, true, true, true, true, false, false, 7},
                 {true, true, true, true, true, true, false, true, false, 56},
                 {true, true, true, true, true, true, false, false, true, 177},
@@ -1364,17 +1364,17 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {true, true, false, false, false, false, false, false, true, true, true, 85},
-                {true, false, true, false, false, false, false, false, true, true, true, 85},
-                {true, false, false, true, false, false, false, false, true, true, true, 18},
-                {true, false, false, false, true, false, false, false, true, true, true, 9},
-                {true, false, false, false, false, true, false, false, true, true, true, 8},
-                {true, false, false, false, false, false, true, false, true, true, true, 66},
-                {true, false, false, false, false, false, false, true, true, true, true, 57},
+                {true, true, false, false, false, false, false, false, true, true, true, 88},
+                {true, false, true, false, false, false, false, false, true, true, true, 88},
+                {true, false, false, true, false, false, false, false, true, true, true, 21},
+                {true, false, false, false, true, false, false, false, true, true, true, 12},
+                {true, false, false, false, false, true, false, false, true, true, true, 11},
+                {true, false, false, false, false, false, true, false, true, true, true, 69},
+                {true, false, false, false, false, false, false, true, true, true, true, 60},
                 {true, true, true, true, true, true, true, true, true, false, false, 5},
                 {true, true, true, true, true, true, true, true, false, true, false, 97},
-                {true, true, true, true, true, true, true, true, false, false, true, 190},
-                {true, true, true, true, true, true, true, true, true, true, true, 292},
+                {true, true, true, true, true, true, true, true, false, false, true, 193},
+                {true, true, true, true, true, true, true, true, true, true, true, 295},
         };
 
         for (Object[] test : tests) {
@@ -1827,14 +1827,14 @@ public class CollectionCreationTests extends BaseTestCase {
     }
 
     /**
-     * For WashingtonSilver
+     * For SilverQuarters
      * - Test that the number of coins is correct upon collection creation
      */
     @Test
     public void test_WashingtonSilverCreationCounts() {
 
         ParcelableHashMap parameters = new ParcelableHashMap();
-        WashingtonSilver coinClass = new WashingtonSilver();
+        SilverQuarters coinClass = new SilverQuarters();
         coinClass.getCreationParameters(parameters);
 
         // Show Mint Marks, P, D, S, Expected Result

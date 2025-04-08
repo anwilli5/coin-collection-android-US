@@ -78,7 +78,7 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.BasicQuarters;
-import com.spencerpages.collections.WashingtonSilver;
+import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
@@ -123,7 +123,7 @@ public class SharedTest {
                     new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionClass(SilverDimes.class), 0, 1793, 2023, "287", "7516192801"),
                     new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionClass(EarlyDimes.class), 0, 1796, 1891, "59", "929"),
                     new CollectionListInfo("Clad Quarters", 634, 0, getIndexFromCollectionClass(CladQuarters.class), 0, 0, 0, "2383", "122880"),
-                    new CollectionListInfo("Washington Silver", 230, 0, getIndexFromCollectionClass(WashingtonSilver.class), 0, 0, 0, "15", "32985348841472"),
+                    new CollectionListInfo("Silver Quarters", 230, 0, getIndexFromCollectionClass(SilverQuarters.class), 0, 0, 0, "15", "32985348841472"),
                     new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionClass(EarlyQuarters.class), 0, 1796, 1930, "63", "6753"),
                     new CollectionListInfo("Small Dollars", 212, 0, getIndexFromCollectionClass(SmallDollars.class), 0, 0, 0, "143", "962072674304"),
                     new CollectionListInfo("Silver Half Dollars", 231, 0, getIndexFromCollectionClass(SilverHalfDollars.class), 0, 1892, 2023, "287", "62914593"),
@@ -137,7 +137,7 @@ public class SharedTest {
                     new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionClass(HalfCents.class), 0, 1793, 1857, "0", "1"),
                     new CollectionListInfo("Coin Sets", 182, 0, getIndexFromCollectionClass(CoinSets.class), 0, 1947, 2023, "0", "492581209243649"),
                     new CollectionListInfo("Kennedy Half Dollars", 232, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
-                    new CollectionListInfo("Roosevelt Dimes", 284, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
+                    new CollectionListInfo("Roosevelt Dimes", 287, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
                     new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
             };
 

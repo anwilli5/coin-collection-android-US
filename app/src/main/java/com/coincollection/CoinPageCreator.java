@@ -1449,6 +1449,15 @@ public class CoinPageCreator extends BaseActivity {
             mCoinImages.add(MainApplication.COLLECTION_TYPES[idx].getCoinImageIdentifier());
             mCoinValues.add(idx);
         }
+        mCoinNames.add(getResources().getString(R.string.more_collections));
+        mCoinImages.add(-1);
+        mCoinValues.add(-1);
+        for (int i = 0; i < MainApplication.MORE_COLLECTIONS.length; i++) {
+            int idx = MainApplication.getIndexFromCollectionClass(MainApplication.MORE_COLLECTIONS[i]);
+            mCoinNames.add(MainApplication.COLLECTION_TYPES[idx].getCoinType());
+            mCoinImages.add(MainApplication.COLLECTION_TYPES[idx].getCoinImageIdentifier());
+            mCoinValues.add(idx);
+        }
     }
 
     /**

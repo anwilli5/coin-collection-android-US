@@ -167,7 +167,7 @@ public class Cartwheels extends CollectionInfo {
                 if (showD && i == 1921) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Morgan")));}
             }
             if (showPeace && i > 1920 && i < 1936){
-                if (showP) {coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Peace")));}
+                if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Peace")));}
                 if (showD && i != 1921 && i != 1924 && i != 1925 && i != 1928 && i != 1935) {
                     coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Peace")));}
                 if (showS && i != 1921) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Peace")));}
@@ -177,28 +177,28 @@ public class Cartwheels extends CollectionInfo {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        {coinList.add(new CoinSlot(year, "S 40% Silver", coinIndex++, getImgId("Eisenhower")));}
-                        {coinList.add(new CoinSlot(year, "S 40% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, String.format("S%n40%% Silver"), coinIndex++, getImgId("Eisenhower")));}
+                        {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, getImgId("Eisenhower")));}
                         if (i > 1972){coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                     }
                 }
                 if (i == 1975) {continue;}
                 if (i == 1976) {
                     if (showP) {
-                        coinList.add(new CoinSlot("1776-1976", "Type I", coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", "Type II", coinIndex++, getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", String.format("%nType I"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("%nType II"), coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {
-                        coinList.add(new CoinSlot("1776-1976", "D Type I", coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", "D Type II", coinIndex++, getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", String.format("D%nType I"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("D%nType II"), coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
-                        coinList.add(new CoinSlot("1776-1976", "S Proof Type I", coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", "S Proof Type II", coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", "S 40% Silver", coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", "S 40% Silver Proof", coinIndex++, getImgId("Eisenhower")));}
+                        coinList.add(new CoinSlot("1776-1976", String.format("S%nProof Type I"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("S%nProofType II"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Silver"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("S%nSilver Proof"), coinIndex++, getImgId("Eisenhower")));}
                 }
                 if ( i > 1976 ){
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
-                    if (showD) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                 }
             }

@@ -153,6 +153,7 @@
     <string name="select_collection_type">Select Collection Type</string>
     <string name="basic_collections">Basic Collections</string>
     <string name="advanced_collections">Advanced Collections</string>
+    <string name="more_collections">More Collections</string>
 
     <!-- Mint Marks (and related) -->
     <string name="include_p">Include coins from the Philadelphia mint</string>

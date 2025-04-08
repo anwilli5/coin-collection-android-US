@@ -174,25 +174,24 @@ public class KennedyHalfDollars extends CollectionInfo {
                 }
                 if (i > 1964 && i < 1968) {
                     if (showP) {
-                        coinList.add(new CoinSlot(year, "40% Silver", coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, "SMS 40% Silver", coinIndex++, getImgId("Kennedy")));
-                    }
+                        coinList.add(new CoinSlot(year, String.format("%n40%% Silver"), coinIndex++, getImgId("Kennedy")));}
+                    if (showSilverProofs) {coinList.add(new CoinSlot(year, String.format("SMS%n40%% Silver"), coinIndex++, getImgId("Kennedy Proof")));}
                 }
                 if (i > 1967 && i < 1971) {
-                    if (showD) {coinList.add(new CoinSlot(year, "D 40% Silver", coinIndex++, getImgId("Kennedy")));}
-                    if (showSilverProofs) {coinList.add(new CoinSlot(year, "S 40% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showD) {coinList.add(new CoinSlot(year, String.format("D%n40%% Silver"), coinIndex++, getImgId("Kennedy")));}
+                    if (showSilverProofs) {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, getImgId("Kennedy Proof")));}
                 }
-                if (i == 1976) {{coinList.add(new CoinSlot("1776-1796", "S BU 40% Silver", coinIndex++, getImgId("Kennedy")));}
-                    if (showSilverProofs) {coinList.add(new CoinSlot("1776-1976", "S 40% Silver Proof", coinIndex++, getImgId("Kennedy Proof")));}
+                if (i == 1976) {{coinList.add(new CoinSlot("1776-1796", String.format("S BU%n40%% Silver"), coinIndex++, getImgId("Kennedy")));}
+                    if (showSilverProofs) {coinList.add(new CoinSlot("1776-1976", String.format("S %n40%% Proof"), coinIndex++, getImgId("Kennedy Proof")));}
                 }
-                if (showSilverProofs && i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++, getImgId("Kennedy Proof")));
+                if (showSilverProofs && i > 1991) {coinList.add(new CoinSlot(year, String.format("S%nSilver Proof"), coinIndex++, getImgId("Kennedy Proof")));
                     if (i == 2014) {
-                        coinList.add(new CoinSlot(year, "P Proof", coinIndex++, getImgId("Kennedy Proof")));
+                        coinList.add(new CoinSlot(year, String.format("P%nSilver Proof"), coinIndex++, getImgId("Kennedy Proof")));
                         coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, "S Enhanced", coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, "W Reverse Proof", coinIndex++, getImgId("Kennedy Reverse Proof")));
+                        coinList.add(new CoinSlot(year, String.format("S%nEnhanced"), coinIndex++, getImgId("Kennedy")));
+                        coinList.add(new CoinSlot(year, String.format("W%nReverse Proof"), coinIndex++, getImgId("Kennedy Reverse Proof")));
                     }
-                    if (i == 2018){coinList.add(new CoinSlot(year, "S Reverse Proof", coinIndex++, getImgId("Kennedy Reverse Proof")));}
+                    if (i == 2018){coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Kennedy Reverse Proof")));}
                 }
             }
         }

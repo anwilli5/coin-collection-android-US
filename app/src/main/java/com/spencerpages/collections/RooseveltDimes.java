@@ -162,7 +162,10 @@ public class RooseveltDimes extends CollectionInfo {
                 }
             }
             if(showClad) {
-                if (i > 1964 && i < 1968) {coinList.add(new CoinSlot(year, "SMS", coinIndex++));}
+                if (i > 1964 && i < 1968) {
+                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    coinList.add(new CoinSlot(year, "SMS", coinIndex++));
+                }
                 if (showP) {
                     if (i > 1967 && i < 1980) {coinList.add(new CoinSlot(year, "", coinIndex++));}
                     if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++));}

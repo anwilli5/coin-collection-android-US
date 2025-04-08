@@ -35,6 +35,15 @@ public class AllNickels extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "All Nickels";
 
+    private static final String[] FOUR_COIN_STRS = {
+            "Peace Medal",
+            "Keelboat",
+    };
+    private static final String[] FIVE_COIN_STRS = {
+            "Bison",
+            "Ocean in View",
+    };
+
     private static final Object[][] COIN_IMG_IDS = {
             {"Shield", R.drawable.anishield_nickel_with_rays___1867_obverse},                         // 0
             {"Liberty", R.drawable.obv_liberty_head_nickel},                                          // 1
@@ -228,24 +237,20 @@ public class AllNickels extends CollectionInfo {
                     if (showSProof && i > 1967) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Classic Jefferson")));}
                 }
                 if (i ==2004){
-                    if (showP) {coinList.add(new CoinSlot(year, "P Peace Medal ", coinIndex++, getImgId("Peace Medal")));
-                                coinList.add(new CoinSlot(year, "P Keelboat", coinIndex++, getImgId("Keelboat")));}
-                    if (showD) {coinList.add(new CoinSlot(year, "D Peace Medal", coinIndex++, getImgId("Peace Medal")));
-                                coinList.add(new CoinSlot(year, "D Keelboat", coinIndex++, getImgId("Keelboat")));}
-                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof Peace Medal", coinIndex++, getImgId("Peace Medal")));
-                                coinList.add(new CoinSlot(year, "S Proof Keelboat", coinIndex++, getImgId("Keelboat")));}
+                    for (String identifier : FOUR_COIN_STRS) {
+                        if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                    }
                 }
                 if (i == 2005){
-                    if (showP) {coinList.add(new CoinSlot(year, "P Bison", coinIndex++, getImgId("Bison")));
-                                coinList.add(new CoinSlot(year, "P Ocean in View", coinIndex++, getImgId("Ocean in View")));}
-                    if (showSatin) {coinList.add(new CoinSlot(year, "P Satin Bison", coinIndex++, getImgId("Bison")));
-                                coinList.add(new CoinSlot(year, "P Satin Ocean in View", coinIndex++, getImgId("Ocean in View")));}
-                    if (showD) {coinList.add(new CoinSlot(year, "D Bison", coinIndex++, getImgId("Bison")));
-                                coinList.add(new CoinSlot(year, "D Ocean in View", coinIndex++, getImgId("Ocean in View")));}
-                    if (showSatin) {coinList.add(new CoinSlot(year, "D Satin Bison", coinIndex++, getImgId("Bison")));
-                                coinList.add(new CoinSlot(year, "D Satin Ocean in View", coinIndex++, getImgId("Ocean in View")));}
-                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof Bison", coinIndex++, getImgId("2005 Obverse Proof")));
-                                coinList.add(new CoinSlot(year, "S Proof Ocean in View", coinIndex++, getImgId("2005 Obverse Proof")));}
+                    for (String identifier : FIVE_COIN_STRS) {
+                        if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year, String.format("P Satin%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSatin) {coinList.add(new CoinSlot(year, String.format("D Satin%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                        if (showSProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                    }
                 }
                 if (i > 2005) {
                     if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
@@ -253,7 +258,7 @@ public class AllNickels extends CollectionInfo {
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
                     if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Modern Jefferson")));}
                     if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
-                    if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, "S Reverse Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
+                    if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
                     if (showW && i == 2020) {
                         coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
                         coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));

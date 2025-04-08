@@ -118,35 +118,35 @@ public class HalfDimes extends CollectionInfo {
         for (Integer i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showBust && i == 1794 ) {
-                coinList.add(new CoinSlot(year, "Flowing Hair", coinIndex++, getImgId("Flowing Hair")));}
+                coinList.add(new CoinSlot(year, String.format("%nFlowing Hair"), coinIndex++, getImgId("Flowing Hair")));}
             if (showBust && i == 1795) {
-                coinList.add(new CoinSlot(year, "Flowing Hair", coinIndex++, getImgId("Flowing Hair")));}
+                coinList.add(new CoinSlot(year, String.format("%nFlowing Hair"), coinIndex++, getImgId("Flowing Hair")));}
             if (showBust && i > 1795 && i < 1798) {
-                coinList.add(new CoinSlot(year, "Draped Bust Small Eagle", coinIndex++, getImgId("Draped Bust")));}
+                coinList.add(new CoinSlot(year, String.format("%nDraped Bust%nSmall Eagle"), coinIndex++, getImgId("Draped Bust")));}
             if (showBust && i > 1799 && i < 1806 && i != 1804) {
-                coinList.add(new CoinSlot(year, "Draped Bust Heraldic Eagle", coinIndex++, getImgId("Draped Bust")));}
+                coinList.add(new CoinSlot(year, String.format("%nDraped Bust%nHeraldic Eagle"), coinIndex++, getImgId("Draped Bust")));}
             if (showBust && i > 1828 && i < 1838) {
-                coinList.add(new CoinSlot(year, "Capped Bust", coinIndex++, getImgId("Capped Bust")));}
+                coinList.add(new CoinSlot(year, String.format("%nCapped Bust"), coinIndex++, getImgId("Capped Bust")));}
 
             if (showSeated) {
                 if (showP) {
                     if (i == 1837) {
-                        coinList.add(new CoinSlot(year, "No Stars Sm Date", coinIndex++, getImgId("Seated No Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("No Stars%nSm Date"), coinIndex++, getImgId("Seated No Stars")));}
                     if (i == 1837) {
-                        coinList.add(new CoinSlot(year, "No Stars Lg Date", coinIndex++, getImgId("Seated No Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("No Stars%nLg Date"), coinIndex++, getImgId("Seated No Stars")));}
                     if (i > 1837 && i < 1841) {
-                        coinList.add(new CoinSlot(year, "Stars No Drapery", coinIndex++, getImgId("Seated Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("Stars%nNo Drapery"), coinIndex++, getImgId("Seated Stars")));}
                     if (i > 1839 && i < 1860 && i != 1854 && i != 1855) {
                         coinList.add(new CoinSlot(year, "Stars", coinIndex++, getImgId("Seated Stars")));}
                     if (i == 1848) {
-                        coinList.add(new CoinSlot(year, "Stars Lg Date", coinIndex++, getImgId("Seated Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("Stars%nLg Date"), coinIndex++, getImgId("Seated Stars")));}
                     if (i == 1849) {
-                        coinList.add(new CoinSlot(year, "Stars 9 Over 6", coinIndex++, getImgId("Seated Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("Stars%n9 Over 6"), coinIndex++, getImgId("Seated Stars")));}
                     if (i == 1853 || i == 1854 || i == 1855) {
                         coinList.add(new CoinSlot(year, "Arrows", coinIndex++, getImgId("Seated Arrows")));}
                     if (i == 1858) {
-                        coinList.add(new CoinSlot(year, "Stars Double Date", coinIndex++, getImgId("Seated Stars")));
-                        coinList.add(new CoinSlot(year, "Stars Inverted Date", coinIndex++, getImgId("Seated Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("Stars%nDouble Date"), coinIndex++, getImgId("Seated Stars")));
+                        coinList.add(new CoinSlot(year, String.format("Stars%nInverted Date"), coinIndex++, getImgId("Seated Stars")));}
                     if (i > 1859) {
                         coinList.add(new CoinSlot(year, "Legend", coinIndex++, getImgId("Seated Legend")));}
                     if (i == 1861) {
@@ -156,7 +156,7 @@ public class HalfDimes extends CollectionInfo {
                     if (i == 1838) {
                         coinList.add(new CoinSlot(year, "O No Stars", coinIndex++, getImgId("Seated No Stars")));}
                     if (i == 1839 || i == 1840) {
-                        coinList.add(new CoinSlot(year, "O Stars No Drapery", coinIndex++, getImgId("Seated Stars")));}
+                        coinList.add(new CoinSlot(year, String.format("O Stars%nNo Drapery"), coinIndex++, getImgId("Seated Stars")));}
                     if (i > 1839 && i < 1861 && i != 1843 && i != 1845 && i != 1846 && i != 1847 && i != 1854 && i != 1855) {
                         coinList.add(new CoinSlot(year, "O Stars", coinIndex++, getImgId("Seated Stars")));}
                     if (i == 1853 || i == 1854 || i == 1855) {
@@ -166,9 +166,9 @@ public class HalfDimes extends CollectionInfo {
                     if (i > 1862 && i != 1870) {
                         coinList.add(new CoinSlot(year, "S Legend", coinIndex++, getImgId("Seated Legend")));}
                     if (i == 1870) {
-                        coinList.add(new CoinSlot(year, "S Legend One Known", coinIndex++, getImgId("Seated Legend")));}
+                        coinList.add(new CoinSlot(year, String.format("S Legend%nOne Known"), coinIndex++, getImgId("Seated Legend")));}
                     if (i == 1872) {
-                        coinList.add(new CoinSlot(year, "S Legend S Under Bow",coinIndex++, getImgId("Seated Legend")));}
+                        coinList.add(new CoinSlot(year, String.format("S Legend%nS Under Bow"),coinIndex++, getImgId("Seated Legend")));}
                 }
             }
         }

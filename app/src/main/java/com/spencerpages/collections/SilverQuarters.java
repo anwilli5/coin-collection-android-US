@@ -31,8 +31,8 @@ import com.spencerpages.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class WashingtonSilver extends CollectionInfo {
-    public static final String COLLECTION_TYPE = "Washington Silver Quarters";
+public class SilverQuarters extends CollectionInfo {
+    public static final String COLLECTION_TYPE = "Silver Quarters";
 
     private static final Object[][] STATES_COIN_IDENTIFIERS = {
             {"Delaware 1999", R.drawable.states_1999_delaware_unc},
