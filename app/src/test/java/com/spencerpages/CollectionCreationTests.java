@@ -174,23 +174,26 @@ public class CollectionCreationTests extends BaseTestCase {
         AmericanInnovationDollars coinClass = new AmericanInnovationDollars();
         coinClass.getCreationParameters(parameters);
 
-        // Show Mint Marks, P, D, Expected Result
+        // Show Mint Marks, P, D, proof, reverse proof Expected Result
         Object[][] tests = {
-                {false, true, true, 29},
-                {false, false, true, 29},
-                {true, false, false, 0},
-                {true, true, false, 29},
-                {true, false, true, 29},
-                {true, true, true, 29 + 29},
+                {false, true, true, true, true,  116},
+                {true, false, false, false, false, 0},
+                {true, true, false, false, false, 29},
+                {true, false, true, false, false, 29},
+                {true, false, false, true, false, 29},
+                {true, false, false, false, true, 29},
+                {true, true, true, true, true, 29 + 29 + 29 + 29},
         };
 
         for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[3], coinList.size());
+            assertEquals(test[5], coinList.size());
 
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
@@ -562,15 +565,15 @@ public class CollectionCreationTests extends BaseTestCase {
         Object[][] tests = {
                 {true, true, false, false, false, false, false, true, true, true, true, 169},
                 {true, false, true, false, false, false, false, true, true, true, true, 163},
-                {true, false, false, true, false, false, false, true, true, true, true, 67},
+                {true, false, false, true, false, false, false, true, true, true, true, 66},
                 {true, false, false, false, true, false, false, true, true, true, true, 10},
                 {true, false, false, false, false, true, false, true, true, true, true, 62},
                 {true, false, false, false, false, false, true, true, true, true, true, 163},
                 {true, true, true, true, true, true, true, true, false, false, false, 96},
                 {true, true, true, true, true, true, true, false, true, false, false, 220},
-                {true, true, true, true, true, true, true, false, false, true, false, 238},
+                {true, true, true, true, true, true, true, false, false, true, false, 237},
                 {true, true, true, true, true, true, true, false, false, false, true, 80},
-                {true, true, true, true, true, true, true, true, true, true, true, 634},
+                {true, true, true, true, true, true, true, true, true, true, true, 633},
         };
 
         for (Object[] test : tests) {

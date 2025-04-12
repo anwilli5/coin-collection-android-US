@@ -38,6 +38,7 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberQuarters;
@@ -122,7 +123,7 @@ public class SharedTest {
                     new CollectionListInfo("Half Dimes", 96, 0, getIndexFromCollectionClass(HalfDimes.class), 0, 1794, 1873, "27", "577"),
                     new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionClass(SilverDimes.class), 0, 1793, 2023, "287", "7516192801"),
                     new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionClass(EarlyDimes.class), 0, 1796, 1891, "59", "929"),
-                    new CollectionListInfo("Clad Quarters", 634, 0, getIndexFromCollectionClass(CladQuarters.class), 0, 0, 0, "2383", "122880"),
+                    new CollectionListInfo("Clad Quarters", 633, 0, getIndexFromCollectionClass(CladQuarters.class), 0, 0, 0, "2255", "122880"),
                     new CollectionListInfo("Silver Quarters", 230, 0, getIndexFromCollectionClass(SilverQuarters.class), 0, 0, 0, "15", "32985348841472"),
                     new CollectionListInfo("Early Quarters", 244, 0, getIndexFromCollectionClass(EarlyQuarters.class), 0, 1796, 1930, "63", "6753"),
                     new CollectionListInfo("Small Dollars", 212, 0, getIndexFromCollectionClass(SmallDollars.class), 0, 0, 0, "143", "962072674304"),
@@ -139,6 +140,7 @@ public class SharedTest {
                     new CollectionListInfo("Kennedy Half Dollars", 232, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
                     new CollectionListInfo("Roosevelt Dimes", 287, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
                     new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
+                    new CollectionListInfo("Innovation Dollars", 116, 0, getIndexFromCollectionClass(AmericanInnovationDollars.class), 0, 0, 0, "647", "0"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
