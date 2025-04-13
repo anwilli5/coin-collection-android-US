@@ -1459,13 +1459,13 @@ public class CollectionCreationTests extends BaseTestCase {
                 {true, false, true, false, false, false, true, true, true, true, true, 50},
                 {true, false, false, true, false, false, true, true, true, true, true, 58},
                 {true, false, false, false, true, false, true, true, true, true, true, 22},
-                {true, false, false, false, false, true, true, true, true, true, true, 48},
+                {true, false, false, false, false, true, true, true, true, true, true, 18},
                 {true, true, true, true, true, true, true, false, false, false, false, 7},
                 {true, true, true, true, true, true, false, true, false, false, false, 73},
                 {true, true, true, true, true, true, false, false, true, false, false, 65},
-                {true, true, true, true, true, true, false, false, false, true, false, 35},
-                {true, true, true, true, true, true, false, false, false, false, true, 56},
-                {true, true, true, true, true, true, true, true, true, true, true, 233},
+                {true, true, true, true, true, true, false, false, false, true, false, 49},
+                {true, true, true, true, true, true, false, false, false, false, true, 12},
+                {true, true, true, true, true, true, true, true, true, true, true, 203},
         };
 
         for (Object[] test : tests) {
