@@ -518,17 +518,17 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {true, true, false, false, false, false, true, true, true, true, true, 94},
-                {true, false, true, false, false, false, true, true, true, true, true, 18},
-                {true, false, false, true, false, false, true, true, true, true, true, 57},
-                {true, false, false, false, true, false, true, true, true, true, true, 30},
-                {true, false, false, false, false, true, true, true, true, true, true, 17},
+                {true, true, false, false, false, false, true, true, true, true, true, 153},
+                {true, false, true, false, false, false, true, true, true, true, true, 71},
+                {true, false, false, true, false, false, true, true, true, true, true, 131},
+                {true, false, false, false, true, false, true, true, true, true, true, 83},
+                {true, false, false, false, false, true, true, true, true, true, true, 70},
                 {true, true, true, true, true, true, true, false, false, false, false, 7},
                 {true, true, true, true, true, true, false, true, false, false, false, 96},
                 {true, true, true, true, true, true, false, false, true, false, false, 24},
                 {true, true, true, true, true, true, false, false, false, true, false, 32},
-                {true, true, true, true, true, true, false, false, false, false, true, 44},
-                {true, true, true, true, true, true, true, true, true, true, true, 200},
+                {true, true, true, true, true, true, false, false, false, false, true, 124},
+                {true, true, true, true, true, true, true, true, true, true, true, 280},
         };
 
         for (Object[] test : tests) {
