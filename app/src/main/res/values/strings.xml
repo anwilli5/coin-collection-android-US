@@ -170,6 +170,7 @@
     <string name="include_mint_sets">Include Mint Sets</string>
     <string name="include_proof_sets">Include Proof Sets</string>
     <string name="include_silver_proof_sets">Include Silver Proof Sets</string>
+    <string name="include_franklin_proofs">Include Franklin Proofs</string>
 
     <!-- Checkboxes -->
     <string name="show_territories">Include the quarters for D.C. and the U.S. Territories</string>
