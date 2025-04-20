@@ -55,63 +55,117 @@ public class SmallDollars extends CollectionInfo {
             {"2025", R.drawable.native_2025_unc},
     };
 
-    private static final Object[][] COIN_IDENTIFIERS = {
-            {"2007 George Washington", R.drawable.pres_2007_george_washington_unc},
-            {"2007 John Adams", R.drawable.pres_2007_john_adam_unc},
-            {"2007 Thomas Jefferson", R.drawable.pres_2007_thomas_jefferson_unc},
-            {"2007 James Madison", R.drawable.pres_2007_james_madison_unc},
-            {"2008 James Monroe", R.drawable.pres_2008_james_monroe_unc},
-            {"2008 John Quincy Adams", R.drawable.pres_2008_john_quincy_adams_unc},
-            {"2008 Andrew Jackson", R.drawable.pres_2008_andrew_jackson_unc},
-            {"2008 Martin Van Buren", R.drawable.pres_2008_martin_van_buren_unc},
-            {"2009 William Henry Harrison", R.drawable.pres_2009_william_henry_harrison_unc},
-            {"2009 John Tyler", R.drawable.pres_2009_john_tyler_unc},
-            {"2009 James K. Polk", R.drawable.pres_2009_james_k_polk_unc},
-            {"2009 Zachary Taylor", R.drawable.pres_2009_zachary_taylor_unc},
-            {"2010 Millard Fillmore", R.drawable.pres_2010_millard_fillmore_unc},
-            {"2010 Franklin Pierce", R.drawable.pres_2010_franklin_pierce_unc},
-            {"2010 James Buchanan", R.drawable.pres_2010_james_buchanan_unc},
-            {"2010 Abraham Lincoln", R.drawable.pres_2010_abraham_lincoln_unc},
-            {"2011 Andrew Johnson", R.drawable.pres_2011_andrew_johnson_unc},
-            {"2011 Ulysses S. Grant", R.drawable.pres_2011_ulysses_s_grant_unc},
-            {"2011 Rutherford B. Hayes", R.drawable.pres_2011_rutherford_b_hayes_unc},
-            {"2011 James Garfield", R.drawable.pres_2011_james_garfield_unc},
-            {"2012 Chester Arthur", R.drawable.pres_2012_chester_arthur_unc},
-            {"2012 Grover Cleveland 1", R.drawable.pres_2012_grover_cleveland_1_unc},
-            {"2012 Benjamin Harrison", R.drawable.pres_2012_benjamin_harrison_unc},
-            {"2012 Grover Cleveland 2", R.drawable.pres_2012_grover_cleveland_2_unc},
-            {"2013 William McKinley", R.drawable.pres_2013_william_mckinley_unc},
-            {"2013 Theodore Roosevelt", R.drawable.pres_2013_theodore_roosevelt_unc},
-            {"2013 William Howard Taft", R.drawable.pres_2013_william_taft_unc},
-            {"2013 Woodrow Wilson", R.drawable.pres_2013_woodrow_wilson_unc},
-            {"2014 Warren G. Harding", R.drawable.pres_2014_warren_g_harding_unc},
-            {"2014 Calvin Coolidge", R.drawable.pres_2014_calvin_coolidge_unc},
-            {"2014 Herbert Hoover", R.drawable.pres_2014_herbert_hoover_unc},
-            {"2014 Franklin D. Roosevelt", R.drawable.pres_2014_franklin_d_roosevelt_unc},
-            {"2015 Harry S Truman", R.drawable.pres_2015_harry_s_truman_unc},
-            {"2015 Dwight D. Eisenhower", R.drawable.pres_2015_dwight_d_eisenhower_unc},
-            {"2015 John F. Kennedy", R.drawable.pres_2015_john_f_kennedy_unc},
-            {"2015 Lyndon B. Johnson", R.drawable.pres_2015_lyndon_b_johnson_unc},
-            {"2016 Richard M. Nixon", R.drawable.pres_2016_richard_m_nixon_unc},
-            {"2016 Gerald R. Ford", R.drawable.pres_2016_gerald_r_ford_unc},
-            {"2016 Ronald Reagan", R.drawable.pres_2016_ronald_reagan_unc},
-    };
-
-    private static final Object[][] BUSHIDENTIFIERS = {
-            {"2020 George H.W. Bush", R.drawable.pres_2020_george_hw_bush_unc},
-    };
-
     private static final Object[][] COIN_IMG_IDS = {
-            {"Susan B. Anthony",R.drawable.obv_susan_b_anthony_unc},                         // 0
-            {"Sacagawea", R.drawable.obv_sacagawea_unc},                                     // 1
+            {"Susan B. Anthony",R.drawable.obv_susan_b_anthony_unc},
+            {"Sacagawea", R.drawable.obv_sacagawea_unc},
+            {"George Washington", R.drawable.pres_2007_george_washington_unc},
+            {"John Adams", R.drawable.pres_2007_john_adam_unc},
+            {"Thomas Jefferson", R.drawable.pres_2007_thomas_jefferson_unc},
+            {"James Madison", R.drawable.pres_2007_james_madison_unc},
+            {"James Monroe", R.drawable.pres_2008_james_monroe_unc},
+            {"John Quincy Adams", R.drawable.pres_2008_john_quincy_adams_unc},
+            {"Andrew Jackson", R.drawable.pres_2008_andrew_jackson_unc},
+            {"Martin Van Buren", R.drawable.pres_2008_martin_van_buren_unc},
+            {"William Henry Harrison", R.drawable.pres_2009_william_henry_harrison_unc},
+            {"John Tyler", R.drawable.pres_2009_john_tyler_unc},
+            {"James K. Polk", R.drawable.pres_2009_james_k_polk_unc},
+            {"Zachary Taylor", R.drawable.pres_2009_zachary_taylor_unc},
+            {"Millard Fillmore", R.drawable.pres_2010_millard_fillmore_unc},
+            {"Franklin Pierce", R.drawable.pres_2010_franklin_pierce_unc},
+            {"James Buchanan", R.drawable.pres_2010_james_buchanan_unc},
+            {"Abraham Lincoln", R.drawable.pres_2010_abraham_lincoln_unc},
+            {"Andrew Johnson", R.drawable.pres_2011_andrew_johnson_unc},
+            {"Ulysses S. Grant", R.drawable.pres_2011_ulysses_s_grant_unc},
+            {"Rutherford B. Hayes", R.drawable.pres_2011_rutherford_b_hayes_unc},
+            {"James Garfield", R.drawable.pres_2011_james_garfield_unc},
+            {"Chester Arthur", R.drawable.pres_2012_chester_arthur_unc},
+            {"Grover Cleveland 1", R.drawable.pres_2012_grover_cleveland_1_unc},
+            {"Benjamin Harrison", R.drawable.pres_2012_benjamin_harrison_unc},
+            {"Grover Cleveland 2", R.drawable.pres_2012_grover_cleveland_2_unc},
+            {"William McKinley", R.drawable.pres_2013_william_mckinley_unc},
+            {"Theodore Roosevelt", R.drawable.pres_2013_theodore_roosevelt_unc},
+            {"William Howard Taft", R.drawable.pres_2013_william_taft_unc},
+            {"Woodrow Wilson", R.drawable.pres_2013_woodrow_wilson_unc},
+            {"Warren G. Harding", R.drawable.pres_2014_warren_g_harding_unc},
+            {"Calvin Coolidge", R.drawable.pres_2014_calvin_coolidge_unc},
+            {"Herbert Hoover", R.drawable.pres_2014_herbert_hoover_unc},
+            {"Franklin D. Roosevelt", R.drawable.pres_2014_franklin_d_roosevelt_unc},
+            {"Harry S Truman", R.drawable.pres_2015_harry_s_truman_unc},
+            {"Dwight D. Eisenhower", R.drawable.pres_2015_dwight_d_eisenhower_unc},
+            {"John F. Kennedy", R.drawable.pres_2015_john_f_kennedy_unc},
+            {"Lyndon B. Johnson", R.drawable.pres_2015_lyndon_b_johnson_unc},
+            {"Richard M. Nixon", R.drawable.pres_2016_richard_m_nixon_unc},
+            {"Gerald R. Ford", R.drawable.pres_2016_gerald_r_ford_unc},
+            {"Ronald Reagan", R.drawable.pres_2016_ronald_reagan_unc},
+            {"George H.W. Bush", R.drawable.pres_2020_george_hw_bush_unc},
+    };
+    private static final String[] SEVEN = {
+            "George Washington",
+            "John Adams",
+            "Thomas Jefferson",
+            "James Madison",
+    };
+    private static final String[] EIGHT = {
+            "James Monroe",
+            "John Quincy Adams",
+            "Andrew Jackson",
+            "Martin Van Buren",
+    };
+    private static final String[] NINE = {
+            "William Henry Harrison",
+            "John Tyler",
+            "James K. Polk",
+            "Zachary Taylor",
+    };
+    private static final String[] TEN = {
+            "Millard Fillmore",
+            "Franklin Pierce",
+            "James Buchanan",
+            "Abraham Lincoln",
+    };
+    private static final String[] ELEVEN = {
+            "Andrew Johnson",
+            "Ulysses S. Grant",
+            "Rutherford B. Hayes",
+            "James Garfield",
+    };
+    private static final String[] TWELVE = {
+            "Chester Arthur",
+            "Grover Cleveland 1",
+            "Benjamin Harrison",
+            "Grover Cleveland 2",
+    };
+    private static final String[] THIRTEEN = {
+            "William McKinley",
+            "Theodore Roosevelt",
+            "William Howard Taft",
+            "Woodrow Wilson",
+    };
+    private static final String[] FOURTEEN = {
+            "Warren G. Harding",
+            "Calvin Coolidge",
+            "Herbert Hoover",
+            "Franklin D. Roosevelt",
+    };
+    private static final String[] FIFTEEN = {
+            "Harry S Truman",
+            "Dwight D. Eisenhower",
+            "John F. Kennedy",
+            "Lyndon B. Johnson",
+    };
+    private static final String[] SIXTEEN = {
+            "Richard M. Nixon",
+            "Gerald R. Ford",
+            "Ronald Reagan",
+    };
+    private static final String[] TWENTY = {
+            "George H.W. Bush",
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
         // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
-        for (Object[] coinData : BUSHIDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : SAC_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
 
@@ -139,7 +193,7 @@ public class SmallDollars extends CollectionInfo {
         } else {
             slotImage = COIN_MAP.get(coinSlot.getIdentifier());
         }
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE;
     }
 
     @Override
@@ -190,7 +244,7 @@ public class SmallDollars extends CollectionInfo {
 
         if (showSba) {
             for (int i = 1979; i <= 1999; i++) {
-                String year = String.format("%d", i);
+                String year = Integer.toString(i);
                 if (i > 1981 && i < 1999) continue;
                 if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Susan B. Anthony")));}
                 if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Susan B. Anthony")));}
@@ -199,18 +253,75 @@ public class SmallDollars extends CollectionInfo {
             }
         }
         if(showPres){
-            for (Object[] coinData : COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                if (showP) {coinList.add(new CoinSlot(identifier, "P", coinIndex++));}
-                if (showD) {coinList.add(new CoinSlot(identifier, "D", coinIndex++));}
-                if (showProof) {coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));}
+            for (String identifier : SEVEN) {
+                String year = Integer.toString(2007);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
             }
-            if (showP) {coinList.add(new CoinSlot("2020 George H.W. Bush", "P", coinIndex++));}
-            if (showD) {coinList.add(new CoinSlot("2020 George H.W. Bush", "D", coinIndex++));}
+            for (String identifier : EIGHT) {
+                String year = Integer.toString(2008);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : NINE) {
+                String year = Integer.toString(2009);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : TEN) {
+                String year = Integer.toString(2010);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : ELEVEN) {
+                String year = Integer.toString(2011);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : TWELVE) {
+                String year = Integer.toString(2012);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : THIRTEEN) {
+                String year = Integer.toString(2013);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : FOURTEEN) {
+                String year = Integer.toString(2014);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : FIFTEEN) {
+                String year = Integer.toString(2015);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : SIXTEEN) {
+                String year = Integer.toString(2016);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+            for (String identifier : TWENTY) {
+                String year = Integer.toString(2020);
+                if (showP) {coinList.add(new CoinSlot(year, String.format("P%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
         }
         if(showSac){
             for (int i = 2000; i <= 2008; i++) {
-                String year = String.format("%d", i);
+                String year =Integer.toString(i) ;
                 if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Sacagawea")));}
                 if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Sacagawea")));}
                 if (showProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Sacagawea")));}

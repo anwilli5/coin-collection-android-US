@@ -108,7 +108,10 @@ public class SilverHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_o);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.FALSE);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_silver_proofs);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5_STRING_ID, R.string.include_franklin_proofs);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_silver_proofs);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_1_STRING_ID, R.string.include_old_coins);
@@ -136,7 +139,8 @@ public class SilverHalfDollars extends CollectionInfo {
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
         Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showFProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
         Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
         Boolean showBarber = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
         Boolean showWalker = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
@@ -146,10 +150,10 @@ public class SilverHalfDollars extends CollectionInfo {
         int coinIndex = 0;
 
         if (showOld) {
-            coinList.add(new CoinSlot("Flowing Hair", "", coinIndex++, getImgId("Flowing Hair (Old)")));
-            coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust (Old)")));
-            coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust (Old)")));
-            coinList.add(new CoinSlot("Seated Liberty", "", coinIndex++, getImgId("Seated Liberty (Old)")));
+            coinList.add(new CoinSlot("Flowing Hair", "", coinIndex++, getImgId("Flowing Hair")));
+            coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust")));
+            coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust")));
+            coinList.add(new CoinSlot("Seated Liberty", "", coinIndex++, getImgId("Seated")));
         }
         if (showOld && !showBarber) {coinList.add(new CoinSlot("Barber", "", coinIndex++, getImgId("Barber")));}
         if (showOld && !showWalker) {coinList.add(new CoinSlot("Walker", "", coinIndex++, getImgId("Walking Liberty")));}
@@ -183,6 +187,7 @@ public class SilverHalfDollars extends CollectionInfo {
                 if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Franklin")));}
                 if (showD && i != 1955 && i != 1956) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Franklin")));}
                 if (showS && i != 1948 && i != 1950 && i <= 1954) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Franklin")));}
+                if (showFProof && i>1949) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Franklin")));}
             }
             if (showKen) {
                 if (i == 1964) {
