@@ -93,7 +93,7 @@ public class CollectionListInfo implements Parcelable {
     private final CollectionInfo mCollectionInfo;
 
     // Flags for selected mint marks
-    public final static long ALL_MINT_MASK = 0x7FFFL;
+    public final static long ALL_MINT_MASK = 0xFFFFL;
     public final static long SHOW_MINT_MARKS = 0x1L;
     public final static long MINT_P = 0x2L;
     public final static long MINT_D = 0x4L;
@@ -106,6 +106,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_REV_PROOF = 0x200L;
     public final static long MINT_MEM_PROOF = 0x400L;
     public final static long MINT_SATIN = 0x800L;
+    public final static long MINT_FRANKLIN_PROOF = 0x1000L;
 
     // Flags for show checkboxes options
     public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFFL;
@@ -386,6 +387,10 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasSatinMintMarks() {
         return (getMintMarkFlagsAsLong() & MINT_SATIN) != 0;
+    }
+
+    public boolean hasFranklinProofMintMarks() {
+        return (getMintMarkFlagsAsLong() & MINT_FRANKLIN_PROOF) != 0;
     }
 
     public boolean hasCustomDates() {
@@ -1037,3 +1042,4 @@ public class CollectionListInfo implements Parcelable {
         }
     };
 }
+
