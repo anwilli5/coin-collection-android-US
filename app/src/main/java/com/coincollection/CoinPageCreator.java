@@ -1060,6 +1060,8 @@ public class CoinPageCreator extends BaseActivity {
                     mintMarkFlags |= CollectionListInfo.MINT_MEM_PROOF;
                 } else if (optionStrId.equals(R.string.include_satin)) {
                     mintMarkFlags |= CollectionListInfo.MINT_SATIN;
+                } else if (optionStrId.equals(R.string.include_franklin_proofs)) {
+                    mintMarkFlags |= CollectionListInfo.MINT_FRANKLIN_PROOF;
                 }
             }
         }
@@ -1277,6 +1279,8 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasMemProofMintMarks());
             } else if (optionStrId.equals(R.string.include_satin)) {
                 parameters.put(optName, existingCollection.hasSatinMintMarks());
+            } else if (optionStrId.equals(R.string.include_franklin_proofs)) {
+                parameters.put(optName, existingCollection.hasFranklinProofMintMarks());
             }
         }
         // Checkboxes
