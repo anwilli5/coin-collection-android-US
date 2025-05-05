@@ -1027,12 +1027,12 @@ public class CollectionCreationTests extends BaseTestCase {
                 {true, true, false, false, false, false, true, true, true, 67},
                 {true, false, true, false, false, false, true, true, true, 67},
                 {true, false, false, true, false, false, true, true, true, 8},
-                {true, false, false, false, true, false, true, true, true, 63},
+                {true, false, false, false, true, false, true, true, true, 62},
                 {true, false, false, false, false, true, true, true, true, 55},
                 {true, true, true, true, true, true, true, false, false, 7},
                 {true, true, true, true, true, true, false, true, false, 56},
-                {true, true, true, true, true, true, false, false, true, 177},
-                {true, true, true, true, true, true, true, true, true, 240},
+                {true, true, true, true, true, true, false, false, true, 176},
+                {true, true, true, true, true, true, true, true, true, 239},
         };
 
         for (Object[] test : tests) {
