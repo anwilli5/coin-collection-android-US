@@ -154,19 +154,22 @@ public class KennedyHalfDollars extends CollectionInfo {
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
-            if (showClad){
+            if ( i == 1976) {year = "1776-1976";}
+            if (showClad && i !=1975){
                 if (showP) {
                     if (i > 1970 && i < 1980) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Kennedy")));}
-                    if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
+                    if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Kennedy")));}
                     if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Kennedy")));}
+                    if (i == 2014) {coinList.add(new CoinSlot(year, "P Enhanced", coinIndex++, getImgId("Kennedy")));}
                 }
                 if (showD) {
-                    if (i > 1970) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
+                    if (i > 1970) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Kennedy")));}
                     if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Kennedy")));}
+                    if (i == 2014) {coinList.add(new CoinSlot(year, "D Enhanced", coinIndex++, getImgId("Kennedy")));}
                 }
                 if (showProofs && i > 1970) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Kennedy Proof")));}
             }
-            if (showSilver) {
+            if (showSilver && i !=1975) {
                 if (i == 1964) {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Kennedy")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Kennedy")));}

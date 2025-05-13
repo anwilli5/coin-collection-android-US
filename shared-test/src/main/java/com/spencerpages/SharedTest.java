@@ -38,6 +38,7 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberQuarters;
@@ -136,9 +137,10 @@ public class SharedTest {
                     new CollectionListInfo("Cartwheels", 271, 0, getIndexFromCollectionClass(Cartwheels.class), 0, 1878, 2023, "383", "128849018913"),
                     new CollectionListInfo("Half Cents", 44, 0, getIndexFromCollectionClass(HalfCents.class), 0, 1793, 1857, "0", "1"),
                     new CollectionListInfo("Coin Sets", 182, 0, getIndexFromCollectionClass(CoinSets.class), 0, 1947, 2023, "0", "492581209243649"),
-                    new CollectionListInfo("Kennedy Half Dollars", 232, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
+                    new CollectionListInfo("Kennedy Half Dollars", 231, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
                     new CollectionListInfo("Roosevelt Dimes", 287, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
                     new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
+                    new CollectionListInfo("Innovation Dollars", 116, 0, getIndexFromCollectionClass(AmericanInnovationDollars.class), 0, 0, 0, "647", "0"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =
