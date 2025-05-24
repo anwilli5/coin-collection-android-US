@@ -1,0 +1,114 @@
+name: Build and Create GitHub Release
+
+on:
+  workflow_dispatch: {} # No inputs from user at trigger time
+
+jobs:
+  build_and_create_release:
+    name: 'Build APKs and Create GitHub Release'
+    runs-on: ubuntu-latest
+    permissions: # Needed by softprops/action-gh-release to create releases
+      contents: write 
+    outputs: # Output extracted versions for potential use in other workflows if chained via API
+      tag_created: v${{ steps.extract_versions.outputs.manifest_version_name }}
+      version_name_extracted: ${{ steps.extract_versions.outputs.manifest_version_name }}
+      version_code_extracted: ${{ steps.extract_versions.outputs.manifest_version_code }}
+    steps:
+      - name: Checkout code (full history for release notes)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for changelog generation between tags
+
+      - name: Extract versionName and versionCode from Manifest
+        id: extract_versions
+        run: |
+          MANIFEST_PATH="app/manifests/AndroidManifest.xml"
+          if [ ! -f "$MANIFEST_PATH" ]; then
+            echo "AndroidManifest.xml not found at $MANIFEST_PATH! Trying app/src/main/AndroidManifest.xml as fallback."
+            MANIFEST_PATH="app/src/main/AndroidManifest.xml"
+          fi
+          if [ ! -f "$MANIFEST_PATH" ]; then
+            echo "AndroidManifest.xml not found at primary or fallback path."
+            exit 1
+          fi
+          
+          VERSION_NAME=$(grep 'android:versionName=' "$MANIFEST_PATH" | sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p')
+          VERSION_CODE=$(grep 'android:versionCode=' "$MANIFEST_PATH" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+          
+          if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
+            echo "Could not extract versionName or versionCode from $MANIFEST_PATH"
+            exit 1
+          fi
+          
+          echo "Extracted versionName: $VERSION_NAME"
+          echo "Extracted versionCode: $VERSION_CODE"
+          echo "manifest_version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "manifest_version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+
+      - name: Check if Git Tag Exists
+        id: check_tag
+        run: |
+          TAG_NAME="v${{ steps.extract_versions.outputs.manifest_version_name }}"
+          echo "Checking for existing tag: $TAG_NAME"
+          # Fetch all tags from remote to ensure local git knows about them
+          git fetch --tags --force # --force to overwrite local tags with remote, ensuring up-to-date check
+          # Check if tag exists locally (which implies it would have been fetched if remote)
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Error: Tag $TAG_NAME already exists. Halting workflow to prevent duplicate release."
+            exit 1
+          fi
+          # As an additional safeguard, explicitly check remote. 
+          # git ls-remote --tags origin refs/tags/$TAG_NAME will output the tag if it exists on remote.
+          # If it outputs something, the tag exists.
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME$"; then
+             echo "Error: Tag $TAG_NAME confirmed to exist on remote 'origin'."
+             exit 1
+          fi
+          echo "Tag $TAG_NAME does not appear to exist locally or on remote 'origin'. Proceeding."
+
+      - name: Set up Java (for Gradle)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11' 
+
+      - name: Decode and Place Keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEYSTORE_DATA }}" | base64 --decode > ${{ github.workspace }}/app/release.keystore
+        env:
+          SIGNING_KEYSTORE_DATA: ${{ secrets.SIGNING_KEYSTORE_DATA }}
+
+      - name: Build Release APKs (Android and Amazon)
+        env:
+          SIGNING_KEYSTORE_PATH: ${{ github.workspace }}/app/release.keystore
+          SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          chmod +x ./gradlew
+          # Gradle uses versionName and versionCode from the manifest directly
+          ./gradlew :app:assembleAndroidRelease :app:assembleAmazonRelease 
+
+      - name: Verify Versioned APKs Exist
+        run: |
+          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}" # Manifest Version Name
+          echo "Checking for app/android/release/app-android-release-v${MVN}.apk"
+          test -f "app/android/release/app-android-release-v${MVN}.apk"
+          echo "Checking for app/amazon/release/app-amazon-release-v${MVN}.apk"
+          test -f "app/amazon/release/app-amazon-release-v${MVN}.apk"
+          echo "Versioned APKs verified."
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.extract_versions.outputs.manifest_version_name }}
+          name: Release ${{ steps.extract_versions.outputs.manifest_version_name }}
+          # body parameter is removed/empty to allow auto-generation
+          files: |
+            app/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+            app/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+          fail_on_unmatched_files: true # Ensures workflow fails if APKs are not found
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

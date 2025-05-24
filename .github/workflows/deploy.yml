@@ -1,0 +1,153 @@
+name: Deploy Release to App Stores
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Versioning information is derived from the main branch's manifest and the corresponding GitHub Release.
+      deployment_target:
+        description: 'Select the deployment target'
+        required: true
+        type: choice
+        options:
+          - google_play_internal_test_track
+          - production_google_play_and_amazon
+        default: 'google_play_internal_test_track'
+      releaseNotes: 
+        description: 'Release notes for the app store listings. Can be same or different from GitHub Release notes.'
+        required: false
+        type: string
+        default: 'Updated version.'
+
+jobs:
+  download_and_deploy:
+    name: 'Download Release APKs and Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: 'main' # Explicitly checkout main to get the latest manifest for version info
+
+      - name: Extract versionName and versionCode from Manifest
+        id: extract_versions
+        run: |
+          MANIFEST_PATH="app/manifests/AndroidManifest.xml"
+          if [ ! -f "$MANIFEST_PATH" ]; then
+            echo "AndroidManifest.xml not found at $MANIFEST_PATH! Trying app/src/main/AndroidManifest.xml as fallback."
+            MANIFEST_PATH="app/src/main/AndroidManifest.xml"
+          fi
+          if [ ! -f "$MANIFEST_PATH" ]; then
+            echo "AndroidManifest.xml not found at primary or fallback path."
+            exit 1
+          fi
+          
+          VERSION_NAME=$(grep 'android:versionName=' "$MANIFEST_PATH" | sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p')
+          VERSION_CODE=$(grep 'android:versionCode=' "$MANIFEST_PATH" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+          
+          if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
+            echo "Could not extract versionName or versionCode from $MANIFEST_PATH"
+            exit 1
+          fi
+          echo "Extracted from main's manifest - versionName: $VERSION_NAME, versionCode: $VERSION_CODE"
+          echo "manifest_version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "manifest_version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+      
+      - name: Verify Release Exists for Manifest Version and Set Tag
+        id: check_release
+        # The 'release_tag_name' output is set directly in the run script using 'tag_value'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXPECTED_TAG="v${{ steps.extract_versions.outputs.manifest_version_name }}"
+          echo "Verifying if GitHub Release for tag $EXPECTED_TAG exists (based on main branch's AndroidManifest.xml)..."
+          if ! command -v gh &> /dev/null; then
+              echo "GitHub CLI (gh) not found. It is required to verify the release."
+              exit 1
+          fi
+          # Check if a release associated with the expected tag exists
+          gh release view "$EXPECTED_TAG" --repo "$GITHUB_REPOSITORY"
+          if [ $? -ne 0 ]; then
+            echo "Error: Release for tag $EXPECTED_TAG not found. Please ensure 'release.yml' has been run successfully for version ${{ steps.extract_versions.outputs.manifest_version_name }} (currently in main's AndroidManifest.xml)."
+            exit 1
+          fi
+          echo "Release for tag $EXPECTED_TAG found."
+          echo "tag_value=$EXPECTED_TAG" >> $GITHUB_OUTPUT # Sets the output for this step
+
+      - name: Set up Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7' 
+          bundler-cache: true
+
+      - name: Download Android APK from GitHub Release
+        id: download_android_apk
+        uses: dwenegar/download-release-assets@v1
+        with:
+          repo: ${{ github.repository }}
+          tag: ${{ steps.check_release.outputs.tag_value }} # Changed to use tag_value from check_release
+          name: app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+          path: downloaded_apks
+          fail_on_unmatched_assets: true
+
+      - name: Download Amazon APK from GitHub Release
+        id: download_amazon_apk
+        uses: dwenegar/download-release-assets@v1
+        with:
+          repo: ${{ github.repository }}
+          tag: ${{ steps.check_release.outputs.tag_value }} # Changed to use tag_value from check_release
+          name: app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+          path: downloaded_apks
+          fail_on_unmatched_assets: true
+
+      - name: Verify Downloaded APKs
+        id: verify_apks
+        run: |
+          ANDROID_APK_PATH="downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
+          AMAZON_APK_PATH="downloaded_apks/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
+          BOTH_APKS_FOUND="false" 
+          
+          if [ ! -f "$ANDROID_APK_PATH" ]; then
+            echo "Failed to download $ANDROID_APK_PATH"
+          elif [ ! -f "$AMAZON_APK_PATH" ]; then
+            echo "Failed to download $AMAZON_APK_PATH"
+          else
+            echo "Both APKs downloaded successfully."
+            BOTH_APKS_FOUND="true"
+          fi
+          echo "apks_downloaded_successfully=$BOTH_APKS_FOUND" >> $GITHUB_OUTPUT
+        
+      - name: Create Google Play Key File
+        if: (github.event.inputs.deployment_target == 'google_play_internal_test_track' || github.event.inputs.deployment_target == 'production_google_play_and_amazon') && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        run: echo "${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}" > /tmp/google_play_key.json
+        env:
+          GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
+
+      - name: Deploy to Google Play (Internal Test Track)
+        if: github.event.inputs.deployment_target == 'google_play_internal_test_track' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        run: |
+          bundle exec fastlane deploy_playstore \
+            apk_path:"downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
+            version_name:"${{ steps.extract_versions.outputs.manifest_version_name }}" \
+            version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
+            release_notes:"${{ github.event.inputs.releaseNotes }}"
+
+      - name: Deploy to Google Play (Production)
+        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        run: |
+          bundle exec fastlane deploy_playstore_production \
+            apk_path:"downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
+            version_name:"${{ steps.extract_versions.outputs.manifest_version_name }}" \
+            version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
+            release_notes:"${{ github.event.inputs.releaseNotes }}"
+
+      - name: Deploy to Amazon Appstore
+        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        env:
+          AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
+          AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
+        run: |
+          bundle exec fastlane deploy_amazon_appstore \
+            apk_path:"downloaded_apks/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
+            version_name:"${{ steps.extract_versions.outputs.manifest_version_name }}" \
+            version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
+            release_notes:"${{ github.event.inputs.releaseNotes }}"

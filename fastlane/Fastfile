@@ -38,4 +38,94 @@ platform :android do
     sh("./avd-screenshot-setup.sh off")
     sh("cp metadata/android/en-US/images/phoneScreenshots/*.png ../images/screenshots/")
   end
+
+  desc "Deploy the app to Google Play Store (Internal Test Track) using a pre-built APK."
+  lane :deploy_playstore do |options|
+    begin
+      UI.message("Deploying to Internal Test Track with options: #{options.inspect}")
+      UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
+
+      # Gradle build steps are removed. APK is provided via options[:apk_path].
+
+      supply_params = {
+        track: 'internal',
+        apk: options[:apk_path] # Use passed APK path
+        # json_key_file is already set in Appfile
+      }
+      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || 'Default changelog for internal track.' } if options[:release_notes]
+      # Optional: Pass version name and code if your supply setup needs them for metadata,
+      # though this is usually derived from the APK or managed in Play Console.
+      # supply_params[:version_name] = options[:version_name] if options[:version_name]
+      # supply_params[:version_code] = options[:version_code].to_i if options[:version_code]
+
+      supply(supply_params)
+      UI.success("Successfully deployed to Google Play Store (Internal Test Track)!")
+    rescue => ex
+      UI.error("Error deploying to Google Play Store (Internal): #{ex}")
+      raise ex # Re-raise the exception to fail the lane
+    end
+  end
+
+  desc "Deploy the app to Google Play Store (Production Track) using a pre-built APK."
+  lane :deploy_playstore_production do |options|
+    begin
+      UI.message("Deploying to Production Track with options: #{options.inspect}")
+      UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
+
+      # Gradle build steps are removed. APK is provided via options[:apk_path].
+      
+      supply_params = {
+        track: 'production',
+        apk: options[:apk_path] # Use passed APK path
+      }
+      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || 'Production release.' } if options[:release_notes]
+      # supply_params[:release_status] = 'completed' # Optional: to automatically submit for review
+      # Optional: Pass version name and code if your supply setup needs them for metadata.
+      # supply_params[:version_name] = options[:version_name] if options[:version_name]
+      # supply_params[:version_code] = options[:version_code].to_i if options[:version_code]
+
+      supply(supply_params)
+      UI.success("Successfully deployed to Google Play Store (Production Track)!")
+    rescue => ex
+      UI.error("Error deploying to Google Play Store (Production): #{ex}")
+      raise ex
+    end
+  end
+
+  desc "Deploy the app to Amazon Appstore using a pre-built APK."
+  lane :deploy_amazon_appstore do |options|
+    begin
+      UI.message("Deploying to Amazon Appstore with options: #{options.inspect}")
+      UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
+
+      # Gradle build steps are removed. APK is provided via options[:apk_path].
+
+      # Handle changelogs by writing to file
+      if options[:release_notes] && options[:version_code]
+        changelog_dir = "./fastlane/metadata/android/en-US/changelogs"
+        FileUtils.mkdir_p(changelog_dir) # Ensure directory exists
+        changelog_path = File.join(changelog_dir, "#{options[:version_code]}.txt")
+        File.open(changelog_path, 'w') { |file| file.write(options[:release_notes]) }
+        UI.message("Wrote release notes to #{changelog_path} for version code #{options[:version_code]}")
+      else
+        UI.important("No release notes or version code provided for Amazon changelog generation.")
+      end
+
+      amazon_params = {
+        apk: options[:apk_path], # Use passed APK path
+        client_id: ENV['AMAZON_CLIENT_ID'],
+        client_secret: ENV['AMAZON_CLIENT_SECRET'],
+        metadata_path: "./fastlane/metadata/android", # Explicitly set, though it's the default
+        skip_upload_changelogs: false # Ensure plugin tries to read changelog files
+        # package_name: options[:package_name] # Optional: if needed and passed
+        # version_name: options[:version_name] # Optional: if plugin uses it for metadata
+      }
+
+      upload_to_amazon_appstore(amazon_params)
+      UI.success("Successfully deployed to Amazon Appstore!")
+    rescue => ex
+      UI.error("Error deploying to Amazon Appstore: #{ex}")
+      raise ex # Re-raise the exception to fail the lane
+    end
+  end
 end
