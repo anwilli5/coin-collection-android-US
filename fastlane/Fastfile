@@ -111,6 +111,9 @@ platform :android do
         UI.important("No release notes or version code provided for Amazon changelog generation.")
       end
 
+      # Check to ensure ENV variables are set
+      UI.user_error!("AMAZON_CLIENT_ID and AMAZON_CLIENT_SECRET must be set in environment variables.") unless ENV['AMAZON_CLIENT_ID'] && ENV['AMAZON_CLIENT_SECRET']
+
       amazon_params = {
         apk: options[:apk_path], # Use passed APK path
         client_id: ENV['AMAZON_CLIENT_ID'],
