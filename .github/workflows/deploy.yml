@@ -108,8 +108,10 @@ jobs:
           
           if [ ! -f "$ANDROID_APK_PATH" ]; then
             echo "Failed to download $ANDROID_APK_PATH"
+            exit 1
           elif [ ! -f "$AMAZON_APK_PATH" ]; then
             echo "Failed to download $AMAZON_APK_PATH"
+            exit 1
           else
             echo "Both APKs downloaded successfully."
             BOTH_APKS_FOUND="true"
