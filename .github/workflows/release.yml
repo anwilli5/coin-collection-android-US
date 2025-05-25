@@ -22,13 +22,9 @@ jobs:
       - name: Extract versionName and versionCode from Manifest
         id: extract_versions
         run: |
-          MANIFEST_PATH="app/manifests/AndroidManifest.xml"
+          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
           if [ ! -f "$MANIFEST_PATH" ]; then
-            echo "AndroidManifest.xml not found at $MANIFEST_PATH! Trying app/src/main/AndroidManifest.xml as fallback."
-            MANIFEST_PATH="app/src/main/AndroidManifest.xml"
-          fi
-          if [ ! -f "$MANIFEST_PATH" ]; then
-            echo "AndroidManifest.xml not found at primary or fallback path."
+            echo "AndroidManifest.xml not found"
             exit 1
           fi
           
@@ -102,7 +98,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.extract_versions.outputs.manifest_version_name }}
-          name: Release ${{ steps.extract_versions.outputs.manifest_version_name }}
+          name: Release v${{ steps.extract_versions.outputs.manifest_version_name }}
           # body parameter is removed/empty to allow auto-generation
           files: |
             app/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk

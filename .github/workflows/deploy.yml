@@ -14,9 +14,9 @@ on:
         default: 'google_play_internal_test_track'
       releaseNotes: 
         description: 'Release notes for the app store listings. Can be same or different from GitHub Release notes.'
-        required: false
+        required: true
         type: string
-        default: 'Updated version.'
+        default: ''
 
 jobs:
   download_and_deploy:
@@ -31,13 +31,9 @@ jobs:
       - name: Extract versionName and versionCode from Manifest
         id: extract_versions
         run: |
-          MANIFEST_PATH="app/manifests/AndroidManifest.xml"
+          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
           if [ ! -f "$MANIFEST_PATH" ]; then
-            echo "AndroidManifest.xml not found at $MANIFEST_PATH! Trying app/src/main/AndroidManifest.xml as fallback."
-            MANIFEST_PATH="app/src/main/AndroidManifest.xml"
-          fi
-          if [ ! -f "$MANIFEST_PATH" ]; then
-            echo "AndroidManifest.xml not found at primary or fallback path."
+            echo "AndroidManifest.xml not found"
             exit 1
           fi
           
@@ -54,7 +50,6 @@ jobs:
       
       - name: Verify Release Exists for Manifest Version and Set Tag
         id: check_release
-        # The 'release_tag_name' output is set directly in the run script using 'tag_value'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -84,7 +79,7 @@ jobs:
         uses: dwenegar/download-release-assets@v1
         with:
           repo: ${{ github.repository }}
-          tag: ${{ steps.check_release.outputs.tag_value }} # Changed to use tag_value from check_release
+          tag: ${{ steps.check_release.outputs.tag_value }} # Use tag_value from check_release
           name: app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
           path: downloaded_apks
           fail_on_unmatched_assets: true
@@ -94,7 +89,7 @@ jobs:
         uses: dwenegar/download-release-assets@v1
         with:
           repo: ${{ github.repository }}
-          tag: ${{ steps.check_release.outputs.tag_value }} # Changed to use tag_value from check_release
+          tag: ${{ steps.check_release.outputs.tag_value }} # Use tag_value from check_release
           name: app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
           path: downloaded_apks
           fail_on_unmatched_assets: true
@@ -104,7 +99,6 @@ jobs:
         run: |
           ANDROID_APK_PATH="downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
           AMAZON_APK_PATH="downloaded_apks/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
-          BOTH_APKS_FOUND="false" 
           
           if [ ! -f "$ANDROID_APK_PATH" ]; then
             echo "Failed to download $ANDROID_APK_PATH"
@@ -114,18 +108,15 @@ jobs:
             exit 1
           else
             echo "Both APKs downloaded successfully."
-            BOTH_APKS_FOUND="true"
           fi
-          echo "apks_downloaded_successfully=$BOTH_APKS_FOUND" >> $GITHUB_OUTPUT
         
       - name: Create Google Play Key File
-        if: (github.event.inputs.deployment_target == 'google_play_internal_test_track' || github.event.inputs.deployment_target == 'production_google_play_and_amazon') && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
         run: echo "${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}" > /tmp/google_play_key.json
         env:
           GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
 
       - name: Deploy to Google Play (Internal Test Track)
-        if: github.event.inputs.deployment_target == 'google_play_internal_test_track' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        if: github.event.inputs.deployment_target == 'google_play_internal_test_track'
         run: |
           bundle exec fastlane deploy_playstore_test \
             apk_path:"downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
@@ -134,7 +125,7 @@ jobs:
             release_notes:"${{ github.event.inputs.releaseNotes }}"
 
       - name: Deploy to Google Play (Production)
-        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon'
         run: |
           bundle exec fastlane deploy_playstore_production \
             apk_path:"downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
@@ -143,7 +134,7 @@ jobs:
             release_notes:"${{ github.event.inputs.releaseNotes }}"
 
       - name: Deploy to Amazon Appstore
-        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
+        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon'
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
