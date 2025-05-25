@@ -74,3 +74,42 @@ The Fastlane lanes defined in `fastlane/Fastfile` are now designed to deploy pre
 - `deploy_amazon_appstore`:
     - Deploys the APK (specified by `options[:apk_path]`) to the Amazon Appstore.
     - If `options[:release_notes]` and `options[:version_code]` are provided, writes release notes to `fastlane/metadata/android/en-US/changelogs/#{options[:version_code]}.txt` for the plugin to pick up.
+
+## Prerequisites: GitHub Secrets Setup
+
+The following GitHub Secrets must be configured in the repository settings (`Settings > Secrets and variables > Actions`):
+
+1. **`GOOGLE_PLAY_JSON_KEY_DATA`**:
+    - **Description**: JSON key for Google Play Console service account. Allows Fastlane to authenticate with Google Play Developer API.
+    - **Used by**: `deploy.yml` (for Fastlane `supply` action).
+    - **How to obtain**: Google Play Console > Setup > API access.
+
+2. **`SIGNING_KEYSTORE_DATA`**:
+    - **Description**: Base64 encoded Android signing keystore file (`.jks` or `.keystore`).
+    - **Used by**: `release.yml` (for signing the APK during the Gradle build).
+    - **How to obtain**: Convert your keystore file to base64.
+        - macOS/Linux: `base64 -i your_keystore_file.jks -o keystore_base64.txt`
+        - Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("your_keystore_file.jks")) | Out-File keystore_base64.txt -Encoding ASCII`
+        - Copy the content of `keystore_base64.txt` into the secret.
+
+3. **`SIGNING_KEYSTORE_PASSWORD`**:
+    - **Description**: Password for the Android signing keystore.
+    - **Used by**: `release.yml`.
+
+4. **`SIGNING_KEY_ALIAS`**:
+    - **Description**: Alias for the signing key within the keystore.
+    - **Used by**: `release.yml`.
+
+5. **`SIGNING_KEY_PASSWORD`**:
+    - **Description**: Password for the specific key alias.
+    - **Used by**: `release.yml`.
+
+6. **`AMAZON_CLIENT_ID`**:
+    - **Description**: Client ID for Amazon App Submission API.
+    - **Used by**: `deploy.yml` (for Fastlane `amazon_appstore` plugin).
+    - **How to obtain**: Amazon Developer Console documentation.
+
+7. **`AMAZON_CLIENT_SECRET`**:
+    - **Description**: Client Secret for Amazon App Submission API.
+    - **Used by**: `deploy.yml`.
+    - **How to obtain**: Amazon Developer Console documentation.
