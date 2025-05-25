@@ -1,2 +1,2 @@
-json_key_file("/tmp/google_play_key.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
+json_key_file(ENV['GOOGLE_PLAY_KEY_PATH'] || "/tmp/google_play_key.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
 package_name("com.spencerpages")

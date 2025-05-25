@@ -16,7 +16,6 @@ on:
         description: 'Release notes for the app store listings. Can be same or different from GitHub Release notes.'
         required: true
         type: string
-        default: ''
 
 jobs:
   download_and_deploy:
