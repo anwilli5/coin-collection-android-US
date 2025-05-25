@@ -125,7 +125,7 @@ jobs:
       - name: Deploy to Google Play (Internal Test Track)
         if: github.event.inputs.deployment_target == 'google_play_internal_test_track' && steps.verify_apks.outputs.apks_downloaded_successfully == 'true'
         run: |
-          bundle exec fastlane deploy_playstore \
+          bundle exec fastlane deploy_playstore_test \
             apk_path:"downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk" \
             version_name:"${{ steps.extract_versions.outputs.manifest_version_name }}" \
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \

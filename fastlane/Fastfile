@@ -40,7 +40,7 @@ platform :android do
   end
 
   desc "Deploy the app to Google Play Store (Internal Test Track) using a pre-built APK."
-  lane :deploy_playstore do |options|
+  lane :deploy_playstore_test do |options|
     begin
       UI.message("Deploying to Internal Test Track with options: #{options.inspect}")
       UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
