@@ -95,7 +95,7 @@ jobs:
           echo "Versioned APKs verified."
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.extract_versions.outputs.manifest_version_name }}
           name: Release v${{ steps.extract_versions.outputs.manifest_version_name }}
