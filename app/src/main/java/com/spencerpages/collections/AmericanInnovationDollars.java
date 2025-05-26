@@ -28,13 +28,12 @@ import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.spencerpages.R;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.*;
 
 public class AmericanInnovationDollars extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "American Innovation Dollars";
+    public static final String COLLECTION_TYPE = "American Innovation Dollars w/ Proofs";
 
     private static final Object[][] COIN_IMG_IDS = {
             {"Introductory", R.drawable.innovation_2018_introductory_unc},

@@ -29,7 +29,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
-import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -98,14 +98,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For AmericanInnovationDollars
+     * For BasicInnovationDollars
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
-    public void test_AmericanInnovationDollarsUpgrade() {
+    public void test_BasicInnovationDollarsUpgrade() {
 
         // Test Parameters
-        CollectionInfo collection = new AmericanInnovationDollars();
+        CollectionInfo collection = new BasicInnovationDollars();
         String coinType = "American Innovation Dollars";
         String collectionName = coinType + " Upgrade";
 
@@ -114,34 +114,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Introductory", "", 0});
-        coinList.add(new Object[]{"Delaware", "", 0});
-        coinList.add(new Object[]{"Pennsylvania", "", 0});
-        coinList.add(new Object[]{"New Jersey", "", 0});
-        coinList.add(new Object[]{"Georgia", "", 0});
-        coinList.add(new Object[]{"Connecticut", "", 0});
-        coinList.add(new Object[]{"Massachusetts", "", 0});
-        coinList.add(new Object[]{"Maryland","", 0});
-        coinList.add(new Object[]{"South Carolina", "", 0});
-        coinList.add(new Object[]{"New Hampshire", "", 0});
-        coinList.add(new Object[]{"Virginia", "", 0});
-        coinList.add(new Object[]{"New York", "", 0});
-        coinList.add(new Object[]{"North Carolina", "", 0});
-        coinList.add(new Object[]{"Rhode Island", "", 0});
-        coinList.add(new Object[]{"Vermont", "", 0});
-        coinList.add(new Object[]{"Kentucky", "", 0});
-        coinList.add(new Object[]{"Tennessee", "", 0});
-        coinList.add(new Object[]{"Ohio", "", 0});
-        coinList.add(new Object[]{"Louisiana", "", 0});
-        coinList.add(new Object[]{"Indiana", "", 0});
-        coinList.add(new Object[]{"Mississippi", "", 0});
-        coinList.add(new Object[]{"Illinois", "", 0});
-        coinList.add(new Object[]{"Alabama", "", 0});
-        coinList.add(new Object[]{"Maine", "", 0});
-        coinList.add(new Object[]{"Missouri","", 0});
-        coinList.add(new Object[]{"Arkansas", "", 0});
-        coinList.add(new Object[]{"Michigan", "", 0});
-        coinList.add(new Object[]{"Florida", "", 0});
-        coinList.add(new Object[]{"Texas", "", 0});
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
         testDbHelper.close();

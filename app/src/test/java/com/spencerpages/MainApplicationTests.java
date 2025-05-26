@@ -32,6 +32,7 @@ import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
@@ -108,7 +109,7 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(22, getIndexFromCollectionClass(PeaceDollars.class));
         assertEquals(23, getIndexFromCollectionClass(AmericanEagleSilverDollars.class));
         assertEquals(24, getIndexFromCollectionClass(FirstSpouseGoldCoins.class));
-        assertEquals(25, getIndexFromCollectionClass(AmericanInnovationDollars.class));
+        assertEquals(25, getIndexFromCollectionClass(BasicInnovationDollars.class));
         assertEquals(26, getIndexFromCollectionClass(AmericanWomenQuarters.class));
         assertEquals(27, getIndexFromCollectionClass(SmallCents.class));
         assertEquals(28, getIndexFromCollectionClass(LargeCents.class));
@@ -133,5 +134,6 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(47, getIndexFromCollectionClass(KennedyHalfDollars.class));
         assertEquals(48, getIndexFromCollectionClass(RooseveltDimes.class));
         assertEquals(49, getIndexFromCollectionClass(WashingtonQuarters.class));
+        assertEquals(50, getIndexFromCollectionClass(AmericanInnovationDollars.class));
     }
 }
