@@ -70,45 +70,52 @@ jobs:
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7' 
+          ruby-version: '3.1' 
           bundler-cache: true
 
-      - name: Download Android APK from GitHub Release
-        id: download_android_apk
-        uses: dwenegar/download-release-assets@v1
-        with:
-          repo: ${{ github.repository }}
-          tag: ${{ steps.check_release.outputs.tag_value }} # Use tag_value from check_release
-          name: app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-          path: downloaded_apks
-          fail_on_unmatched_assets: true
-
-      - name: Download Amazon APK from GitHub Release
-        id: download_amazon_apk
-        uses: dwenegar/download-release-assets@v1
-        with:
-          repo: ${{ github.repository }}
-          tag: ${{ steps.check_release.outputs.tag_value }} # Use tag_value from check_release
-          name: app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-          path: downloaded_apks
-          fail_on_unmatched_assets: true
-
-      - name: Verify Downloaded APKs
-        id: verify_apks
+      - name: Download Release APKs from GitHub Release
+        id: download_apks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ANDROID_APK_PATH="downloaded_apks/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
-          AMAZON_APK_PATH="downloaded_apks/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
+          # Create download directory
+          mkdir -p downloaded_apks
           
-          if [ ! -f "$ANDROID_APK_PATH" ]; then
-            echo "Failed to download $ANDROID_APK_PATH"
+          # Download Android APK
+          ANDROID_APK_NAME="app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
+          AMAZON_APK_NAME="app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk"
+          TAG="${{ steps.check_release.outputs.tag_value }}"
+          
+          echo "Downloading APKs from release $TAG..."
+          
+          # Download Android APK
+          echo "Downloading $ANDROID_APK_NAME..."
+          gh release download "$TAG" \
+            --pattern "$ANDROID_APK_NAME" \
+            --dir downloaded_apks \
+            --repo "$GITHUB_REPOSITORY"
+          
+          # Download Amazon APK
+          echo "Downloading $AMAZON_APK_NAME..."
+          gh release download "$TAG" \
+            --pattern "$AMAZON_APK_NAME" \
+            --dir downloaded_apks \
+            --repo "$GITHUB_REPOSITORY"
+          
+          # Verify downloads
+          if [ ! -f "downloaded_apks/$ANDROID_APK_NAME" ]; then
+            echo "Error: Failed to download $ANDROID_APK_NAME"
             exit 1
-          elif [ ! -f "$AMAZON_APK_PATH" ]; then
-            echo "Failed to download $AMAZON_APK_PATH"
-            exit 1
-          else
-            echo "Both APKs downloaded successfully."
           fi
-        
+          
+          if [ ! -f "downloaded_apks/$AMAZON_APK_NAME" ]; then
+            echo "Error: Failed to download $AMAZON_APK_NAME"
+            exit 1
+          fi
+          
+          echo "Successfully downloaded both APKs"
+          ls -la downloaded_apks/
+
       - name: Create Google Play Key File
         run: echo "${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}" > /tmp/google_play_key.json
         env:
