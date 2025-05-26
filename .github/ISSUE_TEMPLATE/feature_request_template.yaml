@@ -18,5 +18,5 @@ body:
     validations:
       required: true
     attributes:
-      label: "💭 Feature Description"
-      description: "A clear and concise description of the feature you're interested in."
+      label: "🚀 Feature Proposal"
+      description: "Clearly describe the feature you're proposing. Explain the problem it solves and why it would be valuable. If you've considered alternative solutions or workarounds, please mention them too."
