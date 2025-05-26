@@ -162,7 +162,7 @@ public class AndroidUITests extends TestCase {
             coinSlot.writeToParcel(testParcel, coinSlot.describeContents());
             testParcel.setDataPosition(0);
             CoinSlot checkInfo = CoinSlot.CREATOR.createFromParcel(testParcel);
-            assertTrue(SharedTest.compareCoinSlots(coinSlot, checkInfo, true));
+            assertTrue(SharedTest.compareCoinSlots(coinSlot, checkInfo, true, true));
         }
     }
 

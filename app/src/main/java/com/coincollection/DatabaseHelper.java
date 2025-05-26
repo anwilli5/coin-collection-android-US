@@ -682,6 +682,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
             values.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
             values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
+            values.put(COL_CUSTOM_COIN, coinSlot.isCustomCoin());
+            values.put(COL_IMAGE_ID, coinSlot.getImageId());
             coinSlot.setDatabaseId(runSqlInsert(db, tableName, values));
         }
 

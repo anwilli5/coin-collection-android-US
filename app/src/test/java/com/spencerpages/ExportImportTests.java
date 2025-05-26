@@ -145,7 +145,7 @@ public class ExportImportTests extends BaseTestCase {
                 ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, false);
             });
         }
     }
@@ -190,7 +190,7 @@ public class ExportImportTests extends BaseTestCase {
                 ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
                 closeStream(inputStream);
             });
         }
@@ -236,7 +236,7 @@ public class ExportImportTests extends BaseTestCase {
                 ArrayList<ArrayList<CoinSlot>> afterCoinLists = getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterCollectionNames);
                 assertEquals(afterCollectionNames.size(), COLLECTION_TYPES.length);
                 assertEquals(beforeCollectionNames, afterCollectionNames);
-                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists);
+                compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
                 closeStream(inputStream);
             });
         }
