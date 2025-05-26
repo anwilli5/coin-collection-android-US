@@ -398,22 +398,24 @@ public class BaseTestCase {
     /**
      * Compare two lists of CoinSlot objects to ensure they're the same
      *
-     * @param base           ArrayList<CoinSlot>
-     * @param check          ArrayList<CoinSlot>
-     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @param base             ArrayList<CoinSlot>
+     * @param check            ArrayList<CoinSlot>
+     * @param compareAdvInfo   if true, enables comparison of advanced details
+     * @param compareNewFields if true, enables comparison of new fields (e.g image IDs)
      */
-    void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
-        assertTrue(SharedTest.compareCoinSlotLists(base, check, compareAdvInfo));
+    void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo, boolean compareNewFields) {
+        assertTrue(SharedTest.compareCoinSlotLists(base, check, compareAdvInfo, compareNewFields));
     }
 
     /**
      * Compare two lists of CoinSlot lists to ensure they're the same
      *
-     * @param base  list of CoinSlots lists
-     * @param check list of CoinSlots lists
+     * @param base             list of CoinSlots lists
+     * @param check            list of CoinSlots lists
+     * @param compareNewFields if true, enables comparison of new fields (e.g image IDs)
      */
-    void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check) {
-        assertTrue(SharedTest.compareListOfCoinSlotLists(base, check, true));
+    void compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareNewFields) {
+        assertTrue(SharedTest.compareListOfCoinSlotLists(base, check, true, compareNewFields));
     }
 
     /**
@@ -488,7 +490,7 @@ public class BaseTestCase {
         if (coinList != null) {
             boolean populateAdvInfo = (collectionListInfo.getDisplayType() == ADVANCED_DISPLAY);
             ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(tableName, populateAdvInfo, false);
-            compareCoinSlotLists(coinList, checkCoinList, populateAdvInfo);
+            compareCoinSlotLists(coinList, checkCoinList, populateAdvInfo, true);
 
             // Test coin slot database methods
             for (CoinSlot coinSlot : coinList) {

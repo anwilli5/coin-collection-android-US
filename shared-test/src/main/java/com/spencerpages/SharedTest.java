@@ -213,35 +213,40 @@ public class SharedTest {
     /**
      * Compare two CoinSlot objects to ensure they're the same
      *
-     * @param base           CoinSlot
-     * @param check          CoinSlot
-     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @param base             CoinSlot
+     * @param check            CoinSlot
+     * @param compareAdvInfo   if true, enables comparison of advanced details
+     * @param compareNewFields if true, enables comparison of new fields (e.g., imageId)
      * @return true if they have the same contents, false otherwise
      */
-    public static boolean compareCoinSlots(CoinSlot base, CoinSlot check, boolean compareAdvInfo) {
-        // TODO - Not sure how to add assertions here
+    public static boolean compareCoinSlots(CoinSlot base, CoinSlot check,
+                                           boolean compareAdvInfo, boolean compareNewFields) {
         return (base.getIdentifier().equals(check.getIdentifier()) &&
                 (base.getMint().equals(check.getMint())) &&
                 (base.isInCollection() == check.isInCollection()) &&
                 (!compareAdvInfo || (base.getAdvancedGrades().equals(check.getAdvancedGrades()))) &&
                 (!compareAdvInfo || (base.getAdvancedQuantities().equals(check.getAdvancedQuantities()))) &&
-                (!compareAdvInfo || (base.getAdvancedNotes().equals(check.getAdvancedNotes()))));
+                (!compareAdvInfo || (base.getAdvancedNotes().equals(check.getAdvancedNotes()))) &&
+                (!compareNewFields || (base.isCustomCoin() == check.isCustomCoin())) &&
+                (!compareNewFields || (base.getImageId() == check.getImageId())));
     }
 
     /**
      * Compare two lists of CoinSlot objects
      *
-     * @param base           list of CoinSlots
-     * @param check          list of CoinSlots
-     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @param base             list of CoinSlots
+     * @param check            list of CoinSlots
+     * @param compareAdvInfo   if true, enables comparison of advanced details
+     * @param compareNewFields if true, enables comparison of new fields (e.g., imageId)
      * @return true if they have the same contents, false otherwise
      */
-    public static boolean compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
+    public static boolean compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check,
+                                               boolean compareAdvInfo, boolean compareNewFields) {
         if (base.size() != check.size()) {
             return false;
         }
         for (int i = 0; i < base.size(); i++) {
-            if (!compareCoinSlots(base.get(i), check.get(i), compareAdvInfo)) {
+            if (!compareCoinSlots(base.get(i), check.get(i), compareAdvInfo, compareNewFields)) {
                 return false;
             }
         }
@@ -272,17 +277,19 @@ public class SharedTest {
     /**
      * Compare two lists of CoinSlot lists
      *
-     * @param base           list of CoinSlots lists
-     * @param check          list of CoinSlots lists
-     * @param compareAdvInfo if true, enables comparison of advanced details
+     * @param base             list of CoinSlots lists
+     * @param check            list of CoinSlots lists
+     * @param compareAdvInfo   if true, enables comparison of advanced details
+     * @param compareNewFields if true, enables comparison of new fields (e.g., imageId)
      * @return true if they have the same contents, false otherwise
      */
-    public static boolean compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check, boolean compareAdvInfo) {
+    public static boolean compareListOfCoinSlotLists(ArrayList<ArrayList<CoinSlot>> base, ArrayList<ArrayList<CoinSlot>> check,
+                                                     boolean compareAdvInfo, boolean compareNewFields) {
         if (base.size() != check.size()) {
             return false;
         }
         for (int i = 0; i < base.size(); i++) {
-            if (!compareCoinSlotLists(base.get(i), check.get(i), compareAdvInfo)) {
+            if (!compareCoinSlotLists(base.get(i), check.get(i), compareAdvInfo, compareNewFields)) {
                 return false;
             }
         }
