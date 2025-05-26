@@ -34,6 +34,7 @@ import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
@@ -174,25 +175,26 @@ public class CollectionCreationTests extends BaseTestCase {
         AmericanInnovationDollars coinClass = new AmericanInnovationDollars();
         coinClass.getCreationParameters(parameters);
 
-        // Show Mint Marks, P, D, Expected Result
+        // Show Mint Marks, P, D, proof, reverse proof Expected Result
         Object[][] tests = {
-                {false, true, true, 29},
-                {false, false, true, 29},
-                {true, false, false, 0},
-                {true, true, false, 29},
-                {true, false, true, 29},
-                {true, true, true, 29 + 29},
+                {false, true, true, true, true,  116},
+                {true, false, false, false, false, 0},
+                {true, true, false, false, false, 29},
+                {true, false, true, false, false, 29},
+                {true, false, false, true, false, 29},
+                {true, false, false, false, true, 29},
+                {true, true, true, true, true, 29 + 29 + 29 + 29},
         };
 
         for (Object[] test : tests) {
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
             parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, test[3]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, test[4]);
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[3], coinList.size());
-
-            checkCreationParamsFromCoinList(coinList, coinClass);
+            assertEquals(test[5], coinList.size());
         }
     }
 
@@ -417,6 +419,39 @@ public class CollectionCreationTests extends BaseTestCase {
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(100, coinList.size());
+            checkCreationParamsFromCoinList(coinList, coinClass);
+        }
+    }
+
+    /**
+     * For BasicInnovationDollars
+     * - Test that the number of coins is correct upon collection creation
+     */
+    @Test
+    public void test_BasicInnovationDollarsCreationCounts() {
+
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        BasicInnovationDollars coinClass = new BasicInnovationDollars();
+        coinClass.getCreationParameters(parameters);
+
+        // Show Mint Marks, P, D, Expected Result
+        Object[][] tests = {
+                {false, true, true, 29},
+                {false, false, true, 29},
+                {true, false, false, 0},
+                {true, true, false, 29},
+                {true, false, true, 29},
+                {true, true, true, 29 + 29},
+        };
+
+        for (Object[] test : tests) {
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, test[0]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, test[1]);
+            parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, test[2]);
+            ArrayList<CoinSlot> coinList = new ArrayList<>();
+            coinClass.populateCollectionLists(parameters, coinList);
+            assertEquals(test[3], coinList.size());
+
             checkCreationParamsFromCoinList(coinList, coinClass);
         }
     }

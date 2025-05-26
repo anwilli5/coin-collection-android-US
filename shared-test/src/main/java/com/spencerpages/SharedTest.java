@@ -38,6 +38,7 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberQuarters;
@@ -139,6 +140,7 @@ public class SharedTest {
                     new CollectionListInfo("Kennedy Half Dollars", 231, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "35184372088873"),
                     new CollectionListInfo("Roosevelt Dimes", 287, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "35184372088873"),
                     new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
+                    new CollectionListInfo("Innovation Dollars", 116, 0, getIndexFromCollectionClass(AmericanInnovationDollars.class), 0, 0, 0, "647", "0"),
             };
 
     public static final CoinSlot[] COIN_SLOT_SCENARIOS =

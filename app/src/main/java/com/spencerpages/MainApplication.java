@@ -32,6 +32,7 @@ import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.Cartwheels;
@@ -113,7 +114,7 @@ public class MainApplication extends Application {
             new PeaceDollars(),
             new AmericanEagleSilverDollars(),
             new FirstSpouseGoldCoins(),
-            new AmericanInnovationDollars(),
+            new BasicInnovationDollars(),
             new AmericanWomenQuarters(),
             new SmallCents(),
             new LargeCents(),
@@ -137,7 +138,8 @@ public class MainApplication extends Application {
             new CoinSets(),
             new KennedyHalfDollars(),
             new RooseveltDimes(),
-            new WashingtonQuarters()
+            new WashingtonQuarters(),
+            new AmericanInnovationDollars(),
     };
 
     // Display order and groups in Collection Page Creator
@@ -151,7 +153,7 @@ public class MainApplication extends Application {
             NationalParkQuarters.class,
             StateQuarters.class,
             BasicHalfDollars.class,
-            AmericanInnovationDollars.class,
+            BasicInnovationDollars.class,
             FirstSpouseGoldCoins.class,
             NativeAmericanDollars.class,
             PresidentialDollars.class,
@@ -173,6 +175,7 @@ public class MainApplication extends Application {
             KennedyHalfDollars.class,
             SilverHalfDollars.class,
             EarlyHalfDollars.class,
+            AmericanInnovationDollars.class,
             Cartwheels.class,
             EarlyDollars.class,
             SmallDollars.class,

@@ -26,7 +26,6 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
-import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -34,9 +33,9 @@ import java.util.HashMap;
 
 public class AmericanInnovationDollars extends CollectionInfo {
 
-    public static final String COLLECTION_TYPE = "American Innovation Dollars";
+    public static final String COLLECTION_TYPE = "American Innovation Dollars w/ Proofs";
 
-    private static final Object[][] COIN_IDENTIFIERS = {
+    private static final Object[][] COIN_IMG_IDS = {
             {"Introductory", R.drawable.innovation_2018_introductory_unc},
             {"Delaware", R.drawable.innovation_2019_delaware_unc},
             {"Pennsylvania", R.drawable.innovation_2019_pennsylvania_unc},
@@ -68,15 +67,51 @@ public class AmericanInnovationDollars extends CollectionInfo {
             {"Texas", R.drawable.innovation_2025_texas_unc},
     };
 
-    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
-
-    static {
-        // Populate the COIN_MAP HashMap for quick image ID lookups later
-        for (Object[] coinData : COIN_IDENTIFIERS) {
-            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
-        }
-    }
-
+    private static final String[] EIGHTEEN = {
+            "Introductory",
+    };
+    private static final String[] NINETEEN = {
+            "Delaware",
+            "Pennsylvania",
+            "New Jersey",
+            "Georgia",
+    };
+    private static final String[] TWENTY = {
+            "Connecticut",
+            "Massachusetts",
+            "Maryland",
+            "South Carolina",
+    };
+    private static final String[] TWENTY_ONE = {
+            "New Hampshire",
+            "Virginia",
+            "New York",
+            "North Carolina",
+    };
+    private static final String[] TWENTY_TWO = {
+            "Rhode Island",
+            "Vermont",
+            "Kentucky",
+            "Tennessee",
+    };
+    private static final String[] TWENTY_THREE = {
+            "Ohio",
+            "Louisiana",
+            "Indiana",
+            "Mississippi",
+    };
+    private static final String[] TWENTY_FOUR = {
+            "Illinois",
+            "Alabama",
+            "Maine",
+            "Missouri",
+    };
+    private static final String[] TWENTY_FIVE = {
+            "Arkansas",
+            "Michigan",
+            "Florida",
+            "Texas",
+    };
     private static final int REVERSE_IMAGE = R.drawable.innovation_2018_introductory_unc;
 
     @Override
@@ -91,14 +126,21 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
-        return (slotImage != null) ? slotImage : (int) COIN_IDENTIFIERS[0][1];
+        Integer slotImage = null;
+        int imageId = coinSlot.getImageId();
+        if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
+            slotImage = (Integer) COIN_IMG_IDS[imageId][1];
+        }
+        return (slotImage != null) ? slotImage : REVERSE_IMAGE ;
     }
+
+    @Override
+    public Object[][] getImageIds() {return COIN_IMG_IDS;}
 
     @Override
     public void getCreationParameters(HashMap<String, Object> parameters) {
 
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
@@ -107,30 +149,79 @@ public class AmericanInnovationDollars extends CollectionInfo {
         // Use the MINT_MARK_2 checkbox for whether to include 'D' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3_STRING_ID, R.string.include_s_proofs);
+
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.FALSE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_rev_proofs);
     }
 
     // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
         Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        Boolean showRProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         int coinIndex = 0;
 
-        for (Object[] coinData : COIN_IDENTIFIERS) {
-            String identifier = (String) coinData[0];
-
-            if (showMintMarks) {
-                if (showP) {
-                    coinList.add(new CoinSlot(identifier, "P", coinIndex++));
-                }
-                if (showD) {
-                    coinList.add(new CoinSlot(identifier, "D", coinIndex++));
-                }
-            } else {
-                coinList.add(new CoinSlot(identifier, "", coinIndex++));
-            }
+        for (String identifier : EIGHTEEN) {
+            String year = Integer.toString(2018);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : NINETEEN) {
+            String year = Integer.toString(2019);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY) {
+            String year = Integer.toString(2020);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY_ONE) {
+            String year = Integer.toString(2021);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY_TWO) {
+            String year = Integer.toString(2022);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY_THREE) {
+            String year = Integer.toString(2023);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY_FOUR) {
+            String year = Integer.toString(2024);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
+        for (String identifier : TWENTY_FIVE) {
+            String year = Integer.toString(2025);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
         }
     }
 
@@ -150,86 +241,5 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {
-
-        int total = 0;
-
-        if (oldVersion <= 13) {
-            // Add in new 2019 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Delaware");
-            newCoinIdentifiers.add("Pennsylvania");
-            newCoinIdentifiers.add("New Jersey");
-            newCoinIdentifiers.add("Georgia");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 16) {
-            // Add in new 2020 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Connecticut");
-            newCoinIdentifiers.add("Massachusetts");
-            newCoinIdentifiers.add("Maryland");
-            newCoinIdentifiers.add("South Carolina");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 18) {
-            // Add in new 2021 and 2022 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("New Hampshire");
-            newCoinIdentifiers.add("Virginia");
-            newCoinIdentifiers.add("New York");
-            newCoinIdentifiers.add("North Carolina");
-            newCoinIdentifiers.add("Rhode Island");
-            newCoinIdentifiers.add("Vermont");
-            newCoinIdentifiers.add("Kentucky");
-            newCoinIdentifiers.add("Tennessee");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 19) {
-            // Add in new 2023 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Ohio");
-            newCoinIdentifiers.add("Louisiana");
-            newCoinIdentifiers.add("Indiana");
-            newCoinIdentifiers.add("Mississippi");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 20) {
-            // Add in new 2024 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Illinois");
-            newCoinIdentifiers.add("Alabama");
-            newCoinIdentifiers.add("Maine");
-            newCoinIdentifiers.add("Missouri");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        if (oldVersion <= 22) {
-            // Add in new 2025 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("Arkansas");
-            newCoinIdentifiers.add("Michigan");
-            newCoinIdentifiers.add("Florida");
-            newCoinIdentifiers.add("Texas");
-
-            // Add these coins, mimicking which coinMints the user already has defined
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
-        }
-
-        return total;
-    }
+                                           int oldVersion, int newVersion) {return 0;}
 }

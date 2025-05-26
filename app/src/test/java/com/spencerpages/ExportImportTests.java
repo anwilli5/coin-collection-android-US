@@ -50,6 +50,7 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.ExportImportHelper;
 import com.coincollection.MainActivity;
+import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
 
 import org.junit.Rule;
@@ -123,7 +124,9 @@ public class ExportImportTests extends BaseTestCase {
                     File collectionFile;
                     if (collectionInfo instanceof NativeAmericanDollars) {
                         collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
-                    } else {
+                    } else if (collectionInfo instanceof AmericanInnovationDollars) {
+                        collectionFile = new File(activity.getLegacyExportFolderName(), "American Innovation Dollars w_SL_ Proofs.csv");
+                    } else{
                         collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
                     }
                     assertTrue(collectionFile.exists());

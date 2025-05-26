@@ -29,7 +29,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
-import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -98,14 +98,14 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For AmericanInnovationDollars
+     * For BasicInnovationDollars
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
-    public void test_AmericanInnovationDollarsUpgrade() {
+    public void test_BasicInnovationDollarsUpgrade() {
 
         // Test Parameters
-        CollectionInfo collection = new AmericanInnovationDollars();
+        CollectionInfo collection = new BasicInnovationDollars();
         String coinType = "American Innovation Dollars";
         String collectionName = coinType + " Upgrade";
 
