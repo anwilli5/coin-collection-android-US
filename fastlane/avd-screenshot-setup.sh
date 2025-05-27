@@ -18,6 +18,8 @@ if [ $CMD == "on" ]; then
   adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4
   adb shell am broadcast -a com.android.systemui.demo -e command network -e mobile show -e datatype none -e level 4
   adb shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false
+  adb shell settings put global policy_control immersive.navigation=*
 elif [ $CMD == "off" ]; then
+  adb shell settings put global policy_control null
   adb shell am broadcast -a com.android.systemui.demo -e command exit
 fi

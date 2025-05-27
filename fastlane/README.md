@@ -31,6 +31,30 @@ Runs all the tests
 
 Build debug and test APK and generate screenshots
 
+### android deploy_playstore_test
+
+```sh
+[bundle exec] fastlane android deploy_playstore_test
+```
+
+Deploy the app to Google Play Store (Internal Test Track) using a pre-built APK.
+
+### android deploy_playstore_production
+
+```sh
+[bundle exec] fastlane android deploy_playstore_production
+```
+
+Deploy the app to Google Play Store (Production Track) using a pre-built APK.
+
+### android deploy_amazon_appstore
+
+```sh
+[bundle exec] fastlane android deploy_amazon_appstore
+```
+
+Deploy the app to Amazon Appstore using a pre-built APK.
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
