@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId "com.spencerpages"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
