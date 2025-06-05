@@ -20,6 +20,69 @@
 
 package com.spencerpages;
 
+import static com.coincollection.CollectionListInfo.BARBER_QUARTERS;
+import static com.coincollection.CollectionListInfo.BURNISHED;
+import static com.coincollection.CollectionListInfo.BUST_COINS;
+import static com.coincollection.CollectionListInfo.CAPPED_BUST_COINS;
+import static com.coincollection.CollectionListInfo.CLAD_COINS;
+import static com.coincollection.CollectionListInfo.CLASSIC_QUARTERS;
+import static com.coincollection.CollectionListInfo.CORONET_COINS;
+import static com.coincollection.CollectionListInfo.CUSTOM_DATES;
+import static com.coincollection.CollectionListInfo.DRAPED_BUST_COINS;
+import static com.coincollection.CollectionListInfo.EAGLE_CENTS;
+import static com.coincollection.CollectionListInfo.INDIAN_CENTS;
+import static com.coincollection.CollectionListInfo.MEMORIAL_CENTS;
+import static com.coincollection.CollectionListInfo.MINT_CC;
+import static com.coincollection.CollectionListInfo.MINT_D;
+import static com.coincollection.CollectionListInfo.MINT_FRANKLIN_PROOF;
+import static com.coincollection.CollectionListInfo.MINT_MEM_PROOF;
+import static com.coincollection.CollectionListInfo.MINT_O;
+import static com.coincollection.CollectionListInfo.MINT_P;
+import static com.coincollection.CollectionListInfo.MINT_REV_PROOF;
+import static com.coincollection.CollectionListInfo.MINT_S;
+import static com.coincollection.CollectionListInfo.MINT_SATIN;
+import static com.coincollection.CollectionListInfo.MINT_SETS;
+import static com.coincollection.CollectionListInfo.MINT_SILVER_PROOF;
+import static com.coincollection.CollectionListInfo.MINT_S_PROOF;
+import static com.coincollection.CollectionListInfo.MINT_W;
+import static com.coincollection.CollectionListInfo.NICKEL_COINS;
+import static com.coincollection.CollectionListInfo.OLD_COINS;
+import static com.coincollection.CollectionListInfo.PARKS_QUARTERS;
+import static com.coincollection.CollectionListInfo.PARKS_QUARTERS_PROOF;
+import static com.coincollection.CollectionListInfo.PRES_DOLLARS;
+import static com.coincollection.CollectionListInfo.PROOF_SETS;
+import static com.coincollection.CollectionListInfo.SAC_DOLLARS;
+import static com.coincollection.CollectionListInfo.SBA_DOLLARS;
+import static com.coincollection.CollectionListInfo.SEATED_COINS;
+import static com.coincollection.CollectionListInfo.SHIELD_CENTS;
+import static com.coincollection.CollectionListInfo.BARBER_HALF;
+import static com.coincollection.CollectionListInfo.WALKER_HALF;
+import static com.coincollection.CollectionListInfo.FRANKLIN_HALF;
+import static com.coincollection.CollectionListInfo.KENNEDY_HALF;
+import static com.coincollection.CollectionListInfo.SHIELD_NICKELS;
+import static com.coincollection.CollectionListInfo.LIBERTY_NICKELS;
+import static com.coincollection.CollectionListInfo.BUFFALO_NICKELS;
+import static com.coincollection.CollectionListInfo.JEFFERSON_NICKELS;
+import static com.coincollection.CollectionListInfo.BARBER_DIMES;
+import static com.coincollection.CollectionListInfo.MERCURY_DIMES;
+import static com.coincollection.CollectionListInfo.ROOSEVELT_DIMES;
+import static com.coincollection.CollectionListInfo.MORGAN_DOLLARS;
+import static com.coincollection.CollectionListInfo.PEACE_DOLLARS;
+import static com.coincollection.CollectionListInfo.IKE_DOLLARS;
+import static com.coincollection.CollectionListInfo.EAGLE_DOLLARS;
+import static com.coincollection.CollectionListInfo.SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.SILVER_COINS;
+import static com.coincollection.CollectionListInfo.SILVER_PROOF_SETS;
+import static com.coincollection.CollectionListInfo.STANDING_QUARTERS;
+import static com.coincollection.CollectionListInfo.STATES_QUARTERS;
+import static com.coincollection.CollectionListInfo.STATES_QUARTERS_PROOF;
+import static com.coincollection.CollectionListInfo.TERRITORIES;
+import static com.coincollection.CollectionListInfo.TERRITORIES_QUARTERS_PROOF;
+import static com.coincollection.CollectionListInfo.TRADE_DOLLARS;
+import static com.coincollection.CollectionListInfo.WHEAT_CENTS;
+import static com.coincollection.CollectionListInfo.WOMEN_QUARTERS;
+import static com.coincollection.CollectionListInfo.WOMEN_QUARTERS_PROOF;
+
 import static com.spencerpages.MainApplication.getIndexFromCollectionClass;
 import static org.junit.Assert.assertEquals;
 
@@ -135,5 +198,83 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(48, getIndexFromCollectionClass(RooseveltDimes.class));
         assertEquals(49, getIndexFromCollectionClass(WashingtonQuarters.class));
         assertEquals(50, getIndexFromCollectionClass(AmericanInnovationDollars.class));
+    }
+
+    /**
+     * Ensure the fixed mint mark IDs are correct
+     * These are used in the database and should not change
+     */
+    @Test
+    public void testFixedMintMarkIds() {
+        assertEquals(SHOW_MINT_MARKS, 0x1L);
+        assertEquals(MINT_P, 0x2L);
+        assertEquals(MINT_D, 0x4L);
+        assertEquals(MINT_S, 0x8L);
+        assertEquals(MINT_O, 0x10L);
+        assertEquals(MINT_CC, 0x20L);
+        assertEquals(MINT_W, 0x40L);
+        assertEquals(MINT_S_PROOF, 0x80L);
+        assertEquals(MINT_SILVER_PROOF, 0x100L);
+        assertEquals(MINT_REV_PROOF, 0x200L);
+        assertEquals(MINT_MEM_PROOF, 0x400L);
+        assertEquals(MINT_SATIN, 0x800L);
+        assertEquals(MINT_FRANKLIN_PROOF, 0x1000L);
+    }
+
+    /**
+     * Ensure the fixed check box IDs are correct
+     * These are used in the database and should not change
+     */
+    @Test
+    public void testFixedCheckBoxIds() {
+        assertEquals(CUSTOM_DATES, 0x1L);
+        assertEquals(BURNISHED, 0x2L);
+        assertEquals(TERRITORIES, 0x4L);
+        assertEquals(SILVER_COINS, 0x8L);
+        assertEquals(NICKEL_COINS, 0x10L);
+        assertEquals(OLD_COINS, 0x20L);
+        assertEquals(BUST_COINS, 0x40L);
+        assertEquals(DRAPED_BUST_COINS, 0x80L);
+        assertEquals(CAPPED_BUST_COINS, 0x100L);
+        assertEquals(SEATED_COINS, 0x200L);
+        assertEquals(CORONET_COINS, 0x400L);
+        assertEquals(BARBER_QUARTERS, 0x800L);
+        assertEquals(STANDING_QUARTERS, 0x1000L);
+        assertEquals(CLASSIC_QUARTERS, 0x2000L);
+        assertEquals(STATES_QUARTERS, 0x4000L);
+        assertEquals(PARKS_QUARTERS, 0x8000L);
+        assertEquals(WOMEN_QUARTERS, 0x10000L);
+        assertEquals(EAGLE_CENTS, 0x20000L);
+        assertEquals(INDIAN_CENTS, 0x40000L);
+        assertEquals(WHEAT_CENTS, 0x80000L);
+        assertEquals(MEMORIAL_CENTS, 0x100000L);
+        assertEquals(SHIELD_CENTS, 0x200000L);
+        assertEquals(BARBER_HALF, 0x400000L);
+        assertEquals(WALKER_HALF, 0x800000L);
+        assertEquals(FRANKLIN_HALF, 0x1000000L);
+        assertEquals(KENNEDY_HALF, 0x2000000L);
+        assertEquals(SHIELD_NICKELS, 0x4000000L);
+        assertEquals(LIBERTY_NICKELS, 0x8000000L);
+        assertEquals(BUFFALO_NICKELS, 0x10000000L);
+        assertEquals(JEFFERSON_NICKELS, 0x20000000L);
+        assertEquals(BARBER_DIMES, 0x40000000L);
+        assertEquals(MERCURY_DIMES, 0x80000000L);
+        assertEquals(ROOSEVELT_DIMES, 0x100000000L);
+        assertEquals(MORGAN_DOLLARS, 0x200000000L);
+        assertEquals(PEACE_DOLLARS, 0x400000000L);
+        assertEquals(IKE_DOLLARS, 0x800000000L);
+        assertEquals(EAGLE_DOLLARS, 0x1000000000L);
+        assertEquals(SBA_DOLLARS, 0x2000000000L);
+        assertEquals(SAC_DOLLARS, 0x4000000000L);
+        assertEquals(PRES_DOLLARS, 0x8000000000L);
+        assertEquals(TRADE_DOLLARS, 0x10000000000L);
+        assertEquals(STATES_QUARTERS_PROOF, 0x20000000000L);
+        assertEquals(PARKS_QUARTERS_PROOF, 0x40000000000L);
+        assertEquals(WOMEN_QUARTERS_PROOF, 0x80000000000L);
+        assertEquals(TERRITORIES_QUARTERS_PROOF, 0x100000000000L);
+        assertEquals(CLAD_COINS, 0x200000000000L);
+        assertEquals(MINT_SETS, 0x400000000000L);
+        assertEquals(PROOF_SETS, 0x800000000000L);
+        assertEquals(SILVER_PROOF_SETS, 0x1000000000000L);
     }
 }
