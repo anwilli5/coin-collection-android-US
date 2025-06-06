@@ -155,7 +155,7 @@ public class AmericanWomenQuarters extends CollectionInfo {
 
         int total = 0;
 
-        if (oldVersion <= 19) {
+        if (oldVersion <= 18) {
             // Add in new 2023 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Bessie Coleman");
@@ -168,7 +168,7 @@ public class AmericanWomenQuarters extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 20) {
+        if (oldVersion <= 19) {
             // Add in new 2024 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Rev. Dr. Pauli Murray");

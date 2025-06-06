@@ -232,7 +232,7 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             values.clear();
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in 2020 First Spouse Gold Coins
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Barbara Bush");

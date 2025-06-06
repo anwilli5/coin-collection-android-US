@@ -166,7 +166,7 @@ public class BasicInnovationDollars extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in new 2020 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Connecticut");
@@ -178,7 +178,7 @@ public class BasicInnovationDollars extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 18) {
+        if (oldVersion <= 17) {
             // Add in new 2021 and 2022 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("New Hampshire");
@@ -194,7 +194,7 @@ public class BasicInnovationDollars extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 19) {
+        if (oldVersion <= 18) {
             // Add in new 2023 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Ohio");
@@ -206,7 +206,7 @@ public class BasicInnovationDollars extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 20) {
+        if (oldVersion <= 19) {
             // Add in new 2024 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Illinois");
