@@ -181,22 +181,22 @@ public class BasicDimes extends CollectionInfo {
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in new 2021 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
         }
 
-        if (oldVersion <= 18) {
+        if (oldVersion <= 17) {
             // Add in new 2022 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
         }
 
-        if (oldVersion <= 19) {
+        if (oldVersion <= 18) {
             // Add in new 2023 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
         }
 
-        if (oldVersion <= 20) {
+        if (oldVersion <= 19) {
             // Add in new 2024 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
         }

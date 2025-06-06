@@ -242,7 +242,7 @@ public class PresidentialDollars extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in missing 2020 Presidential Dollars
 
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();

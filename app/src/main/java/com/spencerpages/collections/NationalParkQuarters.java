@@ -325,7 +325,7 @@ public class NationalParkQuarters extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in 2021 National Park Quarters
 
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();

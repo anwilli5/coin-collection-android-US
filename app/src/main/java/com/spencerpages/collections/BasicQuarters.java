@@ -175,7 +175,7 @@ public class BasicQuarters extends CollectionInfo {
             total -= runSqlDelete(db, tableName, COIN_SLOT_NAME_MINT_WHERE_CLAUSE, new String[]{"1967", "D"});
         }
 
-        if (oldVersion <= 16) {
+        if (oldVersion <= 15) {
             // Add in new 2021 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 1998, 2021, "Crossing the Delaware");
         }
