@@ -35,6 +35,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.coincollection.helper.NonLeakingAlertDialogBuilder;
 import com.spencerpages.BuildConfig;
@@ -70,6 +74,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Add a manual inset handler
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         if (BuildConfig.DEBUG) {
             // Set StrictMode policies to help debug potential issues
@@ -361,5 +368,23 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             String resultStr = asyncProgressDoInBackground();
             asyncProgressOnPostExecute(resultStr);
         }
+    }
+
+    /**
+     * Applies window insets to the view, setting padding based on system bars
+     *
+     * @param view The view to apply insets to
+     */
+    void applyWindowInsets(View view) {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+            );
+            return insets;
+        });
     }
 }

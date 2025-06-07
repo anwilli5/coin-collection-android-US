@@ -129,6 +129,8 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity_layout);
+        View rootView = findViewById(R.id.main_activity_frame);
+        applyWindowInsets(rootView);
 
         // In legacy code we used first_Time_screen2 here so that the message would be displayed
         // until they made it to the create collection screen.  That isn't necessary anymore, but
