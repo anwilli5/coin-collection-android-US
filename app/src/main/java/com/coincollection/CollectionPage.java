@@ -346,7 +346,7 @@ public class CollectionPage extends BaseActivity {
 
         // Update the filter button text based on current filter state
         MenuItem filterItem = menu.findItem(R.id.toggle_coin_filter);
-        switch (mCoinFilter) {
+        switch ((mCoinFilter + 1) % 3) {
             case FILTER_SHOW_ALL:
                 filterItem.setTitle(R.string.show_all_coins);
                 break;
@@ -1204,6 +1204,6 @@ public class CollectionPage extends BaseActivity {
         showAlert(newBuilder()
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss()));
+                .setPositiveButton(R.string.okay, (dialog, which) -> dialog.dismiss()));
     }
 }
