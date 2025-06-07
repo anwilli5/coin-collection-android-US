@@ -274,6 +274,8 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         setContentView(R.layout.collection_creation_page);
+        View rootView = findViewById(R.id.collection_creation_page);
+        applyWindowInsets(rootView);
 
         // Prepare the Spinner that gets what type of collection they want to make
         setupCollectionSpinnerValues();
