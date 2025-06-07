@@ -325,11 +325,6 @@ public class CoinPageCreator extends BaseActivity {
                     return;
                 }
 
-                // If the users selects a non-coin option, keep index in range
-                if (newCoinTypeIndex == -1) {
-                    newCoinTypeIndex = 0;
-                }
-
                 // When an item is selected, switch our internal state based on the collection type
                 setInternalStateFromCollectionIndex(newCoinTypeIndex, position, null);
 
@@ -731,21 +726,20 @@ public class CoinPageCreator extends BaseActivity {
         mCoinTypeIndex = index;
         mCoinTypeListPos = position;
 
-        mCollectionObj = MainApplication.COLLECTION_TYPES[mCoinTypeIndex];
-
         // Get the defaults for the parameters that this new collection type cares about
         mDefaults = new HashMap<>();
-        mCollectionObj.getCreationParameters(mDefaults);
+        mParameters = new ParcelableHashMap();
 
-        if (parameters == null) {
-            mParameters = new ParcelableHashMap();
-            mCollectionObj.getCreationParameters(mParameters);
-        } else {
-            // Allow the parameters to be passed in for things like testing and on screen rotation
-            mParameters = parameters;
+        if (mCoinTypeIndex != -1) {
+            mCollectionObj = MainApplication.COLLECTION_TYPES[mCoinTypeIndex];
+            mCollectionObj.getCreationParameters(mDefaults);
+            if (parameters == null) {
+                mCollectionObj.getCreationParameters(mParameters);
+            } else {
+                // Allow the parameters to be passed in for things like testing and on screen rotation
+                mParameters = parameters;
+            }
         }
-
-        // TODO Validate mParameters
     }
 
     @Override
