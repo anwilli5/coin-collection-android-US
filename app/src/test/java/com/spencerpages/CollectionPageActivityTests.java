@@ -171,4 +171,69 @@ public class CollectionPageActivityTests extends BaseTestCase {
             assertEquals(1, numFound);
         }
     }
+
+    /**
+     * Test coin filter toggle functionality
+     */
+    @Test
+    public void test_coinFilterToggle() {
+        // Test with the first collection that has coins
+        FullCollection testCollection = mCollectionList.get(0);
+        String collectionName = testCollection.mCollectionListInfo.getName();
+        int coinTypeIdx = testCollection.mCollectionListInfo.getCollectionTypeIndex();
+        
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+                
+                if (!activity.mCoinList.isEmpty()) {
+                    int originalSize = activity.mCoinList.size();
+                    
+                    // Initially, filter should be SHOW_ALL
+                    assertEquals(CollectionPage.FILTER_SHOW_ALL, activity.mCoinFilter);
+                    assertEquals(originalSize, activity.mCoinList.size());
+                    
+                    // Toggle some coins to collected status
+                    if (originalSize > 2) {
+                        activity.mCoinList.get(0).setInCollection(true);
+                        activity.mCoinList.get(1).setInCollection(true);
+                        activity.mCoinList.get(2).setInCollection(false);
+                        
+                        // Test SHOW_COLLECTED filter
+                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
+                        activity.applyCurrentFilter();
+                        
+                        // Should only show collected coins
+                        int collectedCount = 0;
+                        for (CoinSlot coin : activity.mCoinList) {
+                            if (coin.isInCollection()) {
+                                collectedCount++;
+                            }
+                        }
+                        assertEquals(collectedCount, activity.mCoinList.size());
+                        
+                        // Test SHOW_MISSING filter
+                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
+                        activity.applyCurrentFilter();
+                        
+                        // Should only show missing coins
+                        int missingCount = 0;
+                        for (CoinSlot coin : activity.mCoinList) {
+                            if (!coin.isInCollection()) {
+                                missingCount++;
+                            }
+                        }
+                        assertEquals(missingCount, activity.mCoinList.size());
+                        
+                        // Test back to SHOW_ALL
+                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_ALL;
+                        activity.applyCurrentFilter();
+                        assertEquals(originalSize, activity.mCoinList.size());
+                    }
+                }
+            });
+        }
+    }
 }

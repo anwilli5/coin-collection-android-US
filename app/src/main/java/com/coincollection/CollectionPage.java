@@ -82,6 +82,15 @@ public class CollectionPage extends BaseActivity {
 
     private int mDisplayType = SIMPLE_DISPLAY;
 
+    // Coin filter states
+    public static final int FILTER_SHOW_ALL = 0;
+    public static final int FILTER_SHOW_COLLECTED = 1;
+    public static final int FILTER_SHOW_MISSING = 2;
+
+    /* package */ int mCoinFilter = FILTER_SHOW_ALL;
+    private ArrayList<CoinSlot> mOriginalCoinList;
+    private ArrayList<CoinSlot> mFilteredCoinList;
+
     // Action menu items
     private final static int NUM_ACTIONS = 4;
     private final static int ACTIONS_TOGGLE = 0;
@@ -104,6 +113,7 @@ public class CollectionPage extends BaseActivity {
     private int mViewPosition = 0;
 
     public static final String IS_LOCKED = "_isLocked";
+    public static final String COIN_FILTER = "_coinFilter";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -199,6 +209,15 @@ public class CollectionPage extends BaseActivity {
                 }
             }
         }
+
+        // Initialize coin filter state
+        SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        mCoinFilter = filterPreferences.getInt(mCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
+        
+        // Store original list and create filtered list
+        mOriginalCoinList = mCoinList;
+        applyCurrentFilter();
+
         mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, collectionTypeObj, mCoinList, mDisplayType);
 
         OnScrollListener scrollListener = new OnScrollListener() {
@@ -323,6 +342,20 @@ public class CollectionPage extends BaseActivity {
         } else {
             changeViewItem.setTitle(R.string.advanced_view_string);
             //saveItem.setVisible(false);
+        }
+
+        // Update the filter button text based on current filter state
+        MenuItem filterItem = menu.findItem(R.id.toggle_coin_filter);
+        switch (mCoinFilter) {
+            case FILTER_SHOW_ALL:
+                filterItem.setTitle(R.string.show_all_coins);
+                break;
+            case FILTER_SHOW_COLLECTED:
+                filterItem.setTitle(R.string.show_collected_coins);
+                break;
+            case FILTER_SHOW_MISSING:
+                filterItem.setTitle(R.string.show_missing_coins);
+                break;
         }
 
         return true;
@@ -490,6 +523,10 @@ public class CollectionPage extends BaseActivity {
                 this.onBackPressed();
             }
             return true;
+        } else if (itemId == R.id.toggle_coin_filter) {
+            // Toggle the coin filter state
+            toggleCoinFilter();
+            return true;
         } else if (itemId == R.id.add_coin_button) {
             // Show add coin prompt
             showCoinCreateOrRenamePrompt(0, true);
@@ -533,6 +570,12 @@ public class CollectionPage extends BaseActivity {
         boolean isLocked = mainPreferences.getBoolean(oldCollectionName + IS_LOCKED, false);
         editor.remove(oldCollectionName + IS_LOCKED);
         editor.putBoolean(newCollectionName + IS_LOCKED, isLocked);
+        
+        // Transfer coin filter preference
+        int coinFilter = mainPreferences.getInt(oldCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
+        editor.remove(oldCollectionName + COIN_FILTER);
+        editor.putInt(newCollectionName + COIN_FILTER, coinFilter);
+        
         editor.apply();
 
         // Update current view
@@ -590,6 +633,7 @@ public class CollectionPage extends BaseActivity {
             return;
         }
         // Insert the new coin and update the view
+        mOriginalCoinList.add(newCoinSlot);
         mCoinList.add(newCoinSlot);
         mCoinSlotAdapter.notifyDataSetChanged();
         scrollToIndex(mCoinList.size() - 1, 0, true);
@@ -771,9 +815,28 @@ public class CollectionPage extends BaseActivity {
             // Update the mCoinSlotAdapters copy of the coins in this collection
             boolean oldValue = coinSlot.isInCollection();
             coinSlot.setInCollection(!oldValue);
-
-            // And have the adapter redraw with this new info
-            mCoinSlotAdapter.notifyDataSetChanged();
+            
+            // Update the same coin in the original list to keep them in sync
+            for (CoinSlot originalCoin : mOriginalCoinList) {
+                if (originalCoin.equals(coinSlot)) {
+                    originalCoin.setInCollection(!oldValue);
+                    break;
+                }
+            }
+            
+            // Reapply the current filter and update the display
+            applyCurrentFilter();
+            CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+            mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, collectionTypeObj, mCoinList, mDisplayType);
+            
+            // Re-apply the adapter to the current view
+            if (mDisplayType == SIMPLE_DISPLAY) {
+                GridView gridview = findViewById(R.id.standard_collection_page);
+                gridview.setAdapter(mCoinSlotAdapter);
+            } else {
+                ListView listview = findViewById(R.id.advanced_collection_page);
+                listview.setAdapter(mCoinSlotAdapter);
+            }
         }
     }
 
@@ -797,7 +860,7 @@ public class CollectionPage extends BaseActivity {
             try {
                 // Update the sort order in the database and coin list
                 mDbAdapter.updateCoinSortOrderForInsert(mCollectionName, newCoinSlot.getSortOrder());
-                for (CoinSlot currCoinSlot : mCoinList) {
+                for (CoinSlot currCoinSlot : mOriginalCoinList) {
                     if (currCoinSlot.getSortOrder() >= newCoinSlot.getSortOrder()) {
                         currCoinSlot.setSortOrder(currCoinSlot.getSortOrder() + 1);
                     }
@@ -811,6 +874,7 @@ public class CollectionPage extends BaseActivity {
             }
 
             // Insert the new coin and update the view
+            mOriginalCoinList.add(coinListInsertIndex, newCoinSlot);
             mCoinList.add(coinListInsertIndex, newCoinSlot);
             mCoinSlotAdapter.notifyDataSetChanged();
         }
@@ -831,6 +895,8 @@ public class CollectionPage extends BaseActivity {
         } else {
             // Delete the coin from the coin list
             CoinSlot coinSlot = mCoinList.remove(position);
+            // Also remove from the original list
+            mOriginalCoinList.remove(coinSlot);
             try {
                 mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName, mCoinList.size());
             } catch (SQLException e) {
@@ -1043,5 +1109,101 @@ public class CollectionPage extends BaseActivity {
                 listview.setSelectionFromTop(index, position);
             }
         }
+    }
+
+    /**
+     * Apply the current coin filter to create a filtered list for display
+     */
+    /* package */ void applyCurrentFilter() {
+        if (mOriginalCoinList == null) {
+            return;
+        }
+
+        switch (mCoinFilter) {
+            case FILTER_SHOW_ALL:
+                mCoinList = new ArrayList<>(mOriginalCoinList);
+                break;
+            case FILTER_SHOW_COLLECTED:
+                mCoinList = new ArrayList<>();
+                for (CoinSlot coin : mOriginalCoinList) {
+                    if (coin.isInCollection()) {
+                        mCoinList.add(coin);
+                    }
+                }
+                break;
+            case FILTER_SHOW_MISSING:
+                mCoinList = new ArrayList<>();
+                for (CoinSlot coin : mOriginalCoinList) {
+                    if (!coin.isInCollection()) {
+                        mCoinList.add(coin);
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
+     * Toggle the coin filter to the next state and update the display
+     */
+    private void toggleCoinFilter() {
+        // Cycle through the filter states
+        mCoinFilter = (mCoinFilter + 1) % 3;
+        
+        // Save the new filter state
+        SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = filterPreferences.edit();
+        editor.putInt(mCollectionName + COIN_FILTER, mCoinFilter);
+        editor.apply();
+        
+        // Apply the filter and update the display
+        applyCurrentFilter();
+        if (mCoinSlotAdapter != null) {
+            // Recreate the adapter with the filtered list
+            CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+            mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, collectionTypeObj, mCoinList, mDisplayType);
+            
+            // Re-apply the adapter to the current view
+            if (mDisplayType == SIMPLE_DISPLAY) {
+                GridView gridview = findViewById(R.id.standard_collection_page);
+                gridview.setAdapter(mCoinSlotAdapter);
+            } else {
+                ListView listview = findViewById(R.id.advanced_collection_page);
+                listview.setAdapter(mCoinSlotAdapter);
+            }
+        }
+        
+        // Show dialog with current filter state
+        showFilterStateDialog();
+        
+        // Update the menu to show the new filter state
+        invalidateOptionsMenu();
+    }
+
+    /**
+     * Show dialog indicating the current filter state
+     */
+    private void showFilterStateDialog() {
+        String title = mRes.getString(R.string.filter_dialog_title);
+        String message;
+        
+        switch (mCoinFilter) {
+            case FILTER_SHOW_ALL:
+                message = mRes.getString(R.string.filter_dialog_all);
+                break;
+            case FILTER_SHOW_COLLECTED:
+                message = mRes.getString(R.string.filter_dialog_collected);
+                break;
+            case FILTER_SHOW_MISSING:
+                message = mRes.getString(R.string.filter_dialog_missing);
+                break;
+            default:
+                message = mRes.getString(R.string.filter_dialog_all);
+                break;
+        }
+        
+        showAlert(newBuilder()
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss()));
     }
 }
