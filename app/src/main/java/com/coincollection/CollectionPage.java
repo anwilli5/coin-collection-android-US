@@ -805,6 +805,19 @@ public class CollectionPage extends BaseActivity {
             // Collection is locked
             showLockedMessage();
         } else {
+            // Save current scroll position before making changes
+            Integer[] savedScrollPosition = null;
+            if (mDisplayType == SIMPLE_DISPLAY) {
+                GridView gridview = findViewById(R.id.standard_collection_page);
+                savedScrollPosition = getAbsListViewPosition(gridview);
+            } else {
+                ListView listview = findViewById(R.id.advanced_collection_page);
+                savedScrollPosition = getAbsListViewPosition(listview);
+            }
+            
+            // Find the current position of the coin being toggled for smarter scroll restoration
+            int coinPositionInCurrentList = mCoinList.indexOf(coinSlot);
+            
             // Preference doesn't exist or Collection is unlocked
             try {
                 mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
@@ -837,6 +850,9 @@ public class CollectionPage extends BaseActivity {
                 ListView listview = findViewById(R.id.advanced_collection_page);
                 listview.setAdapter(mCoinSlotAdapter);
             }
+            
+            // Restore scroll position intelligently
+            restoreScrollPositionAfterFilterChange(savedScrollPosition, coinSlot, coinPositionInCurrentList);
         }
     }
 
@@ -1143,11 +1159,69 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
+     * Intelligently restore scroll position after a filter change or coin toggle
+     * @param savedScrollPosition The original scroll position [index, top]
+     * @param toggledCoin The coin that was toggled (null if this was just a filter change)
+     * @param originalCoinPosition The position of the toggled coin in the previous list
+     */
+    private void restoreScrollPositionAfterFilterChange(Integer[] savedScrollPosition, CoinSlot toggledCoin, int originalCoinPosition) {
+        if (savedScrollPosition == null || mCoinList.isEmpty()) {
+            return;
+        }
+        
+        int targetIndex = 0;
+        int targetTop = 0;
+        
+        // If a coin was toggled, try to find its new position or stay near where it was
+        if (toggledCoin != null) {
+            int newCoinPosition = mCoinList.indexOf(toggledCoin);
+            if (newCoinPosition != -1) {
+                // The coin is still visible, scroll to show it
+                targetIndex = newCoinPosition;
+                targetTop = savedScrollPosition[1]; // Try to maintain same top offset
+            } else {
+                // The coin is no longer visible due to filtering
+                // Try to maintain relative position based on list size changes
+                if (originalCoinPosition != -1 && savedScrollPosition[0] < mCoinList.size()) {
+                    // Use the original scroll position if it's still valid
+                    targetIndex = Math.min(savedScrollPosition[0], mCoinList.size() - 1);
+                    targetTop = savedScrollPosition[1];
+                } else {
+                    // Calculate proportional position in the new list
+                    int originalListSize = mOriginalCoinList.size();
+                    if (originalListSize > 0) {
+                        double relativePosition = (double) savedScrollPosition[0] / originalListSize;
+                        targetIndex = Math.min((int) (relativePosition * mCoinList.size()), mCoinList.size() - 1);
+                        targetTop = savedScrollPosition[1];
+                    }
+                }
+            }
+        } else {
+            // No specific coin was toggled, try to maintain the original position
+            targetIndex = Math.min(savedScrollPosition[0], mCoinList.size() - 1);
+            targetTop = savedScrollPosition[1];
+        }
+        
+        // Apply the scroll position
+        scrollToIndex(targetIndex, targetTop, false);
+    }
+
+    /**
      * Toggle the coin filter to the next state and update the display
      */
     private void toggleCoinFilter() {
         // Store the previous filter state for potential cancellation
         int previousFilter = mCoinFilter;
+        
+        // Save current scroll position before making changes
+        Integer[] savedScrollPosition = null;
+        if (mDisplayType == SIMPLE_DISPLAY) {
+            GridView gridview = findViewById(R.id.standard_collection_page);
+            savedScrollPosition = getAbsListViewPosition(gridview);
+        } else {
+            ListView listview = findViewById(R.id.advanced_collection_page);
+            savedScrollPosition = getAbsListViewPosition(listview);
+        }
         
         // Cycle through the filter states
         mCoinFilter = (mCoinFilter + 1) % 3;
@@ -1175,8 +1249,11 @@ public class CollectionPage extends BaseActivity {
             }
         }
         
+        // Restore scroll position after filter change
+        restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
+        
         // Show dialog with current filter state and option to cancel
-        showFilterStateDialog(previousFilter);
+        showFilterStateDialog(previousFilter, savedScrollPosition);
         
         // Update the menu to show the new filter state
         invalidateOptionsMenu();
@@ -1184,8 +1261,10 @@ public class CollectionPage extends BaseActivity {
 
     /**
      * Show dialog indicating the current filter state with option to cancel
+     * @param previousFilter The previous filter state to revert to if cancelled
+     * @param savedScrollPosition The scroll position to restore if cancelled
      */
-    private void showFilterStateDialog(int previousFilter) {
+    private void showFilterStateDialog(int previousFilter, Integer[] savedScrollPosition) {
         String title = mRes.getString(R.string.filter_dialog_title);
         String message;
         
@@ -1234,6 +1313,9 @@ public class CollectionPage extends BaseActivity {
                             listview.setAdapter(mCoinSlotAdapter);
                         }
                     }
+                    
+                    // Restore the original scroll position
+                    restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
                     
                     // Update the menu to show the reverted filter state
                     invalidateOptionsMenu();
