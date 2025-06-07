@@ -87,8 +87,8 @@ public class CollectionPage extends BaseActivity {
     public static final int FILTER_SHOW_COLLECTED = 1;
     public static final int FILTER_SHOW_MISSING = 2;
 
-    /* package */ int mCoinFilter = FILTER_SHOW_ALL;
-    private ArrayList<CoinSlot> mOriginalCoinList;
+    public int mCoinFilter = FILTER_SHOW_ALL;
+    public ArrayList<CoinSlot> mOriginalCoinList;
     private ArrayList<CoinSlot> mFilteredCoinList;
 
     // Action menu items
@@ -1114,7 +1114,7 @@ public class CollectionPage extends BaseActivity {
     /**
      * Apply the current coin filter to create a filtered list for display
      */
-    /* package */ void applyCurrentFilter() {
+    public void applyCurrentFilter() {
         if (mOriginalCoinList == null) {
             return;
         }
