@@ -1146,6 +1146,9 @@ public class CollectionPage extends BaseActivity {
      * Toggle the coin filter to the next state and update the display
      */
     private void toggleCoinFilter() {
+        // Store the previous filter state for potential cancellation
+        int previousFilter = mCoinFilter;
+        
         // Cycle through the filter states
         mCoinFilter = (mCoinFilter + 1) % 3;
         
@@ -1172,17 +1175,17 @@ public class CollectionPage extends BaseActivity {
             }
         }
         
-        // Show dialog with current filter state
-        showFilterStateDialog();
+        // Show dialog with current filter state and option to cancel
+        showFilterStateDialog(previousFilter);
         
         // Update the menu to show the new filter state
         invalidateOptionsMenu();
     }
 
     /**
-     * Show dialog indicating the current filter state
+     * Show dialog indicating the current filter state with option to cancel
      */
-    private void showFilterStateDialog() {
+    private void showFilterStateDialog(int previousFilter) {
         String title = mRes.getString(R.string.filter_dialog_title);
         String message;
         
@@ -1204,6 +1207,38 @@ public class CollectionPage extends BaseActivity {
         showAlert(newBuilder()
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(R.string.okay, (dialog, which) -> dialog.dismiss()));
+                .setPositiveButton(R.string.okay, (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    // Revert to previous filter state
+                    mCoinFilter = previousFilter;
+                    
+                    // Revert the SharedPreferences setting
+                    SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = filterPreferences.edit();
+                    editor.putInt(mCollectionName + COIN_FILTER, mCoinFilter);
+                    editor.apply();
+                    
+                    // Reapply the previous filter and update the display
+                    applyCurrentFilter();
+                    if (mCoinSlotAdapter != null) {
+                        // Recreate the adapter with the filtered list
+                        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+                        mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, collectionTypeObj, mCoinList, mDisplayType);
+                        
+                        // Re-apply the adapter to the current view
+                        if (mDisplayType == SIMPLE_DISPLAY) {
+                            GridView gridview = findViewById(R.id.standard_collection_page);
+                            gridview.setAdapter(mCoinSlotAdapter);
+                        } else {
+                            ListView listview = findViewById(R.id.advanced_collection_page);
+                            listview.setAdapter(mCoinSlotAdapter);
+                        }
+                    }
+                    
+                    // Update the menu to show the reverted filter state
+                    invalidateOptionsMenu();
+                    
+                    dialog.dismiss();
+                }));
     }
 }
