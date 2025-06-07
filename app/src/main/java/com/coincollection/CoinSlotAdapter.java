@@ -62,7 +62,15 @@ class CoinSlotAdapter extends BaseAdapter {
     private final CollectionInfo mCollectionTypeObj;
     private String mTableName;
 
-    private final ArrayList<CoinSlot> mCoinList;
+    private final ArrayList<CoinSlot> mOriginalCoinList;
+    private ArrayList<CoinSlot> mFilteredCoinList;
+    
+    // Filter constants - matching CollectionPage
+    private static final int FILTER_SHOW_ALL = 0;
+    private static final int FILTER_SHOW_COLLECTED = 1;
+    private static final int FILTER_SHOW_MISSING = 2;
+    
+    private int mCurrentFilter = FILTER_SHOW_ALL;
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
     private ArrayAdapter<CharSequence> mGradeArrayAdapter;
@@ -92,7 +100,8 @@ class CoinSlotAdapter extends BaseAdapter {
         mCollectionPageContext = context;
         mTableName = tableName;
         mCollectionTypeObj = collectionTypeObj;
-        mCoinList = coinList;
+        mOriginalCoinList = coinList;
+        mFilteredCoinList = new ArrayList<>(coinList); // Start with showing all coins
         mDisplayType = displayType;
 
         mRes = mCollectionPageContext.getResources();
@@ -111,7 +120,7 @@ class CoinSlotAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mCoinList.size();
+        return mFilteredCoinList.size();
     }
 
     @Override
@@ -168,7 +177,7 @@ class CoinSlotAdapter extends BaseAdapter {
         }
 
         // Display the basic info first
-        CoinSlot coinSlot = mCoinList.get(position);
+        CoinSlot coinSlot = mFilteredCoinList.get(position);
         String identifier = coinSlot.getIdentifier();
         String mint = coinSlot.getMint();
         TextView coinText = coinView.findViewById(R.id.coinText);
@@ -271,7 +280,7 @@ class CoinSlotAdapter extends BaseAdapter {
     private void setupAdvancedView(View coinView, int position, boolean coinViewWasRecycled) {
 
         // Get the coin slot at the position in the list
-        CoinSlot coinSlot = mCoinList.get(position);
+        CoinSlot coinSlot = mFilteredCoinList.get(position);
 
         // Set up on-click listeners for the image
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
@@ -424,5 +433,76 @@ class CoinSlotAdapter extends BaseAdapter {
 
         // Tell the parent page to show the unsaved changes view
         mCollectionPageContext.showUnsavedTextView();
+    }
+    
+    /**
+     * Set the current filter and apply it to the coin list
+     * @param filter The filter to apply (FILTER_SHOW_ALL, FILTER_SHOW_COLLECTED, or FILTER_SHOW_MISSING)
+     */
+    public void setFilter(int filter) {
+        mCurrentFilter = filter;
+        applyFilter();
+    }
+    
+    /**
+     * Get the current filter setting
+     * @return The current filter value
+     */
+    public int getCurrentFilter() {
+        return mCurrentFilter;
+    }
+    
+    /**
+     * Apply the current filter to update the filtered coin list
+     */
+    private void applyFilter() {
+        mFilteredCoinList.clear();
+        
+        switch (mCurrentFilter) {
+            case FILTER_SHOW_ALL:
+                mFilteredCoinList.addAll(mOriginalCoinList);
+                break;
+            case FILTER_SHOW_COLLECTED:
+                for (CoinSlot coin : mOriginalCoinList) {
+                    if (coin.isInCollection()) {
+                        mFilteredCoinList.add(coin);
+                    }
+                }
+                break;
+            case FILTER_SHOW_MISSING:
+                for (CoinSlot coin : mOriginalCoinList) {
+                    if (!coin.isInCollection()) {
+                        mFilteredCoinList.add(coin);
+                    }
+                }
+                break;
+        }
+        
+        notifyDataSetChanged();
+    }
+    
+    /**
+     * Get the original (unfiltered) coin list
+     * @return The original coin list
+     */
+    public ArrayList<CoinSlot> getOriginalCoinList() {
+        return mOriginalCoinList;
+    }
+    
+    /**
+     * Get the currently filtered coin list
+     * @return The filtered coin list
+     */
+    public ArrayList<CoinSlot> getFilteredCoinList() {
+        return mFilteredCoinList;
+    }
+    
+    /**
+     * Find the position of a coin in the current filtered list
+     * @param coin The coin to find
+     * @return The position in the filtered list, or -1 if not found
+     */
+    public int getPositionInFilteredList(CoinSlot coin) {
+        return mFilteredCoinList.indexOf(coin);
     }
 }
