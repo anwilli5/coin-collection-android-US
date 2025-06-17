@@ -103,7 +103,7 @@ configurations {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.opencsv:opencsv:5.11'
+    implementation 'com.opencsv:opencsv:5.11.1'
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.21"))
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
     testImplementation(project(":shared-test"))
