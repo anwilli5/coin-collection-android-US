@@ -92,6 +92,10 @@ android {
         // Disables dependency metadata when building Android App Bundles.
         includeInBundle = false
     }
+    packagingOptions {
+        merge 'META-INF/LICENSE.md'
+        merge 'META-INF/LICENSE-notice.md'
+    }
 }
 
 configurations {
