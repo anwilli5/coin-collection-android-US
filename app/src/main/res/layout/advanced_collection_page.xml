@@ -3,6 +3,20 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <TextView
+        android:id="@+id/filter_status_indicator"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#F0F0F0"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Filter: 5 of 150 Collected" />
+
     <ListView
         android:id="@+id/advanced_collection_page"
         android:layout_width="fill_parent"

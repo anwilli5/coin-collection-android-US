@@ -255,6 +255,10 @@
     <string name="filter_dialog_all">Displaying all coins</string>
     <string name="filter_dialog_collected">Displaying collected coins only</string>
     <string name="filter_dialog_missing">Displaying missing coins only</string>
+    
+    <!-- Filter Status Indicator -->
+    <string name="filter_status_collected">Filter: %1$d of %2$d Collected</string>
+    <string name="filter_status_missing">Filter: %1$d of %2$d Missing</string>
 
     <!-- Collection Page -->
     <string name="dialog_enter_collection_name">Please enter a name for the collection</string>

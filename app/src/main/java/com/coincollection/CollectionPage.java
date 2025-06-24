@@ -291,6 +291,9 @@ public class CollectionPage extends BaseActivity {
             });
         }
 
+        // Setup filter status indicator
+        setupFilterStatusIndicator();
+
         // Scroll to the last position viewed (if saved)
         scrollToIndex(mViewIndex, mViewPosition, false);
     }
@@ -639,6 +642,7 @@ public class CollectionPage extends BaseActivity {
         mCoinSlotAdapter.getOriginalCoinList().add(newCoinSlot);
         mCoinSlotAdapter.setFilter(mCoinFilter); // Refresh filter to update filtered list
         mCoinList = mCoinSlotAdapter.getFilteredCoinList(); // Update reference
+        updateFilterStatusIndicator(); // Update filter status counts
         scrollToIndex(mCoinList.size() - 1, 0, true);
     }
 
@@ -838,6 +842,9 @@ public class CollectionPage extends BaseActivity {
             // Update mCoinList reference for compatibility with existing code
             mCoinList = mCoinSlotAdapter.getFilteredCoinList();
             
+            // Update filter status indicator
+            updateFilterStatusIndicator();
+            
             // Restore scroll position intelligently
             restoreScrollPositionAfterFilterChange(savedScrollPosition, coinSlot, coinPositionInCurrentList);
         }
@@ -880,6 +887,7 @@ public class CollectionPage extends BaseActivity {
             mCoinSlotAdapter.getOriginalCoinList().add(coinListInsertIndex, newCoinSlot);
             mCoinSlotAdapter.setFilter(mCoinFilter); // Refresh filter to update filtered list
             mCoinList = mCoinSlotAdapter.getFilteredCoinList(); // Update reference
+            updateFilterStatusIndicator(); // Update filter status counts
         }
     }
 
@@ -910,6 +918,7 @@ public class CollectionPage extends BaseActivity {
             // Refresh the filter to update the filtered list
             mCoinSlotAdapter.setFilter(mCoinFilter);
             mCoinList = mCoinSlotAdapter.getFilteredCoinList(); // Update reference
+            updateFilterStatusIndicator(); // Update filter status counts
 
             // Update the view
             mCoinSlotAdapter.notifyDataSetChanged();
@@ -1126,6 +1135,49 @@ public class CollectionPage extends BaseActivity {
             mCoinSlotAdapter.setFilter(mCoinFilter);
             // Update mCoinList reference for compatibility with existing code
             mCoinList = mCoinSlotAdapter.getFilteredCoinList();
+            // Update filter status indicator
+            updateFilterStatusIndicator();
+        }
+    }
+
+    /**
+     * Setup the filter status indicator view and its click handler
+     */
+    private void setupFilterStatusIndicator() {
+        TextView filterStatusView = findViewById(R.id.filter_status_indicator);
+        if (filterStatusView != null) {
+            filterStatusView.setOnClickListener(v -> toggleCoinFilter());
+            updateFilterStatusIndicator();
+        }
+    }
+
+    /**
+     * Update the filter status indicator visibility and text based on current filter
+     */
+    private void updateFilterStatusIndicator() {
+        TextView filterStatusView = findViewById(R.id.filter_status_indicator);
+        if (filterStatusView == null || mCoinSlotAdapter == null) {
+            return;
+        }
+
+        if (mCoinFilter == FILTER_SHOW_ALL) {
+            // Hide the indicator when showing all coins
+            filterStatusView.setVisibility(View.GONE);
+        } else {
+            // Show the indicator with appropriate text and counts
+            filterStatusView.setVisibility(View.VISIBLE);
+            
+            int totalCoins = mCoinSlotAdapter.getOriginalCoinList().size();
+            int filteredCoins = mCoinSlotAdapter.getFilteredCoinList().size();
+            
+            String statusText;
+            if (mCoinFilter == FILTER_SHOW_COLLECTED) {
+                statusText = mRes.getString(R.string.filter_status_collected, filteredCoins, totalCoins);
+            } else { // FILTER_SHOW_MISSING
+                statusText = mRes.getString(R.string.filter_status_missing, filteredCoins, totalCoins);
+            }
+            
+            filterStatusView.setText(statusText);
         }
     }
 
@@ -1213,6 +1265,9 @@ public class CollectionPage extends BaseActivity {
             mCoinList = mCoinSlotAdapter.getFilteredCoinList();
         }
         
+        // Update filter status indicator
+        updateFilterStatusIndicator();
+        
         // Restore scroll position after filter change
         restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
         
@@ -1267,6 +1322,9 @@ public class CollectionPage extends BaseActivity {
                         // Update mCoinList reference for compatibility with existing code
                         mCoinList = mCoinSlotAdapter.getFilteredCoinList();
                     }
+                    
+                    // Update filter status indicator
+                    updateFilterStatusIndicator();
                     
                     // Restore the original scroll position
                     restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
