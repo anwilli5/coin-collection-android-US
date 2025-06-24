@@ -489,7 +489,13 @@ public class MainActivity extends BaseActivity {
                 Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
             }
-            startActivityForResult(intent, PICK_IMPORT_FILE);
+
+            // Check if there is an activity to handle the intent
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(intent, PICK_IMPORT_FILE);
+            } else {
+                Toast.makeText(this, mRes.getString(R.string.error_no_file_manager), Toast.LENGTH_LONG).show();
+            }
         } else {
             // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
             // hasPermissions() will kick off the permissions request and the handler will re-call
