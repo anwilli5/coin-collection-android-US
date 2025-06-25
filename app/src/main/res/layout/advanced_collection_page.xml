@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/filter_status_indicator"
@@ -17,22 +18,29 @@
         android:focusable="true"
         android:text="Filter: 5 of 150 Collected" />
 
-    <ListView
-        android:id="@+id/advanced_collection_page"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:descendantFocusability="beforeDescendants"></ListView>
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/unsaved_message_textview"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="#000000"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/unsaved_message"
-        android:textColor="#ff0000"
-        android:textSize="18sp"
-        android:visibility="gone" />
-</merge>
+        <ListView
+            android:id="@+id/advanced_collection_page"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:descendantFocusability="beforeDescendants"></ListView>
+
+        <TextView
+            android:id="@+id/unsaved_message_textview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#000000"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/unsaved_message"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

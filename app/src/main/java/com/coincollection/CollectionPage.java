@@ -350,9 +350,9 @@ public class CollectionPage extends BaseActivity {
             //saveItem.setVisible(false);
         }
 
-        // Update the filter button text based on current filter state
+        // Update the filter button text to show current filter state
         MenuItem filterItem = menu.findItem(R.id.toggle_coin_filter);
-        switch ((mCoinFilter + 1) % 3) {
+        switch (mCoinFilter) {
             case FILTER_SHOW_ALL:
                 filterItem.setTitle(R.string.show_all_coins);
                 break;
@@ -530,8 +530,8 @@ public class CollectionPage extends BaseActivity {
             }
             return true;
         } else if (itemId == R.id.toggle_coin_filter) {
-            // Toggle the coin filter state
-            toggleCoinFilter();
+            // Show filter selection menu
+            showFilterMenu();
             return true;
         } else if (itemId == R.id.add_coin_button) {
             // Show add coin prompt
@@ -1146,7 +1146,7 @@ public class CollectionPage extends BaseActivity {
     private void setupFilterStatusIndicator() {
         TextView filterStatusView = findViewById(R.id.filter_status_indicator);
         if (filterStatusView != null) {
-            filterStatusView.setOnClickListener(v -> toggleCoinFilter());
+            filterStatusView.setOnClickListener(v -> showFilterMenu());
             updateFilterStatusIndicator();
         }
     }
@@ -1233,12 +1233,30 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
-     * Toggle the coin filter to the next state and update the display
+     * Show a menu to select the coin filter state
      */
-    private void toggleCoinFilter() {
-        // Store the previous filter state for potential cancellation
-        int previousFilter = mCoinFilter;
+    private void showFilterMenu() {
+        String[] filterOptions = new String[3];
+        filterOptions[FILTER_SHOW_ALL] = mRes.getString(R.string.show_all_coins);
+        filterOptions[FILTER_SHOW_COLLECTED] = mRes.getString(R.string.show_collected_coins);
+        filterOptions[FILTER_SHOW_MISSING] = mRes.getString(R.string.show_missing_coins);
         
+        showAlert(newBuilder()
+                .setTitle(mRes.getString(R.string.filter_dialog_title))
+                .setItems(filterOptions, (dialog, selectedFilter) -> {
+                    dialog.dismiss();
+                    
+                    // Only apply filter if it's different from current
+                    if (selectedFilter != mCoinFilter) {
+                        applyFilterState(selectedFilter);
+                    }
+                }));
+    }
+    
+    /**
+     * Apply the specified filter state and update the display
+     */
+    private void applyFilterState(int newFilter) {
         // Save current scroll position before making changes
         Integer[] savedScrollPosition = null;
         if (mDisplayType == SIMPLE_DISPLAY) {
@@ -1249,8 +1267,8 @@ public class CollectionPage extends BaseActivity {
             savedScrollPosition = getAbsListViewPosition(listview);
         }
         
-        // Cycle through the filter states
-        mCoinFilter = (mCoinFilter + 1) % 3;
+        // Set the new filter state
+        mCoinFilter = newFilter;
         
         // Save the new filter state
         SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
@@ -1271,68 +1289,7 @@ public class CollectionPage extends BaseActivity {
         // Restore scroll position after filter change
         restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
         
-        // Show dialog with current filter state and option to cancel
-        showFilterStateDialog(previousFilter, savedScrollPosition);
-        
         // Update the menu to show the new filter state
         invalidateOptionsMenu();
-    }
-
-    /**
-     * Show dialog indicating the current filter state with option to cancel
-     * @param previousFilter The previous filter state to revert to if cancelled
-     * @param savedScrollPosition The scroll position to restore if cancelled
-     */
-    private void showFilterStateDialog(int previousFilter, Integer[] savedScrollPosition) {
-        String title = mRes.getString(R.string.filter_dialog_title);
-        String message;
-        
-        switch (mCoinFilter) {
-            case FILTER_SHOW_ALL:
-                message = mRes.getString(R.string.filter_dialog_all);
-                break;
-            case FILTER_SHOW_COLLECTED:
-                message = mRes.getString(R.string.filter_dialog_collected);
-                break;
-            case FILTER_SHOW_MISSING:
-                message = mRes.getString(R.string.filter_dialog_missing);
-                break;
-            default:
-                message = mRes.getString(R.string.filter_dialog_all);
-                break;
-        }
-        
-        showAlert(newBuilder()
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.okay, (dialog, which) -> dialog.dismiss())
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                    // Revert to previous filter state
-                    mCoinFilter = previousFilter;
-                    
-                    // Revert the SharedPreferences setting
-                    SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = filterPreferences.edit();
-                    editor.putInt(mCollectionName + COIN_FILTER, mCoinFilter);
-                    editor.apply();
-                    
-                    // Reapply the previous filter to the adapter
-                    if (mCoinSlotAdapter != null) {
-                        mCoinSlotAdapter.setFilter(mCoinFilter);
-                        // Update mCoinList reference for compatibility with existing code
-                        mCoinList = mCoinSlotAdapter.getFilteredCoinList();
-                    }
-                    
-                    // Update filter status indicator
-                    updateFilterStatusIndicator();
-                    
-                    // Restore the original scroll position
-                    restoreScrollPositionAfterFilterChange(savedScrollPosition, null, -1);
-                    
-                    // Update the menu to show the reverted filter state
-                    invalidateOptionsMenu();
-                    
-                    dialog.dismiss();
-                }));
     }
 }
