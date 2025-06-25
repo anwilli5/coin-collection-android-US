@@ -296,6 +296,7 @@
     <string name="error_exporting_collections">The following collections could not be exported due to errors:%1$s</string>
     <string name="error_exporting">Could not export collections (%1$s)</string>
     <string name="error_importing">Could not import collections (%1$s)</string>
+    <string name="error_no_file_manager">No app found to open files. Please install a file manager to import collections</string>
 
     <!-- Reorder Collections Page -->
     <string name="changes_saved">Saved changes successfully</string>
