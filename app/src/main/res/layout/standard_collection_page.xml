@@ -16,7 +16,7 @@
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
-        android:text="Filter: 5 of 150 Collected" />
+        android:text="" />
 
     <GridView
         android:id="@+id/standard_collection_page"

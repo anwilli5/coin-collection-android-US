@@ -247,15 +247,12 @@
     <string name="collected">collected</string>
     <string name="missing">missing</string>
 
-    <!-- Collection Filter Toggle -->
+    <!-- Collection Filter -->
     <string name="filter_coins">Filter Coins</string>
     <string name="show_all_coins">Show All</string>
     <string name="show_collected_coins">Show Collected</string>
     <string name="show_missing_coins">Show Missing</string>
     <string name="filter_dialog_title">Coin Display Filter</string>
-    <string name="filter_dialog_all">Displaying all coins</string>
-    <string name="filter_dialog_collected">Displaying collected coins only</string>
-    <string name="filter_dialog_missing">Displaying missing coins only</string>
     
     <!-- Filter Status Indicator -->
     <string name="filter_status_collected">Filter: %1$d of %2$d Collected</string>

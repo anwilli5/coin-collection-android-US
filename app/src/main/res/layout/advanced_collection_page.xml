@@ -16,7 +16,7 @@
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
-        android:text="Filter: 5 of 150 Collected" />
+        android:text="" />
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -27,7 +27,7 @@
             android:id="@+id/advanced_collection_page"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:descendantFocusability="beforeDescendants"></ListView>
+            android:descendantFocusability="beforeDescendants"/>
 
         <TextView
             android:id="@+id/unsaved_message_textview"

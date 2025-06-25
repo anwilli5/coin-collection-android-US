@@ -350,10 +350,6 @@ public class CollectionPage extends BaseActivity {
             //saveItem.setVisible(false);
         }
 
-        // Set the filter button text to a static string
-        MenuItem filterItem = menu.findItem(R.id.toggle_coin_filter);
-        filterItem.setTitle(R.string.filter_coins);
-
         return true;
     }
 

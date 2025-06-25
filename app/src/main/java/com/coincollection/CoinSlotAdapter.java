@@ -65,12 +65,7 @@ class CoinSlotAdapter extends BaseAdapter {
     private final ArrayList<CoinSlot> mOriginalCoinList;
     private ArrayList<CoinSlot> mFilteredCoinList;
     
-    // Filter constants - matching CollectionPage
-    private static final int FILTER_SHOW_ALL = 0;
-    private static final int FILTER_SHOW_COLLECTED = 1;
-    private static final int FILTER_SHOW_MISSING = 2;
-    
-    private int mCurrentFilter = FILTER_SHOW_ALL;
+    private int mCurrentFilter = CollectionPage.FILTER_SHOW_ALL;
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
     private ArrayAdapter<CharSequence> mGradeArrayAdapter;
@@ -459,17 +454,17 @@ class CoinSlotAdapter extends BaseAdapter {
         mFilteredCoinList.clear();
         
         switch (mCurrentFilter) {
-            case FILTER_SHOW_ALL:
+            case CollectionPage.FILTER_SHOW_ALL:
                 mFilteredCoinList.addAll(mOriginalCoinList);
                 break;
-            case FILTER_SHOW_COLLECTED:
+            case CollectionPage.FILTER_SHOW_COLLECTED:
                 for (CoinSlot coin : mOriginalCoinList) {
                     if (coin.isInCollection()) {
                         mFilteredCoinList.add(coin);
                     }
                 }
                 break;
-            case FILTER_SHOW_MISSING:
+            case CollectionPage.FILTER_SHOW_MISSING:
                 for (CoinSlot coin : mOriginalCoinList) {
                     if (!coin.isInCollection()) {
                         mFilteredCoinList.add(coin);
