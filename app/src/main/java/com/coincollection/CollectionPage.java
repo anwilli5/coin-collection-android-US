@@ -350,19 +350,9 @@ public class CollectionPage extends BaseActivity {
             //saveItem.setVisible(false);
         }
 
-        // Update the filter button text to show current filter state
+        // Set the filter button text to a static string
         MenuItem filterItem = menu.findItem(R.id.toggle_coin_filter);
-        switch (mCoinFilter) {
-            case FILTER_SHOW_ALL:
-                filterItem.setTitle(R.string.show_all_coins);
-                break;
-            case FILTER_SHOW_COLLECTED:
-                filterItem.setTitle(R.string.show_collected_coins);
-                break;
-            case FILTER_SHOW_MISSING:
-                filterItem.setTitle(R.string.show_missing_coins);
-                break;
-        }
+        filterItem.setTitle(R.string.filter_coins);
 
         return true;
     }

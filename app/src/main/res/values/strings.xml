@@ -248,6 +248,7 @@
     <string name="missing">missing</string>
 
     <!-- Collection Filter Toggle -->
+    <string name="filter_coins">Filter Coins</string>
     <string name="show_all_coins">Show All</string>
     <string name="show_collected_coins">Show Collected</string>
     <string name="show_missing_coins">Show Missing</string>
