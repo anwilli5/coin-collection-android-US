@@ -31,7 +31,7 @@ configurations {
 
 dependencies {
     implementation(project(":app"))
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.opencsv:opencsv:5.11'
+    implementation 'com.opencsv:opencsv:5.11.2'
 }
