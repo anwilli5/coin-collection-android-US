@@ -20,7 +20,7 @@
         appcompat:showAsAction="ifRoom" />
     <item
         android:id="@+id/toggle_coin_filter"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
         android:orderInCategory="350"
         android:title="@string/filter_coins"
         appcompat:showAsAction="ifRoom" />
