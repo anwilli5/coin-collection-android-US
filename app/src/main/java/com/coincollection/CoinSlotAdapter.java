@@ -295,6 +295,10 @@ class CoinSlotAdapter extends BaseAdapter {
                 viewTagCoinSlot.setInCollection(!oldValue);
                 viewTagCoinSlot.setAdvInfoChanged(true);
 
+                // Update the filtered list and filter status if needed
+                applyFilter();
+                mCollectionPageContext.updateFilterStatusIndicator();
+
                 // Notify the adapter to re-draw the view
                 CoinSlotAdapter.this.notifyDataSetChanged();
 
