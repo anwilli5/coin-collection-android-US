@@ -247,6 +247,17 @@
     <string name="collected">collected</string>
     <string name="missing">missing</string>
 
+    <!-- Collection Filter -->
+    <string name="filter_coins">Filter Coins</string>
+    <string name="show_all_coins">Show All</string>
+    <string name="show_collected_coins">Show Collected</string>
+    <string name="show_missing_coins">Show Missing</string>
+    <string name="filter_dialog_title">Coin Display Filter</string>
+    
+    <!-- Filter Status Indicator -->
+    <string name="filter_status_collected">Filter: %1$d of %2$d Collected</string>
+    <string name="filter_status_missing">Filter: %1$d of %2$d Missing</string>
+
     <!-- Collection Page -->
     <string name="dialog_enter_collection_name">Please enter a name for the collection</string>
     <string name="dialog_enter_coin_name">Please enter a name for the coin</string>
