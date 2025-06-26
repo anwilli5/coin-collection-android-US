@@ -212,7 +212,12 @@ public class CollectionPage extends BaseActivity {
 
         // Initialize coin filter state
         SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-        mCoinFilter = filterPreferences.getInt(mCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
+        // Use saved filter state if available, otherwise use SharedPreferences
+        if (savedInstanceState != null && savedInstanceState.containsKey("COIN_FILTER_STATE")) {
+            mCoinFilter = savedInstanceState.getInt("COIN_FILTER_STATE", FILTER_SHOW_ALL);
+        } else {
+            mCoinFilter = filterPreferences.getInt(mCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
+        }
         
         // Create adapter with original coin list - it will handle filtering internally
         mCoinSlotAdapter = new CoinSlotAdapter(this, mCollectionName, collectionTypeObj, mCoinList, mDisplayType);
@@ -734,10 +739,14 @@ public class CollectionPage extends BaseActivity {
         }
 
         // Save off these lists that may have unsaved user data
-        outState.putParcelableArrayList(COIN_LIST, mCoinList);
+        // Save the original coin list, not the filtered one, to avoid double-filtering after rotation
+        ArrayList<CoinSlot> listToSave = (mOriginalCoinList != null) ? mOriginalCoinList : mCoinList;
+        outState.putParcelableArrayList(COIN_LIST, listToSave);
         outState.putInt(VIEW_INDEX, viewPos[0]);
         outState.putInt(VIEW_POSITION, viewPos[1]);
         outState.putString(COLLECTION_NAME, mCollectionName);
+        // Also save the filter state to ensure it's preserved
+        outState.putInt("COIN_FILTER_STATE", mCoinFilter);
     }
 
     /**
