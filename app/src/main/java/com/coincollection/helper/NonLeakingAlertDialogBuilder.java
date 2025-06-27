@@ -62,7 +62,7 @@ public class NonLeakingAlertDialogBuilder extends AlertDialog.Builder {
     }
 
     @Override
-    public AlertDialog.Builder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
+    public NonLeakingAlertDialogBuilder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
         super.setPositiveButton(textId, listener);
         mPositiveButtonOnClickListener = DetachableDialogAlertOnClickListener.wrapOnClickListener(listener);
         return this;
