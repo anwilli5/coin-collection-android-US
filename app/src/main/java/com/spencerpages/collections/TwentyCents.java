@@ -72,12 +72,12 @@ public class TwentyCents extends CollectionInfo {
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
 
         int coinIndex = 0;
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if(i==1875){
                 coinList.add(new CoinSlot(year, "", coinIndex++));

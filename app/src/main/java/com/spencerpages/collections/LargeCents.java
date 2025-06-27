@@ -116,14 +116,14 @@ public class LargeCents extends CollectionInfo {
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBust = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showCoronet = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showBust = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showCoronet = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
 
         int coinIndex = 0;
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showBust) {
                 if (i == 1793) {

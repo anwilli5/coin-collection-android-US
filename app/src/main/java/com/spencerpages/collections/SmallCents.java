@@ -160,24 +160,23 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_6_STRING_ID, R.string.include_w);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showIndian = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showWheat = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showMem = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
-        Boolean showShield = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_6);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showEagle = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showIndian = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showWheat = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showMem = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showShield = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showSatin = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showSProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        boolean showW = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_6);
 
         int coinIndex = 0;
 
@@ -188,7 +187,7 @@ public class SmallCents extends CollectionInfo {
         if (showOld && !showEagle) {coinList.add(new CoinSlot("Flying Eagle","", coinIndex++, getImgId("Flying Eagle")));}
         if (showOld && !showIndian) {coinList.add(new CoinSlot("Indian Head","", coinIndex++, getImgId("Indian Head")));}
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showEagle && i>1855 && i<1859 ) {
                 coinList.add(new CoinSlot(year,"", coinIndex++, getImgId("Flying Eagle")));

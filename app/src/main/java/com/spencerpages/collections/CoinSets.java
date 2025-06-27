@@ -66,7 +66,7 @@ public class CoinSets extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -93,11 +93,11 @@ public class CoinSets extends CollectionInfo {
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMint = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showSilver= (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showMint = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showProof = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showSilver = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
 
         int coinIndex = 0;
 

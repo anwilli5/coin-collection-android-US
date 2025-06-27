@@ -116,6 +116,7 @@ public class BaseTestCase {
     public void testSetup() {
         // This list keeps tracked of previously used random collection names, to prevent duplicates
         mPreviousRandCollectionNames = new ArrayList<>();
+        CollectionInfo.isUnitTest = true;
     }
 
     /**

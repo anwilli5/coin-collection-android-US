@@ -123,22 +123,21 @@ public class RooseveltDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7_STRING_ID, R.string.include_silver_proofs);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
-        Boolean showSilverProofs = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_7);
-        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showClad = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showW = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showSatin = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        boolean showProofs = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        boolean showSilverProofs = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_7);
+        boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showSilver = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showClad = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         int coinIndex = 0;
 
         if (showOld) {
