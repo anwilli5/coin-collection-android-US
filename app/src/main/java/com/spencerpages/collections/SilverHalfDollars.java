@@ -75,7 +75,7 @@ public class SilverHalfDollars extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -128,24 +128,23 @@ public class SilverHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_kennedy_half);
     }
-    // TODO Perform validation and throw exception
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showFProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
-        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showBarber = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showWalker = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showFrank = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showKen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showO = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showFProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        boolean showSilver = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showBarber = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showWalker = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showFrank = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showKen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
 
         int coinIndex = 0;
 

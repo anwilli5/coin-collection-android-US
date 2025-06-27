@@ -187,7 +187,7 @@ public class SmallDollars extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         } else {
@@ -229,17 +229,16 @@ public class SmallDollars extends CollectionInfo {
 
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showSba = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showSac = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showPres = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showSba = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showSac = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showPres = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         int coinIndex = 0;
 
         if (showSba) {
