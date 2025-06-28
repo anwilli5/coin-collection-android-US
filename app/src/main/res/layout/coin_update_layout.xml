@@ -17,13 +17,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="@string/name_label" />
+            android:text="@string/name_label"
+            android:labelFor="@id/coin_name_edittext"/>
 
         <EditText
             android:id="@+id/coin_name_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
+            android:importantForAutofill="no"
             android:minHeight="48dp"
             android:inputType="text" />
     </LinearLayout>
@@ -39,13 +41,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:text="@string/mint_label" />
+            android:text="@string/mint_label"
+            android:labelFor="@id/coin_mint_edittext"/>
 
         <EditText
             android:id="@+id/coin_mint_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
+            android:importantForAutofill="no"
             android:minHeight="48dp"
             android:inputType="text" />
     </LinearLayout>
@@ -63,7 +67,8 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:minHeight="48dp"
-            android:text="@string/image_label" />
+            android:text="@string/image_label"
+            android:labelFor="@id/coin_image_select"/>
 
         <Spinner
             android:id="@+id/coin_image_select"

@@ -8,14 +8,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:contentDescription="@string/coin_slot_description" />
-    <!-- android:layout_alignParentTop="true" />-->
-    <!--  <com.spencerpages.AutoResizeTextView
-      android:id="@+id/coinText"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/coinImage"
-      android:gravity="center_horizontal"
-      android:singleLine="true" />-->
     <TextView
         android:id="@+id/coinText"
         android:layout_width="fill_parent"

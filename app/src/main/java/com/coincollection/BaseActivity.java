@@ -50,9 +50,8 @@ import com.spencerpages.R;
  */
 public class BaseActivity extends AppCompatActivity implements AsyncProgressInterface {
 
-    // Common intent variables
-    public static final String UNIT_TEST_USE_ASYNC_TASKS = "unit-test-use-async-tasks";
-    protected boolean mUseAsyncTasks = true;
+    // Unit test flag for disabling async tasks
+    public static boolean isUnitTest = false;
 
     // Async Task info
     protected AsyncProgressTask mTask = null;
@@ -97,7 +96,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         // Setup variables used across all activities
         mRes = getResources();
         mCallingIntent = getIntent();
-        mUseAsyncTasks = mCallingIntent.getBooleanExtra(UNIT_TEST_USE_ASYNC_TASKS, true);
         mActionBar = getSupportActionBar();
 
         // In most cases we want to open the database adapter right away, but in MainActivity
@@ -341,8 +339,12 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param builder to use to create alert
      */
     protected void showAlert(NonLeakingAlertDialogBuilder builder) {
-        AlertDialog alert = builder.create();
-        alert.show();
+        // Don't show alerts in unit tests since there isn't a UI, and
+        // it will spam the log with this: Invalid ID 0x00000000.
+        if (!isUnitTest || !BuildConfig.DEBUG) {
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
     /**
@@ -360,7 +362,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public void kickOffAsyncProgressTask(int taskId) {
         mTask = new AsyncProgressTask(this);
         mTask.mAsyncTaskId = taskId;
-        if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
+        if (!isUnitTest || !BuildConfig.DEBUG) {
             mTask.execute();
         } else {
             // Call the tasks on the current thread (used for unit tests)

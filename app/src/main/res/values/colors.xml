@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="filter_status_indicator_background">#F0F0F0</color>
+    <color name="filter_status_indicator_text_color">#666666</color>
+    <color name="unsaved_message_background">#000000</color>
+    <color name="unsaved_message_text_color">#FF0000</color>
+    <color name="reorder_view_text_color">#00FF00</color>
+    <color name="complete_text_color">#00FF00</color>
+    <color name="info_popup_text_color">#FFFFFF</color>
+</resources>

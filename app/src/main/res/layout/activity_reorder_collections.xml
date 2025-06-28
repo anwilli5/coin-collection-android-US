@@ -14,10 +14,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#000000"
+        android:background="@color/unsaved_message_background"
         android:gravity="center"
         android:text="@string/unsaved_message"
-        android:textColor="#ff0000"
+        android:textColor="@color/unsaved_message_text_color"
         android:textSize="14sp"
         android:visibility="gone" />
 </FrameLayout>

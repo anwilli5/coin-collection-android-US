@@ -83,6 +83,8 @@ android {
                 showStackTraces = true
                 showStandardStreams = true
             }
+            // Configure JVM arguments to prevent Mockito self-attachment warnings
+            jvmArgs '-XX:+EnableDynamicAgentLoading'
         }
         unitTests.includeAndroidResources = true
     }

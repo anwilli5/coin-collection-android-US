@@ -57,8 +57,7 @@ public class MainActivityTests extends BaseTestCase {
     public void test_buildAttributions() {
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> assertNotEquals("", activity.buildInfoText()));
         }
     }
@@ -69,8 +68,7 @@ public class MainActivityTests extends BaseTestCase {
     @Test
     public void test_copyCollections() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
                     for (FullCollection collection : getRandomTestScenarios(coinType, 2)) {
@@ -108,8 +106,7 @@ public class MainActivityTests extends BaseTestCase {
     public void test_reorderFragment() {
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Add collections to the database
                 ArrayList<Integer> indexPositions = new ArrayList<>();
