@@ -8,7 +8,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
         android:contentDescription="@string/coin_slot_description"
         android:maxWidth="51dp"
         android:maxHeight="51dp" />
@@ -38,7 +37,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/progressTextView"
-            android:textColor="#00FF00"
+            android:textColor="@color/complete_text_color"
             android:textSize="17sp" />
     </RelativeLayout>
 </LinearLayout>

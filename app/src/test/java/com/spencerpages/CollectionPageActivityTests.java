@@ -62,8 +62,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
     @Before
     public void databaseSetup() {
         try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                        .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
             scenario.onActivity(activity -> {
                 for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
                     activity.mCoinList = new ArrayList<>();

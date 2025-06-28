@@ -63,8 +63,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
     @Test
     public void test_launchCoinPage() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
                     // Create the collection in the database

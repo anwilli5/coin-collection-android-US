@@ -60,8 +60,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
     public void test_createFromParameters() {
 
         try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                        .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
@@ -86,7 +85,6 @@ public class CoinPageCreatorTests extends BaseTestCase {
         for (final CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
             try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                     new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                            .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false)
                             .putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, info))) {
                 scenario.onActivity(activity -> {
                     // Create the collection in the DB before testing

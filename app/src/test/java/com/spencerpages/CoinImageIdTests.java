@@ -68,8 +68,7 @@ public class CoinImageIdTests extends BaseTestCase {
     @Test
     public void test_getCoinSlotImage() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
                     // Add a coin into the collection used for this test
@@ -104,8 +103,7 @@ public class CoinImageIdTests extends BaseTestCase {
     @Test
     public void test_imageIdCreation() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Mock the mCoinTypeObj.getImgId(String imgIdTag) method to check for invalid image IDs
                 CollectionInfo mockCollectionInfo = spy(mCoinTypeObj);

@@ -51,6 +51,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.BaseActivity;
+
+import com.coincollection.BaseActivity;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
@@ -117,6 +119,7 @@ public class BaseTestCase {
         // This list keeps tracked of previously used random collection names, to prevent duplicates
         mPreviousRandCollectionNames = new ArrayList<>();
         CollectionInfo.isUnitTest = true;
+        BaseActivity.isUnitTest = true;
     }
 
     /**
@@ -330,8 +333,7 @@ public class BaseTestCase {
     public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
                                   final ParcelableHashMap parameters) {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
 
                 // Create a new database from scratch

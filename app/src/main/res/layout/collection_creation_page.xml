@@ -31,7 +31,6 @@
                 android:layout_alignTop="@id/coin_selector"
                 android:layout_alignBottom="@id/coin_selector"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:gravity="center_vertical"
                 android:text="@string/collection_type" />
 
@@ -40,9 +39,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_toEndOf="@id/collection_type_text"
-                android:layout_toRightOf="@id/collection_type_text"
                 android:minHeight="50dp"
                 android:prompt="@string/select_coin_type" />
         </RelativeLayout>
