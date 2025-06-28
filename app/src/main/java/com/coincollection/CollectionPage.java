@@ -170,18 +170,21 @@ public class CollectionPage extends BaseActivity {
 
         GridView gridview = null;
         ListView listview = null;
+        LinearLayout rootview = null;
 
         if (mDisplayType == SIMPLE_DISPLAY) {
 
             setContentView(R.layout.standard_collection_page);
+            rootview = findViewById(R.id.standard_collection_page_root);
             gridview = findViewById(R.id.standard_collection_page);
-            applyWindowInsets(gridview);
+            applyWindowInsets(rootview);
 
         } else if (mDisplayType == ADVANCED_DISPLAY) {
 
             setContentView(R.layout.advanced_collection_page);
+            rootview = findViewById(R.id.advanced_collection_page_root);
             listview = findViewById(R.id.advanced_collection_page);
-            applyWindowInsets(listview);
+            applyWindowInsets(rootview);
 
             // Make it so that the elements in the listview cells can get focus
             listview.setItemsCanFocus(true);
