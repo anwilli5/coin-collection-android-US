@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 
 /**
  * This class is needed to resolve memory leaks caused by the AlertDialogs
- * - <a href="https://developer.squareup.com/blog/a-small-leak-will-sink-a-great-ship/">...</a>
+ * - <a href="https://developer.squareup.com/blog/a-small-leak-will-sink-a-great-ship/">Squareup Article</a>
  */
 public final class DetachableDialogAlertOnClickListener implements DialogInterface.OnClickListener {
 

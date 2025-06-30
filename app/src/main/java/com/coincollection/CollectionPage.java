@@ -59,7 +59,7 @@ import java.util.ArrayList;
 /**
  * Activity for managing each collection page
  * <p>
- * <a href="http://developer.android.com/resources/tutorials/views/hello-gridview.html">...</a>
+ * <a href="http://developer.android.com/resources/tutorials/views/hello-gridview.html">Android Developer Tutorial</a>
  */
 public class CollectionPage extends BaseActivity {
     private String mCollectionName;
@@ -643,7 +643,7 @@ public class CollectionPage extends BaseActivity {
 
     /**
      * Get the position that the user was at for convenience
-     * <a href="http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview">...</a>
+     * <a href="http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview">Stack Overflow</a>
      *
      * @param view to capture position from
      */
