@@ -51,8 +51,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.BaseActivity;
-
-import com.coincollection.BaseActivity;
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
@@ -100,15 +98,6 @@ public class BaseTestCase {
             mCoinList = coinList;
             mDisplayOrder = displayOrder;
         }
-    }
-
-    /**
-     * Enables VM policy checking (override to disable)
-     *
-     * @return true if the tests support VM policy checking, otherwise false
-     */
-    protected boolean enableVmPolicyChecking() {
-        return true;
     }
 
     /**

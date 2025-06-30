@@ -474,7 +474,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             insertValues.put(COL_COIN_IDENTIFIER, identifier);
             insertValues.put(COL_IN_COLLECTION, 0);
             insertValues.put(COL_COIN_MINT, "");
-            insertValues.put(COL_SORT_ORDER, newSortOrder++);
+            insertValues.put(COL_SORT_ORDER, newSortOrder);
             if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
                 total++;
             }

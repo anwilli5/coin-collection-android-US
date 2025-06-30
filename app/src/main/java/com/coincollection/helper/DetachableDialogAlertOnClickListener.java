@@ -22,15 +22,13 @@ package com.coincollection.helper;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * This class is needed to resolve memory leaks caused by the AlertDialogs
- * - https://developer.squareup.com/blog/a-small-leak-will-sink-a-great-ship/
+ * - <a href="https://developer.squareup.com/blog/a-small-leak-will-sink-a-great-ship/">Squareup Article</a>
  */
 public final class DetachableDialogAlertOnClickListener implements DialogInterface.OnClickListener {
 
@@ -51,7 +49,6 @@ public final class DetachableDialogAlertOnClickListener implements DialogInterfa
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setOnWindowDetachedListener(@NonNull final Dialog dialog) {
         dialog.getWindow()
                 .getDecorView()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--
           NOTE - For each coin we store the index of this array as the
@@ -255,8 +255,8 @@
     <string name="filter_dialog_title">Coin Display Filter</string>
     
     <!-- Filter Status Indicator -->
-    <string name="filter_status_collected">Filter: %1$d of %2$d Collected</string>
-    <string name="filter_status_missing">Filter: %1$d of %2$d Missing</string>
+    <string name="filter_status_collected" tools:ignore="PluralsCandidate">Filter: %1$d of %2$d Collected</string>
+    <string name="filter_status_missing" tools:ignore="PluralsCandidate">Filter: %1$d of %2$d Missing</string>
 
     <!-- Collection Page -->
     <string name="dialog_enter_collection_name">Please enter a name for the collection</string>

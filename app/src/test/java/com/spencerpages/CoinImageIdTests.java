@@ -108,7 +108,7 @@ public class CoinImageIdTests extends BaseTestCase {
                 // Mock the mCoinTypeObj.getImgId(String imgIdTag) method to check for invalid image IDs
                 CollectionInfo mockCollectionInfo = spy(mCoinTypeObj);
                 doAnswer(invocation -> {
-                    String imgIdTag = invocation.getArgument(0);
+                    invocation.getArgument(0);
                     int result = (int) invocation.callRealMethod(); // Call the real method
                     if (result == -1) {
                         // Assert that coin image ID is not -1 (not found)

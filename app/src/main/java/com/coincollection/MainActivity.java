@@ -478,7 +478,7 @@ public class MainActivity extends BaseActivity {
      * Handle when the user starts importing a collection
      */
     private void launchImportTask() {
-        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (!mImportExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
@@ -523,7 +523,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (!mImportExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             if (mExportSingleFileCsv) {
@@ -1046,12 +1046,6 @@ public class MainActivity extends BaseActivity {
             mImportExportLegacyCsv = false;
             launchImportTask();
             return;
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            // The file picker was added in API 19, so don't give the user that option. Since there
-            // is no choice, go directly to using legacy storage
-            mImportExportLegacyCsv = true;
-            launchImportTask();
-            return;
         }
 
         // Populate a menu of actions for import
@@ -1087,14 +1081,6 @@ public class MainActivity extends BaseActivity {
 
         if (mNumberOfCollections == 0) {
             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            // If API is less than 19, only legacy storage is supported so go directly to that
-            mImportExportLegacyCsv = true;
-            mExportSingleFileCsv = false;
-            launchExportTask();
             return;
         }
 

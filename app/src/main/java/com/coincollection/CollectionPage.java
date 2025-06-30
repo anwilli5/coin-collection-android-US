@@ -59,7 +59,7 @@ import java.util.ArrayList;
 /**
  * Activity for managing each collection page
  * <p>
- * http://developer.android.com/resources/tutorials/views/hello-gridview.html
+ * <a href="http://developer.android.com/resources/tutorials/views/hello-gridview.html">Android Developer Tutorial</a>
  */
 public class CollectionPage extends BaseActivity {
     private String mCollectionName;
@@ -89,7 +89,6 @@ public class CollectionPage extends BaseActivity {
 
     public int mCoinFilter = FILTER_SHOW_ALL;
     public ArrayList<CoinSlot> mOriginalCoinList;
-    private ArrayList<CoinSlot> mFilteredCoinList;
 
     // Action menu items
     private final static int NUM_ACTIONS = 4;
@@ -170,7 +169,7 @@ public class CollectionPage extends BaseActivity {
 
         GridView gridview = null;
         ListView listview = null;
-        LinearLayout rootview = null;
+        LinearLayout rootview;
 
         if (mDisplayType == SIMPLE_DISPLAY) {
 
@@ -644,7 +643,7 @@ public class CollectionPage extends BaseActivity {
 
     /**
      * Get the position that the user was at for convenience
-     * http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
+     * <a href="http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview">Stack Overflow</a>
      *
      * @param view to capture position from
      */
@@ -812,7 +811,7 @@ public class CollectionPage extends BaseActivity {
             showLockedMessage();
         } else {
             // Save current scroll position before making changes
-            Integer[] savedScrollPosition = null;
+            Integer[] savedScrollPosition;
             if (mDisplayType == SIMPLE_DISPLAY) {
                 GridView gridview = findViewById(R.id.standard_collection_page);
                 savedScrollPosition = getAbsListViewPosition(gridview);
@@ -1252,7 +1251,7 @@ public class CollectionPage extends BaseActivity {
      */
     private void applyFilterState(int newFilter) {
         // Save current scroll position before making changes
-        Integer[] savedScrollPosition = null;
+        Integer[] savedScrollPosition;
         if (mDisplayType == SIMPLE_DISPLAY) {
             GridView gridview = findViewById(R.id.standard_collection_page);
             savedScrollPosition = getAbsListViewPosition(gridview);
