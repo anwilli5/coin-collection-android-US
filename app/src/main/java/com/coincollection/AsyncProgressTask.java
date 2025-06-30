@@ -23,7 +23,7 @@ import android.os.AsyncTask;
 
 /**
  * sub-class of AsyncTask
- * See: http://stackoverflow.com/questions/6450275/android-how-to-work-with-asynctasks-progressdialog
+ * See: <a href="http://stackoverflow.com/questions/6450275/android-how-to-work-with-asynctasks-progressdialog">...</a>
  */
 // TODO For passing the AsyncTask between Activity instances, see this post:
 // http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html

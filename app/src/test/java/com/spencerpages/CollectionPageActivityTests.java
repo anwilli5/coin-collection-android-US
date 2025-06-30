@@ -153,24 +153,36 @@ public class CollectionPageActivityTests extends BaseTestCase {
         }
         // Each class should be in the collection types list at least and only once
         for (CollectionInfo collectionType : COLLECTION_TYPES) {
-            int numFound = 0;
-            for (Class<?> collectionClass : BASIC_COLLECTIONS) {
-                if (collectionType.getClass() == collectionClass) {
-                    numFound++;
-                }
-            }
-            for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
-                if (collectionType.getClass() == collectionClass) {
-                    numFound++;
-                }
-            }
-            for (Class<?> collectionClass : MORE_COLLECTIONS) {
-                if (collectionType.getClass() == collectionClass) {
-                    numFound++;
-                }
-            }
+            int numFound = getNumListEntriesFound(collectionType);
             assertEquals(1, numFound);
         }
+    }
+
+    /**
+     * Get the number of times a collection type is found in the list of collections
+     * (BASIC_COLLECTIONS, ADVANCED_COLLECTIONS, MORE_COLLECTIONS)
+     *
+     * @param collectionType The collection type to check
+     * @return The number of times the collection type is found
+     */
+    private static int getNumListEntriesFound(CollectionInfo collectionType) {
+        int numFound = 0;
+        for (Class<?> collectionClass : BASIC_COLLECTIONS) {
+            if (collectionType.getClass() == collectionClass) {
+                numFound++;
+            }
+        }
+        for (Class<?> collectionClass : ADVANCED_COLLECTIONS) {
+            if (collectionType.getClass() == collectionClass) {
+                numFound++;
+            }
+        }
+        for (Class<?> collectionClass : MORE_COLLECTIONS) {
+            if (collectionType.getClass() == collectionClass) {
+                numFound++;
+            }
+        }
+        return numFound;
     }
 
     /**
@@ -220,7 +232,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         activity.applyCurrentFilter();
                         
                         // Should only show missing coins
-                        assertTrue("Should have at least 1 missing coin", activity.mCoinList.size() >= 1);
+                        assertFalse("Should have at least 1 missing coin", activity.mCoinList.isEmpty());
                         for (CoinSlot coin : activity.mCoinList) {
                             assertFalse("All coins in filtered list should be missing", coin.isInCollection());
                         }

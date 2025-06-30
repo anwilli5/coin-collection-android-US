@@ -23,6 +23,8 @@ package com.coincollection.helper;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -57,7 +59,7 @@ public class ParcelableHashMap extends HashMap<String, Object> implements Parcel
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         ArrayList<String> stringMap = new ArrayList<>();
         ArrayList<String> intMap = new ArrayList<>();
         ArrayList<String> booleanMap = new ArrayList<>();

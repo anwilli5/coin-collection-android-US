@@ -24,7 +24,7 @@ android {
 }
 
 configurations {
-    all {
+    configureEach {
         exclude module: 'commons-logging'
     }
 }

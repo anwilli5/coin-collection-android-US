@@ -63,7 +63,7 @@ class CoinSlotAdapter extends BaseAdapter {
     private String mTableName;
 
     private final ArrayList<CoinSlot> mOriginalCoinList;
-    private ArrayList<CoinSlot> mFilteredCoinList;
+    private final ArrayList<CoinSlot> mFilteredCoinList;
     
     private int mCurrentFilter = CollectionPage.FILTER_SHOW_ALL;
 
@@ -442,15 +442,7 @@ class CoinSlotAdapter extends BaseAdapter {
         mCurrentFilter = filter;
         applyFilter();
     }
-    
-    /**
-     * Get the current filter setting
-     * @return The current filter value
-     */
-    public int getCurrentFilter() {
-        return mCurrentFilter;
-    }
-    
+
     /**
      * Apply the current filter to update the filtered coin list
      */

@@ -41,6 +41,7 @@ import android.os.Build;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -120,23 +121,16 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(collectionListFile.exists());
                 for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
                     assertNotNull(collectionInfo);
-                    File collectionFile;
-                    if (collectionInfo instanceof NativeAmericanDollars) {
-                        collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
-                    } else if (collectionInfo instanceof AmericanInnovationDollars) {
-                        collectionFile = new File(activity.getLegacyExportFolderName(), "American Innovation Dollars w_SL_ Proofs.csv");
-                    } else{
-                        collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
-                    }
+                    File collectionFile = getCollectionFile(activity, collectionInfo);
                     assertTrue(collectionFile.exists());
                 }
 
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
@@ -147,6 +141,26 @@ public class ExportImportTests extends BaseTestCase {
                 compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, false);
             });
         }
+    }
+
+    /**
+     * Get the collection file for a given collection info object
+     *
+     * @param activity        MainActivity instance
+     * @param collectionInfo  CollectionInfo object
+     * @return File for the collection
+     */
+    @NonNull
+    private static File getCollectionFile(MainActivity activity, CollectionInfo collectionInfo) {
+        File collectionFile;
+        if (collectionInfo instanceof NativeAmericanDollars) {
+            collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
+        } else if (collectionInfo instanceof AmericanInnovationDollars) {
+            collectionFile = new File(activity.getLegacyExportFolderName(), "American Innovation Dollars w_SL_ Proofs.csv");
+        } else{
+            collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
+        }
+        return collectionFile;
     }
 
     /**
@@ -177,9 +191,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 InputStream inputStream = openInputStream(exportFile);
@@ -222,9 +236,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 InputStream inputStream = openInputStream(exportFile);
@@ -310,9 +324,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
