@@ -7,6 +7,8 @@ import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.CoinSlot.COL_CUSTOM_IMAGE_PATH;
+import static com.coincollection.CoinSlot.COL_HAS_CUSTOM_IMAGE;
 import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
@@ -287,6 +289,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             resultCursor.close();
         }
+
+        // Add custom image support
+        if (oldVersion <= 23 && !fromImport) {
+            // Get all of the created tables
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_HAS_CUSTOM_IMAGE + " INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_CUSTOM_IMAGE_PATH + " TEXT DEFAULT \"\"");
+                    // Move to the next collection
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
     }
 
     /**
@@ -502,7 +519,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ArrayList<String> dbColumns = new ArrayList<>(
                 Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION,
-                        COL_SORT_ORDER, COL_CUSTOM_COIN, COL_IMAGE_ID));
+                        COL_SORT_ORDER, COL_CUSTOM_COIN, COL_IMAGE_ID, COL_HAS_CUSTOM_IMAGE, COL_CUSTOM_IMAGE_PATH));
         if (populateAdvInfo) {
             dbColumns.addAll(
                     Arrays.asList(COL_ADV_GRADE_INDEX, COL_ADV_QUANTITY_INDEX, COL_ADV_NOTES));
@@ -527,7 +544,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow(COL_ADV_NOTES)),
                             sortOrder,
                             (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID)),
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_HAS_CUSTOM_IMAGE)) != 0),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_CUSTOM_IMAGE_PATH))));
                 } else {
                     coinList.add(new CoinSlot(
                             cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
@@ -536,7 +555,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
                             sortOrder,
                             (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID)),
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_HAS_CUSTOM_IMAGE)) != 0),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_CUSTOM_IMAGE_PATH))));
                 }
             } while (cursor.moveToNext());
         }

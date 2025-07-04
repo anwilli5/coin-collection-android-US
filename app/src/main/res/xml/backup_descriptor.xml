@@ -2,4 +2,6 @@
 <full-backup-content>
     <!-- All databases and preferences are fine to preserve, and do not contain any device-specific
          or sensitive information -->
+    <!-- Include custom coin images directory -->
+    <include domain="file" path="coin_images/"/>
 </full-backup-content>

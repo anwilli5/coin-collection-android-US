@@ -183,8 +183,24 @@ class CoinSlotAdapter extends BaseAdapter {
 
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
-        int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot, false);
-        coinImage.setImageResource(imageIdentifier);
+        
+        // Check if the coin has a custom image
+        if (coinSlot.hasCustomImage() && coinSlot.getCustomImagePath() != null) {
+            try {
+                // Load and display the custom image
+                coinImage.setImageBitmap(CoinImageUtils.loadCoinImage(mCollectionPageContext, coinSlot.getCustomImagePath()));
+            } catch (Exception e) {
+                // If there's an error loading the image, fall back to the default image
+                int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot, false);
+                coinImage.setImageResource(imageIdentifier);
+            }
+        } else {
+            // Use the default image from resources
+            int imageIdentifier = mCollectionTypeObj.getCoinSlotImage(coinSlot, false);
+            coinImage.setImageResource(imageIdentifier);
+        }
+        
+        // Set alpha based on whether the coin is in the collection
         coinImage.setImageAlpha(coinSlot.isInCollection() ? 255 : 64);
 
         // Add an accessibility string to indicate that the coin has been found or not

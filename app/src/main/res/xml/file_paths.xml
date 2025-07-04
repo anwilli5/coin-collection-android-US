@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- For storing captured images -->
+    <files-path name="coin_images" path="coin_images/" />
+    <cache-path name="cache" path="." />
+    <!-- For sharing images with other apps -->
+    <external-path name="external_files" path="." />
+</paths>
