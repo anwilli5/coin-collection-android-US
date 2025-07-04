@@ -26,6 +26,7 @@ import static com.spencerpages.MainApplication.APP_NAME;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -40,8 +41,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -66,6 +69,9 @@ public class CollectionPage extends BaseActivity {
     public ArrayList<CoinSlot> mCoinList;
     private CoinSlotAdapter mCoinSlotAdapter;
     private int mCollectionTypeIndex;
+    
+    // Custom image selector - initialized once to avoid lifecycle issues
+    private CoinImageSelector mCoinImageSelector;
 
     // Saved Instance State Keywords
 
@@ -117,6 +123,9 @@ public class CollectionPage extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Initialize coin image selector early to avoid lifecycle issues
+        mCoinImageSelector = new CoinImageSelector(this);
 
         // Save off this bundle so that after the database is open we can use it
         // to get the previous CoinSlotAdapter, if present
@@ -595,9 +604,12 @@ public class CollectionPage extends BaseActivity {
      */
     public void updateCoinDetails(CoinSlot coinSlot, String coinName, String coinMint, int imageId) {
 
-        // Do nothing if the name/mint isn't actually changed
+        // Check if any custom image data has changed
+        boolean hasCustomImageChanged = false;
+        
+        // Do nothing if nothing has changed
         if (coinName.equals(coinSlot.getIdentifier()) && coinMint.equals(coinSlot.getMint())
-            && (imageId == coinSlot.getImageId())) {
+            && (imageId == coinSlot.getImageId()) && !hasCustomImageChanged) {
             return;
         }
 
@@ -607,6 +619,11 @@ public class CollectionPage extends BaseActivity {
             coinSlot.setMint(coinMint);
             coinSlot.setImageId(imageId);
             mDbAdapter.updateCoinNameMintImage(mCollectionName, coinSlot);
+            
+            // Update custom image if it has changed
+            if (hasCustomImageChanged) {
+                mDbAdapter.updateCustomImage(mCollectionName, coinSlot);
+            }
         } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_updating_coin));
             return;
@@ -623,7 +640,7 @@ public class CollectionPage extends BaseActivity {
      * @param coinMint coin mint
      * @param imageId  coin image id
      */
-    public void addNewCoin(String newName, String coinMint, int imageId) {
+    public CoinSlot addNewCoin(String newName, String coinMint, int imageId) {
         int sortOrder = mDbAdapter.getNextCoinSortOrder(mCollectionName);
         CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder, imageId);
         try {
@@ -631,7 +648,7 @@ public class CollectionPage extends BaseActivity {
             mDbAdapter.addCoinSlotToCollection(newCoinSlot, mCollectionName, true, mOriginalCoinList.size() + 1);
         } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_editing_coin));
-            return;
+            return null;
         }
         // Insert the new coin and update the view
         mOriginalCoinList.add(newCoinSlot);
@@ -639,6 +656,8 @@ public class CollectionPage extends BaseActivity {
         mCoinList = mCoinSlotAdapter.getFilteredCoinList(); // Update reference
         updateFilterStatusIndicator(); // Update filter status counts
         scrollToIndex(mCoinList.size() - 1, 0, true);
+        
+        return newCoinSlot;
     }
 
     /**
@@ -961,6 +980,53 @@ public class CollectionPage extends BaseActivity {
             nameInput.setFilters(new InputFilter[]{nameFilter});
             mintInput.setFilters(new InputFilter[]{nameFilter});
 
+            // Get references to custom image UI elements
+            Button customImageButton = coinRenameView.findViewById(R.id.custom_image_button);
+            ImageView customImagePreview = coinRenameView.findViewById(R.id.custom_image_preview);
+            
+            // Custom image handling
+            final boolean[] hasCustomImage = {!createNewCoin && mCoinList.get(position).hasCustomImage()};
+            final String[] customImagePath = {!createNewCoin ? mCoinList.get(position).getCustomImagePath() : null};
+            
+            // Initialize the image preview if there's a custom image
+            if (hasCustomImage[0] && customImagePath[0] != null) {
+                try {
+                    customImagePreview.setImageBitmap(CoinImageUtils.loadCoinImage(this, customImagePath[0]));
+                    customImagePreview.setVisibility(View.VISIBLE);
+                    customImageButton.setText(R.string.remove_custom_image);
+                } catch (Exception e) {
+                    // If there's an error loading the image, reset the custom image
+                    hasCustomImage[0] = false;
+                    customImagePath[0] = null;
+                    Toast.makeText(this, R.string.error_loading_image, Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            // Set up the custom image button click listener
+            customImageButton.setOnClickListener(v -> {
+                if (hasCustomImage[0]) {
+                    // If there's already a custom image, offer to remove it
+                    hasCustomImage[0] = false;
+                    customImagePath[0] = null;
+                    customImagePreview.setVisibility(View.GONE);
+                    customImageButton.setText(R.string.custom_image);
+                } else {
+                    // Show the image selection dialog
+                    mCoinImageSelector.showImageSelectionDialog(new CoinImageSelector.CoinImageCallback() {
+                        @Override
+                        public void onImageSelected(android.graphics.Bitmap bitmap, String imagePath) {
+                            if (bitmap != null && imagePath != null) {
+                                hasCustomImage[0] = true;
+                                customImagePath[0] = imagePath;
+                                customImagePreview.setImageBitmap(bitmap);
+                                customImagePreview.setVisibility(View.VISIBLE);
+                                customImageButton.setText(R.string.remove_custom_image);
+                            }
+                        }
+                    });
+                }
+            });
+            
             // Build the alert dialog
             showAlert(newBuilder()
                     .setTitle(mRes.getString(R.string.edit_coin_info))
@@ -974,9 +1040,29 @@ public class CollectionPage extends BaseActivity {
                             return;
                         }
                         if (!createNewCoin) {
-                            updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString(), imageId);
+                            CoinSlot coin = mCoinList.get(position);
+                            
+                            // Update custom image properties
+                            if (hasCustomImage[0] != coin.hasCustomImage() || 
+                                (customImagePath[0] != null && !customImagePath[0].equals(coin.getCustomImagePath()))) {
+                                coin.setHasCustomImage(hasCustomImage[0]);
+                                coin.setCustomImagePath(customImagePath[0]);
+                            }
+                            
+                            updateCoinDetails(coin, newName, mintInput.getText().toString(), imageId);
                         } else {
-                            addNewCoin(newName, mintInput.getText().toString(), imageId);
+                            CoinSlot newCoin = addNewCoin(newName, mintInput.getText().toString(), imageId);
+                            
+                            // Update custom image properties for the new coin if needed
+                            if (hasCustomImage[0] && customImagePath[0] != null) {
+                                newCoin.setHasCustomImage(true);
+                                newCoin.setCustomImagePath(customImagePath[0]);
+                                try {
+                                    mDbAdapter.updateCustomImage(mCollectionName, newCoin);
+                                } catch (Exception e) {
+                                    Toast.makeText(CollectionPage.this, R.string.error_updating_coin, Toast.LENGTH_SHORT).show();
+                                }
+                            }
                         }
                     })
                     .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));

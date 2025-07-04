@@ -10,7 +10,13 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express    public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
+        DatabaseHelper.getAllTables(mDb, collectionListEntries, false);
+    } implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
  */
@@ -25,6 +31,8 @@ import static com.coincollection.CoinSlot.COL_COIN_ID;
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.CoinSlot.COL_CUSTOM_IMAGE_PATH;
+import static com.coincollection.CoinSlot.COL_HAS_CUSTOM_IMAGE;
 import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
 import static com.coincollection.CoinSlot.COL_SORT_ORDER;
@@ -123,6 +131,10 @@ public class DatabaseAdapter {
     // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
     // instead have one query that returns all of the info.
     public int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + removeBrackets(tableName) + "] WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE + " LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         compiledStatement.bindString(1, String.valueOf(coinSlot.getDatabaseId()));
@@ -156,6 +168,10 @@ public class DatabaseAdapter {
      * @throws SQLException if an SQL-related error occurs
      */
     public int fetchTableDisplay(String tableName) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         // The database will only be set up this way in this case
         String sqlCmd = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE " + COL_NAME + "=? LIMIT 1";
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
@@ -207,6 +223,8 @@ public class DatabaseAdapter {
         args.put(COL_ADV_GRADE_INDEX, coinSlot.getAdvancedGrades());
         args.put(COL_ADV_QUANTITY_INDEX, coinSlot.getAdvancedQuantities());
         args.put(COL_ADV_NOTES, coinSlot.getAdvancedNotes());
+        args.put(COL_HAS_CUSTOM_IMAGE, coinSlot.hasCustomImageInt());
+        args.put(COL_CUSTOM_IMAGE_PATH, coinSlot.getCustomImagePath());
         String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
         runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
@@ -218,6 +236,11 @@ public class DatabaseAdapter {
      * @throws SQLException if the database error occurs
      */
     private void createCollectionTable(String tableName) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
+        
         // v2.2.1 - Until this point all fields had '_id' created with 'autoincrement'
         // which is unnecessary for our purposes.  Removing to improve performance.
         String sqlCmd = "CREATE TABLE [" + removeBrackets(tableName) + "] ("
@@ -230,7 +253,9 @@ public class DatabaseAdapter {
                 + " " + COL_ADV_NOTES + " text default \"\","
                 + " " + COL_SORT_ORDER + " integer not null,"
                 + " " + COL_CUSTOM_COIN + " integer default 0,"
-                + " " + COL_IMAGE_ID + " integer default -1);";
+                + " " + COL_IMAGE_ID + " integer default -1,"
+                + " " + COL_HAS_CUSTOM_IMAGE + " integer default 0,"
+                + " " + COL_CUSTOM_IMAGE_PATH + " text default \"\");";
         mDb.execSQL(sqlCmd);
     }
 
@@ -276,6 +301,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void dropCollectionTable(String tableName) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         String dropTableCmd = "DROP TABLE [" + removeBrackets(tableName) + "];";
         mDb.execSQL(dropTableCmd);
         runSqlDeleteAndCheck(TBL_COLLECTION_INFO, COL_NAME + "=?", new String[]{tableName});
@@ -287,6 +316,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     void dropCollectionInfoTable() throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         String dropTableCmd = "DROP TABLE [" + TBL_COLLECTION_INFO + "];";
         mDb.execSQL(dropTableCmd);
     }
@@ -297,6 +330,14 @@ public class DatabaseAdapter {
      * @return Cursor to iterate over
      */
     public Cursor getAllCollectionNames() {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            try {
+                open();
+            } catch (SQLException e) {
+                return null;
+            }
+        }
         return mDb.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
     }
 
@@ -307,6 +348,14 @@ public class DatabaseAdapter {
      * @param fromImport true if the upgrade is part of a database import
      */
     void upgradeCollections(int oldVersion, boolean fromImport) {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            try {
+                open();
+            } catch (SQLException e) {
+                return; // Can't upgrade if we can't open the database
+            }
+        }
         DatabaseHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, fromImport);
     }
 
@@ -346,6 +395,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurred
      */
     public int getNextDisplayOrder() throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         String sqlCmd = "SELECT MAX(" + COL_DISPLAY_ORDER + ") FROM " + TBL_COLLECTION_INFO;
         SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
         int result = simpleQueryForLong(compiledStatement);
@@ -362,6 +415,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurred
      */
     public int getNextCoinSortOrder(String tableName) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         return DatabaseHelper.getNextCoinSortOrder(mDb, tableName);
     }
 
@@ -380,6 +437,11 @@ public class DatabaseAdapter {
         CollectionListInfo newCollectionListInfo = sourceCollectionListInfo.copy(newTableName);
         createAndPopulateNewTable(newCollectionListInfo, insertIndex, null);
 
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
+        
         // Populate the contents use SQL commands
         String sourceTableName = sourceCollectionListInfo.getName();
         String populateDbCmd = "INSERT INTO [" + removeBrackets(newTableName) + "] SELECT * FROM [" + removeBrackets(sourceTableName) + "];";
@@ -397,6 +459,10 @@ public class DatabaseAdapter {
      * @throws SQLException if the database update was not successful
      */
     public void updateCollectionName(String oldName, String newName) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         DatabaseHelper.updateCollectionName(mDb, oldName, newName);
     }
 
@@ -425,6 +491,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void updateExistingCollection(String oldTableName, CollectionListInfo collectionListInfo, ArrayList<CoinSlot> coinData) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         DatabaseHelper.updateExistingCollection(mDb, oldTableName, collectionListInfo, coinData, false);
     }
 
@@ -434,6 +504,10 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     void createCollectionInfoTable() throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         DatabaseHelper.createCollectionInfoTable(mDb);
     }
 
@@ -454,8 +528,27 @@ public class DatabaseAdapter {
      * @throws SQLException if a database error occurs
      */
     public void updateCoinSortOrderForInsert(String tableName, int insertSortOrder) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         mDb.execSQL("UPDATE [" + removeBrackets(tableName) + "] SET " + COL_SORT_ORDER + " = " + COL_SORT_ORDER + "+1 "
                 + "WHERE " + COL_SORT_ORDER + " >= " + insertSortOrder);
+    }
+
+    /**
+     * Update the custom image fields for a coin
+     *
+     * @param tableName the collection table
+     * @param coinSlot  the coin to update
+     * @throws SQLException if a database error occurs
+     */
+    public void updateCustomImage(String tableName, CoinSlot coinSlot) throws SQLException {
+        ContentValues values = new ContentValues();
+        values.put(COL_HAS_CUSTOM_IMAGE, coinSlot.hasCustomImage() ? 1 : 0);
+        values.put(COL_CUSTOM_IMAGE_PATH, coinSlot.getCustomImagePath());
+        String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
+        runSqlUpdateAndCheck(tableName, values, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
     }
 
     /**
@@ -476,6 +569,8 @@ public class DatabaseAdapter {
         values.put(COL_SORT_ORDER, coinSlot.getSortOrder());
         values.put(COL_CUSTOM_COIN, coinSlot.isCustomCoinInt());
         values.put(COL_IMAGE_ID, coinSlot.getImageId());
+        values.put(COL_HAS_CUSTOM_IMAGE, coinSlot.hasCustomImageInt());
+        values.put(COL_CUSTOM_IMAGE_PATH, coinSlot.getCustomImagePath());
 
         // Add coin into database and record database id in CoinSlot object
         coinSlot.setDatabaseId(runSqlInsert(tableName, values));
@@ -516,6 +611,14 @@ public class DatabaseAdapter {
      * @return CoinSlot list
      */
     public ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo, boolean useSortOrder) {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            try {
+                open();
+            } catch (SQLException e) {
+                return new ArrayList<>();
+            }
+        }
         return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo, useSortOrder);
     }
 
@@ -527,6 +630,14 @@ public class DatabaseAdapter {
      * @return CoinSlot list
      */
     public ArrayList<CoinSlot> getCoinList(String tableName, boolean populateAdvInfo) {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            try {
+                open();
+            } catch (SQLException e) {
+                return new ArrayList<>();
+            }
+        }
         return DatabaseHelper.getCoinList(mDb, tableName, populateAdvInfo, true);
     }
 
@@ -539,6 +650,10 @@ public class DatabaseAdapter {
      * @throws SQLException if an insert error occurred
      */
     long runSqlInsert(String tableName, ContentValues values) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         return DatabaseHelper.runSqlInsert(mDb, tableName, values);
     }
 
@@ -552,6 +667,10 @@ public class DatabaseAdapter {
      * @throws SQLException if the update did not affect any rows
      */
     void runSqlUpdateAndCheck(String tableName, ContentValues values, String whereClause, String[] whereArgs) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         if (DatabaseHelper.runSqlUpdate(mDb, tableName, values, whereClause, whereArgs) <= 0) {
             throw new SQLException();
         }
@@ -566,6 +685,10 @@ public class DatabaseAdapter {
      * @throws SQLException if the delete did not affect any rows
      */
     void runSqlDeleteAndCheck(String table, String whereClause, String[] whereArgs) throws SQLException {
+        // Ensure database is open before executing SQL
+        if (mDb == null || !mDb.isOpen()) {
+            open();
+        }
         if (DatabaseHelper.runSqlDelete(mDb, table, whereClause, whereArgs) <= 0) {
             throw new SQLException();
         }

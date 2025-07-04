@@ -77,4 +77,27 @@
             android:layout_weight="5"
             android:prompt="@string/select_image" />
     </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/custom_image_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp">
+
+        <Button
+            android:id="@+id/custom_image_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/custom_image" />
+            
+        <ImageView
+            android:id="@+id/custom_image_preview"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/custom_image"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

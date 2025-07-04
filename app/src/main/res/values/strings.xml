@@ -346,5 +346,22 @@
     <string name="attr_early_halfs">Flowing Hair, Draped Bust, Capped Bust, and Liberty Seated half Dollar images courtesy of Lost Dutchman Rare Coins and Wikimedia Commons</string>
     <string name="attr_quarters">Eagle reverse quarter image by 636Buster via wikimedia other Washington quarter images by the US Mint</string>
 
+    <!-- Custom Coin Image Strings -->
+    <string name="select_coin_image_title">Select Coin Image</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="remove_custom_image">Remove Custom Image</string>
+    <string name="custom_image">Custom Image</string>
+    <string name="default_image">Default Image</string>
+    <string name="error_saving_image">Error saving custom image</string>
+    <string name="error_loading_image">Error loading custom image</string>
+    <string name="error_temp_file_creation">Failed to create temporary file for photo</string>
+    <string name="error_no_camera_app">No camera app available</string>
+    <string name="error_no_gallery_app">No gallery app available</string>
+    <string name="error_loading_captured_photo">Failed to load captured photo</string>
+    <string name="error_photo_uri_null">Photo URI is null</string>
+    <string name="error_loading_selected_image">Failed to load selected image</string>
+    <string name="error_selected_image_uri_null">Selected image URI is null</string>
+    <string name="error_camera_permission_required">Camera permission is required to take photos</string>
 
 </resources>
