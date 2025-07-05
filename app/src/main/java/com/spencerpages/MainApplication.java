@@ -269,4 +269,11 @@ public class MainApplication extends Application {
         }
         return -1;
     }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        // Close the database connection when the application is terminated
+        mDbAdapter.close();
+    }
 }
