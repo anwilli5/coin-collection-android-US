@@ -102,6 +102,15 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Check if the database is open
+     *
+     * @return true if the database is open, false otherwise
+     */
+    public boolean isOpen() {
+        return mDb != null && mDb.isOpen();
+    }
+
+    /**
      * Close the current database connection
      */
     public void close() {
@@ -304,10 +313,9 @@ public class DatabaseAdapter {
      * Expose the dbHelper's onUpgrade method so we can call it manually when importing collections
      *
      * @param oldVersion the db version to upgrade from
-     * @param fromImport true if the upgrade is part of a database import
      */
-    void upgradeCollections(int oldVersion, boolean fromImport) {
-        DatabaseHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, fromImport);
+    void upgradeDbForImport(int oldVersion) {
+        DatabaseHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, true);
     }
 
     /**

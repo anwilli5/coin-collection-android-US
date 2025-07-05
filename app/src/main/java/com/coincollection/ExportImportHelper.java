@@ -365,7 +365,7 @@ public class ExportImportHelper {
 
             // Update any imported tables, if necessary
             if (importDatabaseVersion != MainApplication.DATABASE_VERSION) {
-                mDbAdapter.upgradeCollections(importDatabaseVersion, true);
+                mDbAdapter.upgradeDbForImport(importDatabaseVersion);
             }
         } catch (SQLException e) {
             // Report an import error message to display on the UI thread
