@@ -26,6 +26,8 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 /**
  * This class is needed to resolve memory leaks caused by the AlertDialogs
  * - <a href="https://developer.squareup.com/blog/a-small-leak-will-sink-a-great-ship/">Squareup Article</a>
@@ -50,7 +52,7 @@ public final class DetachableDialogAlertOnClickListener implements DialogInterfa
     }
 
     public void setOnWindowDetachedListener(@NonNull final Dialog dialog) {
-        dialog.getWindow()
+        Objects.requireNonNull(dialog.getWindow())
                 .getDecorView()
                 .getViewTreeObserver()
                 .addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {

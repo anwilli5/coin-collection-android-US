@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.content.Intent;
-import android.os.Build;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -42,7 +41,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,8 +53,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class ExportImportJsonTests extends BaseTestCase {
 
     private final CollectionInfo mCoinTypeObj;

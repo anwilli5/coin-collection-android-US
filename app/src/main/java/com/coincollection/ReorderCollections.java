@@ -42,7 +42,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.coincollection.helper.OnStartDragListener;
 import com.coincollection.helper.SimpleItemTouchHelperCallback;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.R;
@@ -52,11 +51,10 @@ import java.util.ArrayList;
 /**
  * Fragment utilizing a RecyclerView to implement a collection re-ordering capability
  */
-public class ReorderCollections extends Fragment implements OnStartDragListener {
+public class ReorderCollections extends Fragment {
 
     public final static String REORDER_COLLECTION = "ReorderFragment";
 
-    private ItemTouchHelper mItemTouchHelper;
     private ArrayList<CollectionListInfo> mItems = null;
     private Boolean mUnsavedChanges = false;
     public ReorderAdapter mAdapter;
@@ -129,8 +127,8 @@ public class ReorderCollections extends Fragment implements OnStartDragListener 
         // collections when the user drags the coin images or long presses and then
         // drags.
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);
-        mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         // Register a callback so we can know when the list has been reordered
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

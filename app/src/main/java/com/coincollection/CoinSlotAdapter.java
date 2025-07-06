@@ -178,8 +178,13 @@ class CoinSlotAdapter extends BaseAdapter {
         TextView coinText = coinView.findViewById(R.id.coinText);
 
         // Set the coin identifier text (Year and Mint in most cases)
-        // TODO Fix this so there is no space if there is no mint
-        coinText.setText(mRes.getString(R.string.coin_text_template, identifier, mint));
+        if (mint.isEmpty()) {
+            // If there is no mint, just show the identifier
+            coinText.setText(identifier);
+        } else {
+            // Otherwise, show the identifier and mint
+            coinText.setText(mRes.getString(R.string.coin_text_template, identifier, mint));
+        }
 
         //Set this image based on whether the coin has been obtained
         ImageView coinImage = coinView.findViewById(R.id.coinImage);
