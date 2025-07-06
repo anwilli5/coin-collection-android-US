@@ -21,7 +21,6 @@
 package com.spencerpages;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -29,19 +28,19 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CollectionInfo;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
-import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
+import com.spencerpages.collections.BasicDimes;
+import com.spencerpages.collections.BasicHalfDollars;
+import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
-import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
-import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -58,13 +57,10 @@ import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class CollectionUpgradeTests extends BaseTestCase {
 
     // TODO - Improve tests by testing with all options set instead of none

@@ -27,12 +27,11 @@ import static com.spencerpages.MainApplication.MORE_COLLECTIONS;
 import static com.spencerpages.MainApplication.getIndexFromCollectionClass;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,13 +47,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class CollectionPageActivityTests extends BaseTestCase {
 
     private final ArrayList<FullCollection> mCollectionList = new ArrayList<>();
@@ -124,7 +120,7 @@ public class CollectionPageActivityTests extends BaseTestCase {
 
                     // Check that the copied collection was made correctly in the database
                     ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
-                    compareCoinSlotLists(activity.mCoinList, checkCoinList, true, true);
+                    compareCoinSlotLists(activity.mCoinList, checkCoinList, true);
                     checkCoinSortOrdersUnique(activity.mCoinList);
                     assertEquals(getSortOrderList(activity.mCoinList), getSortOrderList(checkCoinList));
                 });

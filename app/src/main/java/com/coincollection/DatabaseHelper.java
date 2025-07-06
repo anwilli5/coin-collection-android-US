@@ -96,14 +96,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      * @param db         the SQLiteDatabase db object to use when making updates
      * @param oldVersion the previous database version
-     * @param newVersion the new database version
      * @param fromImport true if the upgrade is part of a database import
      */
-    private static void upgradeDbStructure(
-            SQLiteDatabase db,
-            int oldVersion,
-            int newVersion,
-            boolean fromImport) {
+    private static void upgradeDbStructure(SQLiteDatabase db, int oldVersion, boolean fromImport) {
 
         // Skip if importing, since the database will be created with the latest structure
         if (oldVersion <= 5 && !fromImport) {
@@ -322,7 +317,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // First call the MainApplication's onDatabaseUpgrade to ensure that any changes necessary
         // for the app to work are done.
-        upgradeDbStructure(db, oldVersion, newVersion, fromImport);
+        upgradeDbStructure(db, oldVersion, fromImport);
 
         // Now get a list of the collections and call each one's onCollectionDatabaseUpgrade method
         ArrayList<CollectionListInfo> collectionList = new ArrayList<>();

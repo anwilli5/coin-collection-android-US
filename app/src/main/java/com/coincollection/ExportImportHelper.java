@@ -468,10 +468,8 @@ public class ExportImportHelper {
         // character to effectively allow no escape characters
         // (otherwise, '\' is the escape character, and it can be
         // typed by users!)
-        try {
-            CSVParser parser = new CSVParserBuilder().withEscapeChar('\0').build();
-            CSVReader csvReader = new CSVReaderBuilder(new InputStreamReader(inputStream))
-                    .withCSVParser(parser).build();
+        try (CSVReader csvReader = new CSVReaderBuilder(new InputStreamReader(inputStream))
+                    .withCSVParser(new CSVParserBuilder().withEscapeChar('\0').build()).build()) {
 
             while (null != (lineValues = csvReader.readNext())) {
 

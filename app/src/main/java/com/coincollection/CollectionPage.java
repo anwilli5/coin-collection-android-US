@@ -167,28 +167,6 @@ public class CollectionPage extends BaseActivity {
             mActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        GridView gridview = null;
-        ListView listview = null;
-        LinearLayout rootview;
-
-        if (mDisplayType == SIMPLE_DISPLAY) {
-
-            setContentView(R.layout.standard_collection_page);
-            rootview = findViewById(R.id.standard_collection_page_root);
-            gridview = findViewById(R.id.standard_collection_page);
-            applyWindowInsets(rootview);
-
-        } else if (mDisplayType == ADVANCED_DISPLAY) {
-
-            setContentView(R.layout.advanced_collection_page);
-            rootview = findViewById(R.id.advanced_collection_page_root);
-            listview = findViewById(R.id.advanced_collection_page);
-            applyWindowInsets(rootview);
-
-            // Make it so that the elements in the listview cells can get focus
-            listview.setItemsCanFocus(true);
-        }
-
         // Populate the coin list
         if (savedInstanceState == null) {
             boolean populateAdvInfo = (mDisplayType == ADVANCED_DISPLAY);
@@ -257,34 +235,52 @@ public class CollectionPage extends BaseActivity {
             }
         };
 
+        GridView gridView;
+        ListView listView;
+        LinearLayout rootView;
+
         if (mDisplayType == SIMPLE_DISPLAY) {
 
+            setContentView(R.layout.standard_collection_page);
+            rootView = findViewById(R.id.standard_collection_page_root);
+            gridView = findViewById(R.id.standard_collection_page);
+            applyWindowInsets(rootView);
+
             // Apply the adapter to handle each entry in the grid
-            gridview.setAdapter(mCoinSlotAdapter);
+            gridView.setAdapter(mCoinSlotAdapter);
 
             // Set the scroll listener so that the view re-adjusts to the new view
-            gridview.setOnScrollListener(scrollListener);
+            gridView.setOnScrollListener(scrollListener);
 
             // Set the onClick listener that will handle changing the coin state
-            gridview.setOnItemClickListener((parent, v, position, id) -> toggleCoinSlotInCollection(mCoinList.get(position)));
+            gridView.setOnItemClickListener((parent, v, position, id) -> toggleCoinSlotInCollection(mCoinList.get(position)));
 
             // Add long-press handler for additional actions
-            gridview.setOnItemLongClickListener((parent, view, position, id) -> {
+            gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 promptCoinSlotActions(position);
                 return true;
             });
 
         } else if (mDisplayType == ADVANCED_DISPLAY) {
+
+            setContentView(R.layout.advanced_collection_page);
+            rootView = findViewById(R.id.advanced_collection_page_root);
+            listView = findViewById(R.id.advanced_collection_page);
+            applyWindowInsets(rootView);
+
+            // Make it so that the elements in the listView cells can get focus
+            listView.setItemsCanFocus(true);
+
             // Apply the adapter to handle each entry in the list
-            listview.setAdapter(mCoinSlotAdapter);
+            listView.setAdapter(mCoinSlotAdapter);
 
             // Set the scroll listener so that the view re-adjusts to the new view
-            listview.setOnScrollListener(scrollListener);
+            listView.setOnScrollListener(scrollListener);
 
             // Set the onClick listener for the whole view to provide a notice
             // to users if the collection is locked. There's also a onClick listener
             // on the imageView in CoinSlotAdapter
-            listview.setOnItemClickListener((parent, v, position, id) -> {
+            listView.setOnItemClickListener((parent, v, position, id) -> {
                 // Need to check whether the collection is locked
                 SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
                 if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
@@ -294,7 +290,7 @@ public class CollectionPage extends BaseActivity {
             });
 
             // Add long-press handler for additional actions
-            listview.setOnItemLongClickListener((parent, view, position, id) -> {
+            listView.setOnItemLongClickListener((parent, view, position, id) -> {
                 promptCoinSlotActions(position);
                 return true;
             });
@@ -521,7 +517,7 @@ public class CollectionPage extends BaseActivity {
                 // instead let the user decide
                 showUnsavedChangesAlertAndExitActivity();
             } else {
-                this.onBackPressed();
+                getOnBackPressedDispatcher().onBackPressed();
             }
             return true;
         } else if (itemId == R.id.toggle_coin_filter) {
