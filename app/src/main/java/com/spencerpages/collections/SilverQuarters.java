@@ -252,14 +252,14 @@ public class SilverQuarters extends CollectionInfo {
     }
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showStates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showTerr = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showParks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showWomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showEagle = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showStates = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showTerr = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showParks = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showWomen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
 
         int coinIndex = 0;
 

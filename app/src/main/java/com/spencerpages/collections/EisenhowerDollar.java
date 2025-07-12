@@ -82,15 +82,14 @@ public class EisenhowerDollar extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showMintMarks = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
@@ -111,13 +110,6 @@ public class EisenhowerDollar extends CollectionInfo {
             } else {
                 coinList.add(new CoinSlot(year, "", coinIndex++));
             }
-
-            //if(i < 1973){
-            //	if(mShowS){
-            //	    mIdentifierList.add(year);
-            //	    mMintList.add("S");
-            //	}
-            //}
         }
     }
 

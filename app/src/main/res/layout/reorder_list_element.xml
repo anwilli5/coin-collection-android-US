@@ -9,18 +9,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toStartOf="@id/move_up_arrow"
-        android:layout_toLeftOf="@id/move_up_arrow">
+        android:layout_toStartOf="@id/move_up_arrow">
 
         <ImageView
             android:id="@+id/coinImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
             android:contentDescription="@string/coin_slot_description"
             android:maxWidth="51dp"
             android:maxHeight="51dp" />
@@ -31,7 +27,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"
             android:ellipsize="marquee"
             android:scrollHorizontally="true"
             android:singleLine="true"
@@ -43,7 +38,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/collectionNameTextView"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"
             android:textSize="17sp" />
 
         <TextView
@@ -52,8 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/progressTextView"
             android:layout_toEndOf="@id/coinImageView"
-            android:layout_toRightOf="@id/coinImageView"
-            android:textColor="#00FF00"
+            android:textColor="@color/reorder_view_text_color"
             android:textSize="17sp" />
     </RelativeLayout>
 
@@ -64,12 +57,9 @@
         android:layout_alignTop="@id/listElementLeftSideView"
         android:layout_alignBottom="@id/listElementLeftSideView"
         android:layout_toStartOf="@id/move_down_arrow"
-        android:layout_toLeftOf="@id/move_down_arrow"
         android:contentDescription="@string/reorder_move_up"
         android:paddingStart="15dp"
-        android:paddingLeft="15dp"
         android:paddingEnd="15dp"
-        android:paddingRight="15dp"
         android:src="@drawable/icon_up_arrow" />
 
     <ImageView
@@ -79,11 +69,8 @@
         android:layout_alignTop="@id/listElementLeftSideView"
         android:layout_alignBottom="@id/listElementLeftSideView"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:contentDescription="@string/reorder_move_down"
         android:paddingStart="15dp"
-        android:paddingLeft="15dp"
         android:paddingEnd="15dp"
-        android:paddingRight="15dp"
         android:src="@drawable/icon_down_arrow" />
 </RelativeLayout>

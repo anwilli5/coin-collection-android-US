@@ -39,6 +39,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.coincollection.helper.NonLeakingAlertDialogBuilder;
 import com.spencerpages.BuildConfig;
@@ -50,13 +52,21 @@ import com.spencerpages.R;
  */
 public class BaseActivity extends AppCompatActivity implements AsyncProgressInterface {
 
-    // Common intent variables
-    public static final String UNIT_TEST_USE_ASYNC_TASKS = "unit-test-use-async-tasks";
-    protected boolean mUseAsyncTasks = true;
+    /**
+     * ViewModel to hold state that needs to survive configuration changes
+     */
+    public static class ActivityViewModel extends ViewModel {
+        public AsyncTaskRunner mSavedTaskRunner;
+    }
+
+    // Unit test flag for disabling async tasks
+    public static boolean isUnitTest = false;
 
     // Async Task info
-    protected AsyncProgressTask mTask = null;
-    protected AsyncProgressTask mPreviousTask = null;
+    protected ActivityViewModel mActivityViewModel = null;
+
+    protected AsyncTaskRunner mTaskRunner = null;
+    public static final int TASK_NONE = -1;
     public static final int TASK_OPEN_DATABASE = 0;
     public static final int TASK_IMPORT_COLLECTIONS = 1;
     public static final int TASK_CREATE_UPDATE_COLLECTION = 2;
@@ -68,12 +78,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public Resources mRes;
     protected Intent mCallingIntent;
     public DatabaseAdapter mDbAdapter = null;
-    protected boolean mOpenDbAdapterInOnCreate = true;
     protected ActionBar mActionBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize the database adapter
+        mDbAdapter = ((MainApplication) getApplication()).getDbAdapter();
 
         // Add a manual inset handler
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -97,34 +109,24 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         // Setup variables used across all activities
         mRes = getResources();
         mCallingIntent = getIntent();
-        mUseAsyncTasks = mCallingIntent.getBooleanExtra(UNIT_TEST_USE_ASYNC_TASKS, true);
         mActionBar = getSupportActionBar();
 
-        // In most cases we want to open the database adapter right away, but in MainActivity
-        // we do this on the async task since the upgrade may take a while
-        if (mOpenDbAdapterInOnCreate) {
-            openDbAdapterForUIThread();
-        }
-
         // Look for async tasks kicked-off prior to an orientation change
-        mPreviousTask = (AsyncProgressTask) getLastCustomNonConfigurationInstance();
-        if (mPreviousTask != null) {
-            mTask = mPreviousTask;
+        mActivityViewModel = new ViewModelProvider(this).get(ActivityViewModel.class);
+        if (mActivityViewModel.mSavedTaskRunner != null) {
+            mTaskRunner = mActivityViewModel.mSavedTaskRunner;
         } else {
-            mTask = new AsyncProgressTask(this);
+            mTaskRunner = new AsyncTaskRunner(this);
+            mActivityViewModel.mSavedTaskRunner = mTaskRunner;
         }
-    }
 
-    /**
-     * This method should be called when mDbAdapter can be opened on the UI thread
-     */
-    public void openDbAdapterForUIThread() {
-        try {
-            mDbAdapter = ((MainApplication) getApplication()).getDbAdapter();
-            mDbAdapter.open();
-        } catch (SQLException e) {
-            showCancelableAlert(mRes.getString(R.string.error_opening_database));
-            finish();
+        // Open the database if it isn't already open
+        if (!mDbAdapter.isOpen()) {
+            // Use AsyncTaskRunner to open the database in case onUpgrade() is called, which is slow
+            kickOffAsyncTaskRunner(TASK_OPEN_DATABASE);
+        } else {
+            // Display the progress dialog for the existing tasks (i.e. import/export)
+            asyncProgressOnPreExecute(mTaskRunner.getLatestTaskId());
         }
     }
 
@@ -135,7 +137,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     public String openDbAdapterForAsyncThread() {
         try {
-            mDbAdapter = ((MainApplication) getApplication()).getDbAdapter();
             mDbAdapter.open();
         } catch (SQLException e) {
             return mRes.getString(R.string.error_opening_database);
@@ -144,22 +145,46 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     }
 
     /**
-     * This should be overridden by Activities that use the AsyncTask
+     * This should be overridden by Activities that use the AsyncTaskRunner
      * - This is method contains the work that needs to be performed on the async task
      *
+     * @param taskId an integer representing the task ID
      * @return a string result to display, or "" if no result
      */
     @Override
-    public String asyncProgressDoInBackground() {
+    public String asyncProgressDoInBackground(int taskId) {
+        if (taskId == TASK_OPEN_DATABASE) {
+            return openDbAdapterForAsyncThread();
+        }
         return "";
     }
 
     /**
-     * This should be overridden by Activities that use the AsyncTask
+     * This should be overridden by Activities that use the AsyncTaskRunner
      * - This is method is called on the UI thread ahead of executing DoInBackground
+     * 
+     * @param taskId an integer representing the task ID
      */
     @Override
-    public void asyncProgressOnPreExecute() {
+    public void asyncProgressOnPreExecute(int taskId) {
+        switch (taskId) {
+            case TASK_OPEN_DATABASE: {
+                createProgressDialog(mRes.getString(R.string.opening_database));
+                break;
+            }
+            case TASK_IMPORT_COLLECTIONS: {
+                createProgressDialog(mRes.getString(R.string.importing_collections));
+                break;
+            }
+            case TASK_EXPORT_COLLECTIONS: {
+                createProgressDialog(mRes.getString(R.string.exporting_collections));
+                break;
+            }
+            case TASK_CREATE_UPDATE_COLLECTION: {
+                createProgressDialog(mRes.getString(R.string.creating_collection));
+                break;
+            }
+        }
     }
 
     /**
@@ -167,10 +192,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * - This is method is called on the UI thread after executing DoInBackground
      * - Activities should call super.asyncProgressOnPostExecute to display the error
      *
+     * @param taskId an integer representing the task ID
      * @param resultStr a string result to display, or "" if no result
      */
     @Override
-    public void asyncProgressOnPostExecute(String resultStr) {
+    public void asyncProgressOnPostExecute(int taskId, String resultStr) {
         if (!resultStr.isEmpty()) {
             showCancelableAlert(resultStr);
         }
@@ -181,7 +207,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * is ready for an already running async task to call back
      */
     protected void setActivityReadyForAsyncCallbacks() {
-        mTask.mListener = this;
+        mTaskRunner.setListener(this);
     }
 
     /**
@@ -193,21 +219,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         showAlert(newBuilder().setMessage(text).setCancelable(true));
     }
 
-    // https://raw.github.com/commonsguy/cw-android/master/Rotation/RotationAsync/src/com/commonsware/android/rotation/async/RotationAsync.java
-    // TODO Consider only using one of onSaveInstanceState and onRetainNonConfigurationInstanceState
-    // TODO Also, read the notes on this better and make sure we are using it correctly
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            dismissProgressDialog();
-            return mTask;
-        } else {
-            // No dialog showing, do nothing
-            return null;
-        }
-    }
-
     @Override
     public void onPause() {
         // Dismiss any open alerts to prevent memory leaks
@@ -217,11 +228,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     @Override
     public void onDestroy() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            dismissProgressDialog();
+        }
         // If an async task is running, set the listener to null to have it wait before
-        // trying its callback.  Setting the listener to null also prevents memory leaks
-        if (mTask != null) {
-            mTask.mListener = null;
-            mTask = null;
+        // trying its callback. Setting the listener to null also prevents memory leaks
+        if (mTaskRunner != null) {
+            mTaskRunner.clearListener();
+            mTaskRunner = null;
         }
         super.onDestroy();
     }
@@ -341,8 +355,12 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param builder to use to create alert
      */
     protected void showAlert(NonLeakingAlertDialogBuilder builder) {
-        AlertDialog alert = builder.create();
-        alert.show();
+        // Don't show alerts in unit tests since there isn't a UI, and
+        // it will spam the log with this: Invalid ID 0x00000000.
+        if (!isUnitTest || !BuildConfig.DEBUG) {
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
     /**
@@ -357,16 +375,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      *
      * @param taskId type of task
      */
-    public void kickOffAsyncProgressTask(int taskId) {
-        mTask = new AsyncProgressTask(this);
-        mTask.mAsyncTaskId = taskId;
-        if (this.mUseAsyncTasks || !BuildConfig.DEBUG) {
-            mTask.execute();
+    public void kickOffAsyncTaskRunner(int taskId) {
+        if (!isUnitTest || !BuildConfig.DEBUG) {
+            mTaskRunner.execute(taskId);
         } else {
             // Call the tasks on the current thread (used for unit tests)
-            asyncProgressOnPreExecute();
-            String resultStr = asyncProgressDoInBackground();
-            asyncProgressOnPostExecute(resultStr);
+            asyncProgressOnPreExecute(taskId);
+            String resultStr = asyncProgressDoInBackground(taskId);
+            asyncProgressOnPostExecute(taskId, resultStr);
         }
     }
 

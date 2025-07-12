@@ -84,12 +84,6 @@ import java.util.HashMap;
 
 public class CollectionCreationTests extends BaseTestCase {
 
-    @Override
-    protected boolean enableVmPolicyChecking() {
-        // This test does not support VM policy checking
-        return false;
-    }
-
     /**
      * For AllNickels
      * - Test that the number of coins is correct upon collection creation

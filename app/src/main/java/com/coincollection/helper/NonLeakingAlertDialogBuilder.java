@@ -22,7 +22,6 @@ package com.coincollection.helper;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -47,22 +46,20 @@ public class NonLeakingAlertDialogBuilder extends AlertDialog.Builder {
         AlertDialog alertDialog = super.create();
         // Register callbacks to remove the OnClickListener once the alert detaches
         // - This is only supported on higher APIs
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            if (mPositiveButtonOnClickListener != null) {
-                mPositiveButtonOnClickListener.setOnWindowDetachedListener(alertDialog);
-            }
-            if (mNegativeButtonOnClickListener != null) {
-                mNegativeButtonOnClickListener.setOnWindowDetachedListener(alertDialog);
-            }
-            if (mSetItemsOnClickListener != null) {
-                mSetItemsOnClickListener.setOnWindowDetachedListener(alertDialog);
-            }
+        if (mPositiveButtonOnClickListener != null) {
+            mPositiveButtonOnClickListener.setOnWindowDetachedListener(alertDialog);
+        }
+        if (mNegativeButtonOnClickListener != null) {
+            mNegativeButtonOnClickListener.setOnWindowDetachedListener(alertDialog);
+        }
+        if (mSetItemsOnClickListener != null) {
+            mSetItemsOnClickListener.setOnWindowDetachedListener(alertDialog);
         }
         return alertDialog;
     }
 
     @Override
-    public AlertDialog.Builder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
+    public NonLeakingAlertDialogBuilder setPositiveButton(int textId, DialogInterface.OnClickListener listener) {
         super.setPositiveButton(textId, listener);
         mPositiveButtonOnClickListener = DetachableDialogAlertOnClickListener.wrapOnClickListener(listener);
         return this;

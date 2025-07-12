@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build App",
+            "type": "shell",
+            "command": "./gradlew assembleDebug",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gradle"]
+        },
+        {
+            "label": "Run Lint",
+            "type": "shell",
+            "command": "./gradlew lint",
+            "group": "test",
+            "problemMatcher": ["$gradle"]
+        },
+        {
+            "label": "Run Unit Tests",
+            "type": "shell",
+            "command": "./gradlew testAndroidDebugUnitTest",
+            "group": "test",
+            "problemMatcher": ["$gradle"]
+        },
+        {
+            "label": "Clean Project",
+            "type": "shell",
+            "command": "./gradlew clean",
+            "group": "build",
+            "problemMatcher": ["$gradle"]
+        },
+        {
+            "label": "Run Instrumented Tests",
+            "type": "shell",
+            "command": "./gradlew connectedAndroidTest",
+            "group": "test",
+            "problemMatcher": ["$gradle"]
+        }
+    ]
+}

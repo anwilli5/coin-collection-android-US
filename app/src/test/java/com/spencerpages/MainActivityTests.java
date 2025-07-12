@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -40,14 +39,11 @@ import com.coincollection.ReorderCollections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class MainActivityTests extends BaseTestCase {
 
     /**
@@ -57,8 +53,7 @@ public class MainActivityTests extends BaseTestCase {
     public void test_buildAttributions() {
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> assertNotEquals("", activity.buildInfoText()));
         }
     }
@@ -69,8 +64,7 @@ public class MainActivityTests extends BaseTestCase {
     @Test
     public void test_copyCollections() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (CollectionInfo coinType : MainApplication.COLLECTION_TYPES) {
                     for (FullCollection collection : getRandomTestScenarios(coinType, 2)) {
@@ -108,8 +102,7 @@ public class MainActivityTests extends BaseTestCase {
     public void test_reorderFragment() {
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Add collections to the database
                 ArrayList<Integer> indexPositions = new ArrayList<>();

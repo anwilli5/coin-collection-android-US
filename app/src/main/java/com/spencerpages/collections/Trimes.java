@@ -64,7 +64,7 @@ public class Trimes extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -89,14 +89,14 @@ public class Trimes extends CollectionInfo {
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showSilver = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showNickel = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showSilver = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showNickel = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
 
         int coinIndex = 0;
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showSilver) {
                 if (i == 1851) {

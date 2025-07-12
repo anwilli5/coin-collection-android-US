@@ -12,7 +12,6 @@
         android:layout_height="36dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
         android:layout_marginBottom="10dp"
         android:contentDescription="@string/coin_slot_description" />
 

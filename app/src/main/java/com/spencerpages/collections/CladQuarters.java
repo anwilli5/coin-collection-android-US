@@ -386,7 +386,7 @@ public class CladQuarters extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -433,16 +433,16 @@ public class CladQuarters extends CollectionInfo {
 
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showStates = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showParks = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showWomen = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showSatin = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        boolean showEagle = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showStates = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showParks = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showWomen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showW = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showSatin = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        boolean showProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_6);
 
         int coinIndex = 0;
 

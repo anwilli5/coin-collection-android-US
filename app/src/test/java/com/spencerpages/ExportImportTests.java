@@ -37,10 +37,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Intent;
-import android.os.Build;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -58,7 +58,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,8 +69,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @RunWith(RobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class ExportImportTests extends BaseTestCase {
 
     @Rule
@@ -98,8 +95,7 @@ public class ExportImportTests extends BaseTestCase {
     @Test
     public void test_legacyCsvExportOneOfEachCollection() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 //assertTrue(waitForMainActivitySetup(activity));
@@ -121,23 +117,16 @@ public class ExportImportTests extends BaseTestCase {
                 assertTrue(collectionListFile.exists());
                 for (CollectionInfo collectionInfo : COLLECTION_TYPES) {
                     assertNotNull(collectionInfo);
-                    File collectionFile;
-                    if (collectionInfo instanceof NativeAmericanDollars) {
-                        collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
-                    } else if (collectionInfo instanceof AmericanInnovationDollars) {
-                        collectionFile = new File(activity.getLegacyExportFolderName(), "American Innovation Dollars w_SL_ Proofs.csv");
-                    } else{
-                        collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
-                    }
+                    File collectionFile = getCollectionFile(activity, collectionInfo);
                     assertTrue(collectionFile.exists());
                 }
 
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
@@ -151,13 +140,32 @@ public class ExportImportTests extends BaseTestCase {
     }
 
     /**
+     * Get the collection file for a given collection info object
+     *
+     * @param activity        MainActivity instance
+     * @param collectionInfo  CollectionInfo object
+     * @return File for the collection
+     */
+    @NonNull
+    private static File getCollectionFile(MainActivity activity, CollectionInfo collectionInfo) {
+        File collectionFile;
+        if (collectionInfo instanceof NativeAmericanDollars) {
+            collectionFile = new File(activity.getLegacyExportFolderName(), "Sacagawea_SL_Native American Dollars.csv");
+        } else if (collectionInfo instanceof AmericanInnovationDollars) {
+            collectionFile = new File(activity.getLegacyExportFolderName(), "American Innovation Dollars w_SL_ Proofs.csv");
+        } else{
+            collectionFile = new File(activity.getLegacyExportFolderName(), collectionInfo.getCoinType() + ".csv");
+        }
+        return collectionFile;
+    }
+
+    /**
      * Test exporting one of each collection type using JSON file format
      */
     @Test
     public void test_jsonExportOneOfEachCollection() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 //assertTrue(waitForMainActivitySetup(activity));
@@ -179,9 +187,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 InputStream inputStream = openInputStream(exportFile);
@@ -202,8 +210,7 @@ public class ExportImportTests extends BaseTestCase {
     @Test
     public void test_csvExportOneOfEachCollection() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 //assertTrue(waitForMainActivitySetup(activity));
@@ -225,9 +232,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 InputStream inputStream = openInputStream(exportFile);
@@ -248,8 +255,7 @@ public class ExportImportTests extends BaseTestCase {
     @Test
     public void test_csvImportV1Collection() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 File v1DbDir = new File("src/test/data/v1-coin-collection-files");
                 assertTrue(setEnabledPermissions(activity));
@@ -286,8 +292,7 @@ public class ExportImportTests extends BaseTestCase {
                 "collection.csv"
         ));
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 assertTrue(setEnabledPermissions(activity));
@@ -315,9 +320,9 @@ public class ExportImportTests extends BaseTestCase {
                 // Delete all collections
                 deleteAllCollections(activity);
                 activity.updateCollectionListFromDatabase();
-                assertEquals(getCollectionNames(activity).size(), 0);
-                assertEquals(activity.mNumberOfCollections, 0);
-                assertEquals(activity.mCollectionListEntries.size(), NUMBER_OF_COLLECTION_LIST_SPACERS);
+                assertEquals(0, getCollectionNames(activity).size());
+                assertEquals(0, activity.mNumberOfCollections);
+                assertEquals(NUMBER_OF_COLLECTION_LIST_SPACERS, activity.mCollectionListEntries.size());
 
                 // Run import and check results
                 assertEquals("", helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()));
@@ -388,8 +393,7 @@ public class ExportImportTests extends BaseTestCase {
                 {"src/test/data/coin-collection-010822-17-excel.csv", 11},
         };
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (Object[] testFile : testFiles) {
                     ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);

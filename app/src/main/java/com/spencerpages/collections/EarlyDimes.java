@@ -71,7 +71,7 @@ public class EarlyDimes extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -117,23 +117,23 @@ public class EarlyDimes extends CollectionInfo {
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showDraped = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showCapped = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showSeated = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showDraped = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showCapped = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showSeated = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showO = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showCC = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
 
         int coinIndex = 0;
 
         if (showOld && !showDraped) {coinList.add(new CoinSlot("Draped Bust", "", coinIndex++, getImgId("Draped Bust")));}
         if (showOld && !showCapped) {coinList.add(new CoinSlot("Capped Bust", "", coinIndex++, getImgId("Capped Bust")));}
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if (showDraped && i > 1795 && i < 1798) {
                 coinList.add(new CoinSlot(year, String.format("%nSmall Eagle"), coinIndex++, getImgId("Draped Bust")));}

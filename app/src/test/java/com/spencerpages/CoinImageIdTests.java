@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -40,14 +39,11 @@ import com.coincollection.MainActivity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.List;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class CoinImageIdTests extends BaseTestCase {
 
     private final CollectionInfo mCoinTypeObj;
@@ -68,8 +64,7 @@ public class CoinImageIdTests extends BaseTestCase {
     @Test
     public void test_getCoinSlotImage() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
                     // Add a coin into the collection used for this test
@@ -104,13 +99,12 @@ public class CoinImageIdTests extends BaseTestCase {
     @Test
     public void test_imageIdCreation() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Mock the mCoinTypeObj.getImgId(String imgIdTag) method to check for invalid image IDs
                 CollectionInfo mockCollectionInfo = spy(mCoinTypeObj);
                 doAnswer(invocation -> {
-                    String imgIdTag = invocation.getArgument(0);
+                    invocation.getArgument(0);
                     int result = (int) invocation.callRealMethod(); // Call the real method
                     if (result == -1) {
                         // Assert that coin image ID is not -1 (not found)

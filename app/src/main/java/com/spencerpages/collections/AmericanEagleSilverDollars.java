@@ -70,13 +70,12 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_2_STRING_ID, R.string.check_show_burnished_eagles);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBurnished = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showBurnished = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {

@@ -29,32 +29,57 @@ Coin Collection helps people keep track of the coins they have or are missing fo
 If you need help using the app or aren't sure how to do something, see our [Using the app wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Using-the-App)
 
 ## Currently supported collections
-Supported U.S. coin types include:
-- All regular issue large and small Cents
-- Lincoln Memorial and Shield proof Cents
-- All regular issue Nickels
-- Jefferson proof Nickles
-- All regular issue Halve Dimes
-- All regular issue Dimes
-- Roosevelt silver and clad proof Dimes
-- All regular issue Quarters
-- Silver and clad proof Quarters 1964 and later
-- All regular issue Halve Dollars
-- Silver and clad proof Kennedy Halve Dollars
-- Franklin proof Halve Dollars
-- All regular issue silver Dollars
-- Eisenhower Dollars and clad and silver proofs
-- Susan B. Anthony Dollars and proofs
-- Native American/Sacagawea Dollars and proofs
-- Presidential Dollars and proofs
-- American Innovation Dollars and proofs and reverse proofs
-- All Halve Cents
-- All Two cents
-- All Three Cents
-- All Twenty Cents
-- Sets
+Supported U.S. coin sets include:
+- All Nickels
+- American Eagle Silver Dollars
+- American Innovation Dollars
+- American Innovation Dollars w/ Proofs
+- American Women Quarters
+- Barber Dimes
+- Barber Half Dollars
+- Barber Quarters
+- Buffalo Nickels
+- Cartwheels
+- Clad Quarters
+- Coin Sets
+- Dimes
+- Early Dimes
+- Early Dollars
+- Early Half Dollars
+- Early Quarters
+- Eisenhower Dollars
 - First Spouse Gold Coins
-
+- Franklin Half Dollars
+- Half Cents
+- Half Dimes
+- Half-Dollars
+- Indian Head Cents
+- Jefferson Nickels
+- Kennedy Half-Dollars
+- Large Cents
+- Liberty Head Nickels
+- Lincoln Cents
+- Mercury Dimes
+- Morgan Dollars
+- National Park Quarters
+- Native American/Sacagawea Dollars
+- Peace Dollars
+- Presidential Dollars
+- Roosevelt Dimes
+- Silver Dimes
+- Silver Half Dollars
+- Silver Quarters
+- Small Cents
+- Small Dollars
+- Standing Liberty Quarters
+- State Quarters including D.C. and Territories
+- Susan B. Anthony Dollars
+- Three Cents
+- Twenty Cents
+- Two Cents
+- Walking Liberty Half Dollars
+- Washington Quarters
+- West Point Mint
 
 ## Features
 - Create multiple collections of various types
@@ -63,6 +88,14 @@ Supported U.S. coin types include:
 - Ability to copy/edit/delete coins in a collection
 - Ability to change image of coin in collection
 - Automatic and manual ways to backup/restore and share collections
+- Rename collections
+- Reorder collections using drag and drop
+- Filter coins (show all, collected only, or missing only)
+- Switch between simple and advanced collection views
+- Add individual coins to collections
+- Detailed coin grading system (P-1 through PF-70)
+- Track multiple quantities per coin (1-25+)
+- Add custom notes for individual coins
 - Ability to add proofs as desired
 - Ability to add Satin finish coins as desired
 - Ability to add West Point mint coins as desired

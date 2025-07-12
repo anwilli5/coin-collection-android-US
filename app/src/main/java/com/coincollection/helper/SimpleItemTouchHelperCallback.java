@@ -47,11 +47,6 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public boolean isLongPressDragEnabled() {
-        return true;
-    }
-
-    @Override
     public boolean isItemViewSwipeEnabled() {
         return false;
     }
@@ -71,7 +66,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         }
 
         // Notify the adapter of the move
-        return mAdapter.onItemMove(source.getAdapterPosition(), target.getAdapterPosition());
+        return mAdapter.onItemMove(source.getBindingAdapterPosition(), target.getBindingAdapterPosition());
     }
 
     @Override

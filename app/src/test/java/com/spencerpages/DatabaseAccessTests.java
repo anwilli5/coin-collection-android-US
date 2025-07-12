@@ -21,7 +21,6 @@
 package com.spencerpages;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -32,14 +31,11 @@ import com.coincollection.CollectionInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.List;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class DatabaseAccessTests extends BaseTestCase {
 
     private final CollectionInfo mCoinTypeObj;
@@ -57,8 +53,7 @@ public class DatabaseAccessTests extends BaseTestCase {
     public void test_createWithVariableDates() {
 
         try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                        .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
             scenario.onActivity(activity -> {
 
                 for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 20)) {

@@ -101,21 +101,14 @@ public class BaseTestCase {
     }
 
     /**
-     * Enables VM policy checking (override to disable)
-     *
-     * @return true if the tests support VM policy checking, otherwise false
-     */
-    protected boolean enableVmPolicyChecking() {
-        return true;
-    }
-
-    /**
      * Setup run before every test
      */
     @Before
     public void testSetup() {
         // This list keeps tracked of previously used random collection names, to prevent duplicates
         mPreviousRandCollectionNames = new ArrayList<>();
+        CollectionInfo.isUnitTest = true;
+        BaseActivity.isUnitTest = true;
     }
 
     /**
@@ -329,8 +322,7 @@ public class BaseTestCase {
     public void validateUpdatedDb(final CollectionInfo collectionInfo, final String collectionName,
                                   final ParcelableHashMap parameters) {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
-                        .putExtra(MainActivity.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
 
                 // Create a new database from scratch
@@ -398,13 +390,12 @@ public class BaseTestCase {
     /**
      * Compare two lists of CoinSlot objects to ensure they're the same
      *
-     * @param base             ArrayList<CoinSlot>
-     * @param check            ArrayList<CoinSlot>
-     * @param compareAdvInfo   if true, enables comparison of advanced details
-     * @param compareNewFields if true, enables comparison of new fields (e.g image IDs)
+     * @param base           ArrayList<CoinSlot>
+     * @param check          ArrayList<CoinSlot>
+     * @param compareAdvInfo if true, enables comparison of advanced details
      */
-    void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo, boolean compareNewFields) {
-        assertTrue(SharedTest.compareCoinSlotLists(base, check, compareAdvInfo, compareNewFields));
+    void compareCoinSlotLists(ArrayList<CoinSlot> base, ArrayList<CoinSlot> check, boolean compareAdvInfo) {
+        assertTrue(SharedTest.compareCoinSlotLists(base, check, compareAdvInfo, true));
     }
 
     /**
@@ -490,7 +481,7 @@ public class BaseTestCase {
         if (coinList != null) {
             boolean populateAdvInfo = (collectionListInfo.getDisplayType() == ADVANCED_DISPLAY);
             ArrayList<CoinSlot> checkCoinList = activity.mDbAdapter.getCoinList(tableName, populateAdvInfo, false);
-            compareCoinSlotLists(coinList, checkCoinList, populateAdvInfo, true);
+            compareCoinSlotLists(coinList, checkCoinList, populateAdvInfo);
 
             // Test coin slot database methods
             for (CoinSlot coinSlot : coinList) {

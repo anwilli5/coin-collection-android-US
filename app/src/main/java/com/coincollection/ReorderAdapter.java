@@ -71,7 +71,7 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
             // Move the view up when the up arrow is clicked
             ImageView upArrowView = holder.view.findViewById(R.id.move_up_arrow);
             upArrowView.setOnClickListener(v -> {
-                int clickIndex = holder.getAdapterPosition();
+                int clickIndex = holder.getBindingAdapterPosition();
                 if (clickIndex != 0) {
                     onItemMove(clickIndex, clickIndex - 1);
                 }
@@ -81,7 +81,7 @@ public class ReorderAdapter extends RecyclerView.Adapter<ReorderViewHolder>
             // Move the view down when the down arrow is clicked
             ImageView downArrowView = holder.view.findViewById(R.id.move_down_arrow);
             downArrowView.setOnClickListener(v -> {
-                int clickIndex = holder.getAdapterPosition();
+                int clickIndex = holder.getBindingAdapterPosition();
                 if ((clickIndex + 1) < getItemCount()) {
                     onItemMove(clickIndex, clickIndex + 1);
                 }

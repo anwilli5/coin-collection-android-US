@@ -269,10 +269,6 @@ public class CoinSlot implements Parcelable {
         return this.isCustomCoin() ? 1 : 0;
     }
 
-    public void setCustomCoin(boolean customCoin) {
-        this.mCustomCoin = customCoin;
-    }
-
     public int getImageId() {
         return this.mImageId;
     }

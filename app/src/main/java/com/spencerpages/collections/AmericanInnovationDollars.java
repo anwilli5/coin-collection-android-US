@@ -157,14 +157,13 @@ public class AmericanInnovationDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4_STRING_ID, R.string.include_rev_proofs);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showRProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showRProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
         int coinIndex = 0;
 
         for (String identifier : EIGHTEEN) {

@@ -217,7 +217,6 @@ public class MainApplication extends Application {
      * DATABASE_VERSION Tracks the current database version, and is essential for periodic
      * database updating.  It should be raised anytime we need to insert new
      * coins into a user's collections (Ex: yearly coin addition, bug fixes).
-     *
      * Version 2 - Used in Versions 1 and 1.1 of the app
      * Version 3 - Used in Version 1.2 and 1.3 of the app
      * Version 4 - Used in Version 1.4, 1.4.1, and 1.5 of the app
@@ -269,5 +268,12 @@ public class MainApplication extends Application {
             }
         }
         return -1;
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        // Close the database connection when the application is terminated
+        mDbAdapter.close();
     }
 }

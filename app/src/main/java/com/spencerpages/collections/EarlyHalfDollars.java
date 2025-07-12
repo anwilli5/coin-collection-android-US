@@ -67,7 +67,7 @@ public class EarlyHalfDollars extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -108,18 +108,18 @@ public class EarlyHalfDollars extends CollectionInfo {
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showBust = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showSeated = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showBust = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showSeated = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showO = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showCC = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
 
         int coinIndex = 0;
 
-        for (Integer i = startYear; i <= stopYear; i++) {
+        for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
             if(showBust){
                 if(i==1794 || i== 1795){coinList.add(new CoinSlot(year, String.format("%nFlowing Hair"), coinIndex++, getImgId("Flowing Hair")));}

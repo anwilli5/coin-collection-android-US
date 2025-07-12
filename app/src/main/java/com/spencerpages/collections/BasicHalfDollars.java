@@ -75,15 +75,14 @@ public class BasicHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2_STRING_ID, R.string.include_d);
     }
 
-    // TODO Perform validation and throw exception
     @Override
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showMintMarks = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARKS);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showMintMarks = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARKS);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         int coinIndex = 0;
 
         for (int i = startYear; i <= stopYear; i++) {
@@ -135,11 +134,6 @@ public class BasicHalfDollars extends CollectionInfo {
                                            int oldVersion, int newVersion) {
 
         int total = 0;
-        if (oldVersion <= 2) {
-            // Need to add in 1968 - 1970 for Half Dollars unless it doesn't exist
-            // NOTE - We can't fix this, because adding will mess up the _id fields, which we use to do ordering
-            // We could make a new table and copy over all of the data, but that presents a lot of challenges
-        }
 
         if (oldVersion <= 3) {
             // Add in new 2013 coins if applicable

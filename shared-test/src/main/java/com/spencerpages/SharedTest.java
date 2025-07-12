@@ -197,7 +197,6 @@ public class SharedTest {
      * @return true if they have the same contents, false otherwise
      */
     public static boolean compareCollectionListInfos(CollectionListInfo base, CollectionListInfo check) {
-        // TODO - Not sure how to add assertions here
         return (base.getName().equals(check.getName()) &&
                 (base.getMax() == check.getMax()) &&
                 (base.getCollected() == check.getCollected()) &&
@@ -261,8 +260,7 @@ public class SharedTest {
      * @return true if they have the same contents, false otherwise
      */
     public static boolean compareParameters(ParcelableHashMap base, ParcelableHashMap check) {
-        // TODO - Not sure how to add assertions here
-        if (base.keySet().size() != check.keySet().size()) {
+        if (base.size() != check.size()) {
             return false;
         }
         for (String key : base.keySet()) {

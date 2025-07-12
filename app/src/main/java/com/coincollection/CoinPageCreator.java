@@ -301,11 +301,6 @@ public class CoinPageCreator extends BaseActivity {
             setInternalStateFromCollectionIndex(0, -1, null);
         }
 
-        // Restore the progress dialog if the previous task was running
-        if (mPreviousTask != null) {
-            asyncProgressOnPreExecute();
-        }
-
         // At this point the UI is ready to handle any async callbacks
         setActivityReadyForAsyncCallbacks();
 
@@ -446,19 +441,7 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Make a filter to block out non-numeric characters
-        InputFilter digitFilter = (source, start, end, dest, dstart, dend) -> {
-            for (int i = start; i < end; i++) {
-                if (source.charAt(i) < '0' || source.charAt(i) > '9') {
-                    // Don't allow these characters
-                    return "";
-                }
-            }
-            return null;
-        };
-
-        // Make a filter limiting the year text fields to 4 characters
-        InputFilter yearLengthFilter = new InputFilter.LengthFilter(4);
-        InputFilter[] yearEditTextFilters = new InputFilter[]{digitFilter, yearLengthFilter};
+        InputFilter[] yearEditTextFilters = getYearEditTextFilters();
 
         // Set the OnKeyListener and InputFilters for the EditText
         final EditText startYearEditText = findViewById(R.id.edit_start_year);
@@ -533,6 +516,26 @@ public class CoinPageCreator extends BaseActivity {
         if (BuildConfig.DEBUG) {
             Log.d(APP_NAME, "Finished in onCreate");
         }
+    }
+
+    /**
+     * Set the internal state of the activity based on the collection type index
+     * @return array of input filters to use for the year EditTexts
+     */
+    private static InputFilter[] getYearEditTextFilters() {
+        InputFilter digitFilter = (source, start, end, dest, dstart, dend) -> {
+            for (int i = start; i < end; i++) {
+                if (source.charAt(i) < '0' || source.charAt(i) > '9') {
+                    // Don't allow these characters
+                    return "";
+                }
+            }
+            return null;
+        };
+
+        // Make a filter limiting the year text fields to 4 characters
+        InputFilter yearLengthFilter = new InputFilter.LengthFilter(4);
+        return new InputFilter[]{digitFilter, yearLengthFilter};
     }
 
     /**
@@ -661,38 +664,42 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         // Passed all checks - start the creation/update and wait for callbacks to be called
-        kickOffAsyncProgressTask(TASK_CREATE_UPDATE_COLLECTION);
+        kickOffAsyncTaskRunner(TASK_CREATE_UPDATE_COLLECTION);
     }
 
     @Override
-    public String asyncProgressDoInBackground() {
+    public String asyncProgressDoInBackground(int taskId) {
+        String parentResult = super.asyncProgressDoInBackground(taskId);
+        if (!parentResult.isEmpty()) {
+            return parentResult;
+        }
 
-        // Go ahead and grab what is in the EditText
-        EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
-        String collectionName = nameEditText.getText().toString();
+        if(taskId == TASK_CREATE_UPDATE_COLLECTION) {
+            // Go ahead and grab what is in the EditText
+            EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
+            String collectionName = nameEditText.getText().toString();
 
-        // Get the new display order for new collections (display order is preserved
-        // for existing collections)
-        int newDisplayOrder = (mExistingCollection == null) ?
-                mDbAdapter.getNextDisplayOrder() : 0;
+            // Get the new display order for new collections (display order is preserved
+            // for existing collections)
+            int newDisplayOrder = (mExistingCollection == null) ?
+                    mDbAdapter.getNextDisplayOrder() : 0;
 
-        // Create the coin list or update the existing list
-        createOrUpdateCoinListForAsyncThread();
+            // Create the coin list or update the existing list
+            createOrUpdateCoinListForAsyncThread();
 
-        // Create or modify the database
-        CollectionListInfo collectionListInfo = getCollectionInfoFromParameters(collectionName);
-        return asyncCreateOrUpdateCollection(collectionListInfo, mCoinList, newDisplayOrder);
+            // Create or modify the database
+            CollectionListInfo collectionListInfo = getCollectionInfoFromParameters(collectionName);
+            return asyncCreateOrUpdateCollection(collectionListInfo, mCoinList, newDisplayOrder);
+        }
+        return "";
     }
 
     @Override
-    public void asyncProgressOnPreExecute() {
-        createProgressDialog(mRes.getString(R.string.creating_collection));
-    }
-
-    @Override
-    public void asyncProgressOnPostExecute(String resultStr) {
-        super.asyncProgressOnPostExecute(resultStr);
-        completeProgressDialogAndFinishActivity();
+    public void asyncProgressOnPostExecute(int taskId, String resultStr) {
+        super.asyncProgressOnPostExecute(taskId, resultStr);
+        if(taskId == TASK_CREATE_UPDATE_COLLECTION) {
+            completeProgressDialogAndFinishActivity();
+        }
     }
 
     /**
@@ -1394,7 +1401,7 @@ public class CoinPageCreator extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         if (item.getItemId() == android.R.id.home) {
-            this.onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
             return true;
         } else {
             return super.onOptionsItemSelected(item);

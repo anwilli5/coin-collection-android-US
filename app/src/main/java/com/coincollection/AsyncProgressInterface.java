@@ -20,7 +20,7 @@
 package com.coincollection;
 
 /**
- * Interface used for AsyncProgressTask to communicate with activity
+ * Interface used for AsyncTaskRunner to communicate with activity
  */
 public interface AsyncProgressInterface {
     /**
@@ -28,12 +28,12 @@ public interface AsyncProgressInterface {
      *
      * @return a string result to display, or "" if no result
      */
-    String asyncProgressDoInBackground();
+    String asyncProgressDoInBackground(int taskId);
 
     /**
      * Method to perform on the UI thread ahead of the async task
      */
-    void asyncProgressOnPreExecute();
+    void asyncProgressOnPreExecute(int taskId);
 
     /**
      * Method to perform on the UI thread after of the async task
@@ -41,5 +41,5 @@ public interface AsyncProgressInterface {
      *
      * @param resultStr a string result to display, or "" if no result
      */
-    void asyncProgressOnPostExecute(String resultStr);
+    void asyncProgressOnPostExecute(int taskId, String resultStr);
 }

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -43,14 +42,11 @@ import com.coincollection.helper.ParcelableHashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @RunWith(RobolectricTestRunner.class)
-// TODO - Must keep at 28 until Robolectric supports Java 9 (required to use 29+)
-@Config(sdk = Build.VERSION_CODES.P)
 public class CoinPageCreatorTests extends BaseTestCase {
 
     /**
@@ -60,8 +56,7 @@ public class CoinPageCreatorTests extends BaseTestCase {
     public void test_createFromParameters() {
 
         try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
-                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                        .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false))) {
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
                 for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
@@ -86,7 +81,6 @@ public class CoinPageCreatorTests extends BaseTestCase {
         for (final CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
             try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
                     new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
-                            .putExtra(CoinPageCreator.UNIT_TEST_USE_ASYNC_TASKS, false)
                             .putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, info))) {
                 scenario.onActivity(activity -> {
                     // Create the collection in the DB before testing

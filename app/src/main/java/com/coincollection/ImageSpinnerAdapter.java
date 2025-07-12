@@ -84,7 +84,7 @@ public class ImageSpinnerAdapter extends ArrayAdapter<String> {
         int imageId = mResIds.get(position);
         if (imageId > 0) {
             Drawable image = ContextCompat.getDrawable(mContext, mResIds.get(position));
-            if (mImgScale != 1.0) {
+            if ((mImgScale != 1.0) && (image != null)) {
                 // Scale the image if desired
                 Bitmap bitmap = ((BitmapDrawable) image).getBitmap();
                 int width = (int) ((float) bitmap.getWidth() * mImgScale);

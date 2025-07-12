@@ -27,6 +27,7 @@ import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -123,9 +124,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Don't have BaseActivity open the database - this activity will call that on an async
-        // task the first time so the upgrade happens off of the UI thread.
-        mOpenDbAdapterInOnCreate = false;
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity_layout);
@@ -137,36 +135,6 @@ public class MainActivity extends BaseActivity {
         // if they are upgrading from that don't show them the help screen if first_Time_screen1
         // isn't set
         createAndShowHelpDialog("first_Time_screen1", R.string.intro_message);
-
-        if (mPreviousTask == null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(APP_NAME, "No previous state so kicking off AsyncProgressTask to doOpen");
-            }
-            // Kick off the AsyncProgressTask to open the database.  This will likely be the first open,
-            // so we want it in the AsyncTask in case we have to go into onUpgrade and it takes
-            // a long time.
-            kickOffAsyncProgressTask(TASK_OPEN_DATABASE);
-            // The AsyncProgressTask will update mDbAdapter once the database has been opened
-        } else {
-            if (BuildConfig.DEBUG) {
-                Log.d(APP_NAME, "Taking over existing mTask");
-            }
-
-            // There's two possible AsyncProgressTask's that could be running:
-            //     - The one to open the database for the first time
-            //     - The one to import collections
-            // In the case of the former, we just want to show the dialog that the user had on the
-            // screen.  For the latter case, we still need something to call finishViewSetup, and
-            // we don't want to call it here bc it will try to use the database too early.  Instead,
-            // set a flag that will have that AsyncProgressTask call finishViewSetup for us as well.
-            asyncProgressOnPreExecute();
-
-            // If we were in the middle of importing, the DB adapter may now be closed
-            if (mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS) {
-                openDbAdapterForUIThread();
-                mIsImportingCollection = true;
-            }
-        }
 
         // Instantiate the FrontAdapter
         mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
@@ -298,34 +266,6 @@ public class MainActivity extends BaseActivity {
             }
             return false;
         });
-
-        // HISTORIC - no longer the case:
-        //
-        // We need to open the database since we are the first activity to run
-        // We only want to open the database once, though, because it is a hassle
-        // in that it is very expensive and must be opened in an asynchronous mTask
-        // background thread as to avoid getting application not responding errors.
-        // So, here is what we do:
-        // - Instantiate a Service that will hold the database adapter
-        //    + This will be around for the lifetime of the application
-        // - Once the service has been created, open up the database in an async mTask
-        // - Once the database is open, finish setting up the UI from the data pulled
-
-        // After we open it, it must have at least one activity bound to it at all times
-        // for it to stay alive.  So, each activity must bind to it on onCreate and
-        // unbind in onDestroy.  Once the app is terminating, all the activity onDestroys
-        // will have been called and the service's onDestroy will then get called, where
-        // we close the database
-
-        // Actually instantiate the database service
-        //Intent mServiceIntent = new Intent(this, DatabaseService.class);
-        // and bind to it
-        //bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        //
-        // Having the database open for a long time didn't seem to work out well, though - after
-        // having the app open for a while, database errors would start popping up.  Now, we just
-        // do the first DB open in an AsyncTask to ensure we don't get an ANR if a database upgrade
-        // is required, but just open and close the database regularly as needed after that.
     }
 
     @Override
@@ -338,21 +278,12 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onDestroy() {
-        // Only MainActivity closes the DB adapter, as it's shared between all activities
-        if (mDbAdapter != null) {
-            mDbAdapter.close();
+    public String asyncProgressDoInBackground(int taskId) {
+        String parentResult = super.asyncProgressDoInBackground(taskId);
+        if (!parentResult.isEmpty()) {
+            return parentResult;
         }
-        // Don't try and stop any tasks, as they could be in the middle of a DB upgrade
-        super.onDestroy();
-    }
-
-    @Override
-    public String asyncProgressDoInBackground() {
-        switch (mTask.mAsyncTaskId) {
-            case TASK_OPEN_DATABASE: {
-                return openDbAdapterForAsyncThread();
-            }
+        switch (taskId) {
             case TASK_IMPORT_COLLECTIONS: {
                 ExportImportHelper helper = new ExportImportHelper(mRes, mDbAdapter);
                 if (mImportExportLegacyCsv) {
@@ -392,28 +323,10 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void asyncProgressOnPreExecute() {
-        switch (mTask.mAsyncTaskId) {
-            case TASK_OPEN_DATABASE: {
-                createProgressDialog(mRes.getString(R.string.opening_database));
-                break;
-            }
-            case TASK_IMPORT_COLLECTIONS: {
-                createProgressDialog(mRes.getString(R.string.importing_collections));
-                break;
-            }
-            case TASK_EXPORT_COLLECTIONS: {
-                createProgressDialog(mRes.getString(R.string.exporting_collections));
-                break;
-            }
-        }
-    }
-
-    @Override
-    public void asyncProgressOnPostExecute(String resultStr) {
-        super.asyncProgressOnPostExecute(resultStr);
+    public void asyncProgressOnPostExecute(int taskId, String resultStr) {
+        super.asyncProgressOnPostExecute(taskId, resultStr);
         dismissProgressDialog();
-        if (mTask.mAsyncTaskId == TASK_IMPORT_COLLECTIONS) {
+        if (taskId == TASK_IMPORT_COLLECTIONS) {
             mIsImportingCollection = false;
         }
         updateCollectionListFromDatabaseAndUpdateViewForUIThread();
@@ -478,7 +391,7 @@ public class MainActivity extends BaseActivity {
      * Handle when the user starts importing a collection
      */
     private void launchImportTask() {
-        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (!mImportExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
@@ -489,7 +402,13 @@ public class MainActivity extends BaseActivity {
                 Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
             }
-            startActivityForResult(intent, PICK_IMPORT_FILE);
+
+            try {
+                startActivityForResult(intent, PICK_IMPORT_FILE);
+            } catch (ActivityNotFoundException e) {
+                // Handle if there isn't an activity to handle the intent
+                Toast.makeText(this, mRes.getString(R.string.error_no_file_manager), Toast.LENGTH_LONG).show();
+            }
         } else {
             // Check for READ_EXTERNAL_STORAGE permissions (must request starting in API Level 23)
             // hasPermissions() will kick off the permissions request and the handler will re-call
@@ -499,8 +418,8 @@ public class MainActivity extends BaseActivity {
             }
 
             if (mNumberOfCollections == 0) {
-                // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+                // Finish the import using AsyncTaskRunner to do the heavy lifting
+                kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
             } else {
                 showImportConfirmation();
             }
@@ -517,7 +436,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (!mImportExportLegacyCsv && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (!mImportExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             if (mExportSingleFileCsv) {
@@ -550,8 +469,8 @@ public class MainActivity extends BaseActivity {
                 // Let the user decide whether they want to delete this
                 showExportConfirmation();
             } else {
-                // Finish the export by kicking off an AsyncTask to do the heavy lifting
-                kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
+                // Finish the export using AsyncTaskRunner to do the heavy lifting
+                kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
             }
         }
     }
@@ -623,8 +542,8 @@ public class MainActivity extends BaseActivity {
                 case PICK_EXPORT_FILE: {
                     if (resultData != null) {
                         mImportExportFileUri = resultData.getData();
-                        // Finish the export by kicking off an AsyncTask to do the heavy lifting
-                        kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
+                        // Finish the export using AsyncTaskRunner to do the heavy lifting
+                        kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
                     }
                     break;
                 }
@@ -635,7 +554,7 @@ public class MainActivity extends BaseActivity {
                             showImportConfirmation();
                         } else {
                             // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                            kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+                            kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
                         }
                     }
                     break;
@@ -746,7 +665,7 @@ public class MainActivity extends BaseActivity {
         // after returning from the add/delete/reorder views.
 
         if (hasFocus && !mIsImportingCollection) {
-            // Only do this if the database has been opened with the AsyncTask first
+            // Only do this if the database has been opened with AsyncTaskRunner first
             // and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
 
@@ -815,8 +734,8 @@ public class MainActivity extends BaseActivity {
                 .setCancelable(false)
                 .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
                     dialog.dismiss();
-                    // Finish the export by kicking off an AsyncTask to do the heavy lifting
-                    kickOffAsyncProgressTask(TASK_EXPORT_COLLECTIONS);
+                    // Finish the export using AsyncTaskRunner to do the heavy lifting
+                    kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
                 })
                 .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
@@ -831,10 +750,10 @@ public class MainActivity extends BaseActivity {
                 .setMessage(mRes.getString(R.string.import_warning))
                 .setCancelable(false)
                 .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
-                    // Finish the import by kicking off an AsyncTask to do the heavy lifting
+                    // Finish the import using AsyncTaskRunner to do the heavy lifting
                     dialog.dismiss();
                     mIsImportingCollection = true;
-                    kickOffAsyncProgressTask(TASK_IMPORT_COLLECTIONS);
+                    kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
                 })
                 .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
@@ -1040,12 +959,6 @@ public class MainActivity extends BaseActivity {
             mImportExportLegacyCsv = false;
             launchImportTask();
             return;
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            // The file picker was added in API 19, so don't give the user that option. Since there
-            // is no choice, go directly to using legacy storage
-            mImportExportLegacyCsv = true;
-            launchImportTask();
-            return;
         }
 
         // Populate a menu of actions for import
@@ -1081,14 +994,6 @@ public class MainActivity extends BaseActivity {
 
         if (mNumberOfCollections == 0) {
             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            // If API is less than 19, only legacy storage is supported so go directly to that
-            mImportExportLegacyCsv = true;
-            mExportSingleFileCsv = false;
-            launchExportTask();
             return;
         }
 

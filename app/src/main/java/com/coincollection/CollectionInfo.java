@@ -34,6 +34,11 @@ import java.util.HashMap;
 public abstract class CollectionInfo {
 
     /**
+     * Set this to true in unit tests to make helper methods throw exceptions.
+     */
+    public static boolean isUnitTest = false;
+
+    /**
      * Returns the image id (R.drawable.image_name) that should be
      * displayed for collections of this type given the specified coin
      * identifier, coin mint, and image id.
@@ -157,6 +162,49 @@ public abstract class CollectionInfo {
                 return i;
             }
         }
+        if (isUnitTest) {
+            throw new IllegalStateException("getImgId called with invalid tag: " + imgIdTag);
+        }
         return -1;
+    }
+
+    /**
+     * Helper method to get boolean parameters from the parameters HashMap.
+     */
+    protected boolean getBooleanParameter(HashMap<String, Object> parameters, String key) {
+        if (parameters.containsKey(key)) {
+            Object value = parameters.get(key);
+            if (value instanceof Boolean) {
+                return (Boolean) value;
+            } else if (value instanceof String) {
+                return Boolean.parseBoolean((String) value);
+            }
+        }
+        if (isUnitTest) {
+            throw new IllegalStateException("Parameter " + key + " not found or invalid");
+        }
+        return false; // Default to false if not found
+    }
+
+    /**
+     * Helper method to get integer parameters from the parameters HashMap.
+     */
+    protected int getIntegerParameter(HashMap<String, Object> parameters, String key) {
+        if (parameters.containsKey(key)) {
+            Object value = parameters.get(key);
+            if (value instanceof Integer) {
+                return (Integer) value;
+            } else if (value instanceof String) {
+                try {
+                    return Integer.parseInt((String) value);
+                } catch (NumberFormatException e) {
+                    // Handled below
+                }
+            }
+        }
+        if (isUnitTest) {
+            throw new IllegalStateException("Parameter " + key + " not found or invalid");
+        }
+        return 0; // Default to 0 if not found or parsing fails
     }
 }

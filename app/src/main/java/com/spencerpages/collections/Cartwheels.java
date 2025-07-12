@@ -72,7 +72,7 @@ public class Cartwheels extends CollectionInfo {
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
         Integer slotImage = null;
-        Integer imageId = coinSlot.getImageId();
+        int imageId = coinSlot.getImageId();
         if (!ignoreImageId && (imageId >= 0 && imageId < COIN_IMG_IDS.length)) {
             slotImage = (Integer) COIN_IMG_IDS[imageId][1];
         }
@@ -128,20 +128,20 @@ public class Cartwheels extends CollectionInfo {
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {
 
-        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
-        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
-        Boolean showP = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_1);
-        Boolean showD = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_2);
-        Boolean showS = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_3);
-        Boolean showO = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_4);
-        Boolean showCC = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_5);
-        Boolean showW = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_6);
-        Boolean showProof = (Boolean) parameters.get(CoinPageCreator.OPT_SHOW_MINT_MARK_7);
-        Boolean showOld = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_1);
-        Boolean showMorgan = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_2);
-        Boolean showPeace = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_3);
-        Boolean showIke = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_4);
-        Boolean showEagle = (Boolean) parameters.get(CoinPageCreator.OPT_CHECKBOX_5);
+        int startYear = getIntegerParameter(parameters, CoinPageCreator.OPT_START_YEAR);
+        int stopYear = getIntegerParameter(parameters, CoinPageCreator.OPT_STOP_YEAR);
+        boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
+        boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
+        boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
+        boolean showO = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_4);
+        boolean showCC = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_5);
+        boolean showW = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_6);
+        boolean showProof = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_7);
+        boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
+        boolean showMorgan = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
+        boolean showPeace = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showIke = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showEagle = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
 
         int coinIndex = 0;
 
@@ -211,7 +211,7 @@ public class Cartwheels extends CollectionInfo {
                         coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Silver"), coinIndex++, getImgId("Eisenhower")));
                         coinList.add(new CoinSlot("1776-1976", String.format("S%nSilver Proof"), coinIndex++, getImgId("Eisenhower")));}
                 }
-                if (i > 1976 && i < 1979) {
+                if (i > 1976) {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eisenhower")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
