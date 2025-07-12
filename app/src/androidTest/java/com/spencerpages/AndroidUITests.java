@@ -125,7 +125,7 @@ public class AndroidUITests extends TestCase {
     public void test_launchAppInfoView() {
         scrollAllTheWayDown();
         onView(withText(R.string.app_info)).perform(click());
-        onView(withId(R.id.info_textview)).check(matches(isDisplayed()));
+        onView(withId(R.id.info_attribution)).check(matches(isDisplayed()));
     }
 
     /**
