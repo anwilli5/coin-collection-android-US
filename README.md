@@ -86,6 +86,7 @@ Supported U.S. coin sets include:
 - 'Advanced' view for entering quantities, grades, notes, etc.
 - 'Lock' feature to prevent making accidental changes
 - Ability to copy/edit/delete coins in a collection
+- Ability to change image of coin in collection
 - Automatic and manual ways to backup/restore and share collections
 - Rename collections
 - Reorder collections using drag and drop
@@ -95,6 +96,9 @@ Supported U.S. coin sets include:
 - Detailed coin grading system (P-1 through PF-70)
 - Track multiple quantities per coin (1-25+)
 - Add custom notes for individual coins
+- Ability to add proofs as desired
+- Ability to add Satin finish coins as desired
+- Ability to add West Point mint coins as desired
 
 ## Contributions
 - Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/main/CONTRIBUTING.md)

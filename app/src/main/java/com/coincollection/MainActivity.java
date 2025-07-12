@@ -209,7 +209,9 @@ public class MainActivity extends BaseActivity {
                         View layout = inflater.inflate(R.layout.info_popup,
                                 findViewById(R.id.info_layout_root));
 
-                        TextView tv = layout.findViewById(R.id.info_textview);
+                        TextView tv = layout.findViewById(R.id.info_title);
+                        tv.setText(mRes.getString(R.string.info_name_version, BuildConfig.VERSION_NAME));
+                        tv = layout.findViewById(R.id.info_attribution);
                         tv.setText(buildInfoText());
 
                         showAlert(newBuilder().setView(layout));

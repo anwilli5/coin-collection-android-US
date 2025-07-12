@@ -130,7 +130,6 @@
     <string name="reorder_collection">Reorder Collections</string>
     <string name="rename_collection">Rename Collections</string>
     <string name="app_info">App Info</string>
-    <string name="info_overview">This App is meant to help you keep track of which coins you have already come across and saved in your collection. To help keep your collection organized, we recommend purchasing a coin album specific to each type of coin.\n\nThe mint marking on most coins can be found near the date that appears on the face of the coin. If no mint mark is present, it typically symbolizes that this coin was produced at the Philadelphia (P) mint. Other possible mint marks include that of the Denver mint (D) and the San Francisco mint (S), although the San Francisco mint has not produced coins for circulation for some time now. Also, for some older coins, the mint marks of the Carson City mint (CC) and the New Orleans mint (O) can be found, and special coins like the American Eagle Silver Dollars may carry the West Point mint mark (W). For more information, feel free to check out the website of the U.S. Mint.\n\nIf you have any suggestions or questions about the app, feel free to send an email to andrew27379091@gmail.com.\n\nThis app is not endorsed by the United States Mint.</string>
     <string name="select_collection_delete">Select a collection to delete</string>
     <string name="collection_actions">Collection Actions</string>
     <string name="coin_actions">Coin Actions</string>
@@ -144,6 +143,11 @@
     <string name="csv_file">CSV file (table format)</string>
     <string name="legacy_storage">Legacy Storage (going away)</string>
     <string name="pick_backup_file">Pick Back-Up File</string>
+
+    <!-- App Info -->
+    <string name="info_name_version">Coin Collection v%1$s</string>
+    <string name="info_github">github.com/anwilli5/coin-collection-android-US</string>
+    <string name="info_overview">This App is meant to help you keep track of which coins you have already come across and saved in your collection. To help keep your collection organized, we recommend purchasing a coin album specific to each type of coin.\n\nThe mint marking on most coins can be found near the date that appears on the face of the coin. If no mint mark is present, it typically symbolizes that this coin was produced at the Philadelphia (P) mint. Other possible mint marks include that of the Denver mint (D) and the San Francisco mint (S), although the San Francisco mint has not produced coins for circulation for some time now. Also, for some older coins, the mint marks of the Carson City mint (CC) and the New Orleans mint (O) can be found, and special coins like the American Eagle Silver Dollars may carry the West Point mint mark (W). For more information, feel free to check out the website of the U.S. Mint.\n\nIf you have any suggestions or questions about the app, let us know on GitHub.\n\nThis app is not endorsed by the United States Mint.</string>
 
     <!-- Coin Page Creator -->
     <string name="tutorial_select_coin_and_create">Select a coin type, choose a name and hit \'Create New Collection!\'</string>
