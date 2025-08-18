@@ -15,7 +15,7 @@ jobs:
       version_code_extracted: ${{ steps.extract_versions.outputs.manifest_version_code }}
     steps:
       - name: Checkout code (full history for release notes)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Needed for changelog generation between tags
 
