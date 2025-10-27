@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version '2.2.20' apply false
+    id 'org.jetbrains.kotlin.android' version '2.2.21' apply false
 }
 
 android {
@@ -110,7 +110,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.opencsv:opencsv:5.12.0'
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.21"))
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
     testImplementation(project(":shared-test"))
     testImplementation 'junit:junit:4.13.2'
