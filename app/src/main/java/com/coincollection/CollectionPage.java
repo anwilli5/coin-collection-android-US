@@ -30,7 +30,6 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
 import com.spencerpages.BuildConfig;
@@ -117,6 +117,9 @@ public class CollectionPage extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Register back press callback for unsaved changes handling
+        setupBackPressedCallback();
 
         // Save off this bundle so that after the database is open we can use it
         // to get the previous CoinSlotAdapter, if present
@@ -693,20 +696,25 @@ public class CollectionPage extends BaseActivity {
         }
     }
 
-    @Override
-    // http://android-developers.blogspot.com/2009/12/back-and-other-hard-keys-three-stories.html
-    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            // If the back key is pressed, we want to warn the user if there are unsaved changes
-
-            if (doUnsavedChangesExist()) {
-                showUnsavedChangesAlertAndExitActivity();
-                return true;
+    /**
+     * Set up the OnBackPressedCallback to handle unsaved changes in the advanced view.
+     * Replaces the legacy onKeyDown(KEYCODE_BACK) approach which no longer works
+     * with predictive back enabled (Android 16 / SDK 36).
+     */
+    private void setupBackPressedCallback() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (doUnsavedChangesExist()) {
+                    showUnsavedChangesAlertAndExitActivity();
+                } else {
+                    // No unsaved changes - disable this callback and re-dispatch
+                    // so the default back behavior (finish activity) runs
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
             }
-        }
-
-        return super.onKeyDown(keyCode, event);
+        });
     }
 
     /* We have one problem, specifically with the advancedView, where all of the
