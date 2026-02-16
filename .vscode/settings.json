@@ -1,6 +1,8 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
     "chat.tools.terminal.autoApprove": {
-        "adb": true
-    }
+        "adb": true,
+        "seq": true
+    },
+    "chat.agent.maxRequests": 500
 }
