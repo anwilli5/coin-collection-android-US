@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -155,20 +155,19 @@ public class ReorderCollections extends Fragment {
             showUnsavedTextView();
         }
 
-        //http://stackoverflow.com/questions/7992216/android-fragment-handle-back-button-press
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
-        view.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                if (mUnsavedChanges) {
-                    showUnsavedChangesAlertAndExitFragment();
-                } else {
-                    closeFragment();
-                }
-                return true;
-            }
-            return false;
-        });
+        // Handle back press with OnBackPressedCallback (required for predictive
+        // back support in Android 16 / SDK 36, replacing the legacy OnKeyListener approach)
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (mUnsavedChanges) {
+                            showUnsavedChangesAlertAndExitFragment();
+                        } else {
+                            closeFragment();
+                        }
+                    }
+                });
     }
 
     @Override

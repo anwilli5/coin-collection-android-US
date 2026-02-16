@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version '2.3.10' apply false
 }
 
 android {
@@ -19,7 +18,7 @@ android {
             }
         }
     }
-    compileSdk 35
+    compileSdk 36
     // minSdkVersion should be the lowest supported.
     //  - For app versions 1.6 and below this was 4
     //  - Raised to 7 for version 2.0 to support the appcompat support library
@@ -32,13 +31,13 @@ android {
     defaultConfig {
         applicationId "com.spencerpages"
         minSdkVersion 21
-        targetSdkVersion 35
+        targetSdkVersion 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             android.applicationVariants.all { variant ->
                 variant.outputs.all {
                     outputFileName = "app-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}.apk"
@@ -95,8 +94,9 @@ android {
         includeInBundle = false
     }
     packagingOptions {
-        merge 'META-INF/LICENSE.md'
-        merge 'META-INF/LICENSE-notice.md'
+        resources {
+            merges += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
     }
 }
 
