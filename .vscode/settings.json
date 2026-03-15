@@ -3,7 +3,17 @@
     "chat.tools.terminal.autoApprove": {
         "adb": true,
         "seq": true,
-        "git tag": true
+        "git tag": true,
+        "emulator": true,
+        "bundle": true,
+        "mkdir": true,
+        "mv": true,
+        "./fastlane/avd-screenshot-boot.sh": true,
+        "./fastlane/avd-screenshot-create.sh": true,
+        "./fastlane/avd-screenshot-kill.sh": true,
+        "./fastlane/avd-screenshot-setup.sh": true,
+        "./fastlane/capture-screenshots.sh": true,
+        "tee": true
     },
     "chat.agent.maxRequests": 500
 }

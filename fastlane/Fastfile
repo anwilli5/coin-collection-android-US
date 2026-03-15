@@ -34,6 +34,12 @@ platform :android do
     )
     sh("cp ../app/build/outputs/apk/android/debug/app-android-debug-v*.apk ../app/build/outputs/apk/android/debug/app-android-debug.apk")
     sh("./avd-screenshot-setup.sh on")
+    # Dismiss any stale system dialogs once before starting screengrab.
+    # ANR dialogs are already suppressed via `hide_error_dialogs 1` set in
+    # avd-screenshot-boot.sh and avd-screenshot-setup.sh — a continuous
+    # watchdog loop is not needed and floods the emulator with broadcasts,
+    # which can stall adb and prevent screengrab from running.
+    sh("adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS 2>/dev/null || true")
     screengrab()
     sh("./avd-screenshot-setup.sh off")
     sh("cp metadata/android/en-US/images/phoneScreenshots/*.png ../images/screenshots/")

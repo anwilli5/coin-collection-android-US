@@ -31,6 +31,7 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -60,7 +61,9 @@ import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsAnything;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Shared utility methods for UI instrumented tests.
@@ -71,6 +74,7 @@ public class UITestHelper {
 
     private static final long DEFAULT_TIMEOUT_MS = 30_000;
     private static final long POLL_INTERVAL_MS = 250;
+    private static final long SYSTEM_DIALOG_DISMISS_INTERVAL_MS = 5_000;
 
     public static String getString(@StringRes int resId) {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -197,6 +201,64 @@ public class UITestHelper {
     }
 
     /**
+     * Create a collection with a deterministic pattern of coins marked as collected.
+     * Marks roughly {@code collectedFraction} of coins as collected using a stride
+     * pattern so the result looks natural and is reproducible across runs.
+     *
+     * @param name              The collection name
+     * @param typeIndex         Index into MainApplication.COLLECTION_TYPES
+     * @param displayOrder      Display order within the list
+     * @param displayType       CollectionPage.SIMPLE_DISPLAY or ADVANCED_DISPLAY
+     * @param collectedFraction Fraction of coins to mark (0.0 – 1.0)
+     * @return The number of coins created
+     */
+    public static int createCollectionWithCollected(String name, int typeIndex, int displayOrder,
+                                                     int displayType, double collectedFraction) {
+        Context context = getInstrumentation().getTargetContext();
+        CollectionInfo collectionInfo = MainApplication.COLLECTION_TYPES[typeIndex];
+
+        // Generate default parameters and coin list
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collectionInfo.getCreationParameters(parameters);
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        collectionInfo.populateCollectionLists(parameters, coinList);
+
+        // Mark a deterministic but natural-looking subset as collected.
+        // Shuffle indices with a fixed seed so the result is reproducible
+        // across runs but doesn't show an obvious stride pattern.
+        int total = coinList.size();
+        int numToCollect = (int) (total * collectedFraction);
+        ArrayList<Integer> indices = new ArrayList<>(total);
+        for (int i = 0; i < total; i++) {
+            indices.add(i);
+        }
+        Collections.shuffle(indices, new Random(42));
+        int numCollected = 0;
+        for (int i = 0; i < numToCollect && i < total; i++) {
+            coinList.get(indices.get(i)).setInCollection(true);
+            numCollected++;
+        }
+
+        // Build CollectionListInfo with collected count
+        CollectionListInfo info = new CollectionListInfo(
+                name,
+                total,
+                numCollected,
+                typeIndex,
+                displayType,
+                0, 0, "", ""
+        );
+
+        // Insert into database
+        DatabaseAdapter dbAdapter = new DatabaseAdapter(context);
+        dbAdapter.open();
+        dbAdapter.createAndPopulateNewTable(info, displayOrder, coinList);
+        dbAdapter.close();
+
+        return total;
+    }
+
+    /**
      * Create a Lincoln Cents collection with SIMPLE_DISPLAY.
      *
      * @param name         Collection name
@@ -260,11 +322,29 @@ public class UITestHelper {
     }
 
     /**
+     * Wait for the current window to gain focus so Espresso interactions
+     * won't fail with RootViewWithoutFocusException.  Uses UiAutomator
+     * (which does not need Espresso focus) to let the window settle,
+     * then calls Espresso's {@code onIdle()} as a final sync point.
+     * Safe to call at any point — returns quickly if focus is already held.
+     */
+    public static void waitForWindowFocus() {
+        UiDevice device = UiDevice.getInstance(getInstrumentation());
+        // waitForIdle blocks until no accessibility events for the given timeout.
+        device.waitForIdle(5_000);
+        // waitForWindowUpdate(null, ...) waits for any window to update.
+        device.waitForWindowUpdate(null, 5_000);
+    }
+
+    /**
      * Dismiss any tutorial dialog that may be showing by clicking the "Okay!" button.
      * Tries up to 3 times to handle multiple sequential dialogs.
      * Safe to call when no dialog is showing - the exception is caught and ignored.
+     * Waits for window focus first so it works even immediately after navigating
+     * to a new activity on slow emulators.
      */
     public static void dismissTutorialDialogs() {
+        waitForWindowFocus();
         for (int i = 0; i < 3; i++) {
             if (!tryClickIfDisplayed(withText(R.string.okay_exp), 2_000)) {
                 return;
@@ -278,14 +358,54 @@ public class UITestHelper {
      * This method forces an immediate reload so tests can interact with the list.
      * Also dismisses any tutorial dialogs that appear from the initial launch or recreate.
      * Waits until the main activity ListView is fully visible before returning.
+     * <p>
+     * On slow software-rendered emulators, {@code recreate()} occasionally
+     * leaves the activity in a state where it never reaches RESUMED (e.g. due
+     * to a transient ANR or memory-pressure kill).  This method retries the
+     * entire recreate-and-wait cycle up to {@code MAX_RECREATE_ATTEMPTS} times
+     * before propagating the failure, making screenshot runs reliable even on
+     * heavily loaded hosts.
      */
+    private static final int MAX_RECREATE_ATTEMPTS = 3;
+
     public static void recreateActivity(ActivityScenarioRule<MainActivity> activityRule) {
+        RuntimeException lastError = null;
+        for (int attempt = 1; attempt <= MAX_RECREATE_ATTEMPTS; attempt++) {
+            try {
+                doRecreateActivity(activityRule);
+                return; // success
+            } catch (RuntimeException | Error e) {
+                lastError = (e instanceof RuntimeException)
+                        ? (RuntimeException) e
+                        : new RuntimeException("recreateActivity failed", e);
+                if (attempt < MAX_RECREATE_ATTEMPTS) {
+                    // Attempt recovery: clear system dialogs, give the emulator
+                    // time to settle, then retry the full recreate cycle.
+                    dismissSystemDialogs();
+                    SystemClock.sleep(5_000);
+                }
+            }
+        }
+        throw lastError;
+    }
+
+    /**
+     * Single attempt at recreating the activity and waiting for it to be visible.
+     */
+    private static void doRecreateActivity(ActivityScenarioRule<MainActivity> activityRule) {
         disableSystemAnimations();
+        // Proactively dismiss any lingering system dialogs (ANR/crash) from a
+        // previous test that may still be blocking the activity lifecycle.
+        dismissSystemDialogs();
         ensureDbOpen();
-        // Dismiss any tutorial dialog from the initial ActivityScenarioRule launch
-        dismissTutorialDialogs();
-        // Suppress tutorials so they won't appear on recreate
+        // Suppress tutorials via SharedPreferences BEFORE recreate — this is
+        // view-free and safe even when no activity is in RESUMED state (common
+        // on slow emulators where a previous test's sub-activity is still
+        // finishing).
         suppressAllTutorials();
+        // recreate() is synchronous: it destroys the current activity and waits
+        // for the new one to reach RESUMED.  Calling Espresso (e.g.
+        // dismissTutorialDialogs) before this is unsafe on slow emulators.
         activityRule.getScenario().recreate();
         // Dismiss any tutorial dialog that might have appeared despite suppression
         dismissTutorialDialogs();
@@ -323,19 +443,61 @@ public class UITestHelper {
     }
 
     /**
+     * Dismiss system-level dialogs (ANR, crash, "app not responding", etc.)
+     * using UiAutomator shell commands.  These dialogs push the app's activity
+     * out of the RESUMED lifecycle state, which blocks all Espresso interactions.
+     * UiAutomator operates at the system level and does not require a RESUMED
+     * activity, making it the only reliable way to clear these dialogs during
+     * automated test runs on slow emulators.
+     */
+    public static void dismissSystemDialogs() {
+        try {
+            UiDevice device = UiDevice.getInstance(getInstrumentation());
+            // Broadcast to close any system dialog currently showing
+            device.executeShellCommand(
+                    "am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS");
+            // Re-enforce hide_error_dialogs in case it was cleared by a
+            // system update or settings reset during the test run
+            device.executeShellCommand(
+                    "settings put global hide_error_dialogs 1");
+        } catch (Exception ignored) {
+            // Best-effort: ignore failures
+        }
+    }
+
+    /**
      * Wait for the main activity ListView to become visible.
-     * Checks immediately, then polls every 500ms for up to 30 seconds.
+     * Checks immediately, then polls every 250ms for up to 30 seconds.
      * Also dismisses any tutorial dialogs that may appear.
+     * <p>
+     * On slow emulators, system dialogs (ANR, crash, etc.) can push the
+     * activity out of RESUMED, blocking Espresso entirely.  This method
+     * periodically uses UiAutomator to dismiss such dialogs so the
+     * activity can return to RESUMED and the list view can render.
      */
     public static void waitForMainActivity() {
-        // If a tutorial dialog steals focus, dismiss and retry.
         long deadline = System.currentTimeMillis() + DEFAULT_TIMEOUT_MS;
+        long lastDismissTime = 0;
         while (System.currentTimeMillis() < deadline) {
             if (tryIsDisplayed(withId(R.id.main_activity_listview))) {
                 return;
             }
+            // Periodically use UiAutomator to dismiss any system-level
+            // dialogs (ANR, crash) that may be blocking the activity.
+            long now = System.currentTimeMillis();
+            if (now - lastDismissTime >= SYSTEM_DIALOG_DISMISS_INTERVAL_MS) {
+                dismissSystemDialogs();
+                lastDismissTime = now;
+            }
             tryClickIfDisplayed(withText(R.string.okay_exp), 500);
             loopMainThreadFor(POLL_INTERVAL_MS);
+        }
+        // Last resort: dismiss system dialogs once more, give the activity a
+        // moment to return to RESUMED, and check again before failing.
+        dismissSystemDialogs();
+        SystemClock.sleep(2_000);
+        if (tryIsDisplayed(withId(R.id.main_activity_listview))) {
+            return;
         }
         // Final attempt — throw a useful Espresso assertion if still not visible.
         onView(withId(R.id.main_activity_listview)).check(
@@ -464,7 +626,17 @@ public class UITestHelper {
     }
 
     private static void loopMainThreadFor(long durationMs) {
-        onView(isRoot()).perform(loopMainThreadForAtLeast(durationMs));
+        try {
+            onView(isRoot()).perform(loopMainThreadForAtLeast(durationMs));
+        } catch (RuntimeException e) {
+            // On slow emulators, Espresso may throw:
+            //  - NoActivityResumedException: activity not yet RESUMED
+            //  - RootViewWithoutFocusException (RuntimeException): activity is
+            //    RESUMED but the window hasn't gained focus yet
+            // Both are RuntimeException subclasses, so catching RuntimeException
+            // covers them. Fall back to a plain sleep so polling callers don't crash.
+            SystemClock.sleep(durationMs);
+        }
     }
 
     private static ViewAction loopMainThreadForAtLeast(final long durationMs) {
