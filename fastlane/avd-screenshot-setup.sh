@@ -10,6 +10,9 @@ adb root || exit 1
 adb wait-for-any-device
 adb shell settings put global sysui_demo_allowed 1
 
+# Suppress ANR / "Process isn't responding" dialogs during automated runs
+adb shell settings put global hide_error_dialogs 1
+
 if [ $CMD == "on" ]; then
   adb shell am broadcast -a com.android.systemui.demo -e command enter || exit 1
   adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 1230
@@ -22,4 +25,6 @@ if [ $CMD == "on" ]; then
 elif [ $CMD == "off" ]; then
   adb shell settings put global policy_control null
   adb shell am broadcast -a com.android.systemui.demo -e command exit
+  # Re-enable error dialogs for normal use
+  adb shell settings put global hide_error_dialogs 0
 fi

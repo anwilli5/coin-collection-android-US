@@ -25,22 +25,26 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -80,13 +84,20 @@ public class ScreenshotsUITest {
     @Before
     public void setUp() {
         UITestHelper.deleteAllCollections();
-        // Create the collections needed for screenshots:
-        // - Lincoln Cents (index 0) in basic/simple view
-        // - Presidential Dollars (index 10) in basic/simple view
-        // - Morgan Dollars (index 22) in advanced view
-        UITestHelper.createLincolnCentsCollection("Lincoln Cents", 0);
-        UITestHelper.createPresidentialDollarsCollection("Presidential Dollars", 1);
-        UITestHelper.createCollection("Morgan Dollars", 22, 2, CollectionPage.ADVANCED_DISPLAY);
+        // Create the collections needed for screenshots with some coins marked as collected
+        // to produce more visually interesting screenshots:
+        // - Lincoln Cents (index 0) ~73% collected
+        // - National Park Quarters (index 5) ~63% collected
+        // - Presidential Dollars (index 10) ~20% collected
+        // - Morgan Dollars (index 22) ~38% collected (advanced view)
+        UITestHelper.createCollectionWithCollected("Lincoln Cents", 0, 0,
+                CollectionPage.SIMPLE_DISPLAY, 0.73);
+        UITestHelper.createCollectionWithCollected("National Park Quarters", 5, 1,
+                CollectionPage.SIMPLE_DISPLAY, 0.63);
+        UITestHelper.createCollectionWithCollected("Presidential Dollars", 10, 2,
+                CollectionPage.SIMPLE_DISPLAY, 0.45);
+        UITestHelper.createCollectionWithCollected("Morgan Dollars", 22, 3,
+                CollectionPage.ADVANCED_DISPLAY, 0.38);
     }
 
     @After
@@ -101,6 +112,7 @@ public class ScreenshotsUITest {
     public void test_MainActivity() {
         UITestHelper.recreateActivity(activityRule);
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
+        waitForRender();
         Screengrab.screenshot("main_screen");
     }
 
@@ -113,6 +125,7 @@ public class ScreenshotsUITest {
         onView(withText("Presidential Dollars")).perform(click());
         UITestHelper.dismissTutorialDialogs();
         onView(withId(R.id.standard_collection_page)).check(matches(isDisplayed()));
+        waitForRender();
         Screengrab.screenshot("presidential_dollars_screen");
     }
 
@@ -125,6 +138,7 @@ public class ScreenshotsUITest {
         onView(withText("Lincoln Cents")).perform(click());
         UITestHelper.dismissTutorialDialogs();
         onView(withId(R.id.standard_collection_page)).check(matches(isDisplayed()));
+        waitForRender();
         Screengrab.screenshot("lincoln_cents_screen");
     }
 
@@ -137,6 +151,7 @@ public class ScreenshotsUITest {
         onView(withText("Morgan Dollars")).perform(click());
         UITestHelper.dismissTutorialDialogs();
         onView(withId(R.id.advanced_collection_page)).check(matches(isDisplayed()));
+        waitForRender();
         Screengrab.screenshot("morgan_dollars_screen");
     }
 
@@ -153,12 +168,15 @@ public class ScreenshotsUITest {
 
         // Select a coin type so optional parameters become visible
         onView(withId(R.id.coin_selector)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is("Pennies"))).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is("Mercury Dimes"))).perform(click());
 
-        onView(withId(R.id.edit_enter_collection_name)).perform(typeText("Mercury Dimes"));
+        // Use replaceText instead of typeText to avoid double-capitalisation
+        // caused by android:inputType="textCapWords" on the EditText
+        onView(withId(R.id.edit_enter_collection_name)).perform(replaceText("Mercury Dimes"));
         onView(withId(R.id.edit_enter_collection_name)).perform(closeSoftKeyboard());
         onView(withId(R.id.check_show_mint_mark)).perform(scrollTo(), click());
         onView(withId(R.id.check_edit_date_range)).perform(scrollTo(), click());
+        waitForRender();
         Screengrab.screenshot("collection_creation_screen");
     }
 
@@ -171,11 +189,20 @@ public class ScreenshotsUITest {
         onView(withText("Presidential Dollars")).perform(click());
         UITestHelper.dismissTutorialDialogs();
         onView(withId(R.id.standard_collection_page)).check(matches(isDisplayed()));
+        waitForRender();
         // Long-press a deterministic coin slot in the grid (avoid relying on off-screen text views)
         onData(anything())
                 .inAdapterView(withId(R.id.standard_collection_page))
                 .atPosition(0)
                 .perform(longClick());
         Screengrab.screenshot("coin_actions_screen");
+    }
+
+    /**
+     * Wait for all views to finish rendering by letting the UI go idle.
+     * Replaces fixed sleeps with dynamic synchronization via UiAutomator.
+     */
+    private static void waitForRender() {
+        UiDevice.getInstance(getInstrumentation()).waitForIdle();
     }
 }
