@@ -1,4 +1,3 @@
-````prompt
 ---
 description: 'Run a UI sanity check and export/import test against a connected Android emulator using mobile-mcp'
 agent: 'agent'
@@ -27,12 +26,14 @@ Run a navigation sanity check and an export/import test for the Coin Collection 
 Follow these rules throughout the entire test session.
 
 ### Coordinate Handling
+
 - Always call `mcp_mobile-mcp_mobile_list_elements_on_screen` to get element coordinates before tapping
 - Compute tap targets as center of the element: `x + width/2`, `y + height/2`
 - Use `adb shell input tap <centerX> <centerY>` with native coordinates from `list_elements_on_screen`
 - Never estimate coordinates from screenshot images — they are scaled down and will be inaccurate
 
 ### Interaction Patterns
+
 - Alert dialog buttons appear as `android.widget.Button` — check exact text via `list_elements_on_screen`:
   - Tutorial dialogs: "OKAY!" button
   - Delete/Warning dialogs: "NO" / "YES" buttons
@@ -41,15 +42,18 @@ Follow these rules throughout the entire test session.
 - To navigate back, use `adb shell input keyevent KEYCODE_BACK`
 
 ### First-Time Tutorial Dialogs
+
 The app shows one-time tutorial dialogs on first use. Whenever an unexpected dialog appears with an "OKAY!" button, dismiss it and continue.
 
 ### Verification
+
 - Take a screenshot (`mcp_mobile-mcp_mobile_take_screenshot`) after each major action for visual verification
 - Use `list_elements_on_screen` to confirm expected elements are present
 - Report each test as **PASS** or **FAIL** with a brief reason
 - On app crash, report CRITICAL FAILURE and attempt to relaunch before continuing
 
 ### Scrolling
+
 - If an element is not visible in `list_elements_on_screen`, scroll down with `adb shell input swipe 540 1500 540 500 300` and re-check
 - To scroll up: `adb shell input swipe 540 500 540 1500 300`
 
@@ -83,6 +87,7 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 **Goal:** Verify the app launches, key screens render without crashes, and basic navigation works. Detailed interaction testing is handled by the Android instrumented test suite.
 
 **Steps:**
+
 1. Call `list_elements_on_screen` and take a screenshot of the main activity
 2. Verify these navigation items are visible: "New Collection", "Delete Collection", "Import Collection", "Export Collection", "Reorder Collections", "App Info"
 3. Tap "New Collection" — a tutorial dialog will appear on first use — dismiss it by tapping "OKAY!" — verify the `CoinPageCreator` screen loads (look for screen title "Collection Page Creator")
@@ -112,6 +117,7 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 **Goal:** Verify export to JSON and re-import restores data. This test uses the system file picker which cannot be automated with Espresso.
 
 **Steps:**
+
 1. Ensure at least one collection exists (created in the Navigation Sanity Check above). Take a screenshot of the main activity to record current collections and their progress counts.
 2. Tap "Export Collection"
 3. Verify the format picker dialog appears with title "Select an export file format:" and options:
@@ -144,6 +150,7 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 After all tests complete:
 
 1. Delete all test collections via "Delete Collection" nav item, or clear app data:
+
    ```bash
    adb shell pm clear com.spencerpages.debug
    ```
@@ -164,7 +171,7 @@ Provide a summary table:
 Report total PASS / FAIL counts and any issues found.
 
 Remind the user to run the full Android instrumented test suite for complete coverage:
+
 ```bash
 ./gradlew connectedAndroidDebugAndroidTest
 ```
-````

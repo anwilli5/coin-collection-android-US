@@ -1,3 +1,4 @@
+# Security-sensitive files
 signing.properties
 *.key
 *.jks
@@ -17,5 +18,19 @@ keys/
 certificates/
 release/
 app/release/
-build/outputs/apk/
-build/outputs/bundle/
+
+# Build outputs and caches
+**/build/
+.gradle/
+
+# IDE configuration
+.idea/
+
+# Binary files AI cannot process
+*.jar
+
+# Generated files
+app/manifest-merger-release-report.txt
+
+# System files
+.DS_Store

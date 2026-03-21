@@ -14,7 +14,7 @@
         {
             "label": "Run Lint",
             "type": "shell",
-            "command": "./gradlew lint",
+            "command": "./gradlew lintAndroidDebug",
             "group": "test",
             "problemMatcher": ["$gradle"]
         },

@@ -1,5 +1,5 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.updateBuildConfiguration": "automatic",
     "chat.tools.terminal.autoApprove": {
         "adb": true,
         "seq": true,
@@ -8,6 +8,7 @@
         "bundle": true,
         "mkdir": true,
         "mv": true,
+        "./gradlew": true,
         "./fastlane/avd-screenshot-boot.sh": true,
         "./fastlane/avd-screenshot-create.sh": true,
         "./fastlane/avd-screenshot-kill.sh": true,
@@ -15,5 +16,12 @@
         "./fastlane/capture-screenshots.sh": true,
         "tee": true
     },
-    "chat.agent.maxRequests": 500
+    "chat.agent.maxRequests": 500,
+    "search.exclude": {
+        "**/build": true,
+        "**/.gradle": true
+    },
+    "files.exclude": {
+        "**/.gradle": true
+    }
 }
