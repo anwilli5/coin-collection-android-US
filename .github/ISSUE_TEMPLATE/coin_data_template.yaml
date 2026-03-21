@@ -1,0 +1,37 @@
+---
+name: "🪙 Coin Data Issue"
+description: "Report missing, incorrect, or outdated coin data"
+title: "Coin Data: "
+labels:
+  - "coin_data"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to report missing coins, incorrect coin names/dates, or other data issues in a collection.
+        Please search [existing issues](https://github.com/anwilli5/coin-collection-android-US/issues) before filing a new one to avoid duplicates.
+  - type: input
+    id: collection-name
+    validations:
+      required: true
+    attributes:
+      label: "📁 Collection Name"
+      description: "Which coin collection is affected?"
+      placeholder: "e.g., Lincoln Cents, American Women Quarters"
+  - type: textarea
+    id: data-issue
+    validations:
+      required: true
+    attributes:
+      label: "🪙 Coin Data Issue"
+      description: "Describe the data problem. Include specific coin names, years, mint marks, or other identifiers."
+      placeholder: |
+        e.g., "The 2026-P American Women Quarter for Jane Doe is missing"
+        e.g., "The 1955 Lincoln Cent doubled die variety is listed with the wrong year"
+  - type: textarea
+    id: source-reference
+    validations:
+      required: false
+    attributes:
+      label: "📚 Source / Reference"
+      description: "If possible, provide a reference for the correct data (e.g., US Mint website, coin catalog)."

@@ -1,5 +1,9 @@
 {
   "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp"
+    },
     "mobile-mcp": {
       "type": "stdio",
       "command": "npx",

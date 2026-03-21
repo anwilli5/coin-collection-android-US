@@ -14,9 +14,23 @@ body:
         We are also happy to accept contributions from our users. For more details see [here](https://github.com/anwilli5/coin-collection-android-US/blob/main/CONTRIBUTING.md).
 
   - type: textarea
-    id: feature-description
+    id: problem-motivation
     validations:
       required: true
     attributes:
-      label: "🚀 Feature Proposal"
-      description: "Clearly describe the feature you're proposing. Explain the problem it solves and why it would be valuable. If you've considered alternative solutions or workarounds, please mention them too."
+      label: "💡 Problem / Motivation"
+      description: "Describe the problem or need this feature would address. Why is this valuable?"
+  - type: textarea
+    id: proposed-solution
+    validations:
+      required: true
+    attributes:
+      label: "🚀 Proposed Solution"
+      description: "Describe the solution you'd like to see implemented."
+  - type: textarea
+    id: alternatives-considered
+    validations:
+      required: false
+    attributes:
+      label: "🔄 Alternatives Considered"
+      description: "Have you considered any alternative solutions or workarounds? If so, describe them here."
