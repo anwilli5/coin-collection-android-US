@@ -6,8 +6,16 @@ name: Android CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'images/**'
+      - 'fastlane/metadata/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'images/**'
+      - 'fastlane/metadata/**'
 
 jobs:
   test:

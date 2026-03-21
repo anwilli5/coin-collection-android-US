@@ -5,8 +5,12 @@ name: Fastlane Metadata
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'fastlane/metadata/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'fastlane/metadata/**'
 
 jobs:
   validate:
