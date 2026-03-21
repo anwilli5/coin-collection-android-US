@@ -24,6 +24,7 @@ APIs. This is the suite to run for most code changes.
 ```
 
 **What it covers:**
+
 - Collection creation and coin counts (`CollectionCreationTests`)
 - Database upgrades from all previous versions (`CollectionUpgradeTests`)
 - Database access patterns (`DatabaseAccessTests`)
@@ -58,6 +59,7 @@ behavior that can't be covered by Robolectric.
 ```
 
 **What it covers:**
+
 - Collection page views (basic and advanced) (`CollectionPageBasicViewTests`, `CollectionPageAdvancedViewTests`)
 - Edit collection parameters (`EditCollectionParametersTests`)
 - Export flow (`ExportCollectionTests`)
@@ -74,7 +76,7 @@ behavior that can't be covered by Robolectric.
 ## When to Run Which Suite
 
 | Change type | Run |
-|-------------|-----|
+| --- | --- |
 | Collection class (add/edit coins, parameters) | Unit tests |
 | Database migration | Unit tests |
 | Export/import logic | Unit tests |
@@ -140,7 +142,7 @@ Then run the full suite to confirm no regressions:
 ## Reference files
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `app/src/test/java/com/spencerpages/` | Unit test classes |
 | `app/src/androidTest/java/com/spencerpages/` | Instrumented test classes |
 | `shared-test/src/main/java/com/spencerpages/SharedTest.java` | Shared test data and comparison helpers |

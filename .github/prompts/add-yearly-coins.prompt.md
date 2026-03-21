@@ -27,6 +27,7 @@ collection types — use the `add-coin-collection` skill for that.
 ### Step 1: Identify affected collections
 
 Active U.S. Mint series that get yearly additions typically include:
+
 - Lincoln Cents, Jefferson Nickels (year-based)
 - American Women Quarters (named-identifier, 5 per year)
 - American Innovation Dollars (named-identifier, 4-5 per year)
@@ -45,6 +46,7 @@ in the same series.
 ### Step 3: Bump DATABASE_VERSION
 
 In `app/src/main/java/com/spencerpages/MainApplication.java`:
+
 1. Increment `DATABASE_VERSION` (check current value first)
 2. Add version history comment
 
@@ -53,10 +55,12 @@ In `app/src/main/java/com/spencerpages/MainApplication.java`:
 For each affected collection in `app/src/main/java/com/spencerpages/collections/`:
 
 **For named-identifier collections** (e.g., AmericanWomenQuarters):
+
 1. Add new entries to `COIN_IDENTIFIERS[]` array with name and drawable
 2. Update `COIN_MAP` if used (static initializer handles this automatically
    when COIN_IDENTIFIERS is updated)
 3. Add `onCollectionDatabaseUpgrade()` block:
+
    ```java
    if (oldVersion <= PREVIOUS_DB_VERSION) {
        ArrayList<String> newCoinIdentifiers = new ArrayList<>();
@@ -66,8 +70,10 @@ For each affected collection in `app/src/main/java/com/spencerpages/collections/
    ```
 
 **For year-based collections** (e.g., LincolnCents):
+
 1. Update `OPT_STOP_YEAR` default if the new year extends past it
 2. Add `onCollectionDatabaseUpgrade()` block:
+
    ```java
    if (oldVersion <= PREVIOUS_DB_VERSION) {
        total += DatabaseHelper.addFromYear(db, collectionListInfo, NEW_YEAR);
@@ -95,7 +101,7 @@ Fix any test failures (usually expected count mismatches) and re-run.
 Report a table of changes made:
 
 | Collection | Coins Added | DB Version Check |
-|------------|-------------|------------------|
+| --- | --- | --- |
 | ... | ... | `oldVersion <= N` |
 
 ## Tips

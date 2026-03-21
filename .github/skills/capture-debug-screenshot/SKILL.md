@@ -44,7 +44,7 @@ If the user wants to see a specific screen or verify an interaction, use these
 tools **before** taking the screenshot:
 
 | Action | Tool |
-|--------|------|
+| --- | --- |
 | Discover UI elements | `mcp_mobile-mcp_mobile_list_elements_on_screen` |
 | Tap a coordinate | `mcp_mobile-mcp_mobile_click_on_screen_at_coordinates` |
 | Long-press a coordinate | `mcp_mobile-mcp_mobile_long_press_on_screen_at_coordinates` |

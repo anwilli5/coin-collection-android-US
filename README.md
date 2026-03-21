@@ -1,14 +1,17 @@
 # Coin Collection
+
 Repo for the Coin Collection Android app
 
-Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin. See [Using-the-app](#Using-the-app), [Features](#Features), or [Contributions](#Contributions) for more details!
+Coin Collection helps people keep track of the coins they have or are missing for a variety of U.S. coin sets. Many of the more recent U.S. coin sets are supported (see list below), and the app can be used to track quantities, grades, and notes for each coin. See [Using-the-app](#using-the-app), [Features](#features), or [Contributions](#contributions) for more details!
 
 ## Download the app
+
+<!-- markdownlint-disable MD033 -- inline HTML for badge layout and screenshot table -->
 <div style="display:flex;" >
 <a href="https://play.google.com/store/apps/details?id=com.spencerpages">
     <img alt="Get it on Google Play" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/main/images/google-play-badge.png" />
 </a>
-<a href="http://www.amazon.com/gp/product/B00KZ7PYPY/ref=mas_pm_coin_collection">
+<a href="https://www.amazon.com/gp/product/B00KZ7PYPY/ref=mas_pm_coin_collection">
     <img alt="Available at Amazon Appstore" height="64" src="https://raw.githubusercontent.com/anwilli5/coin-collection-android-US/main/images/amazon-appstore-badge.png" />
 </a>
 <a href="https://f-droid.org/en/packages/com.spencerpages">
@@ -24,12 +27,16 @@ Coin Collection helps people keep track of the coins they have or are missing fo
         <td><img src="./images/screenshots/small/morgan_dollars_screen.png" alt="Morgan dollar advanced collection view" width="200"/></td>
     </tr>
 </table>
+<!-- markdownlint-enable MD033 -->
 
 ## Using the app
+
 If you need help using the app or aren't sure how to do something, see our [Using the app wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Using-the-App)
 
 ## Currently supported collections
+
 Supported U.S. coin sets include:
+
 - All Nickels
 - American Eagle Silver Dollars
 - American Innovation Dollars
@@ -82,6 +89,7 @@ Supported U.S. coin sets include:
 - West Point Mint
 
 ## Features
+
 - Create multiple collections of various types
 - 'Advanced' view for entering quantities, grades, notes, etc.
 - 'Lock' feature to prevent making accidental changes
@@ -101,9 +109,11 @@ Supported U.S. coin sets include:
 - Ability to add West Point mint coins as desired
 
 ## Contributions
+
 - Pull requests are welcome! For more details see [Contributing](https://github.com/anwilli5/coin-collection-android-US/blob/main/CONTRIBUTING.md)
 - Review open issues, feature requests, and add comments here [Open issues](https://github.com/anwilli5/coin-collection-android-US/issues)
 - Let us know if you've found an issue or would like to request a feature [Report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose)
 
 ## Development/Building
+
 For information about building the app, unit testing, and other helpful links, refer to the [Development Wiki](https://github.com/anwilli5/coin-collection-android-US/wiki/Development)
