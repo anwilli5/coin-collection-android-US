@@ -67,7 +67,7 @@ Create a new Java file in `app/src/main/java/com/spencerpages/collections/`.
 Extend `CollectionInfo` and implement all 9 abstract methods:
 
 | Method | Purpose |
-|--------|---------|
+| --- | --- |
 | `getCoinType()` | Return unique collection name string |
 | `getCoinImageIdentifier()` | Return `R.drawable.*` for list views (convention: use reverse image) |
 | `getCoinSlotImage(CoinSlot, boolean)` | Return image for a specific coin slot |
@@ -81,7 +81,7 @@ Extend `CollectionInfo` and implement all 9 abstract methods:
 Optionally override `getImageIds()` if coins have distinct images selectable
 by the user.
 
-#### Year-based template (follow `LincolnCents`):
+#### Year-based template (follow `LincolnCents`)
 
 ```java
 parameters.put(CoinPageCreator.OPT_EDIT_DATE_RANGE, Boolean.TRUE);
@@ -91,11 +91,12 @@ parameters.put(CoinPageCreator.OPT_STOP_YEAR, STOP_YEAR);
 
 In `populateCollectionLists`, loop from `startYear` to `stopYear`, applying
 mint mark logic per year. Maintain a `coinIndex` counter for sort ordering:
+
 ```java
 coinList.add(new CoinSlot(Integer.toString(year), "P", coinIndex++));
 ```
 
-#### Named-identifier template (follow `AmericanWomenQuarters`):
+#### Named-identifier template (follow `AmericanWomenQuarters`)
 
 ```java
 private static final Object[][] COIN_IDENTIFIERS = {
@@ -107,7 +108,7 @@ private static final Object[][] COIN_IDENTIFIERS = {
 In `populateCollectionLists`, loop over `COIN_IDENTIFIERS` and create
 `CoinSlot` objects with string identifiers.
 
-#### Key rules for `populateCollectionLists`:
+#### Key rules for `populateCollectionLists`
 
 - Always maintain a `coinIndex` counter starting at 0, incrementing for each
   `CoinSlot` added. This sets the sort order.
@@ -116,7 +117,7 @@ In `populateCollectionLists`, loop over `COIN_IDENTIFIERS` and create
 - Use `getBooleanParameter()` and `getIntegerParameter()` helpers from the
   base class.
 
-#### Key rules for `onCollectionDatabaseUpgrade`:
+#### Key rules for `onCollectionDatabaseUpgrade`
 
 - For a brand-new collection, return `0` (no existing users to upgrade).
 - Future updates will add coins here using incremental version checks:
@@ -139,7 +140,7 @@ In `app/src/main/java/com/spencerpages/MainApplication.java`:
 
 ### 6. Add test coverage
 
-#### Unit tests (`CollectionCreationTests.java`):
+#### Unit tests (`CollectionCreationTests.java`)
 
 Add a test method following the existing pattern:
 
@@ -162,7 +163,7 @@ public void test_YourCollectionCreationCounts() {
 }
 ```
 
-#### Shared test scenarios (`SharedTest.java`):
+#### Shared test scenarios (`SharedTest.java`)
 
 Add a `CollectionListInfo` entry to `COLLECTION_LIST_INFO_SCENARIOS[]` in
 `shared-test/src/main/java/com/spencerpages/SharedTest.java` covering the
@@ -176,7 +177,7 @@ Run `./gradlew assembleDebug` to confirm compilation, then run
 ## Reference files
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `app/src/main/java/com/coincollection/CollectionInfo.java` | Abstract base class (9 methods) |
 | `app/src/main/java/com/spencerpages/MainApplication.java` | Registration arrays + DATABASE_VERSION |
 | `app/src/main/java/com/spencerpages/collections/LincolnCents.java` | Year-based template |

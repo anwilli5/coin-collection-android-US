@@ -14,7 +14,8 @@
         "./fastlane/avd-screenshot-kill.sh": true,
         "./fastlane/avd-screenshot-setup.sh": true,
         "./fastlane/capture-screenshots.sh": true,
-        "tee": true
+        "tee": true,
+        "npx markdownlint-cli2": true
     },
     "chat.agent.maxRequests": 500,
     "search.exclude": {

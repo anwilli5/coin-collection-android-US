@@ -86,8 +86,6 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 
 **Goal:** Verify the app launches, key screens render without crashes, and basic navigation works. Detailed interaction testing is handled by the Android instrumented test suite.
 
-**Steps:**
-
 1. Call `list_elements_on_screen` and take a screenshot of the main activity
 2. Verify these navigation items are visible: "New Collection", "Delete Collection", "Import Collection", "Export Collection", "Reorder Collections", "App Info"
 3. Tap "New Collection" — a tutorial dialog will appear on first use — dismiss it by tapping "OKAY!" — verify the `CoinPageCreator` screen loads (look for screen title "Collection Page Creator")
@@ -115,8 +113,6 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 ### Export and Import (JSON)
 
 **Goal:** Verify export to JSON and re-import restores data. This test uses the system file picker which cannot be automated with Espresso.
-
-**Steps:**
 
 1. Ensure at least one collection exists (created in the Navigation Sanity Check above). Take a screenshot of the main activity to record current collections and their progress counts.
 2. Tap "Export Collection"
@@ -164,7 +160,7 @@ After all tests complete:
 Provide a summary table:
 
 | Test | Result | Notes |
-|------|--------|-------|
+| --- | --- | --- |
 | Navigation Sanity Check | | |
 | Export and Import (JSON) | | |
 

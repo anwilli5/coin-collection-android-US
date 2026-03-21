@@ -31,10 +31,12 @@ No new errors should be introduced. Warnings are acceptable if pre-existing.
 ### 3. Version is bumped
 
 Read `app/src/main/AndroidManifest.xml` and check:
+
 - `android:versionCode` — must be incremented from the last release
 - `android:versionName` — must reflect the new version string
 
 Compare with the latest git tag to confirm the version has changed:
+
 ```bash
 git describe --tags --abbrev=0
 ```
@@ -42,6 +44,7 @@ git describe --tags --abbrev=0
 ### 4. DATABASE_VERSION is correct
 
 If any database migrations were added since the last release:
+
 - Verify `DATABASE_VERSION` in `MainApplication.java` was incremented
 - Verify all `onCollectionDatabaseUpgrade()` methods use the correct
   version checks
@@ -51,12 +54,14 @@ If no database changes were made, confirm DATABASE_VERSION is unchanged.
 ### 5. Store metadata is current (if applicable)
 
 Check if store text needs updating:
+
 - `fastlane/metadata/android/en-US/full_description.txt`
 - `fastlane/metadata/android/en-US/short_description.txt`
 
 ### 6. Screenshots are current (if UI changed)
 
 If UI changes were made, screenshots may need regenerating:
+
 - `images/screenshots/small/` (6 PNGs)
 - `images/screenshots/medium/` (6 PNGs)
 - `images/screenshots/large/` (6 PNGs)
@@ -85,7 +90,7 @@ No unmerged upstream changes should exist.
 Report a summary table:
 
 | Check | Status | Notes |
-|-------|--------|-------|
+| --- | --- | --- |
 | Unit tests | PASS/FAIL | |
 | Lint | PASS/FAIL | |
 | Version bumped | YES/NO | vX.Y.Z (code: NN) |

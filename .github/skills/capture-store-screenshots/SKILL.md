@@ -34,7 +34,7 @@ From the repository root:
 ### Options
 
 | Flag | Description |
-|------|-------------|
+| --- | --- |
 | `--force-avds` | Delete and recreate all AVDs before capturing (use after API level changes) |
 | `--size small\|medium\|large` | Capture only one screen size instead of all three |
 | `-h`, `--help` | Show usage information |
@@ -72,7 +72,7 @@ The script exits 0 on success and non-zero on failure.
 ## Output
 
 | Directory | Screen Size | Device Profile |
-|-----------|-------------|----------------|
+| --- | --- | --- |
 | `images/screenshots/small/` | Phone (1080×2400) | Pixel 6 |
 | `images/screenshots/medium/` | 7-inch tablet | Nexus 7 (2013) |
 | `images/screenshots/large/` | 10-inch tablet | Pixel C |
@@ -85,7 +85,7 @@ Each directory contains six PNGs:
 ## Prerequisites
 
 | Requirement | Check Command |
-|-------------|---------------|
+| --- | --- |
 | Android SDK with `emulator`, `sdkmanager`, `avdmanager` | `emulator -version` |
 | `adb` on PATH | `adb version` |
 | Ruby (3.x recommended) | `ruby --version` |
@@ -99,7 +99,7 @@ variables explicitly.
 ## Troubleshooting
 
 | Issue | Cause | Solution |
-|-------|-------|----------|
+| --- | --- | --- |
 | `Cannot find Android SDK` | `ANDROID_HOME` not set | Set `ANDROID_HOME` to your SDK install directory (macOS: `~/Library/Android/sdk`, Linux: `~/Android/Sdk`) |
 | System image not found | Not installed | `sdkmanager --install "system-images;android-<api>;google_apis;arm64-v8a"` |
 | Emulator fails to boot | GPU acceleration issue | Try `emulator -avd <name> -no-snapshot-load -gpu swiftshader_indirect` |

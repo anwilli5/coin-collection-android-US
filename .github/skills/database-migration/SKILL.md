@@ -48,6 +48,7 @@ In `app/src/main/java/com/spencerpages/MainApplication.java`:
 
 1. Increment `DATABASE_VERSION` (e.g., 23 → 24).
 2. Add a comment documenting the new version and its app version:
+
    ```java
    * Version 24 - Used in Version X.Y.Z of the app
    ```
@@ -71,6 +72,7 @@ if (oldVersion <= PREVIOUS_VERSION) {
 ```
 
 For year-based collections, use `addFromYear()`:
+
 ```java
 if (oldVersion <= PREVIOUS_VERSION) {
     total += DatabaseHelper.addFromYear(db, collectionListInfo, NEW_YEAR);
@@ -144,7 +146,7 @@ coin additions.
 ## Helper methods reference
 
 | Method | Location | Purpose |
-|--------|----------|---------|
+| --- | --- | --- |
 | `DatabaseHelper.addFromYear(db, info, year)` | DatabaseHelper.java | Add coins for a year respecting user's mint marks |
 | `DatabaseHelper.addFromArrayList(db, info, identifiers)` | DatabaseHelper.java | Add named coins respecting user's mint marks |
 | `DatabaseHelper.runSqlUpdate(db, table, values, where, args)` | DatabaseHelper.java | Update existing rows |
@@ -154,7 +156,7 @@ coin additions.
 ## Reference files
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `app/src/main/java/com/spencerpages/MainApplication.java` | `DATABASE_VERSION` constant and version history |
 | `app/src/main/java/com/coincollection/DatabaseHelper.java` | `upgradeDbStructure()` and helper methods |
 | `app/src/main/java/com/spencerpages/collections/AmericanWomenQuarters.java` | Example: named-identifier upgrade pattern |

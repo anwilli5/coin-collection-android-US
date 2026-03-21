@@ -1,0 +1,15 @@
+// https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+{
+  "ignores": [
+    "LICENSE",
+    "NOTICE",
+    "build/**",
+    "app/build/**",
+    "shared-test/build/**",
+    "fastlane/README.md"
+  ],
+  "config": {
+    // Disable line length — long lines are acceptable for readability on GitHub
+    "MD013": false
+  }
+}
