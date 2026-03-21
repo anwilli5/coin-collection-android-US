@@ -8,8 +8,16 @@ name: DevSkim
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'images/**'
+      - 'fastlane/metadata/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'images/**'
+      - 'fastlane/metadata/**'
   schedule:
     - cron: '43 9 * * 3'
 
