@@ -79,7 +79,16 @@ Extend `CollectionInfo` and implement all 9 abstract methods:
 | `getStopYear()` | Return last year (or 0 if not year-based) |
 
 Optionally override `getImageIds()` if coins have distinct images selectable
-by the user.
+by the user. When `getImageIds()` is overridden, **all** special per-coin
+images must be added to the `COIN_IMG_IDS` array (not handled via
+identifier-matching in `getCoinSlotImage()`). This ensures images appear in
+the user's image selection dropdown for custom coins. Use `getImgId(tag)` in
+`populateCollectionLists()` to set the `imageId` on each `CoinSlot`.
+
+**CRITICAL: Always append new entries to the END of `COIN_IMG_IDS`.** Never
+insert into the middle or reorder existing entries — the array index is the
+`imageId` persisted in user databases. Changing existing indices corrupts
+image assignments for all existing collections.
 
 #### Year-based template (follow `LincolnCents`)
 
@@ -120,6 +129,11 @@ In `populateCollectionLists`, loop over `COIN_IDENTIFIERS` and create
 #### Key rules for `onCollectionDatabaseUpgrade`
 
 - For a brand-new collection, return `0` (no existing users to upgrade).
+- **Important:** When coins are later added to this collection (e.g., next
+  year's annual update), an upgrade block MUST be added here. Bumping
+  `OPTVAL_STILL_IN_PRODUCTION` or adding to identifier arrays only affects
+  newly created collections — existing user collections need the upgrade
+  block to receive new coins.
 - Future updates will add coins here using incremental version checks:
   `if (oldVersion <= N) { ... }`.
 - Use `DatabaseHelper.addFromYear()` for year-based additions.

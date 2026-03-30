@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class SmallDollars extends CollectionInfo {
             {"2023", R.drawable.native_2023_unc},
             {"2024", R.drawable.native_2024_unc},
             {"2025", R.drawable.native_2025_unc},
+            {"2026", R.drawable.native_2026_unc},
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -351,6 +353,16 @@ public class SmallDollars extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
 
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            newCoinIdentifiers.add("2026");
+            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+        }
+
+        return total;
+    }
 }

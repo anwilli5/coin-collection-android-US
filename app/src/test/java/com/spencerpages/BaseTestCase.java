@@ -22,9 +22,16 @@ package com.spencerpages;
 
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY;
+import static com.coincollection.CollectionListInfo.COL_END_YEAR;
 import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_START_YEAR;
 import static com.coincollection.CollectionListInfo.COL_TOTAL;
 import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
 import static com.coincollection.CollectionPage.ADVANCED_DISPLAY;
@@ -302,6 +309,94 @@ public class BaseTestCase {
     }
 
     /**
+     * DB Helper for setting up test databases at the V23 schema (modern, pre-2026 upgrade).
+     * Collections introduced after V14 should use this instead of TestDatabaseHelper (V1),
+     * because V1 databases lack the metadata columns (mint mark flags, checkbox flags)
+     * needed by modern upgrade code.
+     */
+    public static class TestDatabaseHelperV23 extends SQLiteOpenHelper {
+
+        TestDatabaseHelperV23(Context context) {
+            super(context, DATABASE_NAME, null, 23);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + TBL_COLLECTION_INFO + " (_id integer primary key,"
+                    + " " + COL_NAME + " text not null,"
+                    + " " + COL_COIN_TYPE + " text not null,"
+                    + " " + COL_TOTAL + " integer,"
+                    + " " + COL_DISPLAY + " integer default 0,"
+                    + " displayOrder integer,"
+                    + " " + COL_START_YEAR + " integer default 0,"
+                    + " " + COL_END_YEAR + " integer default 0,"
+                    + " showMintMarks integer default 0,"
+                    + " showCheckboxes integer default 0,"
+                    + " " + COL_SHOW_MINT_MARKS + " text not null default '',"
+                    + " " + COL_SHOW_CHECKBOXES + " text not null default ''"
+                    + ");");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
+
+    /**
+     * Adds a collection to the database that looks like the V23 schema (modern, pre-2026).
+     * Coin entries include sortOrder and imageId columns. Collection metadata includes
+     * proper mint mark and checkbox flags.
+     *
+     * @param db             database to populate
+     * @param collectionName collection name
+     * @param coinType       coin type
+     * @param coinList       list of coins — each Object[] is {identifier, mint, inCollection, imageId}
+     * @param startYear      collection start year
+     * @param endYear        collection end year
+     * @param mintMarkFlags  mint mark flags from CoinPageCreator.getMintMarkFlagsFromParameters
+     * @param checkboxFlags  checkbox flags from CoinPageCreator.getCheckboxFlagsFromParameters
+     */
+    public void createV23Collection(SQLiteDatabase db, String collectionName, String coinType,
+                                    ArrayList<Object[]> coinList, int startYear, int endYear,
+                                    long mintMarkFlags, long checkboxFlags) {
+
+        db.execSQL("CREATE TABLE [" + collectionName
+                + "] (_id integer primary key,"
+                + " " + COL_COIN_IDENTIFIER + " text not null,"
+                + " " + COL_COIN_MINT + " text,"
+                + " " + COL_IN_COLLECTION + " integer,"
+                + " advGradeIndex integer default 0,"
+                + " advQuantityIndex integer default 0,"
+                + " advNotes text default '',"
+                + " " + COL_SORT_ORDER + " integer not null,"
+                + " customCoin integer default 0,"
+                + " " + COL_IMAGE_ID + " integer default -1);");
+
+        int sortOrder = 0;
+        for (Object[] coinInfo : coinList) {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(COL_COIN_IDENTIFIER, (String) coinInfo[0]);
+            initialValues.put(COL_COIN_MINT, (String) coinInfo[1]);
+            initialValues.put(COL_IN_COLLECTION, (int) coinInfo[2]);
+            initialValues.put(COL_SORT_ORDER, sortOrder++);
+            if (coinInfo.length > 3) {
+                initialValues.put(COL_IMAGE_ID, (int) coinInfo[3]);
+            }
+            db.insert("[" + collectionName + "]", null, initialValues);
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, collectionName);
+        values.put(COL_COIN_TYPE, coinType);
+        values.put(COL_TOTAL, coinList.size());
+        values.put(COL_START_YEAR, startYear);
+        values.put(COL_END_YEAR, endYear);
+        values.put(COL_SHOW_MINT_MARKS, Long.toString(mintMarkFlags));
+        values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
+        db.insert(TBL_COLLECTION_INFO, null, values);
+    }
+
+    /**
      * Validate updated database
      *
      * @param collectionInfo collection info
@@ -339,6 +434,7 @@ public class BaseTestCase {
                 for (int i = 0; i < newCoinList.size(); i++) {
                     assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
                     assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
+                    assertEquals(newCoinList.get(i).getImageId(), dbCoinList.get(i).getImageId());
                 }
 
                 // Make sure total matches

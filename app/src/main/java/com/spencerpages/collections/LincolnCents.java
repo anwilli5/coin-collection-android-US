@@ -56,6 +56,7 @@ public class LincolnCents extends CollectionInfo {
         for (Object[] coinData : COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
+        COIN_MAP.put("2026", R.drawable.semiq_2026_penny_obv_unc);
     }
 
     private static final Integer START_YEAR = 1909;
@@ -268,6 +269,11 @@ public class LincolnCents extends CollectionInfo {
         if (oldVersion <= 22) {
             // Add in new 2025 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+        }
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
         }
 
         return total;

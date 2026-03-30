@@ -23,12 +23,14 @@ When editing files in `com.spencerpages.collections`, follow these rules:
 
 ## onCollectionDatabaseUpgrade rules
 
+- **Every collection that receives new coins MUST have an upgrade block** — bumping `OPTVAL_STILL_IN_PRODUCTION` or adding to identifier arrays only affects newly created collections; existing user collections need the upgrade block to receive new coins
 - Use incremental version checks: `if (oldVersion <= N)` where N is the version **before** the bump
 - Never use `oldVersion == N` — upgrades must work from any older version
 - Return the **net total** of coins added minus coins removed
 - Use `DatabaseHelper.addFromArrayList()` for named-identifier coins
 - Use `DatabaseHelper.addFromYear()` for year-based coins
 - Both helpers respect the user's existing mint mark configuration
+- **When `populateCollectionLists()` uses `getImgId()` to set `imageId` on `CoinSlot` objects, the corresponding `onCollectionDatabaseUpgrade()` must also pass the same `imageId`** — use `addFromYear(db, info, year, getImgId("tag"))` or `addFromArrayList(db, info, identifiers, imageIds)`. Failing to do so causes upgraded collections to show fallback images instead of the correct designs.
 
 ## Mint mark options
 
@@ -40,6 +42,7 @@ When editing files in `com.spencerpages.collections`, follow these rules:
 
 - Override `getImageIds()` to return `Object[][]` of `{"description", imageResId}`
 - Use `getImgId(tag)` to map tags to indices at runtime
+- **NEVER reorder or insert into the middle of `COIN_IMG_IDS`** — the array index is the `imageId` stored in user databases. Always append new entries to the end of the array.
 
 ## After editing
 

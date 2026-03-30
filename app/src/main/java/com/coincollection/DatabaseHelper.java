@@ -282,6 +282,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             resultCursor.close();
         }
+
+        // Set new SEMIQ checkbox flags for existing collections that gained a
+        // SemiQ checkbox, so that the 2026 coins already added by
+        // onCollectionDatabaseUpgrade are visible.
+        // Note: No fromImport guard — imported databases have the latest schema
+        // but carry old checkbox flag values that also need the SEMIQ bits set.
+        if (oldVersion <= 23) {
+            java.util.HashMap<String, Long> semiqFlags = new java.util.HashMap<>();
+            semiqFlags.put("Small Cents", CollectionListInfo.SEMIQ_CENTS);
+            semiqFlags.put("Silver Dimes", CollectionListInfo.SEMIQ_DIMES);
+            semiqFlags.put("Silver Half Dollars", CollectionListInfo.SEMIQ_HALF);
+            semiqFlags.put("Silver Quarters", CollectionListInfo.SEMIQ_QUARTERS_PROOF);
+            semiqFlags.put("Clad Quarters", CollectionListInfo.SEMIQ_QUARTERS);
+            semiqFlags.put("Cartwheels", CollectionListInfo.SEMIQ_DOLLARS);
+            semiqFlags.put("Roosevelt Dimes", CollectionListInfo.SEMIQ_DIMES);
+            semiqFlags.put("Kennedy Half Dollars", CollectionListInfo.SEMIQ_HALF);
+
+            Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
+                    new String[]{COL_NAME, COL_COIN_TYPE, COL_SHOW_CHECKBOXES},
+                    null, null, null, null, COL_DISPLAY_ORDER);
+            if (resultCursor.moveToFirst()) {
+                do {
+                    String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
+                    Long semiqFlag = semiqFlags.get(coinType);
+                    if (semiqFlag != null) {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                        String checkboxStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES));
+                        long checkboxFlags = (checkboxStr == null || checkboxStr.isEmpty()) ? 0L : Long.parseLong(checkboxStr);
+                        checkboxFlags |= semiqFlag;
+                        ContentValues values = new ContentValues();
+                        values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
+                        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
+                    }
+                } while (resultCursor.moveToNext());
+            }
+            resultCursor.close();
+        }
     }
 
     /**
@@ -362,33 +399,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                        ArrayList<String> values) {
+        return addFromArrayList(db, collectionListInfo, values, null);
+    }
+
+    /**
+     * Adds new coins to the collection with per-identifier image IDs
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param values             the ArrayList containing coinIdentifier values to add
+     * @param imageIds           the ArrayList containing imageId for each identifier (parallel to values),
+     *                           or null for default
+     * @return number of rows added
+     */
+    public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                       ArrayList<String> values, ArrayList<Integer> imageIds) {
         int total = 0;
         String tableName = collectionListInfo.getName();
         int newSortOrder = getNextCoinSortOrder(db, tableName);
         for (int i = 0; i < values.size(); i++) {
+            int imageId = (imageIds != null && i < imageIds.size()) ? imageIds.get(i) : -1;
             if (collectionListInfo.hasMintMarks()) {
                 for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
                     Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
                     if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
-                        ContentValues insertValues = new ContentValues();
-                        insertValues.put(COL_COIN_IDENTIFIER, values.get(i));
-                        insertValues.put(COL_IN_COLLECTION, 0);
-                        insertValues.put(COL_COIN_MINT, flagStr);
-                        insertValues.put(COL_SORT_ORDER, newSortOrder++);
-                        if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
-                            total++;
-                        }
+                        newSortOrder = addCoin(db, tableName, values.get(i), flagStr, imageId, newSortOrder);
+                        total++;
                     }
                 }
             } else {
-                ContentValues insertValues = new ContentValues();
-                insertValues.put(COL_COIN_IDENTIFIER, values.get(i));
-                insertValues.put(COL_IN_COLLECTION, 0);
-                insertValues.put(COL_COIN_MINT, "");
-                insertValues.put(COL_SORT_ORDER, newSortOrder++);
-                if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
-                    total++;
-                }
+                newSortOrder = addCoin(db, tableName, values.get(i), "", imageId, newSortOrder);
+                total++;
             }
         }
         return total;
@@ -424,6 +465,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Add coins for the new year for the "P", "D", and "" mint marks, with a specific image ID
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param year               coin year
+     * @param imageId            image ID to assign to added coins, or -1 for default
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year, int imageId) {
+        ArrayList<String> mintList = new ArrayList<>(Arrays.asList("P", "D"));
+        return addFromYear(db, collectionListInfo, year - 1, year, String.valueOf(year), mintList, imageId);
+    }
+
+    /**
      * Add coins for the new year, based on the collection parameters
      *
      * @param db                 database
@@ -437,6 +492,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                   int previousYear, int year, String identifier,
                                   ArrayList<String> mintsToAdd) {
+        return addFromYear(db, collectionListInfo, previousYear, year, identifier, mintsToAdd, -1);
+    }
+
+    /**
+     * Add coins for the new year, based on the collection parameters, with a specific image ID
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
+     * @param mintsToAdd         list of the mint marks to add
+     * @param imageId            image ID to assign to added coins, or -1 for default
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                  int previousYear, int year, String identifier,
+                                  ArrayList<String> mintsToAdd, int imageId) {
         int total = 0;
 
         // Skip adding if the collection has an earlier end date
@@ -454,34 +527,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     continue;
                 }
                 if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
-                    ContentValues insertValues = new ContentValues();
-                    insertValues.put(COL_COIN_IDENTIFIER, identifier);
-                    insertValues.put(COL_IN_COLLECTION, 0);
-                    insertValues.put(COL_COIN_MINT, flagStr);
-                    insertValues.put(COL_SORT_ORDER, newSortOrder++);
-                    if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
-                        total++;
-                    }
+                    newSortOrder = addCoin(db, tableName, identifier, flagStr, imageId, newSortOrder);
+                    total++;
                 }
             }
         } else {
-            ContentValues insertValues = new ContentValues();
-            insertValues.put(COL_COIN_IDENTIFIER, identifier);
-            insertValues.put(COL_IN_COLLECTION, 0);
-            insertValues.put(COL_COIN_MINT, "");
-            insertValues.put(COL_SORT_ORDER, newSortOrder);
-            if (db.insert("[" + tableName + "]", null, insertValues) != -1) {
-                total++;
-            }
+            addCoin(db, tableName, identifier, "", imageId, newSortOrder);
+            total++;
         }
 
         // Update the collection's end year
-        ContentValues updateValues = new ContentValues();
-        updateValues.put(COL_END_YEAR, year);
-        runSqlUpdate(db, TBL_COLLECTION_INFO, updateValues, COL_NAME + "=?", new String[]{tableName});
-        collectionListInfo.setEndYear(year);
+        updateEndYear(db, collectionListInfo, year);
 
         return total;
+    }
+
+    /**
+     * Insert a single coin row into a collection table
+     *
+     * @param db         database
+     * @param tableName  collection table name
+     * @param identifier coin identifier (e.g., year string or coin name)
+     * @param mint       mint mark or coin type label
+     * @param imageId    image ID to assign, or -1 for default
+     * @param sortOrder  sort order for this coin
+     * @return the next sort order value to use
+     */
+    public static int addCoin(SQLiteDatabase db, String tableName, String identifier,
+                              String mint, int imageId, int sortOrder) {
+        ContentValues insertValues = new ContentValues();
+        insertValues.put(COL_COIN_IDENTIFIER, identifier);
+        insertValues.put(COL_IN_COLLECTION, 0);
+        insertValues.put(COL_COIN_MINT, mint);
+        insertValues.put(COL_SORT_ORDER, sortOrder);
+        if (imageId >= 0) {
+            insertValues.put(COL_IMAGE_ID, imageId);
+        }
+        db.insert("[" + tableName + "]", null, insertValues);
+        return sortOrder + 1;
+    }
+
+    /**
+     * Update the end year for a collection
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info (updated in-place)
+     * @param year               the new end year
+     */
+    public static void updateEndYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(COL_END_YEAR, year);
+        runSqlUpdate(db, TBL_COLLECTION_INFO, updateValues, COL_NAME + "=?",
+                new String[]{collectionListInfo.getName()});
+        collectionListInfo.setEndYear(year);
     }
 
     /**

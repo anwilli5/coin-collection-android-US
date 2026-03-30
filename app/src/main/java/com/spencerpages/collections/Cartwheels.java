@@ -27,6 +27,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -43,15 +44,16 @@ public class Cartwheels extends CollectionInfo {
     };
 
     private static final Object[][] COIN_IMG_IDS = {
-            {"Flowing Hair", R.drawable.do1795_flowing_hairo},       // 0
-            {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},  // 1
-            {"Seated Liberty", R.drawable.do1860o},                  // 2
-            {"Trade", R.drawable.do1876tradeo},                      // 3
-            {"Morgan", R.drawable.obv_morgan_dollar},                // 4
-            {"Peace", R.drawable.obv_peace_dollar},                  // 5
-            {"Eisenhower", R.drawable.obv_eisenhower_dollar},        // 6
-            {"Eagle", R.drawable.obv_american_eagle_unc},            // 7
-            {"Liberty Seated Gobrecht", R.drawable.anostarsdime},    // 8
+            {"Flowing Hair", R.drawable.do1795_flowing_hairo},            // 0
+            {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},       // 1
+            {"Seated Liberty", R.drawable.do1860o},                       // 2
+            {"Trade", R.drawable.do1876tradeo},                           // 3
+            {"Morgan", R.drawable.obv_morgan_dollar},                     // 4
+            {"Peace", R.drawable.obv_peace_dollar},                       // 5
+            {"Eisenhower", R.drawable.obv_eisenhower_dollar},             // 6
+            {"Eagle", R.drawable.obv_american_eagle_unc},                 // 7
+            {"Liberty Seated Gobrecht", R.drawable.anostarsdime},         // 8
+            {"1776-2026 Eagle", R.drawable.semiq_2026_american_eagle_unc}, // 9
     };
 
     private static final Integer START_YEAR = 1878;
@@ -104,6 +106,9 @@ public class Cartwheels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_eagle_dollars);
 
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_dollars);
+
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
 
@@ -142,6 +147,7 @@ public class Cartwheels extends CollectionInfo {
         boolean showPeace = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showIke = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showEagle = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
 
         int coinIndex = 0;
 
@@ -217,7 +223,7 @@ public class Cartwheels extends CollectionInfo {
                     if (showS) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Eisenhower")));}
                 }
             }
-            if (showEagle && i > 1985) {
+            if (showEagle && i > 1985 && i != 2026) {
                 if (showP) {
                     if (i != 2021) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Eagle")));}
                     if (i == 2021) {coinList.add(new CoinSlot(year, "Type I", coinIndex++, getImgId("Eagle")));}
@@ -267,6 +273,14 @@ public class Cartwheels extends CollectionInfo {
                     }
                 }
             }
+            if (showSemiq && i == 2026) {
+                int semiqImg = getImgId("1776-2026 Eagle");
+                if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, semiqImg));}
+                if (showW) {coinList.add(new CoinSlot(year, "W", coinIndex++, semiqImg));}
+                if (showProof && showW) {
+                    coinList.add(new CoinSlot(year, "W Proof", coinIndex++, semiqImg));
+                }
+            }
         }
     }
 
@@ -281,5 +295,30 @@ public class Cartwheels extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            // Cartwheels uses custom logic because Eagle dollars have complex
+            // conditional variants (plain, W, S Proof, W Proof) that addFromYear
+            // doesn't support.
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            int imageId = getImgId("1776-2026 Eagle");
+            if (collectionListInfo.hasPMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasWMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "W", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasSilverProofMintMarks() && collectionListInfo.hasWMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "W Proof", imageId, newSortOrder);
+                total++;
+            }
+            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
+        }
+        return total;
+    }
 }

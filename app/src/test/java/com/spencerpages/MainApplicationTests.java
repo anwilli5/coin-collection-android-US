@@ -123,6 +123,7 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Semiquincentennials;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SilverQuarters;
@@ -198,6 +199,7 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(48, getIndexFromCollectionClass(RooseveltDimes.class));
         assertEquals(49, getIndexFromCollectionClass(WashingtonQuarters.class));
         assertEquals(50, getIndexFromCollectionClass(AmericanInnovationDollars.class));
+        assertEquals(51, getIndexFromCollectionClass(Semiquincentennials.class));
     }
 
     /**

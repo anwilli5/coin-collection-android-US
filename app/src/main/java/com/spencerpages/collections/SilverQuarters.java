@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -182,6 +183,13 @@ public class SilverQuarters extends CollectionInfo {
             {"Stacey Park Milbern 2025", R.drawable.women_2025_stacey_park_milbern_unc},
             {"Althea Gibson 2025", R.drawable.women_2025_althea_gibson_unc},
     };
+    private static final Object[][] SEMIQ_COIN_IDENTIFIERS = {
+            {"Mayflower Compact 2026", R.drawable.semiq_2026_mayflower_compact_unc},
+            {"Revolutionary War 2026", R.drawable.semiq_2026_revolutionary_war_unc},
+            {"Declaration of Independence 2026", R.drawable.semiq_2026_declaration_unc},
+            {"U.S. Constitution 2026", R.drawable.semiq_2026_constitution_unc},
+            {"Gettysburg Address 2026", R.drawable.semiq_2026_gettysburg_unc},
+    };
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
 
     static {
@@ -189,6 +197,7 @@ public class SilverQuarters extends CollectionInfo {
         for (Object[] coinData : DC_AND_TERR_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : PARKS_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
         for (Object[] coinData : WOMEN_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
+        for (Object[] coinData : SEMIQ_COIN_IDENTIFIERS) {COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);}
     }
     private static final int REVERSE_IMAGE =R.drawable.quarter_front_92px;
 
@@ -236,6 +245,9 @@ public class SilverQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_women_quarters_proof);
 
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_quarters_proof);
+
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
@@ -257,6 +269,7 @@ public class SilverQuarters extends CollectionInfo {
         boolean showTerr = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showParks = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showWomen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
         boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
@@ -303,9 +316,32 @@ public class SilverQuarters extends CollectionInfo {
                 coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
             }
         }
+        if (showSemiq) {
+            for (Object[] coinData : SEMIQ_COIN_IDENTIFIERS) {
+                String identifier = (String) coinData[0];
+                coinList.add(new CoinSlot(identifier, "S Proof", coinIndex++));
+            }
+        }
     }
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 1776-2026 coins
+            // SilverQuarters always uses "S Proof" as the mint mark for these coins.
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            for (Object[] coinData : SEMIQ_COIN_IDENTIFIERS) {
+                String identifier = (String) coinData[0];
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, identifier,
+                        "S Proof", -1, newSortOrder);
+                total++;
+            }
+        }
+
+        return total;
+    }
 }

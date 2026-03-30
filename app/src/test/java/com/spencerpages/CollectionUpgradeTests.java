@@ -20,14 +20,29 @@
 
 package com.spencerpages;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CoinPageCreator;
+import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
+import com.coincollection.CollectionListInfo;
+import com.coincollection.MainActivity;
 import com.coincollection.helper.ParcelableHashMap;
+import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
+import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.AmericanWomenQuarters;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.CoinSets;
 import com.spencerpages.collections.BarberDimes;
 import com.spencerpages.collections.BarberHalfDollars;
 import com.spencerpages.collections.BarberQuarters;
@@ -36,11 +51,19 @@ import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
 import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.EarlyDimes;
+import com.spencerpages.collections.EarlyDollars;
+import com.spencerpages.collections.EarlyHalfDollars;
+import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
 import com.spencerpages.collections.FranklinHalfDollars;
+import com.spencerpages.collections.HalfCents;
+import com.spencerpages.collections.HalfDimes;
 import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
+import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.LargeCents;
 import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.MercuryDimes;
@@ -49,10 +72,21 @@ import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
+import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SilverQuarters;
+import com.spencerpages.collections.SmallCents;
+import com.spencerpages.collections.SmallDollars;
 import com.spencerpages.collections.StandingLibertyQuarters;
 import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
+import com.spencerpages.collections.Trimes;
+import com.spencerpages.collections.TwentyCents;
+import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
+import com.spencerpages.collections.WashingtonQuarters;
+import com.spencerpages.collections.WestPoint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +98,47 @@ import java.util.ArrayList;
 public class CollectionUpgradeTests extends BaseTestCase {
 
     // TODO - Improve tests by testing with all options set instead of none
+
+    /**
+     * Helper to create a V23-schema collection from a collection's populateCollectionLists
+     * output. This creates a database with proper metadata (mint mark flags, checkbox flags,
+     * imageIds, endYear) that matches what a real user's database would contain. Use for
+     * collections introduced after V14 that need correct flags for upgrade code to work.
+     *
+     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
+     * @param collection           the collection type
+     * @param coinType             the coin type string
+     * @param collectionName       name for the test collection
+     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
+     */
+    private void createV23FromPopulate(SQLiteDatabase db, CollectionInfo collection,
+                                       String coinType, String collectionName,
+                                       String identifierToExclude) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
+        collection.populateCollectionLists(parameters, fullCoinList);
+
+        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
+        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
+
+        int endYear = 0;
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (CoinSlot coin : fullCoinList) {
+            if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
+                continue;
+            }
+            coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), 0, coin.getImageId()});
+            try {
+                int year = Integer.parseInt(coin.getIdentifier());
+                endYear = Math.max(endYear, year);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        createV23Collection(db, collectionName, coinType, coinList,
+                collection.getStartYear(), endYear, mintMarkFlags, checkboxFlags);
+    }
 
     /**
      * For AmericanEagleSilverDollars
@@ -417,7 +492,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
-    public void test_KennedyHalfDollarsUpgrade() {
+    public void test_BasicHalfDollarsUpgrade() {
 
         // Test Parameters
         CollectionInfo collection = new BasicHalfDollars();
@@ -726,7 +801,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
-    public void test_RooseveltDimesUpgrade() {
+    public void test_BasicDimesUpgrade() {
 
         // Test Parameters
         CollectionInfo collection = new BasicDimes();
@@ -936,7 +1011,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
      * - Test that the number of coins is correct upon collection upgrades
      */
     @Test
-    public void test_WashingtonQuartersUpgrade() {
+    public void test_BasicQuartersUpgrade() {
 
         // Test Parameters
         CollectionInfo collection = new BasicQuarters();
@@ -965,6 +1040,587 @@ public class CollectionUpgradeTests extends BaseTestCase {
             }
         }
         createV1Collection(db, collectionName, coinType, coinList);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For AllNickels
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_AllNickelsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new AllNickels();
+        String coinType = "All Nickels";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For AmericanInnovationDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_AmericanInnovationDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new AmericanInnovationDollars();
+        String coinType = "American Innovation Dollars w/ Proofs";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For AmericanWomenQuarters
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_AmericanWomenQuartersUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new AmericanWomenQuarters();
+        String coinType = "American Women Quarters";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V1 database and run upgrade
+        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        coinList.add(new Object[]{"Maya Angelou", "", 0});
+        coinList.add(new Object[]{"Dr. Sally Ride", "", 0});
+        coinList.add(new Object[]{"Wilma Mankiller", "", 0});
+        coinList.add(new Object[]{"Nina Otero-Warren", "", 0});
+        coinList.add(new Object[]{"Anna May Wong", "", 0});
+        createV1Collection(db, collectionName, coinType, coinList);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For Cartwheels
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_CartwheelsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new Cartwheels();
+        String coinType = "Cartwheels";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For CladQuarters
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_CladQuartersUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new CladQuarters();
+        String coinType = "Clad Quarters";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For CoinSets
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_CoinSetsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new CoinSets();
+        String coinType = "Coin Sets";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For EarlyDimes
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_EarlyDimesUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new EarlyDimes();
+        String coinType = "Early Dimes";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For EarlyDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_EarlyDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new EarlyDollars();
+        String coinType = "Early Dollars";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For EarlyHalfDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_EarlyHalfDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new EarlyHalfDollars();
+        String coinType = "Early Half Dollars";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For EarlyQuarters
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_EarlyQuartersUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new EarlyQuarters();
+        String coinType = "Early Quarters";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For HalfCents
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_HalfCentsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new HalfCents();
+        String coinType = "Half Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For HalfDimes
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_HalfDimesUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new HalfDimes();
+        String coinType = "Half Dimes";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For KennedyHalfDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_KennedyHalfDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new KennedyHalfDollars();
+        String coinType = "Kennedy Half Dollars";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For LargeCents
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_LargeCentsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new LargeCents();
+        String coinType = "Large Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For RooseveltDimes
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_RooseveltDimesUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new RooseveltDimes();
+        String coinType = "Roosevelt Dimes";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For SilverDimes
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_SilverDimesUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new SilverDimes();
+        String coinType = "Silver Dimes";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For SilverHalfDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_SilverHalfDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new SilverHalfDollars();
+        String coinType = "Silver Half Dollars";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For SilverQuarters
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_SilverQuartersUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new SilverQuarters();
+        String coinType = "Silver Quarters";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For SmallCents
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_SmallCentsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new SmallCents();
+        String coinType = "Small Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For SmallDollars
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_SmallDollarsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new SmallDollars();
+        String coinType = "Small Dollars";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, "2026");
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For Trimes
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_TrimesUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new Trimes();
+        String coinType = "Three Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For TwentyCents
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_TwentyCentsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new TwentyCents();
+        String coinType = "Twenty Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For TwoCents
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_TwoCentsUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new TwoCents();
+        String coinType = "Two Cents";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For WashingtonQuarters
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_WashingtonQuartersUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new WashingtonQuarters();
+        String coinType = "Washington Quarters";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
+     * For WestPoint
+     * - Test that the number of coins is correct upon collection upgrades
+     */
+    @Test
+    public void test_WestPointUpgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new WestPoint();
+        String coinType = "West Point Mint";
+        String collectionName = coinType + " Upgrade";
+
+        // Create V23 database and run upgrade
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulate(db, collection, coinType, collectionName, null);
         db.close();
         testDbHelper.close();
 

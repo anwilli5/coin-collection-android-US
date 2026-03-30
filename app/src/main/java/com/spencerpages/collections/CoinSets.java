@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -120,5 +121,30 @@ public class CoinSets extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            // CoinSets uses checkbox-based types, not mint marks.
+            // Check which types the user has enabled and add matching 2026 entries.
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            if (collectionListInfo.hasMintSets()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                        String.format("%nMint Set"), getImgId("Mint Set"), newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasProofSets()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                        String.format("%nProof Set"), getImgId("Proof Set"), newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasSilverProofSets()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                        String.format("Silver %nProof Set"), getImgId("Silver Proof Set"), newSortOrder);
+                total++;
+            }
+            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
+        }
+        return total;
+    }
 }

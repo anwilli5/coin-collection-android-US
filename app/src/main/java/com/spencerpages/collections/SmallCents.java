@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 
 import com.spencerpages.R;
 
@@ -85,6 +86,7 @@ public class SmallCents extends CollectionInfo {
             {"1819 Reverse", R.drawable.a1819r},                                    // 26
             {"1839 Reverse", R.drawable.a1839r},                                    // 27
             {"1858 Reverse", R.drawable.a1858r},                                    // 28
+            {"1776-2026", R.drawable.semiq_2026_penny_obv_unc},                     // 29
     };
 
 
@@ -138,6 +140,9 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_shield_cents);
 
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_7, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_7_STRING_ID, R.string.include_semiq_cents);
+
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -171,6 +176,7 @@ public class SmallCents extends CollectionInfo {
         boolean showWheat = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showMem = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
         boolean showShield = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_7);
         boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
@@ -269,7 +275,7 @@ public class SmallCents extends CollectionInfo {
                 if (showSProof && i > 1958 && i <  1965) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Proof")));}
                 if (showSProof && i > 1967 && i<2009) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Proof")));}
             }
-            if (showShield){
+            if (showShield && i != 2026){
                 if (showP){
                     if (i > 2009 && i != 2017) {coinList.add(new CoinSlot(year, "",coinIndex++, getImgId("Zinc")));}
                     if (i == 2017) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Zinc")));}
@@ -287,6 +293,12 @@ public class SmallCents extends CollectionInfo {
                     if ( i == 2018) {coinList.add(new CoinSlot(year, "S Reverse Proof", coinIndex++, getImgId("Reverse Proof")));}
                 }
             }
+            if (showSemiq && i == 2026){
+                int semiqImg = getImgId("1776-2026");
+                if (showP){coinList.add(new CoinSlot(year, "",coinIndex++, semiqImg));}
+                if (showD){coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
+                if(showSProof){coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
+            }
         }
     }
     @Override
@@ -300,7 +312,31 @@ public class SmallCents extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            // SmallCents uses custom logic because pennies use "" for Philadelphia
+            // (not "P"), which addFromYear doesn't support.
+            int imageId = getImgId("1776-2026");
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            if (collectionListInfo.hasPMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasDMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasMemProofMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
+                total++;
+            }
+            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
+        }
+        return total;
+    }
 
 }
 

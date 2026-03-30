@@ -36,6 +36,19 @@ public class BasicHalfDollars extends CollectionInfo {
 
     public static final String COLLECTION_TYPE = "Half-Dollars";
 
+    private static final Object[][] COIN_IDENTIFIERS = {
+            {"2026", R.drawable.semiq_2026_half_obv_unc},
+    };
+
+    private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
+
+    static {
+        // Populate the COIN_MAP HashMap for quick image ID lookups later
+        for (Object[] coinData : COIN_IDENTIFIERS) {
+            COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
+        }
+    }
+
     private static final Integer START_YEAR = 1964;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
@@ -55,7 +68,8 @@ public class BasicHalfDollars extends CollectionInfo {
 
     @Override
     public int getCoinSlotImage(CoinSlot coinSlot, boolean ignoreImageId) {
-        return OBVERSE_IMAGE_COLLECTED;
+        Integer slotImage = COIN_MAP.get(coinSlot.getIdentifier());
+        return (slotImage != null) ? slotImage : OBVERSE_IMAGE_COLLECTED;
     }
 
     @Override
@@ -198,6 +212,11 @@ public class BasicHalfDollars extends CollectionInfo {
         if (oldVersion <= 22) {
             // Add in new 2025 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+        }
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
         }
 
         return total;

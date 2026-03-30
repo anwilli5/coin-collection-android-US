@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class AllNickels extends CollectionInfo {
             {"Liberty Reverse", R.drawable.ani1883r},                                                 // 13
             {"Shield Reverse", R.drawable.anishield_nickel_without_rays___reverse},                   // 14
             {"1867 Shield Reverse with Rays", R.drawable.anishield_nickel_with_rays___1867_reverse},  // 15
+            {"1776-2026", R.drawable.semiq_2026_nickel_obv_unc},                                      // 16
     };
 
     private static final Integer START_YEAR = 1866;
@@ -252,11 +254,13 @@ public class AllNickels extends CollectionInfo {
                     }
                 }
                 if (i > 2005) {
-                    if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Modern Jefferson")));}
-                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Modern Jefferson")));}
-                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
+                    String jeffImgTag = (i == 2026) ? "1776-2026" : "Modern Jefferson";
+                    String jeffProofImgTag = (i == 2026) ? "1776-2026" : "Modern Jefferson Proof";
+                    if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId(jeffImgTag)));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId(jeffImgTag)));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId(jeffImgTag)));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId(jeffImgTag)));}
+                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId(jeffProofImgTag)));}
                     if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
                     if (showW && i == 2020) {
                         coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
@@ -282,6 +286,13 @@ public class AllNickels extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026, getImgId("1776-2026"));
+        }
+        return total;
+    }
 
 }

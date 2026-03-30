@@ -231,7 +231,7 @@ public class CoinPageCreator extends BaseActivity {
      * TODO Make this easier to maintain, but make sure it doesn't break database
      *      upgrade functionality
      */
-    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2025;
+    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2026;
 
 
     public final static HashMap<String, String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
@@ -1188,6 +1188,18 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.PROOF_SETS;
                 } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
                     checkboxFlags |= CollectionListInfo.SILVER_PROOF_SETS;
+                } else if (optionStrId.equals(R.string.include_semiq_cents)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_CENTS;
+                } else if (optionStrId.equals(R.string.include_semiq_dimes)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_DIMES;
+                } else if (optionStrId.equals(R.string.include_semiq_halves)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_HALF;
+                } else if (optionStrId.equals(R.string.include_semiq_quarters_proof)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_QUARTERS_PROOF;
+                } else if (optionStrId.equals(R.string.include_semiq_quarters)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_QUARTERS;
+                } else if (optionStrId.equals(R.string.include_semiq_dollars)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_DOLLARS;
                 }
             }
         }
@@ -1392,6 +1404,18 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasProofSets());
             } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
                 parameters.put(optName, existingCollection.hasSilverProofSets());
+            } else if (optionStrId.equals(R.string.include_semiq_cents)) {
+                parameters.put(optName, existingCollection.hasSemiqCents());
+            } else if (optionStrId.equals(R.string.include_semiq_dimes)) {
+                parameters.put(optName, existingCollection.hasSemiqDimes());
+            } else if (optionStrId.equals(R.string.include_semiq_halves)) {
+                parameters.put(optName, existingCollection.hasSemiqHalf());
+            } else if (optionStrId.equals(R.string.include_semiq_quarters_proof)) {
+                parameters.put(optName, existingCollection.hasSemiqQuartersProof());
+            } else if (optionStrId.equals(R.string.include_semiq_quarters)) {
+                parameters.put(optName, existingCollection.hasSemiqQuarters());
+            } else if (optionStrId.equals(R.string.include_semiq_dollars)) {
+                parameters.put(optName, existingCollection.hasSemiqDollars());
             }
         }
         return parameters;

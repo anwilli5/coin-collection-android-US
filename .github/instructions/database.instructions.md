@@ -20,7 +20,8 @@ When editing `DatabaseHelper.java` or `DatabaseAdapter.java`, follow these rules
 
 ## upgradeDbStructure rules
 
-- Guard schema changes with `if (oldVersion <= N && !fromImport)` — imported DBs have the latest schema
+- Guard **schema changes** (ALTER TABLE, ADD COLUMN) with `if (oldVersion <= N && !fromImport)` — imported DBs have the latest schema
+- **Data-value migrations** (updating existing column values like checkbox flags) must **omit** the `!fromImport` guard — use just `if (oldVersion <= N)`. Imported databases have the latest schema but carry old data values from the export that also need updating.
 - Use incremental checks (`oldVersion <= N`), never equality checks
 - Never drop existing columns — SQLite has limited ALTER TABLE support
 - Collection-specific coin additions do NOT go here — they go in each collection's `onCollectionDatabaseUpgrade()`
