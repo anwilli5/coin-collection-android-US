@@ -139,7 +139,7 @@ public class AllNickels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_jefferson_nickels);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_nickels);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
     }
 
     @Override

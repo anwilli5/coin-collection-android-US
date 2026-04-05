@@ -298,16 +298,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Note: No fromImport guard — imported databases have the latest schema
         // but carry old checkbox flag values that also need the SEMIQ bits set.
         if (oldVersion <= 23) {
-            java.util.HashMap<String, Long> semiqFlags = new java.util.HashMap<>();
-            semiqFlags.put(SmallCents.COLLECTION_TYPE, CollectionListInfo.SEMIQ_CENTS);
-            semiqFlags.put(SilverDimes.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DIMES);
-            semiqFlags.put(SilverHalfDollars.COLLECTION_TYPE, CollectionListInfo.SEMIQ_HALF);
-            semiqFlags.put(SilverQuarters.COLLECTION_TYPE, CollectionListInfo.SEMIQ_QUARTERS_PROOF);
-            semiqFlags.put(CladQuarters.COLLECTION_TYPE, CollectionListInfo.SEMIQ_QUARTERS);
-            semiqFlags.put(Cartwheels.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DOLLARS);
-            semiqFlags.put(RooseveltDimes.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DIMES);
-            semiqFlags.put(KennedyHalfDollars.COLLECTION_TYPE, CollectionListInfo.SEMIQ_HALF);
-            semiqFlags.put(AllNickels.COLLECTION_TYPE, CollectionListInfo.SEMIQ_NICKELS);
+            java.util.Set<String> semiqTypes = new java.util.HashSet<>(Arrays.asList(
+                    SmallCents.COLLECTION_TYPE,
+                    SilverDimes.COLLECTION_TYPE,
+                    SilverHalfDollars.COLLECTION_TYPE,
+                    SilverQuarters.COLLECTION_TYPE,
+                    CladQuarters.COLLECTION_TYPE,
+                    Cartwheels.COLLECTION_TYPE,
+                    RooseveltDimes.COLLECTION_TYPE,
+                    KennedyHalfDollars.COLLECTION_TYPE,
+                    AllNickels.COLLECTION_TYPE
+            ));
 
             Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
                     new String[]{COL_NAME, COL_COIN_TYPE, COL_SHOW_CHECKBOXES},
@@ -315,12 +316,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (resultCursor.moveToFirst()) {
                 do {
                     String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
-                    Long semiqFlag = semiqFlags.get(coinType);
-                    if (semiqFlag != null) {
+                    if (semiqTypes.contains(coinType)) {
                         String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
                         String checkboxStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES));
                         long checkboxFlags = (checkboxStr == null || checkboxStr.isEmpty()) ? 0L : Long.parseLong(checkboxStr);
-                        checkboxFlags |= semiqFlag;
+                        checkboxFlags |= CollectionListInfo.SEMIQ_COINS;
                         ContentValues values = new ContentValues();
                         values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
                         runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});

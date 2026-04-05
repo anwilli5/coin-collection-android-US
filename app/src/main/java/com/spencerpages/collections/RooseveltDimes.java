@@ -101,7 +101,7 @@ public class RooseveltDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_clad_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_semiq_dimes);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_semiq_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);

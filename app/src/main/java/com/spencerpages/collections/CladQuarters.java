@@ -426,7 +426,7 @@ public class CladQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_women_quarters);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_semiq_quarters);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_semiq_coins);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);

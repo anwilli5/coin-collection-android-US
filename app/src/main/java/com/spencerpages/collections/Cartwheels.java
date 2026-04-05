@@ -107,7 +107,7 @@ public class Cartwheels extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_eagle_dollars);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_dollars);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);

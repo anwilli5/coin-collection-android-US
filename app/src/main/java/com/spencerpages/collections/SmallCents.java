@@ -141,7 +141,7 @@ public class SmallCents extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_shield_cents);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_7, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_7_STRING_ID, R.string.include_semiq_cents);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_7_STRING_ID, R.string.include_semiq_coins);
 
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);

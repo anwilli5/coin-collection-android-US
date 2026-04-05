@@ -208,6 +208,8 @@ Run `./gradlew assembleDebug` to confirm compilation, then run
 - [ ] Registered in `COLLECTION_TYPES[]` (appended to end, not reordered)
 - [ ] Added to appropriate display tier array
 - [ ] Import added in `MainApplication.java`
+- [ ] If new checkbox/mint flags added: uses next contiguous bit, mask updated
+      (see database-migration skill §6 for rules)
 - [ ] Unit test added in `CollectionCreationTests`
 - [ ] Scenario added in `SharedTest.COLLECTION_LIST_INFO_SCENARIOS`
 - [ ] `./gradlew assembleDebug` succeeds

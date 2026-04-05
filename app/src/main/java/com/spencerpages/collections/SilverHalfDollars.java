@@ -131,7 +131,7 @@ public class SilverHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_kennedy_half);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_halves);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
     }
 
     @Override

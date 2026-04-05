@@ -135,7 +135,7 @@ public class KennedyHalfDollars extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_clad_coins);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_semiq_halves);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_semiq_coins);
     }
 
     public void populateCollectionLists(HashMap<String, Object> parameters, ArrayList<CoinSlot> coinList) {

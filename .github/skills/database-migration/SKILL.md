@@ -279,15 +279,21 @@ indices corrupts image assignments for all existing collections.
 ### 6. Add new checkbox flags (if adding a new sub-series)
 
 When adding a new sub-series to an aggregate collection (e.g.,
-SemiQ quarters to `CladQuarters`), you need a new user
+SemiQ coins to multiple collections), you may need a new user
 checkbox. This requires changes in four files:
 
-1. **`CollectionListInfo.java`** — Add flag constant and accessor:
+1. **`CollectionListInfo.java`** — Add flag constant and accessor.
+   The new flag **MUST use the next contiguous bit position** after the
+   current highest flag. Then update `ALL_CHECKBOXES_MASK` to
+   `(1L << (N + 1)) - 1` where N is the new highest bit. The same
+   rules apply when adding mint mark flags — use the next bit after
+   `MINT_FRANKLIN_PROOF` and update `ALL_MINT_MASK` accordingly.
    ```java
-   public final static long SEMIQ_QUARTERS = (1L << 49);
-   // Update ALL_CHECKBOXES_MASK to include new bit
-   public boolean hasSemiqQuarters() {
-       return (getCheckboxFlagsAsLong() & SEMIQ_QUARTERS) != 0;
+   public final static long NEW_FLAG = (1L << 50);
+   // Update ALL_CHECKBOXES_MASK: (1L << 51) - 1
+   public final static long ALL_CHECKBOXES_MASK = 0x7FFFFFFFFFFFFL;
+   public boolean hasNewFlag() {
+       return (getCheckboxFlagsAsLong() & NEW_FLAG) != 0;
    }
    ```
 2. **`CoinPageCreator.java`** — Add encoding (in
@@ -295,19 +301,27 @@ checkbox. This requires changes in four files:
    `getParametersFromCollectionListInfo()`):
    ```java
    // Encoding:
-   } else if (optionStrId.equals(R.string.include_semiq_quarters)) {
-       checkboxFlags |= CollectionListInfo.SEMIQ_QUARTERS;
+   } else if (optionStrId.equals(R.string.include_new_flag)) {
+       checkboxFlags |= CollectionListInfo.NEW_FLAG;
    // Decoding:
-   } else if (optionStrId.equals(R.string.include_semiq_quarters)) {
-       parameters.put(optName, existingCollection.hasSemiqQuarters());
+   } else if (optionStrId.equals(R.string.include_new_flag)) {
+       parameters.put(optName, existingCollection.hasNewFlag());
    ```
 3. **`strings.xml`** — Add the checkbox label string resource.
 4. **Collection class** — Add `OPT_CHECKBOX_N` parameter in
    `getCreationParameters()` and read it in `populateCollectionLists()`.
 
-**Important**: Update `ALL_CHECKBOXES_MASK` in `CollectionListInfo.java`
-to include the new bit(s), or the `test_getCreationParameters` test will
-fail with a mask validation error.
+**Important rules for flag constants:**
+
+- Flag bit positions must be **unique and contiguous** — no gaps between
+  the highest existing flag and the new one.
+- `ALL_CHECKBOXES_MASK` must equal `(1L << (highestBit + 1)) - 1` — it
+  must cover exactly the bits in use, with no extra padding.
+- Same rules apply for `ALL_MINT_MASK` with mint mark flags.
+- Update `testFixedCheckBoxIds()` (or `testFixedMintMarkIds()`) in
+  `MainApplicationTests.java` to assert the new flag value AND the
+  updated mask value. These tests are canaries that prevent future
+  additions from forgetting to update the mask.
 
 ### 7. Update tests
 

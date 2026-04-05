@@ -38,6 +38,13 @@ When editing files in `com.spencerpages.collections`, follow these rules:
 - `OPT_SHOW_MINT_MARK_1` through `OPT_SHOW_MINT_MARK_5` — individual mint toggles (Boolean)
 - `OPT_SHOW_MINT_MARK_N_STRING_ID` — string resource ID for the label (e.g., `R.string.include_p`)
 
+## Checkbox and mint mark flag invariants
+
+- Flag bit positions in `CollectionListInfo` must be **unique and contiguous** — no gaps
+- `ALL_MINT_MASK` must equal `(1L << (highestMintBit + 1)) - 1`
+- `ALL_CHECKBOXES_MASK` must equal `(1L << (highestCheckboxBit + 1)) - 1`
+- When adding a new flag, also update the corresponding mask and add an assertion in `MainApplicationTests`
+
 ## Special images
 
 - Override `getImageIds()` to return `Object[][]` of `{"description", imageResId}`

@@ -246,7 +246,7 @@ public class SilverQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_women_quarters_proof);
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_quarters_proof);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
 
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
 

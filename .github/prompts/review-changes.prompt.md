@@ -44,6 +44,11 @@ For any new checkbox or flag added to a collection:
 - Encoder block in `CoinPageCreator.getCheckboxFlagsFromParameters()`
 - Decoder block in `CoinPageCreator.getParametersFromCollectionListInfo()`
 - `ALL_CHECKBOXES_MASK` in `CollectionListInfo` updated to cover new bits
+- `ALL_MINT_MASK` in `CollectionListInfo` updated if mint mark flags changed
+- Masks use the formula `(1L << (highestBit + 1)) - 1` — no padding bits
+- Flag bit positions are contiguous — no gaps between existing and new flags
+- `testFixedCheckBoxIds` / `testFixedMintMarkIds` in `MainApplicationTests`
+  updated with the new flag assertion and updated mask assertion
 - Migration in `upgradeDbStructure()` to set the flag for existing
   collections (so coins already added by upgrade are visible)
 
