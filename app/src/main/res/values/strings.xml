@@ -228,6 +228,7 @@
     <string name="include_semiq_quarters">Include SemiQ Quarters</string>
     <string name="include_semiq_quarters_proof">Include SemiQ Quarter Proofs</string>
     <string name="include_semiq_dollars">Include SemiQ Dollars</string>
+    <string name="include_semiq_nickels">Include SemiQ Nickels</string>
 
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>

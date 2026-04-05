@@ -137,6 +137,9 @@ public class AllNickels extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_jefferson_nickels);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_nickels);
     }
 
     @Override
@@ -155,6 +158,7 @@ public class AllNickels extends CollectionInfo {
         boolean showLiberty = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showBuffalo = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showJefferson = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
         int coinIndex = 0;
 
         if (showOld && !showShield) {coinList.add(new CoinSlot("Shield", "", coinIndex++, getImgId("Shield")));}
@@ -254,17 +258,24 @@ public class AllNickels extends CollectionInfo {
                     }
                 }
                 if (i > 2005) {
-                    String jeffImgTag = (i == 2026) ? "1776-2026" : "Modern Jefferson";
-                    String jeffProofImgTag = (i == 2026) ? "1776-2026" : "Modern Jefferson Proof";
-                    if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId(jeffImgTag)));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId(jeffImgTag)));}
-                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId(jeffImgTag)));}
-                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId(jeffImgTag)));}
-                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId(jeffProofImgTag)));}
-                    if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
-                    if (showW && i == 2020) {
-                        coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
-                        coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));
+                    if (i == 2026) {
+                        if (showSemiq) {
+                            int semiqImg = getImgId("1776-2026");
+                            if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, semiqImg));}
+                            if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
+                            if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
+                        }
+                    } else {
+                        if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
+                        if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Modern Jefferson")));}
+                        if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
+                        if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Modern Jefferson")));}
+                        if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
+                        if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
+                        if (showW && i == 2020) {
+                            coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
+                            coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));
+                        }
                     }
                 }
             }

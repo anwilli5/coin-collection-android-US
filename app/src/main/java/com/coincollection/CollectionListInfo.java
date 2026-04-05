@@ -109,7 +109,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_FRANKLIN_PROOF = (1L << 12);
 
     // Flags for show checkboxes options
-    public final static long ALL_CHECKBOXES_MASK = 0x7FFFFFFFFFFFFFL;
+    public final static long ALL_CHECKBOXES_MASK = 0xFFFFFFFFFFFFFFL;
     public final static long CUSTOM_DATES = 1L;
     public final static long BURNISHED = (1L << 1);
     public final static long TERRITORIES = (1L << 2);
@@ -165,6 +165,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long SEMIQ_QUARTERS_PROOF = (1L << 52);
     public final static long SEMIQ_QUARTERS = (1L << 53);
     public final static long SEMIQ_DOLLARS = (1L << 54);
+    public final static long SEMIQ_NICKELS = (1L << 55);
 
     public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -617,6 +618,10 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasSemiqDollars() {
         return (getCheckboxFlagsAsLong() & SEMIQ_DOLLARS) != 0;
+    }
+
+    public boolean hasSemiqNickels() {
+        return (getCheckboxFlagsAsLong() & SEMIQ_NICKELS) != 0;
     }
 
     public void setEndYear(int endYear) {

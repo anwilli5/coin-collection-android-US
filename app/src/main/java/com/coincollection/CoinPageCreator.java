@@ -1200,6 +1200,8 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.SEMIQ_QUARTERS;
                 } else if (optionStrId.equals(R.string.include_semiq_dollars)) {
                     checkboxFlags |= CollectionListInfo.SEMIQ_DOLLARS;
+                } else if (optionStrId.equals(R.string.include_semiq_nickels)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_NICKELS;
                 }
             }
         }
@@ -1416,6 +1418,8 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasSemiqQuarters());
             } else if (optionStrId.equals(R.string.include_semiq_dollars)) {
                 parameters.put(optName, existingCollection.hasSemiqDollars());
+            } else if (optionStrId.equals(R.string.include_semiq_nickels)) {
+                parameters.put(optName, existingCollection.hasSemiqNickels());
             }
         }
         return parameters;

@@ -40,6 +40,15 @@ import android.util.Log;
 
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
+import com.spencerpages.collections.AllNickels;
+import com.spencerpages.collections.Cartwheels;
+import com.spencerpages.collections.CladQuarters;
+import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.SilverDimes;
+import com.spencerpages.collections.SilverHalfDollars;
+import com.spencerpages.collections.SilverQuarters;
+import com.spencerpages.collections.SmallCents;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -290,14 +299,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // but carry old checkbox flag values that also need the SEMIQ bits set.
         if (oldVersion <= 23) {
             java.util.HashMap<String, Long> semiqFlags = new java.util.HashMap<>();
-            semiqFlags.put("Small Cents", CollectionListInfo.SEMIQ_CENTS);
-            semiqFlags.put("Silver Dimes", CollectionListInfo.SEMIQ_DIMES);
-            semiqFlags.put("Silver Half Dollars", CollectionListInfo.SEMIQ_HALF);
-            semiqFlags.put("Silver Quarters", CollectionListInfo.SEMIQ_QUARTERS_PROOF);
-            semiqFlags.put("Clad Quarters", CollectionListInfo.SEMIQ_QUARTERS);
-            semiqFlags.put("Cartwheels", CollectionListInfo.SEMIQ_DOLLARS);
-            semiqFlags.put("Roosevelt Dimes", CollectionListInfo.SEMIQ_DIMES);
-            semiqFlags.put("Kennedy Half Dollars", CollectionListInfo.SEMIQ_HALF);
+            semiqFlags.put(SmallCents.COLLECTION_TYPE, CollectionListInfo.SEMIQ_CENTS);
+            semiqFlags.put(SilverDimes.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DIMES);
+            semiqFlags.put(SilverHalfDollars.COLLECTION_TYPE, CollectionListInfo.SEMIQ_HALF);
+            semiqFlags.put(SilverQuarters.COLLECTION_TYPE, CollectionListInfo.SEMIQ_QUARTERS_PROOF);
+            semiqFlags.put(CladQuarters.COLLECTION_TYPE, CollectionListInfo.SEMIQ_QUARTERS);
+            semiqFlags.put(Cartwheels.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DOLLARS);
+            semiqFlags.put(RooseveltDimes.COLLECTION_TYPE, CollectionListInfo.SEMIQ_DIMES);
+            semiqFlags.put(KennedyHalfDollars.COLLECTION_TYPE, CollectionListInfo.SEMIQ_HALF);
+            semiqFlags.put(AllNickels.COLLECTION_TYPE, CollectionListInfo.SEMIQ_NICKELS);
 
             Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
                     new String[]{COL_NAME, COL_COIN_TYPE, COL_SHOW_CHECKBOXES},

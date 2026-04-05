@@ -120,7 +120,7 @@ public class SharedTest {
                     new CollectionListInfo("American_Women", 60, 0, getIndexFromCollectionClass(AmericanWomenQuarters.class), 0, 0, 0, "15", "0"),
                     new CollectionListInfo("Small Cents", 442, 0, getIndexFromCollectionClass(SmallCents.class), 0, 1856, 2023, "3151", "562949957484577"),
                     new CollectionListInfo("Large Cents", 68, 0, getIndexFromCollectionClass(LargeCents.class), 0, 1793, 1857, "0", "1089"),
-                    new CollectionListInfo("All Nickels", 380, 0, getIndexFromCollectionClass(AllNickels.class), 0, 1866, 2022, "2255", "1006632993"),
+                    new CollectionListInfo("All Nickels", 380, 0, getIndexFromCollectionClass(AllNickels.class), 0, 1866, 2022, "2255", "36028798025596961"),
                     new CollectionListInfo("Half Dimes", 96, 0, getIndexFromCollectionClass(HalfDimes.class), 0, 1794, 1873, "27", "577"),
                     new CollectionListInfo("Silver Dimes", 249, 0, getIndexFromCollectionClass(SilverDimes.class), 0, 1793, 2023, "287", "1125907423035425"),
                     new CollectionListInfo("Early Dimes", 144, 0, getIndexFromCollectionClass(EarlyDimes.class), 0, 1796, 1891, "59", "929"),

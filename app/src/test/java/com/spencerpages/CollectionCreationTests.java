@@ -98,18 +98,20 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Satin, S Proof, W, Expected Result
         Object[][] tests = {
-                {true, true, false, false, false, false, false, true, true, true, true, true, 163},
-                {true, false, true, false, false, false, false, true, true, true, true, true, 127},
-                {true, false, false, true, false, false, false, true, true, true, true, true, 60},
-                {true, false, false, false, true, false, false, true, true, true, true, true, 80},
-                {true, false, false, false, false, true, false, true, true, true, true, true, 32},
-                {true, false, false, false, false, false, true, true, true, true, true, true, 20},
-                {true, true, true, true, true, true, true, true, false, false, false, false, 3},
-                {true, true, true, true, true, true, true, false, true, false, false, false, 18},
-                {true, true, true, true, true, true, true, false, false, true, false, false, 33},
-                {true, true, true, true, true, true, true, false, false, false, true, false, 64},
-                {true, true, true, true, true, true, true, false, false, false, false, true, 277},
-                {true, true, true, true, true, true, true, true, true, true, true, true, 392},
+                {true, true, false, false, false, false, false, true, true, true, true, true, true, 163},
+                {true, false, true, false, false, false, false, true, true, true, true, true, true, 127},
+                {true, false, false, true, false, false, false, true, true, true, true, true, true, 60},
+                {true, false, false, false, true, false, false, true, true, true, true, true, true, 80},
+                {true, false, false, false, false, true, false, true, true, true, true, true, true, 32},
+                {true, false, false, false, false, false, true, true, true, true, true, true, true, 20},
+                {true, true, true, true, true, true, true, true, false, false, false, false, true, 3},
+                {true, true, true, true, true, true, true, false, true, false, false, false, true, 18},
+                {true, true, true, true, true, true, true, false, false, true, false, false, true, 33},
+                {true, true, true, true, true, true, true, false, false, false, true, false, true, 64},
+                {true, true, true, true, true, true, true, false, false, false, false, true, true, 277},
+                {true, true, true, true, true, true, true, true, true, true, true, true, true, 392},
+                {true, true, true, true, true, true, true, true, true, true, true, true, false, 389},
+                {true, true, true, true, true, true, true, false, false, false, false, true, false, 274},
         };
 
         for (Object[] test : tests) {
@@ -125,10 +127,11 @@ public class CollectionCreationTests extends BaseTestCase {
             parameters.put(CoinPageCreator.OPT_CHECKBOX_3, test[9]);
             parameters.put(CoinPageCreator.OPT_CHECKBOX_4, test[10]);
             parameters.put(CoinPageCreator.OPT_CHECKBOX_5, test[11]);
+            parameters.put(CoinPageCreator.OPT_CHECKBOX_6, test[12]);
 
             ArrayList<CoinSlot> coinList = new ArrayList<>();
             coinClass.populateCollectionLists(parameters, coinList);
-            assertEquals(test[12], coinList.size());
+            assertEquals(test[13], coinList.size());
         }
     }
 
