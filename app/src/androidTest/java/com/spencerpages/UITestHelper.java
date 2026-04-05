@@ -259,11 +259,28 @@ public class UITestHelper {
     }
 
     /**
+     * Get the expected default coin count for a collection type.
+     * Computes the count by generating default parameters and populating the coin list,
+     * so the result always matches what the app produces for a newly created collection.
+     *
+     * @param typeIndex Index into MainApplication.COLLECTION_TYPES
+     * @return The number of coins in a default collection of this type
+     */
+    public static int getExpectedCoinCount(int typeIndex) {
+        CollectionInfo collectionInfo = MainApplication.COLLECTION_TYPES[typeIndex];
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collectionInfo.getCreationParameters(parameters);
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        collectionInfo.populateCollectionLists(parameters, coinList);
+        return coinList.size();
+    }
+
+    /**
      * Create a Lincoln Cents collection with SIMPLE_DISPLAY.
      *
      * @param name         Collection name
      * @param displayOrder Display order
-     * @return Number of coins created (should be 121)
+     * @return Number of coins created
      */
     public static int createLincolnCentsCollection(String name, int displayOrder) {
         // LincolnCents is at index 0 in MainApplication.COLLECTION_TYPES
