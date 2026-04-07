@@ -30,6 +30,8 @@ When editing files in `com.spencerpages.collections`, follow these rules:
 - Use `DatabaseHelper.addFromArrayList()` for named-identifier coins
 - Use `DatabaseHelper.addFromYear()` for year-based coins
 - Both helpers respect the user's existing mint mark configuration
+- **Use `Xxx.COLLECTION_TYPE` qualified references** for collection type names in migration code (e.g., `LincolnCents.COLLECTION_TYPE` not `"Pennies"`). If a `COLLECTION_TYPE` value is later renamed via a separate migration, every old migration block that used the constant must be updated to use the old literal string value instead — only the new migration performing the rename should reference the constant.
+- **More generally, if the value of any static import or constant used in an upgrade block changes, old blocks referencing it will silently pick up the new value and break.** This applies to `COLLECTION_TYPE` constants, column name constants (`COL_*`), table name constants (`TBL_*`), display constants, flag constants, and any other symbol whose literal value is meaningful to migration SQL or logic. If a constant's value must change, update every old migration block that used it to use the old literal value instead of the constant.
 - **When `populateCollectionLists()` uses `getImgId()` to set `imageId` on `CoinSlot` objects, the corresponding `onCollectionDatabaseUpgrade()` must also pass the same `imageId`** — use `addFromYear(db, info, year, getImgId("tag"))` or `addFromArrayList(db, info, identifiers, imageIds)`. Failing to do so causes upgraded collections to show fallback images instead of the correct designs.
 
 ## Mint mark options

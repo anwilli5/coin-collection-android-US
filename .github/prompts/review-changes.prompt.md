@@ -22,6 +22,20 @@ For each version-gated block in `DatabaseHelper.upgradeDbStructure()`:
   databases have the latest schema but carry old data values from the export
   that also need updating
 - All blocks use `oldVersion <= N` (incremental), never `oldVersion == N`
+- **Use `Xxx.COLLECTION_TYPE` qualified references** for collection type
+  names in migration blocks (e.g., `LincolnCents.COLLECTION_TYPE` not
+  `"Pennies"`). If a `COLLECTION_TYPE` value was renamed in this diff,
+  verify that every old migration block that used `Xxx.COLLECTION_TYPE` has
+  been updated to use the old literal string value instead of the constant —
+  only the new migration performing the rename should reference the constant.
+- **Verify that no old migration block references a constant whose value
+  changed in this diff.** `COLLECTION_TYPE` constants, column name constants
+  (`COL_*`), table name constants (`TBL_*`), display constants (e.g.,
+  `SIMPLE_DISPLAY`), flag constants — any symbol whose literal value is
+  meaningful to migration SQL or logic. If a constant's value was modified,
+  every old migration block that used it must be updated to use the old
+  literal value instead of the constant, or it will silently pick up the new
+  value and break.
 
 ## 2. Collection upgrade completeness
 

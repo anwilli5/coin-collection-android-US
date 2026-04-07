@@ -191,6 +191,16 @@ public class AmericanEagleSilverDollars extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("2021");
+            dupIdentifiers.add("2022");
+            dupIdentifiers.add("2023");
+            dupIdentifiers.add("2024");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
+        if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
         }

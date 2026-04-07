@@ -164,6 +164,13 @@ if (oldVersion <= PREVIOUS_VERSION) {
 - Add new identifiers to `COIN_IDENTIFIERS[]` (or update year ranges) in
   the same collection class so newly created collections also include them.
 - Add corresponding drawable resources if the new coins have unique images.
+- **If the value of any static import or constant used in an upgrade block
+  changes in a later version, old blocks referencing it will silently pick
+  up the new value and break.** This applies to `COLLECTION_TYPE` constants,
+  column names, table names, display constants, flag constants, and any
+  other symbol whose literal value is meaningful to migration SQL or logic.
+  If a constant's value must change, update every old migration block that
+  used it to use the old literal value instead of the constant.
 
 ### 3b. Schema changes (if needed)
 
@@ -187,6 +194,20 @@ if (oldVersion <= PREVIOUS_VERSION && !fromImport) {
   export that also need updating. Use just `if (oldVersion <= N)`.
 - Use incremental version checks (`oldVersion <= N`).
 - Never drop existing columns or tables — SQLite has limited ALTER support.
+- **Use `Xxx.COLLECTION_TYPE` qualified references** for collection type
+  names in migration blocks (e.g., `LincolnCents.COLLECTION_TYPE` not
+  `"Pennies"`). If a `COLLECTION_TYPE` value is later renamed via a
+  separate migration, every old migration block that used the constant must
+  be updated to use the old literal string value instead — only the new
+  migration performing the rename should reference the constant.
+- **More generally, if the value of any static import or constant used in a
+  migration block changes, old migrations that reference it will silently
+  pick up the new value and break.** This applies to `COLLECTION_TYPE`
+  constants, column name constants (`COL_*`), table name constants
+  (`TBL_*`), display constants, flag constants, and any other symbol whose
+  literal value is meaningful to migration SQL or logic. If a constant's
+  value must change, update every old migration block that used it to
+  reference the old literal value instead of the constant.
 
 ### 4. Update populateCollectionLists (if applicable)
 
@@ -420,4 +441,7 @@ produce the same result.
 - [ ] `CollectionUpgradeTests` verified (usually auto-passes)
 - [ ] `./gradlew assembleDebug` succeeds
 - [ ] `./gradlew testAndroidDebugUnitTest` passes
+- [ ] Migration blocks use `Xxx.COLLECTION_TYPE` qualified references for collection type names (not raw string literals)
+- [ ] If a `COLLECTION_TYPE` value was renamed, old migration blocks that used the constant are updated to use the old literal string value
+- [ ] No migration block depends on a constant whose value changed — if a constant's value was modified, old migration blocks that used it must be updated to use the old literal value
 - [ ] `./gradlew lintAndroidDebug` passes

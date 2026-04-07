@@ -234,6 +234,32 @@ public class BasicInnovationDollars extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("Connecticut");
+            dupIdentifiers.add("Massachusetts");
+            dupIdentifiers.add("Maryland");
+            dupIdentifiers.add("South Carolina");
+            dupIdentifiers.add("New Hampshire");
+            dupIdentifiers.add("Virginia");
+            dupIdentifiers.add("New York");
+            dupIdentifiers.add("North Carolina");
+            dupIdentifiers.add("Rhode Island");
+            dupIdentifiers.add("Vermont");
+            dupIdentifiers.add("Kentucky");
+            dupIdentifiers.add("Tennessee");
+            dupIdentifiers.add("Ohio");
+            dupIdentifiers.add("Louisiana");
+            dupIdentifiers.add("Indiana");
+            dupIdentifiers.add("Mississippi");
+            dupIdentifiers.add("Illinois");
+            dupIdentifiers.add("Alabama");
+            dupIdentifiers.add("Maine");
+            dupIdentifiers.add("Missouri");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
+        if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             newCoinIdentifiers.add("Iowa");

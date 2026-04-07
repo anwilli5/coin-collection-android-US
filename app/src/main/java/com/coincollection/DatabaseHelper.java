@@ -44,6 +44,7 @@ import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.KennedyHalfDollars;
+import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
@@ -888,5 +889,80 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public static int runSqlDelete(SQLiteDatabase db, String tableName, String whereClause, String[] whereArgs) {
         return db.delete("[" + tableName + "]", whereClause, whereArgs);
+    }
+
+    /**
+     * Remove duplicate coins from a collection table for specific identifiers. For each
+     * (coinIdentifier, coinMint) group of non-custom coins whose identifier is in the
+     * provided list and that has more than one row, keeps the row with the lowest _id
+     * (the original) and deletes the rest. If any duplicate was marked as collected, the
+     * kept row is updated to preserve that status. Rows with customCoin=1 (user-inserted
+     * coins) are excluded — users may intentionally have duplicate identifiers.
+     *
+     * @param db                 the database
+     * @param collectionListInfo the collection metadata
+     * @param identifiers        the coin identifiers to check for duplicates
+     * @return the number of duplicate rows removed
+     */
+    public static int removeDuplicateCoinsByIdentifier(SQLiteDatabase db,
+                                                       CollectionListInfo collectionListInfo,
+                                                       ArrayList<String> identifiers) {
+        String safeTable = DatabaseAdapter.removeBrackets(collectionListInfo.getName());
+        int totalRemoved = 0;
+
+        for (String identifier : identifiers) {
+            // Find all mint variants with duplicates for this identifier among non-custom coins
+            Cursor dupCursor = db.rawQuery(
+                    "SELECT " + COL_COIN_MINT
+                            + " FROM [" + safeTable + "]"
+                            + " WHERE " + COL_COIN_IDENTIFIER + "=?"
+                            + " AND " + COL_CUSTOM_COIN + " = 0"
+                            + " GROUP BY " + COL_COIN_MINT
+                            + " HAVING COUNT(*) > 1",
+                    new String[]{identifier});
+
+            if (dupCursor.moveToFirst()) {
+                do {
+                    String mint = dupCursor.getString(0);
+
+                    // Get non-custom rows for this group, ordered by _id so the original is first
+                    Cursor rowCursor = db.rawQuery(
+                            "SELECT " + COL_COIN_ID + ", " + COL_IN_COLLECTION
+                                    + " FROM [" + safeTable + "]"
+                                    + " WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?"
+                                    + " AND " + COL_CUSTOM_COIN + " = 0"
+                                    + " ORDER BY " + COL_COIN_ID + " ASC",
+                            new String[]{identifier, mint != null ? mint : ""});
+
+                    if (rowCursor.moveToFirst()) {
+                        int keepId = rowCursor.getInt(0);
+                        boolean anyCollected = rowCursor.getInt(1) == 1;
+
+                        // Check remaining rows for collected status and delete them
+                        while (rowCursor.moveToNext()) {
+                            if (rowCursor.getInt(1) == 1) {
+                                anyCollected = true;
+                            }
+                            int idToDelete = rowCursor.getInt(0);
+                            db.delete("[" + safeTable + "]", COL_COIN_ID + "=?",
+                                    new String[]{String.valueOf(idToDelete)});
+                            totalRemoved++;
+                        }
+
+                        // If any duplicate was collected, mark the kept row as collected
+                        if (anyCollected) {
+                            ContentValues values = new ContentValues();
+                            values.put(COL_IN_COLLECTION, 1);
+                            db.update("[" + safeTable + "]", values, COL_COIN_ID + "=?",
+                                    new String[]{String.valueOf(keepId)});
+                        }
+                    }
+                    rowCursor.close();
+                } while (dupCursor.moveToNext());
+            }
+            dupCursor.close();
+        }
+
+        return totalRemoved;
     }
 }

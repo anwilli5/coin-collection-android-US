@@ -208,6 +208,13 @@ public class BasicQuarters extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("Crossing the Delaware");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
+        if (oldVersion <= 23) {
             // Add in new 2026 1776-2026 coins if applicable
             ArrayList<String> newCoinIdentifiers = new ArrayList<>();
             for (String coinName : SEMIQ_COIN_NAMES) {
