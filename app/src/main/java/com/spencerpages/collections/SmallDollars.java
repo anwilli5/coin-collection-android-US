@@ -358,9 +358,22 @@ public class SmallDollars extends CollectionInfo {
 
         if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
-            newCoinIdentifiers.add("2026");
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+            // SmallDollars uses "S Proof" which isn't in MINT_STRING_TO_FLAGS,
+            // so we need custom logic instead of addFromArrayList.
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            if (collectionListInfo.hasPMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "P", -1, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasDMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", -1, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasSProofMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", -1, newSortOrder);
+                total++;
+            }
         }
 
         return total;
