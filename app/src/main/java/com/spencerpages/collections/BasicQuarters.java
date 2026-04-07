@@ -215,12 +215,25 @@ public class BasicQuarters extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
-            // Add in new 2026 1776-2026 coins if applicable
-            ArrayList<String> newCoinIdentifiers = new ArrayList<>();
+            // Custom logic: SemiQ quarters only have P and D mint marks
+            // (no S), so addFromArrayList would incorrectly add S entries.
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
             for (String coinName : SEMIQ_COIN_NAMES) {
-                newCoinIdentifiers.add(coinName);
+                if (collectionListInfo.hasMintMarks()) {
+                    if (collectionListInfo.hasPMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "P", -1, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasDMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "D", -1, newSortOrder);
+                        total++;
+                    }
+                } else {
+                    newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "", -1, newSortOrder);
+                    total++;
+                }
             }
-            total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
+            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
 
         return total;

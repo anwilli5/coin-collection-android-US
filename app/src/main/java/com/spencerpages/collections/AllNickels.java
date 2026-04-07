@@ -300,8 +300,24 @@ public class AllNickels extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026, getImgId("1776-2026"));
+            // Custom logic: SemiQ nickels need specific mint mark variants
+            // that addFromYear doesn't support (S Proof)
+            int imageId = getImgId("1776-2026");
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            if (collectionListInfo.hasPMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "P", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasDMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", imageId, newSortOrder);
+                total++;
+            }
+            if (collectionListInfo.hasSProofMintMarks()) {
+                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
+                total++;
+            }
+            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

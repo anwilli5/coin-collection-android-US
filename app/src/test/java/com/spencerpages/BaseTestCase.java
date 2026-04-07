@@ -455,6 +455,56 @@ public class BaseTestCase {
     }
 
     /**
+     * Validate updated database using pre-filled parameters. Unlike validateUpdatedDb, this
+     * method does NOT call getCreationParameters — it uses the provided parameters as-is.
+     * This allows testing upgrade correctness for non-default configurations (e.g., with
+     * S Proof enabled) where the default parameters would mask the bug.
+     *
+     * @param collectionInfo collection info
+     * @param collectionName collection name
+     * @param parameters     pre-filled parameters (will not be overwritten)
+     */
+    public void validateUpdatedDbWithParams(final CollectionInfo collectionInfo,
+                                            final String collectionName,
+                                            final ParcelableHashMap parameters) {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+
+                // Create a new database from scratch using the provided parameters
+                ArrayList<CoinSlot> newCoinList = new ArrayList<>();
+                collectionInfo.populateCollectionLists(parameters, newCoinList);
+
+                // Get coins from the updated database
+                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoinList);
+
+                // Make sure coin lists match
+                assertEquals(newCoinList.size(), dbCoinList.size());
+                for (int i = 0; i < newCoinList.size(); i++) {
+                    assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
+                    assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
+                    assertEquals(newCoinList.get(i).getImageId(), dbCoinList.get(i).getImageId());
+                }
+
+                // Make sure total matches
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                assertNotNull(collectionListEntries);
+                boolean foundTable = false;
+                for (CollectionListInfo collectionListInfo : collectionListEntries) {
+                    if (collectionName.equals(collectionListInfo.getName())) {
+                        foundTable = true;
+                        assertEquals(newCoinList.size(), collectionListInfo.getMax());
+                        break;
+                    }
+                }
+                assertTrue(foundTable);
+            });
+        }
+    }
+
+    /**
      * Checks that the collection can be recreated based solely on the coin data
      *
      * @param coinList  coin list to analyze
