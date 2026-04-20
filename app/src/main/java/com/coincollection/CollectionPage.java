@@ -43,6 +43,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -301,6 +302,24 @@ public class CollectionPage extends BaseActivity {
 
         // Setup filter status indicator
         setupFilterStatusIndicator();
+
+        // Setup Search functionality
+        SearchView searchView = findViewById(R.id.search_view);
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    mCoinSlotAdapter.setSearchQuery(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    mCoinSlotAdapter.setSearchQuery(newText);
+                    return true;
+                }
+            });
+        }
 
         // Scroll to the last position viewed (if saved)
         scrollToIndex(mViewIndex, mViewPosition, false);

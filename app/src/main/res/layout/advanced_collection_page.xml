@@ -5,6 +5,15 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
+    <SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:iconifiedByDefault="false"
+        android:layout_marginBottom="8dp"
+        android:queryBackground="@android:color/transparent"
+        android:queryHint="Search coins..." />
+
     <TextView
         android:id="@+id/filter_status_indicator"
         android:layout_width="fill_parent"
