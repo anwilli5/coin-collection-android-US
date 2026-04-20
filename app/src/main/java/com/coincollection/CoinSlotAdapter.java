@@ -66,6 +66,7 @@ class CoinSlotAdapter extends BaseAdapter {
     private final ArrayList<CoinSlot> mFilteredCoinList;
     
     private int mCurrentFilter = CollectionPage.FILTER_SHOW_ALL;
+    private String mSearchQuery = "";
 
     private OnItemSelectedListener mGradeOnItemSelectedListener = null;
     private ArrayAdapter<CharSequence> mGradeArrayAdapter;
@@ -449,29 +450,47 @@ class CoinSlotAdapter extends BaseAdapter {
     }
 
     /**
-     * Apply the current filter to update the filtered coin list
+     * Set the current search query and apply it to the coin list
+     * @param query The search query to apply
+     */
+    public void setSearchQuery(String query) {
+        mSearchQuery = query.toLowerCase();
+        applyFilter();
+    }
+
+    /**
+     * Apply the current filter and search query to update the filtered coin list
      */
     private void applyFilter() {
         mFilteredCoinList.clear();
-        
-        switch (mCurrentFilter) {
-            case CollectionPage.FILTER_SHOW_ALL:
-                mFilteredCoinList.addAll(mOriginalCoinList);
-                break;
-            case CollectionPage.FILTER_SHOW_COLLECTED:
-                for (CoinSlot coin : mOriginalCoinList) {
+
+        for (CoinSlot coin : mOriginalCoinList) {
+            // Check filter
+            boolean matchesFilter = false;
+            switch (mCurrentFilter) {
+                case CollectionPage.FILTER_SHOW_ALL:
+                    matchesFilter = true;
+                    break;
+                case CollectionPage.FILTER_SHOW_COLLECTED:
                     if (coin.isInCollection()) {
-                        mFilteredCoinList.add(coin);
+                        matchesFilter = true;
                     }
-                }
-                break;
-            case CollectionPage.FILTER_SHOW_MISSING:
-                for (CoinSlot coin : mOriginalCoinList) {
+                    break;
+                case CollectionPage.FILTER_SHOW_MISSING:
                     if (!coin.isInCollection()) {
-                        mFilteredCoinList.add(coin);
+                        matchesFilter = true;
                     }
+                    break;
+            }
+
+            if (matchesFilter) {
+                // Check search query
+                if (mSearchQuery.isEmpty() ||
+                    coin.getIdentifier().toLowerCase().contains(mSearchQuery) ||
+                    (coin.getMint() != null && coin.getMint().toLowerCase().contains(mSearchQuery))) {
+                    mFilteredCoinList.add(coin);
                 }
-                break;
+            }
         }
         
         notifyDataSetChanged();
