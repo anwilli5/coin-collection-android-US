@@ -32,6 +32,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SmallCents extends CollectionInfo {
 
@@ -315,25 +316,16 @@ public class SmallCents extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            // SmallCents uses custom logic because pennies use "" for Philadelphia
-            // (not "P"), which addFromYear doesn't support.
-            int imageId = getImgId("1776-2026");
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            if (collectionListInfo.hasPMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                    mintVariants.put(CollectionListInfo.MINT_MEM_PROOF, "S Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("1776-2026"));
             }
-            if (collectionListInfo.hasDMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", imageId, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasMemProofMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
-                total++;
-            }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

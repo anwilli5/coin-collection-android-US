@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class RooseveltDimes extends CollectionInfo {
 
@@ -219,28 +220,17 @@ public class RooseveltDimes extends CollectionInfo {
         int total = 0;
 
         if (oldVersion <= 23) {
-            // Custom logic: SEMIQ coins need specific mint mark variants
-            // that addFromYear doesn't support (S Proof, S Silver Proof)
-            int imageId = getImgId("Emerging Liberty");
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            if (collectionListInfo.hasPMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "P", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                    mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF, "S Silver Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("Emerging Liberty"));
             }
-            if (collectionListInfo.hasDMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", imageId, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSProofMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSilverProofMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Silver Proof", imageId, newSortOrder);
-                total++;
-            }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
 
         return total;

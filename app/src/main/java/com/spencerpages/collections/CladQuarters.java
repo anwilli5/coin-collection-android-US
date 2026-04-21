@@ -707,29 +707,31 @@ public class CladQuarters extends CollectionInfo {
             // Add in new 2026 1776-2026 coins
             // CladQuarters uses year as identifier and embeds coin name in mint mark,
             // so we need custom logic instead of addFromArrayList.
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            for (String identifier : TWENTYSIX) {
-                int imageId = getImgId(identifier);
-                if (collectionListInfo.hasPMintMarks()) {
-                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                            String.format("P%n%s", identifier), imageId, newSortOrder);
-                    total++;
-                }
-                if (collectionListInfo.hasDMintMarks()) {
-                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                            String.format("D%n%s", identifier), imageId, newSortOrder);
-                    total++;
-                }
-                if (collectionListInfo.hasSMintMarks()) {
-                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                            String.format("S%n%s", identifier), imageId, newSortOrder);
-                    total++;
-                }
-                if (collectionListInfo.hasSProofMintMarks()) {
-                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                            String.format("S Proof%n%s", identifier), imageId, newSortOrder);
-                    total++;
+            if (collectionListInfo.hasSemiqCoins()) {
+                String tableName = collectionListInfo.getName();
+                int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+                for (String identifier : TWENTYSIX) {
+                    int imageId = getImgId(identifier);
+                    if (collectionListInfo.hasPMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("P%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasDMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("D%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasSMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("S%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasSProofMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("S Proof%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
                 }
             }
         }

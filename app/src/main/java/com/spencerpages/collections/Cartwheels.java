@@ -32,6 +32,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Cartwheels extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Cartwheels";
@@ -298,26 +299,16 @@ public class Cartwheels extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            // Cartwheels uses custom logic because Eagle dollars have complex
-            // conditional variants (plain, W, S Proof, W Proof) that addFromYear
-            // doesn't support.
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            int imageId = getImgId("1776-2026 Eagle");
-            if (collectionListInfo.hasPMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "");
+                    mintVariants.put(CollectionListInfo.MINT_W, "W");
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF | CollectionListInfo.MINT_W, "W Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("1776-2026 Eagle"));
             }
-            if (collectionListInfo.hasWMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "W", imageId, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSilverProofMintMarks() && collectionListInfo.hasWMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "W Proof", imageId, newSortOrder);
-                total++;
-            }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

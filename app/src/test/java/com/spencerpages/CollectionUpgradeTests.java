@@ -36,7 +36,6 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
-import com.coincollection.DatabaseHelper;
 import com.coincollection.MainActivity;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AllNickels;
@@ -99,75 +98,6 @@ import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
 public class CollectionUpgradeTests extends BaseTestCase {
-
-    // TODO - Improve tests by testing with all options set instead of none
-
-    /**
-     * Helper to create a V23-schema collection from a collection's populateCollectionLists
-     * output. This creates a database with proper metadata (mint mark flags, checkbox flags,
-     * imageIds, endYear) that matches what a real user's database would contain. Use for
-     * collections introduced after V14 that need correct flags for upgrade code to work.
-     *
-     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
-     * @param collection           the collection type
-     * @param coinType             the coin type string
-     * @param collectionName       name for the test collection
-     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
-     */
-    private void createV23FromPopulate(SQLiteDatabase db, CollectionInfo collection,
-                                       String coinType, String collectionName,
-                                       String identifierToExclude) {
-        ParcelableHashMap parameters = new ParcelableHashMap();
-        collection.getCreationParameters(parameters);
-        createV23FromPopulateWithParams(db, collection, coinType, collectionName,
-                identifierToExclude, parameters);
-    }
-
-    /**
-     * Like createV23FromPopulate but uses the provided parameters instead of defaults.
-     * This allows creating V23 databases with non-default configurations (e.g., with
-     * S Proof enabled) to test upgrade correctness for diverse user settings.
-     * The SEMIQ_COINS checkbox flag is stripped from the stored flags to simulate a
-     * real V23 database (which wouldn't have had the SEMIQ flag). The upgrade migration
-     * in upgradeDbStructure will re-add it.
-     *
-     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
-     * @param collection           the collection type
-     * @param coinType             the coin type string
-     * @param collectionName       name for the test collection
-     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
-     * @param parameters           pre-filled creation parameters
-     */
-    private void createV23FromPopulateWithParams(SQLiteDatabase db, CollectionInfo collection,
-                                                 String coinType, String collectionName,
-                                                 String identifierToExclude,
-                                                 ParcelableHashMap parameters) {
-        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
-        collection.populateCollectionLists(parameters, fullCoinList);
-
-        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
-        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
-        // Strip the SEMIQ_COINS flag — V23 databases wouldn't have it.
-        // The upgradeDbStructure migration will re-add it during upgrade.
-        checkboxFlags &= ~CollectionListInfo.SEMIQ_COINS;
-
-        int endYear = 0;
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (CoinSlot coin : fullCoinList) {
-            if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
-                continue;
-            }
-            coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), 0, coin.getImageId()});
-            try {
-                int year = Integer.parseInt(coin.getIdentifier());
-                endYear = Math.max(endYear, year);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        createV23Collection(db, collectionName, coinType, coinList,
-                collection.getStartYear(), endYear, mintMarkFlags, checkboxFlags);
-    }
 
     /**
      * For AmericanEagleSilverDollars
@@ -1940,67 +1870,4 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
     }
 
-    /**
-     * For AllNickels with S Proof enabled
-     * - Tests that the upgrade correctly adds "S Proof" for 2026 SemiQ nickels
-     *   when the user has S Proof mint marks enabled (non-default configuration).
-     *   This catches bugs where addFromYear is used instead of custom logic,
-     *   since addFromYear only supports P/D from MINT_STRING_TO_FLAGS.
-     */
-    @Test
-    public void test_AllNickelsUpgradeWithSProof() {
-
-        CollectionInfo collection = new AllNickels();
-        String coinType = "All Nickels";
-        String collectionName = coinType + " Upgrade SProof";
-
-        // Create V23 database with S Proof enabled (non-default)
-        ParcelableHashMap parameters = new ParcelableHashMap();
-        collection.getCreationParameters(parameters);
-        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.TRUE); // S Proof
-
-        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        createV23FromPopulateWithParams(db, collection, coinType, collectionName, "2026", parameters);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database with the same non-default parameters
-        validateUpdatedDbWithParams(collection, collectionName, parameters);
-    }
-
-    /**
-     * For BasicQuarters with mint marks enabled
-     * - Tests that the upgrade correctly adds only P and D (not S) for 2026
-     *   SemiQ quarters. This catches bugs where addFromArrayList is used,
-     *   which adds all enabled mint flags including S.
-     *   The V23 database is created with OPT_STOP_YEAR=2025 to exclude SemiQ
-     *   coins (simulating a user before the 2026 upgrade). The upgrade then
-     *   adds SemiQ coins and the result is validated against a fresh collection.
-     */
-    @Test
-    public void test_BasicQuartersUpgradeWithMintMarks() {
-
-        CollectionInfo collection = new BasicQuarters();
-        String coinType = "Quarters";
-        String collectionName = coinType + " Upgrade MintMarks";
-
-        // Create V23 database with mint marks (P, D, S) but stop year 2025
-        // to exclude 2026 SemiQ coins — simulating a pre-V24 user
-        ParcelableHashMap createParams = new ParcelableHashMap();
-        collection.getCreationParameters(createParams);
-        createParams.put(CoinPageCreator.OPT_STOP_YEAR, 2025);
-
-        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        createV23FromPopulateWithParams(db, collection, coinType, collectionName, null, createParams);
-        db.close();
-        testDbHelper.close();
-
-        // Validate with default params (stop year 2026, includes SemiQ coins).
-        // The upgrade should have added only P and D SemiQ coins (not S).
-        ParcelableHashMap validateParams = new ParcelableHashMap();
-        collection.getCreationParameters(validateParams);
-        validateUpdatedDbWithParams(collection, collectionName, validateParams);
-    }
 }

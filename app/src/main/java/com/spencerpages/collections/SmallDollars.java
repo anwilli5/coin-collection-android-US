@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SmallDollars extends CollectionInfo {
 
@@ -357,22 +358,16 @@ public class SmallDollars extends CollectionInfo {
         int total = 0;
 
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            // SmallDollars uses "S Proof" which isn't in MINT_STRING_TO_FLAGS,
-            // so we need custom logic instead of addFromArrayList.
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            if (collectionListInfo.hasPMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "P", -1, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasDMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", -1, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSProofMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", -1, newSortOrder);
-                total++;
+            // Add in new 2026 Sacagawea/Native American dollars, gated on that checkbox.
+            if (collectionListInfo.hasSACDollars()) {
+                ArrayList<String> identifiers = new ArrayList<>();
+                identifiers.add("2026");
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                mintVariants.put(CollectionListInfo.MINT_P, "P");
+                mintVariants.put(CollectionListInfo.MINT_D, "D");
+                mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                total += DatabaseHelper.addFromArrayList(db, collectionListInfo,
+                        identifiers, null, mintVariants);
             }
         }
 

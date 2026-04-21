@@ -33,7 +33,9 @@ import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class BasicQuarters extends CollectionInfo {
 
@@ -215,25 +217,18 @@ public class BasicQuarters extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
-            // Custom logic: SemiQ quarters only have P and D mint marks
-            // (no S), so addFromArrayList would incorrectly add S entries.
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            for (String coinName : SEMIQ_COIN_NAMES) {
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
                 if (collectionListInfo.hasMintMarks()) {
-                    if (collectionListInfo.hasPMintMarks()) {
-                        newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "P", -1, newSortOrder);
-                        total++;
-                    }
-                    if (collectionListInfo.hasDMintMarks()) {
-                        newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "D", -1, newSortOrder);
-                        total++;
-                    }
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
                 } else {
-                    newSortOrder = DatabaseHelper.addCoin(db, tableName, coinName, "", -1, newSortOrder);
-                    total++;
+                    mintVariants.put(0L, "");
                 }
+                total += DatabaseHelper.addFromArrayList(db, collectionListInfo,
+                        new ArrayList<>(Arrays.asList(SEMIQ_COIN_NAMES)), null, mintVariants);
+                DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
             }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
 
         return total;

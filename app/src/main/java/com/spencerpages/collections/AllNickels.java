@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class AllNickels extends CollectionInfo {
 
@@ -257,27 +258,24 @@ public class AllNickels extends CollectionInfo {
                         if (showSProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
                     }
                 }
-                if (i > 2005) {
-                    if (i == 2026) {
-                        if (showSemiq) {
-                            int semiqImg = getImgId("1776-2026");
-                            if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, semiqImg));}
-                            if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
-                            if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
-                        }
-                    } else {
-                        if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
-                        if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Modern Jefferson")));}
-                        if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
-                        if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Modern Jefferson")));}
-                        if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
-                        if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
-                        if (showW && i == 2020) {
-                            coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
-                            coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));
-                        }
+                if (i > 2005 && i != 2026) {
+                    if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Modern Jefferson")));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
+                    if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++, getImgId("Modern Jefferson")));}
+                    if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Modern Jefferson Proof")));}
+                    if (showSProof && i == 2018) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Modern Jefferson Proof")));}
+                    if (showW && i == 2020) {
+                        coinList.add(new CoinSlot(year, "W", coinIndex++, getImgId("Modern Jefferson")));
+                        coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));
                     }
                 }
+            }
+            if (showSemiq && i == 2026) {
+                int semiqImg = getImgId("1776-2026");
+                if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, semiqImg));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
+                if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
             }
         }
     }
@@ -300,24 +298,16 @@ public class AllNickels extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Custom logic: SemiQ nickels need specific mint mark variants
-            // that addFromYear doesn't support (S Proof)
-            int imageId = getImgId("1776-2026");
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            if (collectionListInfo.hasPMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "P", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                    mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("1776-2026"));
             }
-            if (collectionListInfo.hasDMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "D", imageId, newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSProofMintMarks()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
-                total++;
-            }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

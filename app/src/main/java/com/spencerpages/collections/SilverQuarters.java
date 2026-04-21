@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SilverQuarters extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Silver Quarters";
@@ -331,14 +332,15 @@ public class SilverQuarters extends CollectionInfo {
 
         if (oldVersion <= 23) {
             // Add in new 2026 1776-2026 coins
-            // SilverQuarters always uses "S Proof" as the mint mark for these coins.
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            for (Object[] coinData : SEMIQ_COIN_IDENTIFIERS) {
-                String identifier = (String) coinData[0];
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, identifier,
-                        "S Proof", -1, newSortOrder);
-                total++;
+            if (collectionListInfo.hasSemiqCoins()) {
+                ArrayList<String> identifiers = new ArrayList<>();
+                for (Object[] coinData : SEMIQ_COIN_IDENTIFIERS) {
+                    identifiers.add((String) coinData[0]);
+                }
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                mintVariants.put(0L, "S Proof");
+                total += DatabaseHelper.addFromArrayList(db, collectionListInfo,
+                        identifiers, null, mintVariants);
             }
         }
 

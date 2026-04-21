@@ -53,6 +53,8 @@ import com.spencerpages.collections.SmallCents;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -425,25 +427,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                        ArrayList<String> values, ArrayList<Integer> imageIds) {
-        int total = 0;
-        String tableName = collectionListInfo.getName();
-        int newSortOrder = getNextCoinSortOrder(db, tableName);
-        for (int i = 0; i < values.size(); i++) {
-            int imageId = (imageIds != null && i < imageIds.size()) ? imageIds.get(i) : -1;
-            if (collectionListInfo.hasMintMarks()) {
-                for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
-                    Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
-                    if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
-                        newSortOrder = addCoin(db, tableName, values.get(i), flagStr, imageId, newSortOrder);
-                        total++;
-                    }
+        LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+        if (collectionListInfo.hasMintMarks()) {
+            for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
+                Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
+                if (mintFlag != null) {
+                    mintVariants.put(mintFlag, flagStr);
                 }
-            } else {
-                newSortOrder = addCoin(db, tableName, values.get(i), "", imageId, newSortOrder);
-                total++;
             }
+        } else {
+            mintVariants.put(0L, "");
         }
-        return total;
+        return addFromArrayList(db, collectionListInfo, values, imageIds, mintVariants);
     }
 
     /**
@@ -521,6 +516,99 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                   int previousYear, int year, String identifier,
                                   ArrayList<String> mintsToAdd, int imageId) {
+        LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+        if (collectionListInfo.hasMintMarks()) {
+            for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
+                Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
+                if (mintFlag != null && mintsToAdd.contains(flagStr)) {
+                    mintVariants.put(mintFlag, flagStr);
+                }
+            }
+        } else {
+            // Key of 0 is unconditional — (flags & 0) == 0 is always true
+            mintVariants.put(0L, "");
+        }
+        return addFromYear(db, collectionListInfo, previousYear, year, identifier, mintVariants, imageId);
+    }
+
+    /**
+     * Add coins for the new year using explicit flag-to-mint-string mappings. This supports
+     * non-standard mint marks (e.g., "S Proof", "S Silver Proof", "") that aren't in
+     * MINT_STRING_TO_FLAGS. Each map entry maps one or more flag bits (e.g., MINT_P, or
+     * MINT_SILVER_PROOF | MINT_W for a compound condition) to the actual mint string to
+     * store in the database (e.g., "" for Philadelphia pennies). When the key contains
+     * multiple bits, ALL must be set in the collection's flags for the coin to be added.
+     * A key of 0 is unconditional — the coin is always added regardless of flags.
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
+     * @param mintVariants       ordered map of flag bit → mint mark string
+     * @param imageId            image ID to assign to added coins, or -1 for default
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                  int previousYear, int year, String identifier,
+                                  LinkedHashMap<Long, String> mintVariants, int imageId) {
+        return addFromYear(db, collectionListInfo, previousYear, year, identifier,
+                mintVariants, imageId, collectionListInfo.getMintMarkFlagsAsLong());
+    }
+
+    /**
+     * Add coins for the new year using explicit flag-to-mint-string mappings and explicit
+     * flags. This variant allows passing flags from any source (mint marks, checkboxes,
+     * or a combination), making it usable by collections like CoinSets that gate on
+     * checkbox flags rather than mint mark flags.
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
+     * @param mintVariants       ordered map of flag bit → mint mark string
+     * @param imageId            image ID to assign to added coins, or -1 for default
+     * @param flags              flag bits to check against mintVariants keys
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                  int previousYear, int year, String identifier,
+                                  LinkedHashMap<Long, String> mintVariants, int imageId,
+                                  long flags) {
+        LinkedHashMap<Long, Integer> variantImageIds = null;
+        if (imageId >= 0) {
+            variantImageIds = new LinkedHashMap<>();
+            for (Long key : mintVariants.keySet()) {
+                variantImageIds.put(key, imageId);
+            }
+        }
+        return addFromYear(db, collectionListInfo, previousYear, year, identifier,
+                mintVariants, variantImageIds, flags);
+    }
+
+    /**
+     * Add coins for the new year using explicit flag-to-mint-string mappings, explicit
+     * flags, and per-variant image IDs. Use this when each variant needs a different
+     * image (e.g., CoinSets where Mint Set, Proof Set, and Silver Proof Set each have
+     * a distinct image).
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param previousYear       previous year to look for to know if this coin should be added
+     * @param year               coin year
+     * @param identifier         identifier of the coin to add
+     * @param mintVariants       ordered map of flag bit → mint mark string
+     * @param variantImageIds    ordered map of flag bit → image ID (parallel to mintVariants),
+     *                           or null to use -1 for all variants
+     * @param flags              flag bits to check against mintVariants keys
+     * @return total number of coins added
+     */
+    public static int addFromYear(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                  int previousYear, int year, String identifier,
+                                  LinkedHashMap<Long, String> mintVariants,
+                                  LinkedHashMap<Long, Integer> variantImageIds,
+                                  long flags) {
         int total = 0;
 
         // Skip adding if the collection has an earlier end date
@@ -531,25 +619,70 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Add the new coin entries
         String tableName = collectionListInfo.getName();
         int newSortOrder = getNextCoinSortOrder(db, tableName);
-        if (collectionListInfo.hasMintMarks()) {
-            for (String flagStr : CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()) {
-                Long mintFlag = CollectionListInfo.MINT_STRING_TO_FLAGS.get(flagStr);
-                if (!mintsToAdd.contains(flagStr)) {
-                    continue;
-                }
-                if (mintFlag != null && ((collectionListInfo.getMintMarkFlagsAsLong() & mintFlag) != 0)) {
-                    newSortOrder = addCoin(db, tableName, identifier, flagStr, imageId, newSortOrder);
-                    total++;
-                }
+        for (Map.Entry<Long, String> entry : mintVariants.entrySet()) {
+            if ((flags & entry.getKey()) == entry.getKey()) {
+                int imageId = (variantImageIds != null && variantImageIds.containsKey(entry.getKey()))
+                        ? variantImageIds.get(entry.getKey()) : -1;
+                newSortOrder = addCoin(db, tableName, identifier, entry.getValue(), imageId, newSortOrder);
+                total++;
             }
-        } else {
-            addCoin(db, tableName, identifier, "", imageId, newSortOrder);
-            total++;
         }
 
         // Update the collection's end year
         updateEndYear(db, collectionListInfo, year);
 
+        return total;
+    }
+
+    /**
+     * Adds new coins to the collection using explicit flag-to-mint-string mappings. This
+     * supports non-standard mint marks not in MINT_STRING_TO_FLAGS. When the key contains
+     * multiple bits, ALL must be set for the coin to be added. A key of 0 is unconditional.
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param values             the ArrayList containing coinIdentifier values to add
+     * @param imageIds           the ArrayList containing imageId for each identifier (parallel to values),
+     *                           or null for default
+     * @param mintVariants       ordered map of flag bit → mint mark string
+     * @return number of rows added
+     */
+    public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                       ArrayList<String> values, ArrayList<Integer> imageIds,
+                                       LinkedHashMap<Long, String> mintVariants) {
+        return addFromArrayList(db, collectionListInfo, values, imageIds, mintVariants,
+                collectionListInfo.getMintMarkFlagsAsLong());
+    }
+
+    /**
+     * Adds new coins to the collection using explicit flag-to-mint-string mappings and
+     * explicit flags. This variant allows passing flags from any source (mint marks,
+     * checkboxes, or a combination).
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param values             the ArrayList containing coinIdentifier values to add
+     * @param imageIds           the ArrayList containing imageId for each identifier (parallel to values),
+     *                           or null for default
+     * @param mintVariants       ordered map of flag bit → mint mark string
+     * @param flags              flag bits to check against mintVariants keys
+     * @return number of rows added
+     */
+    public static int addFromArrayList(SQLiteDatabase db, CollectionListInfo collectionListInfo,
+                                       ArrayList<String> values, ArrayList<Integer> imageIds,
+                                       LinkedHashMap<Long, String> mintVariants, long flags) {
+        int total = 0;
+        String tableName = collectionListInfo.getName();
+        int newSortOrder = getNextCoinSortOrder(db, tableName);
+        for (int i = 0; i < values.size(); i++) {
+            int imageId = (imageIds != null && i < imageIds.size()) ? imageIds.get(i) : -1;
+            for (Map.Entry<Long, String> entry : mintVariants.entrySet()) {
+                if ((flags & entry.getKey()) == entry.getKey()) {
+                    newSortOrder = addCoin(db, tableName, values.get(i), entry.getValue(), imageId, newSortOrder);
+                    total++;
+                }
+            }
+        }
         return total;
     }
 

@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class CoinSets extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Coin Sets";
@@ -125,25 +126,18 @@ public class CoinSets extends CollectionInfo {
         int total = 0;
         if (oldVersion <= 23) {
             // CoinSets uses checkbox-based types, not mint marks.
-            // Check which types the user has enabled and add matching 2026 entries.
-            String tableName = collectionListInfo.getName();
-            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-            if (collectionListInfo.hasMintSets()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                        String.format("%nMint Set"), getImgId("Mint Set"), newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasProofSets()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                        String.format("%nProof Set"), getImgId("Proof Set"), newSortOrder);
-                total++;
-            }
-            if (collectionListInfo.hasSilverProofSets()) {
-                newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
-                        String.format("Silver %nProof Set"), getImgId("Silver Proof Set"), newSortOrder);
-                total++;
-            }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
+            // Use addFromYear with explicit checkbox flags and per-variant image IDs.
+            LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+            mintVariants.put(CollectionListInfo.MINT_SETS, String.format("%nMint Set"));
+            mintVariants.put(CollectionListInfo.PROOF_SETS, String.format("%nProof Set"));
+            mintVariants.put(CollectionListInfo.SILVER_PROOF_SETS, String.format("Silver %nProof Set"));
+            LinkedHashMap<Long, Integer> variantImageIds = new LinkedHashMap<>();
+            variantImageIds.put(CollectionListInfo.MINT_SETS, getImgId("Mint Set"));
+            variantImageIds.put(CollectionListInfo.PROOF_SETS, getImgId("Proof Set"));
+            variantImageIds.put(CollectionListInfo.SILVER_PROOF_SETS, getImgId("Silver Proof Set"));
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                    "2026", mintVariants, variantImageIds,
+                    collectionListInfo.getCheckboxFlagsAsLong());
         }
         return total;
     }

@@ -8,7 +8,8 @@
         "chat.tools.terminal.autoApprove": {
             "./gradlew": true,
             "adb": true,
-            "$ANDROID_HOME/platform-tools/adb": true
+            "$ANDROID_HOME/platform-tools/adb": true,
+            "git checkout": true
         }
     }
 }

@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SilverHalfDollars extends CollectionInfo {
 
@@ -247,17 +248,14 @@ public class SilverHalfDollars extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            // SilverHalfDollars uses custom logic because only the Silver Proof
-            // variant is produced for the 2026 Enduring Liberty half dollar.
-            int imageId = getImgId("Enduring Liberty");
-            if (collectionListInfo.hasSilverProofMintMarks()) {
-                String tableName = collectionListInfo.getName();
-                int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-                DatabaseHelper.addCoin(db, tableName, "2026", "S Proof", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF, "S Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("Enduring Liberty"));
             }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

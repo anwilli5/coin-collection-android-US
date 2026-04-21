@@ -31,6 +31,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SilverDimes extends CollectionInfo {
 
@@ -205,17 +206,14 @@ public class SilverDimes extends CollectionInfo {
                                            int oldVersion, int newVersion) {
         int total = 0;
         if (oldVersion <= 23) {
-            // Add in new 2026 coins if applicable
-            // SilverDimes uses custom logic because for post-1991 Roosevelt years,
-            // only the Silver Proof variant is produced (not P/D).
-            int imageId = getImgId("Emerging Liberty");
-            if (collectionListInfo.hasSilverProofMintMarks()) {
-                String tableName = collectionListInfo.getName();
-                int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
-                DatabaseHelper.addCoin(db, tableName, "2026", "Silver Proof", imageId, newSortOrder);
-                total++;
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF, "Silver Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("Emerging Liberty"));
             }
-            DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
         }
         return total;
     }

@@ -397,6 +397,117 @@ public class BaseTestCase {
     }
 
     /**
+     * Helper to create a V23-schema collection from a collection's populateCollectionLists
+     * output. This creates a database with proper metadata (mint mark flags, checkbox flags,
+     * imageIds, endYear) that matches what a real user's database would contain. Use for
+     * collections introduced after V14 that need correct flags for upgrade code to work.
+     *
+     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
+     * @param collection           the collection type
+     * @param coinType             the coin type string
+     * @param collectionName       name for the test collection
+     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
+     */
+    public void createV23FromPopulate(SQLiteDatabase db, CollectionInfo collection,
+                                      String coinType, String collectionName,
+                                      String identifierToExclude) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName,
+                identifierToExclude, parameters);
+    }
+
+    /**
+     * Like createV23FromPopulate but uses the provided parameters instead of defaults.
+     * This allows creating V23 databases with non-default configurations (e.g., with
+     * S Proof enabled) to test upgrade correctness for diverse user settings.
+     * The SEMIQ_COINS checkbox flag is stripped from the stored flags to simulate a
+     * real V23 database (which wouldn't have had the SEMIQ flag). The upgrade migration
+     * in upgradeDbStructure will re-add it.
+     *
+     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
+     * @param collection           the collection type
+     * @param coinType             the coin type string
+     * @param collectionName       name for the test collection
+     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
+     * @param parameters           pre-filled creation parameters
+     */
+    public void createV23FromPopulateWithParams(SQLiteDatabase db, CollectionInfo collection,
+                                                String coinType, String collectionName,
+                                                String identifierToExclude,
+                                                ParcelableHashMap parameters) {
+        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
+        collection.populateCollectionLists(parameters, fullCoinList);
+
+        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
+        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
+        // Strip the SEMIQ_COINS flag — V23 databases wouldn't have it.
+        // The upgradeDbStructure migration will re-add it during upgrade.
+        checkboxFlags &= ~CollectionListInfo.SEMIQ_COINS;
+
+        // Compute endYear from OPT_STOP_YEAR parameter (matching real collection creation
+        // behavior). Real databases set endYear = STOP_YEAR at creation, not from coin data.
+        // If excluding coins for a specific year (simulating a pre-upgrade DB), adjust endYear
+        // down by 1 when the exclude year matches the stop year.
+        int endYear = 0;
+        Object optStopYear = parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        if (optStopYear instanceof Integer) {
+            endYear = (Integer) optStopYear;
+            if (identifierToExclude != null) {
+                try {
+                    int excludeYear = Integer.parseInt(identifierToExclude);
+                    if (excludeYear == endYear) {
+                        endYear = endYear - 1;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        } else {
+            // Fallback for collections without OPT_STOP_YEAR: compute from coin identifiers
+            for (CoinSlot coin : fullCoinList) {
+                if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
+                    continue;
+                }
+                try {
+                    int year = Integer.parseInt(coin.getIdentifier());
+                    endYear = Math.max(endYear, year);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (CoinSlot coin : fullCoinList) {
+            if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
+                continue;
+            }
+            coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), 0, coin.getImageId()});
+        }
+
+        createV23Collection(db, collectionName, coinType, coinList,
+                collection.getStartYear(), endYear, mintMarkFlags, checkboxFlags);
+    }
+
+    /**
+     * Returns a copy of the collection's default parameters with all Boolean options
+     * set to TRUE. This generates maximum-coverage parameter sets for testing upgrade
+     * correctness with all mint marks, checkboxes, etc. enabled.
+     *
+     * @param collection the collection type
+     * @return parameters with all Boolean values set to TRUE
+     */
+    public static ParcelableHashMap getAllEnabledParams(CollectionInfo collection) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        for (java.util.Map.Entry<String, Object> entry : parameters.entrySet()) {
+            if (entry.getValue() instanceof Boolean) {
+                entry.setValue(Boolean.TRUE);
+            }
+        }
+        return parameters;
+    }
+
+    /**
      * Validate updated database
      *
      * @param collectionInfo collection info
