@@ -19,6 +19,12 @@
         android:title="@string/change_view_string"
         appcompat:showAsAction="ifRoom" />
     <item
+        android:id="@+id/toggle_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:orderInCategory="325"
+        android:title="@string/toggle_search"
+        appcompat:showAsAction="ifRoom" />
+    <item
         android:id="@+id/toggle_coin_filter"
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:orderInCategory="350"
