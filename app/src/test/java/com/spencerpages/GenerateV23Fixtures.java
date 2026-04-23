@@ -65,7 +65,6 @@ import java.util.Map;
  *   <li>v23-all-params-enabled.json — all types with all Boolean params TRUE</li>
  *   <li>v23-alternating-A.json — all types with alternating FALSE,TRUE,FALSE,...</li>
  *   <li>v23-alternating-B.json — all types with alternating TRUE,FALSE,TRUE,...</li>
- *   <li>v23-semiq-proofs.json — 9 SemiQ collections with proof marks enabled</li>
  * </ul>
  */
 @Ignore("Run manually to regenerate V23 fixture files")

@@ -1007,6 +1007,53 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
+     * For BasicQuarters (V23 upgrade path)
+     * - Tests that a V23 BasicQuarters collection with endYear=2021 (the V23-era STOP_YEAR)
+     *   correctly receives the 2026 SemiQ coins on upgrade. The V1 test above masks this
+     *   because setCreationParametersFromCoinData uses the current STOP_YEAR (2026) during
+     *   the V14 upgrade, giving V1 collections a higher endYear than real V23 collections had.
+     */
+    @Test
+    public void test_BasicQuartersV23Upgrade() {
+
+        // Test Parameters
+        CollectionInfo collection = new BasicQuarters();
+        String coinType = "Quarters";
+        String collectionName = coinType + " V23 Upgrade";
+
+        // Build a V23 coin list matching what a real V23 user would have had
+        // (coins up to "Crossing the Delaware", endYear=2021)
+        int startYear = 1932;
+        int v23EndYear = 2021;
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (int i = startYear; i <= v23EndYear; i++) {
+            if (i == 1933 || i == 1975) {
+                continue;
+            }
+            if (i > 1998 && i < 2021) {
+                continue;
+            }
+            if (i == 2021) {
+                coinList.add(new Object[]{"Crossing the Delaware", "", 0, -1});
+            } else if (i == 1976) {
+                coinList.add(new Object[]{"1776-1976", "", 0, -1});
+            } else {
+                coinList.add(new Object[]{Integer.toString(i), "", 0, -1});
+            }
+        }
+
+        // Create V23 database with endYear=2021 (matching the real V23 STOP_YEAR)
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23Collection(db, collectionName, coinType, coinList, startYear, v23EndYear, 0, 0);
+        db.close();
+        testDbHelper.close();
+
+        // Compare against a new database — should include 2026 SemiQ coins
+        validateUpdatedDb(collection, collectionName);
+    }
+
+    /**
      * For AllNickels
      * - Test that the number of coins is correct upon collection upgrades
      */

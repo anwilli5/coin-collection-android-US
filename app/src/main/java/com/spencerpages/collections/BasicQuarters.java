@@ -217,7 +217,7 @@ public class BasicQuarters extends CollectionInfo {
         }
 
         if (oldVersion <= 23) {
-            if (collectionListInfo.getEndYear() >= 2025) {
+            if (collectionListInfo.getEndYear() >= 2021) {
                 LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
                 if (collectionListInfo.hasMintMarks()) {
                     mintVariants.put(CollectionListInfo.MINT_P, "P");
