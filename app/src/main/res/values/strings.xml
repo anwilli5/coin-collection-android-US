@@ -117,6 +117,9 @@
     <string name="copy">Copy</string>
     <string name="delete">Delete</string>
     <string name="warning">Warning!</string>
+    <string name="toggle_search">Toggle Search</string>
+    <string name="search_hint">Search coins&#8230;</string>
+    <string name="tutorial_search_feature">You can now search for coins in your collection! Tap the hamburger menu to toggle the search bar.</string>
     <string name="add_coin">Add Coin</string>
 
     <!-- Main Activity -->

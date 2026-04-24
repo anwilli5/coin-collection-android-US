@@ -32,6 +32,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
+import android.view.View;
+import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -337,4 +339,181 @@ public class CollectionPageActivityTests extends BaseTestCase {
             });
         }
     }
+
+    /**
+     * Test coin search functionality
+     */
+    @Test
+    public void test_coinSearch() {
+        // Test with the first collection that has coins
+        FullCollection testCollection = mCollectionList.get(0);
+        String collectionName = testCollection.mCollectionListInfo.getName();
+        int coinTypeIdx = testCollection.mCollectionListInfo.getCollectionTypeIndex();
+
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+
+                if (!activity.mCoinList.isEmpty()) {
+                    int originalSize = activity.mCoinList.size();
+
+                    // Initially, search query should be empty and all coins shown
+                    assertEquals(originalSize, activity.mCoinList.size());
+
+                    // Set up test data - unique names for some coins
+                    activity.mOriginalCoinList.get(0).setIdentifier("UniqueCoinName1");
+                    if (activity.mOriginalCoinList.size() > 1) {
+                        activity.mOriginalCoinList.get(1).setIdentifier("CommonName");
+                    }
+                    if (activity.mOriginalCoinList.size() > 2) {
+                        activity.mOriginalCoinList.get(2).setIdentifier("CommonName");
+                    }
+
+                    android.widget.SearchView searchView = activity.findViewById(R.id.search_view);
+
+                    // Test search for "UniqueCoinName1"
+                    searchView.setQuery("UniqueCoinName1", true);
+                    assertEquals(1, activity.mCoinList.size());
+                    assertEquals("UniqueCoinName1", activity.mCoinList.get(0).getIdentifier());
+
+                    // Test search for "CommonName"
+                    searchView.setQuery("CommonName", true);
+                    if (originalSize >= 3) {
+                        assertEquals(2, activity.mCoinList.size());
+                        for (CoinSlot coin : activity.mCoinList) {
+                            assertEquals("CommonName", coin.getIdentifier());
+                        }
+                    }
+
+                    // Test search for something that doesn't exist
+                    searchView.setQuery("NonExistentCoin", true);
+                    assertEquals(0, activity.mCoinList.size());
+
+                    // Test clearing search query
+                    searchView.setQuery("", true);
+                    assertEquals(originalSize, activity.mCoinList.size());
+
+                    // Test case-insensitivity
+                    activity.mOriginalCoinList.get(0).setIdentifier("MixedCaseName");
+                    searchView.setQuery("mixedcasename", true);
+                    assertEquals(1, activity.mCoinList.size());
+                    assertEquals("MixedCaseName", activity.mCoinList.get(0).getIdentifier());
+                }
+            });
+        }
+    }
+
+    /**
+     * Test combined search and filter
+     */
+    @Test
+    public void test_combinedSearchAndFilter() {
+        FullCollection testCollection = mCollectionList.get(0);
+        String collectionName = testCollection.mCollectionListInfo.getName();
+        int coinTypeIdx = testCollection.mCollectionListInfo.getCollectionTypeIndex();
+
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+
+                if (activity.mOriginalCoinList.size() >= 4) {
+                    // Setup:
+                    // 0: "Gold", Collected
+                    // 1: "Gold", Missing
+                    // 2: "Silver", Collected
+                    // 3: "Silver", Missing
+                    activity.mOriginalCoinList.get(0).setIdentifier("Gold");
+                    activity.mOriginalCoinList.get(0).setInCollection(true);
+
+                    activity.mOriginalCoinList.get(1).setIdentifier("Gold");
+                    activity.mOriginalCoinList.get(1).setInCollection(false);
+
+                    activity.mOriginalCoinList.get(2).setIdentifier("Silver");
+                    activity.mOriginalCoinList.get(2).setInCollection(true);
+
+                    activity.mOriginalCoinList.get(3).setIdentifier("Silver");
+                    activity.mOriginalCoinList.get(3).setInCollection(false);
+
+                    SearchView searchView = activity.findViewById(R.id.search_view);
+
+                    // Filter: Collected, Search: "Gold" -> Result: 1 coin (0)
+                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
+                    activity.applyCurrentFilter();
+                    searchView.setQuery("Gold", true);
+
+                    assertEquals(1, activity.mCoinList.size());
+                    assertTrue(activity.mCoinList.get(0).isInCollection());
+                    assertEquals("Gold", activity.mCoinList.get(0).getIdentifier());
+
+                    // Filter: Missing, Search: "Silver" -> Result: 1 coin (3)
+                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
+                    activity.applyCurrentFilter();
+                    searchView.setQuery("Silver", true);
+
+                    assertEquals(1, activity.mCoinList.size());
+                    assertFalse(activity.mCoinList.get(0).isInCollection());
+                    assertEquals("Silver", activity.mCoinList.get(0).getIdentifier());
+                }
+            });
+        }
+    }
+
+    /**
+     * Test search visibility toggle persistence
+     */
+    @Test
+    public void test_searchVisibilityTogglePersistence() {
+        FullCollection testCollection = mCollectionList.get(0);
+        String collectionName = testCollection.mCollectionListInfo.getName();
+        int coinTypeIdx = testCollection.mCollectionListInfo.getCollectionTypeIndex();
+
+        // 0. Ensure clean state
+        ApplicationProvider.getApplicationContext().getSharedPreferences(MainApplication.PREFS, 0)
+                .edit().clear().apply();
+
+        // 1. Launch and toggle visibility to true
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+                // Toggle visibility
+                activity.toggleSearchVisibility();
+                View searchView = activity.findViewById(R.id.search_view);
+                assertEquals(View.VISIBLE, searchView.getVisibility());
+            });
+        }
+
+        // 2. Relaunch and verify it is still visible
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+                View searchView = activity.findViewById(R.id.search_view);
+                assertEquals("Search visibility should be persisted", View.VISIBLE, searchView.getVisibility());
+
+                // Toggle back to hidden
+                activity.toggleSearchVisibility();
+                assertEquals(View.GONE, searchView.getVisibility());
+            });
+        }
+
+        // 3. Relaunch and verify it is hidden again
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                        .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                        .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+            scenario.onActivity(activity -> {
+                View searchView = activity.findViewById(R.id.search_view);
+                assertEquals("Search visibility should be persisted as hidden", View.GONE, searchView.getVisibility());
+            });
+        }
+    }
 }
+
+

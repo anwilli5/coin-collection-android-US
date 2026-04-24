@@ -43,6 +43,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,7 +65,7 @@ import java.util.ArrayList;
 public class CollectionPage extends BaseActivity {
     private String mCollectionName;
     public ArrayList<CoinSlot> mCoinList;
-    private CoinSlotAdapter mCoinSlotAdapter;
+    public CoinSlotAdapter mCoinSlotAdapter;
     private int mCollectionTypeIndex;
 
     // Saved Instance State Keywords
@@ -113,6 +114,7 @@ public class CollectionPage extends BaseActivity {
 
     public static final String IS_LOCKED = "_isLocked";
     public static final String COIN_FILTER = "_coinFilter";
+    public static final String SEARCH_VISIBLE = "_searchVisible";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,7 +158,12 @@ public class CollectionPage extends BaseActivity {
 
         // Tell the user they can edit/copy coins now
         if (!displayedHelp) {
-            createAndShowHelpDialog("first_Time_screen5", R.string.tutorial_edit_copy_delete_coins);
+            displayedHelp = createAndShowHelpDialog("first_Time_screen5", R.string.tutorial_edit_copy_delete_coins);
+        }
+
+        // Tell the user about the search feature
+        if (!displayedHelp) {
+            createAndShowHelpDialog("first_Time_screen_search", R.string.tutorial_search_feature);
         }
 
         // Determine whether we should show the advanced view or the basic view
@@ -301,6 +308,28 @@ public class CollectionPage extends BaseActivity {
 
         // Setup filter status indicator
         setupFilterStatusIndicator();
+
+        // Setup Search functionality
+        SearchView searchView = findViewById(R.id.search_view);
+        if (searchView != null) {
+            // Restore search visibility from preferences
+            boolean isSearchVisible = filterPreferences.getBoolean(mCollectionName + SEARCH_VISIBLE, false);
+            searchView.setVisibility(isSearchVisible ? View.VISIBLE : View.GONE);
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    mCoinSlotAdapter.setSearchQuery(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    mCoinSlotAdapter.setSearchQuery(newText);
+                    return true;
+                }
+            });
+        }
 
         // Scroll to the last position viewed (if saved)
         scrollToIndex(mViewIndex, mViewPosition, false);
@@ -523,6 +552,9 @@ public class CollectionPage extends BaseActivity {
                 getOnBackPressedDispatcher().onBackPressed();
             }
             return true;
+        } else if (itemId == R.id.toggle_search) {
+            toggleSearchVisibility();
+            return true;
         } else if (itemId == R.id.toggle_coin_filter) {
             // Show filter selection menu
             showFilterMenu();
@@ -575,6 +607,11 @@ public class CollectionPage extends BaseActivity {
         int coinFilter = mainPreferences.getInt(oldCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
         editor.remove(oldCollectionName + COIN_FILTER);
         editor.putInt(newCollectionName + COIN_FILTER, coinFilter);
+
+        // Transfer search visibility preference
+        boolean searchVisible = mainPreferences.getBoolean(oldCollectionName + SEARCH_VISIBLE, false);
+        editor.remove(oldCollectionName + SEARCH_VISIBLE);
+        editor.putBoolean(newCollectionName + SEARCH_VISIBLE, searchVisible);
         
         editor.apply();
 
@@ -1227,6 +1264,30 @@ public class CollectionPage extends BaseActivity {
         
         // Apply the scroll position
         scrollToIndex(targetIndex, targetTop, false);
+    }
+
+    /**
+     * Toggles the visibility of the search view and saves the preference
+     */
+    public void toggleSearchVisibility() {
+        SearchView searchView = findViewById(R.id.search_view);
+        if (searchView != null) {
+            boolean isVisible = searchView.getVisibility() == View.VISIBLE;
+            int newVisibility = isVisible ? View.GONE : View.VISIBLE;
+            searchView.setVisibility(newVisibility);
+
+            // If hiding search, also clear the search query
+            if (newVisibility == View.GONE) {
+                searchView.setQuery("", false);
+                mCoinSlotAdapter.setSearchQuery("");
+            }
+
+            // Save preference
+            SharedPreferences prefs = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(mCollectionName + SEARCH_VISIBLE, !isVisible);
+            editor.apply();
+        }
     }
 
     /**
