@@ -239,6 +239,13 @@ public class FirstSpouseGoldCoins extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
+        if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("Barbara Bush");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
         return total;
     }
 }

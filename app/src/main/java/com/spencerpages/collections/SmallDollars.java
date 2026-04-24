@@ -26,10 +26,12 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SmallDollars extends CollectionInfo {
 
@@ -53,6 +55,7 @@ public class SmallDollars extends CollectionInfo {
             {"2023", R.drawable.native_2023_unc},
             {"2024", R.drawable.native_2024_unc},
             {"2025", R.drawable.native_2025_unc},
+            {"2026", R.drawable.native_2026_unc},
     };
 
     private static final Object[][] COIN_IMG_IDS = {
@@ -351,6 +354,23 @@ public class SmallDollars extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
 
+        if (oldVersion <= 23) {
+            // Add in new 2026 Sacagawea/Native American dollars, gated on that checkbox.
+            if (collectionListInfo.hasSACDollars()) {
+                ArrayList<String> identifiers = new ArrayList<>();
+                identifiers.add("2026");
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                mintVariants.put(CollectionListInfo.MINT_P, "P");
+                mintVariants.put(CollectionListInfo.MINT_D, "D");
+                mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                total += DatabaseHelper.addFromArrayList(db, collectionListInfo,
+                        identifiers, null, mintVariants);
+            }
+        }
+
+        return total;
+    }
 }

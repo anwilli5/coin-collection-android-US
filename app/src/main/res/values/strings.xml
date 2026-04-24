@@ -222,6 +222,7 @@
     <string name="include_parks_quarters_proof">Include National Parks Quarter Proofs</string>
     <string name="include_women_quarters_proof">Include American Women Quarter Proofs</string>
     <string name="include_territories_quarters_proof">Include Proof quarters for D.C. and the U.S. Territories</string>
+    <string name="include_semiq_coins">Include SemiQ Coins</string>
 
     <string name="create_page">Create New Collection!</string>
     <string name="update_page">Update Collection!</string>

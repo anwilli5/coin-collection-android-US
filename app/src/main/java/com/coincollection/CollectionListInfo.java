@@ -93,7 +93,7 @@ public class CollectionListInfo implements Parcelable {
     private final CollectionInfo mCollectionInfo;
 
     // Flags for selected mint marks
-    public final static long ALL_MINT_MASK = 0xFFFFL;
+    public final static long ALL_MINT_MASK = 0x1FFFL;
     public final static long SHOW_MINT_MARKS = 1L;
     public final static long MINT_P = (1L << 1);
     public final static long MINT_D = (1L << 2);
@@ -109,7 +109,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_FRANKLIN_PROOF = (1L << 12);
 
     // Flags for show checkboxes options
-    public final static long ALL_CHECKBOXES_MASK = 0x1FFFFFFFFFFFFL;
+    public final static long ALL_CHECKBOXES_MASK = 0x3FFFFFFFFFFFFL;
     public final static long CUSTOM_DATES = 1L;
     public final static long BURNISHED = (1L << 1);
     public final static long TERRITORIES = (1L << 2);
@@ -159,6 +159,7 @@ public class CollectionListInfo implements Parcelable {
     public final static long MINT_SETS = (1L << 46);
     public final static long PROOF_SETS = (1L << 47);
     public final static long SILVER_PROOF_SETS = (1L << 48);
+    public final static long SEMIQ_COINS = (1L << 49);
 
     public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
 
@@ -587,6 +588,10 @@ public class CollectionListInfo implements Parcelable {
 
     public boolean hasSilverProofSets() {
         return (getCheckboxFlagsAsLong() & SILVER_PROOF_SETS) != 0;
+    }
+
+    public boolean hasSemiqCoins() {
+        return (getCheckboxFlagsAsLong() & SEMIQ_COINS) != 0;
     }
 
     public void setEndYear(int endYear) {

@@ -72,6 +72,7 @@ import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
 import com.spencerpages.collections.WalkingLibertyHalfDollars;
+import com.spencerpages.collections.Semiquincentennials;
 import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
@@ -140,6 +141,7 @@ public class MainApplication extends Application {
             new RooseveltDimes(),
             new WashingtonQuarters(),
             new AmericanInnovationDollars(),
+            new Semiquincentennials(),
     };
 
     // Display order and groups in Collection Page Creator
@@ -157,6 +159,7 @@ public class MainApplication extends Application {
             FirstSpouseGoldCoins.class,
             NativeAmericanDollars.class,
             PresidentialDollars.class,
+            Semiquincentennials.class,
     };
 
     // Sorted roughly be denomination and alphabetical (can be re-ordered as needed)
@@ -237,8 +240,9 @@ public class MainApplication extends Application {
      * Version 19 - Used in Version 3.5.0 of the app
      * Version 20 - Used in Version 3.6.0 of the app
      * Version 21-23 - Used in Version 3.7.0 of the app
+     * Version 24 - Used in Version 3.8.0 of the app
      */
-    public static final int DATABASE_VERSION = 23;
+    public static final int DATABASE_VERSION = 24;
 
     /**
      * Get the collection index from collection type name

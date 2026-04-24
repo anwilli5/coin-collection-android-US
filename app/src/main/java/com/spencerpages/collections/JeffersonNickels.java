@@ -59,6 +59,7 @@ public class JeffersonNickels extends CollectionInfo {
         for (Object[] coinData : WESTWARD_2005_COIN_IDENTIFIERS) {
             COIN_MAP.put((String) coinData[0], (Integer) coinData[1]);
         }
+        COIN_MAP.put("2026", R.drawable.semiq_2026_nickel_obv_unc);
     }
 
     private static final Integer START_YEAR = 1938;
@@ -275,6 +276,21 @@ public class JeffersonNickels extends CollectionInfo {
         if (oldVersion <= 22) {
             // Add in new 2025 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+        }
+
+        if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("2021");
+            dupIdentifiers.add("2022");
+            dupIdentifiers.add("2023");
+            dupIdentifiers.add("2024");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins if applicable
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
         }
 
         return total;

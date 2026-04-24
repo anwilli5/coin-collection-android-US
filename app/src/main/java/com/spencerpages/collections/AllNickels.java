@@ -26,10 +26,12 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class AllNickels extends CollectionInfo {
 
@@ -61,6 +63,7 @@ public class AllNickels extends CollectionInfo {
             {"Liberty Reverse", R.drawable.ani1883r},                                                 // 13
             {"Shield Reverse", R.drawable.anishield_nickel_without_rays___reverse},                   // 14
             {"1867 Shield Reverse with Rays", R.drawable.anishield_nickel_with_rays___1867_reverse},  // 15
+            {"1776-2026", R.drawable.semiq_2026_nickel_obv_unc},                                      // 16
     };
 
     private static final Integer START_YEAR = 1866;
@@ -135,6 +138,9 @@ public class AllNickels extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_jefferson_nickels);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
     }
 
     @Override
@@ -153,6 +159,7 @@ public class AllNickels extends CollectionInfo {
         boolean showLiberty = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showBuffalo = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showJefferson = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
         int coinIndex = 0;
 
         if (showOld && !showShield) {coinList.add(new CoinSlot("Shield", "", coinIndex++, getImgId("Shield")));}
@@ -251,7 +258,7 @@ public class AllNickels extends CollectionInfo {
                         if (showSProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
                     }
                 }
-                if (i > 2005) {
+                if (i > 2005 && i != 2026) {
                     if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId("Modern Jefferson")));}
                     if (showSatin && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++, getImgId("Modern Jefferson")));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Modern Jefferson")));}
@@ -263,6 +270,12 @@ public class AllNickels extends CollectionInfo {
                         coinList.add(new CoinSlot(year, "W Proof", coinIndex++, getImgId("Modern Jefferson")));
                     }
                 }
+            }
+            if (showSemiq && i == 2026) {
+                int semiqImg = getImgId("1776-2026");
+                if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, semiqImg));}
+                if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
+                if (showSProof) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
             }
         }
     }
@@ -282,6 +295,21 @@ public class AllNickels extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                    mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("1776-2026"));
+            }
+        }
+        return total;
+    }
 
 }

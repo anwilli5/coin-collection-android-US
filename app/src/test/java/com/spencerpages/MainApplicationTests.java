@@ -20,6 +20,8 @@
 
 package com.spencerpages;
 
+import static com.coincollection.CollectionListInfo.ALL_CHECKBOXES_MASK;
+import static com.coincollection.CollectionListInfo.ALL_MINT_MASK;
 import static com.coincollection.CollectionListInfo.BARBER_QUARTERS;
 import static com.coincollection.CollectionListInfo.BURNISHED;
 import static com.coincollection.CollectionListInfo.BUST_COINS;
@@ -54,6 +56,7 @@ import static com.coincollection.CollectionListInfo.PROOF_SETS;
 import static com.coincollection.CollectionListInfo.SAC_DOLLARS;
 import static com.coincollection.CollectionListInfo.SBA_DOLLARS;
 import static com.coincollection.CollectionListInfo.SEATED_COINS;
+import static com.coincollection.CollectionListInfo.SEMIQ_COINS;
 import static com.coincollection.CollectionListInfo.SHIELD_CENTS;
 import static com.coincollection.CollectionListInfo.BARBER_HALF;
 import static com.coincollection.CollectionListInfo.WALKER_HALF;
@@ -123,6 +126,7 @@ import com.spencerpages.collections.NativeAmericanDollars;
 import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
+import com.spencerpages.collections.Semiquincentennials;
 import com.spencerpages.collections.SilverDimes;
 import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SilverQuarters;
@@ -198,6 +202,7 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(48, getIndexFromCollectionClass(RooseveltDimes.class));
         assertEquals(49, getIndexFromCollectionClass(WashingtonQuarters.class));
         assertEquals(50, getIndexFromCollectionClass(AmericanInnovationDollars.class));
+        assertEquals(51, getIndexFromCollectionClass(Semiquincentennials.class));
     }
 
     /**
@@ -219,6 +224,8 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(MINT_MEM_PROOF, 0x400L);
         assertEquals(MINT_SATIN, 0x800L);
         assertEquals(MINT_FRANKLIN_PROOF, 0x1000L);
+        // Mask must cover bits 0 through the highest mint mark flag
+        assertEquals(ALL_MINT_MASK, 0x1FFFL);
     }
 
     /**
@@ -276,5 +283,8 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(MINT_SETS, 0x400000000000L);
         assertEquals(PROOF_SETS, 0x800000000000L);
         assertEquals(SILVER_PROOF_SETS, 0x1000000000000L);
+        assertEquals(SEMIQ_COINS, 0x2000000000000L);
+        // Mask must cover bits 0 through the highest checkbox flag
+        assertEquals(ALL_CHECKBOXES_MASK, 0x3FFFFFFFFFFFFL);
     }
 }

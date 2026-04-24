@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -168,6 +169,11 @@ public class CladQuarters extends CollectionInfo {
             {"Dr. Vera Rubin", R.drawable.women_2025_vera_rubin_unc},
             {"Stacey Park Milbern", R.drawable.women_2025_stacey_park_milbern_unc},
             {"Althea Gibson", R.drawable.women_2025_althea_gibson_unc},
+            {"Mayflower Compact", R.drawable.semiq_2026_mayflower_compact_unc},
+            {"Revolutionary War", R.drawable.semiq_2026_revolutionary_war_unc},
+            {"Declaration of Independence", R.drawable.semiq_2026_declaration_unc},
+            {"U.S. Constitution", R.drawable.semiq_2026_constitution_unc},
+            {"Gettysburg Address", R.drawable.semiq_2026_gettysburg_unc},
     };
     private static final String[] NINETYNINE = {
             "Delaware",
@@ -358,6 +364,13 @@ public class CladQuarters extends CollectionInfo {
             "Stacey Park Milbern",
             "Althea Gibson",
     };
+    private static final String[] TWENTYSIX= {
+            "Mayflower Compact",
+            "Revolutionary War",
+            "Declaration of Independence",
+            "U.S. Constitution",
+            "Gettysburg Address",
+    };
 
     private static final int REVERSE_IMAGE = R.drawable.a98_quarter_reverseby636buster;
 
@@ -412,6 +425,9 @@ public class CladQuarters extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_women_quarters);
 
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_semiq_coins);
+
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
 
@@ -437,6 +453,7 @@ public class CladQuarters extends CollectionInfo {
         boolean showStates = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
         boolean showParks = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showWomen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
         boolean showP = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_1);
         boolean showD = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_2);
         boolean showS = getBooleanParameter(parameters, CoinPageCreator.OPT_SHOW_MINT_MARK_3);
@@ -670,11 +687,57 @@ public class CladQuarters extends CollectionInfo {
                 if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
             }
         }
+        if (showSemiq) {
+            for (String identifier : TWENTYSIX) {
+                String year = Integer.toString(2026);
+                if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+                if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showS) {coinList.add(new CoinSlot(year, String.format("S%n%s", identifier), coinIndex++, getImgId(identifier)));}
+                if (showProof) {coinList.add(new CoinSlot(year, String.format("S Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            }
+        }
     }
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 1776-2026 coins
+            // CladQuarters uses year as identifier and embeds coin name in mint mark,
+            // so we need custom logic instead of addFromArrayList.
+            if (collectionListInfo.hasSemiqCoins()) {
+                String tableName = collectionListInfo.getName();
+                int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+                for (String identifier : TWENTYSIX) {
+                    int imageId = getImgId(identifier);
+                    if (collectionListInfo.hasPMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("P%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasDMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("D%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasSMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("S%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                    if (collectionListInfo.hasSProofMintMarks()) {
+                        newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                                String.format("S Proof%n%s", identifier), imageId, newSortOrder);
+                        total++;
+                    }
+                }
+            }
+        }
+
+        return total;
+    }
 }
 
 

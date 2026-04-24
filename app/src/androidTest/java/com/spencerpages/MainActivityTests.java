@@ -132,7 +132,7 @@ public class MainActivityTests {
         // Verify return to main activity with the collection row
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
         onView(withText("Lincoln Cents Test")).check(matches(isDisplayed()));
-        onView(withText(UITestHelper.formatCollectionProgress(0, 121))).check(matches(isDisplayed()));
+        onView(withText(UITestHelper.formatCollectionProgress(0, UITestHelper.getExpectedCoinCount(0)))).check(matches(isDisplayed()));
     }
 
     /**

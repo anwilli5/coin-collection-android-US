@@ -22,9 +22,16 @@ package com.spencerpages;
 
 import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_IMAGE_ID;
 import static com.coincollection.CoinSlot.COL_IN_COLLECTION;
+import static com.coincollection.CoinSlot.COL_SORT_ORDER;
 import static com.coincollection.CollectionListInfo.COL_COIN_TYPE;
+import static com.coincollection.CollectionListInfo.COL_DISPLAY;
+import static com.coincollection.CollectionListInfo.COL_END_YEAR;
 import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.COL_SHOW_CHECKBOXES;
+import static com.coincollection.CollectionListInfo.COL_SHOW_MINT_MARKS;
+import static com.coincollection.CollectionListInfo.COL_START_YEAR;
 import static com.coincollection.CollectionListInfo.COL_TOTAL;
 import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
 import static com.coincollection.CollectionPage.ADVANCED_DISPLAY;
@@ -302,6 +309,205 @@ public class BaseTestCase {
     }
 
     /**
+     * DB Helper for setting up test databases at the V23 schema (modern, pre-2026 upgrade).
+     * Collections introduced after V14 should use this instead of TestDatabaseHelper (V1),
+     * because V1 databases lack the metadata columns (mint mark flags, checkbox flags)
+     * needed by modern upgrade code.
+     */
+    public static class TestDatabaseHelperV23 extends SQLiteOpenHelper {
+
+        TestDatabaseHelperV23(Context context) {
+            super(context, DATABASE_NAME, null, 23);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + TBL_COLLECTION_INFO + " (_id integer primary key,"
+                    + " " + COL_NAME + " text not null,"
+                    + " " + COL_COIN_TYPE + " text not null,"
+                    + " " + COL_TOTAL + " integer,"
+                    + " " + COL_DISPLAY + " integer default 0,"
+                    + " displayOrder integer,"
+                    + " " + COL_START_YEAR + " integer default 0,"
+                    + " " + COL_END_YEAR + " integer default 0,"
+                    + " showMintMarks integer default 0,"
+                    + " showCheckboxes integer default 0,"
+                    + " " + COL_SHOW_MINT_MARKS + " text not null default '',"
+                    + " " + COL_SHOW_CHECKBOXES + " text not null default ''"
+                    + ");");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
+
+    /**
+     * Adds a collection to the database that looks like the V23 schema (modern, pre-2026).
+     * Coin entries include sortOrder and imageId columns. Collection metadata includes
+     * proper mint mark and checkbox flags.
+     *
+     * @param db             database to populate
+     * @param collectionName collection name
+     * @param coinType       coin type
+     * @param coinList       list of coins — each Object[] is {identifier, mint, inCollection, imageId}
+     * @param startYear      collection start year
+     * @param endYear        collection end year
+     * @param mintMarkFlags  mint mark flags from CoinPageCreator.getMintMarkFlagsFromParameters
+     * @param checkboxFlags  checkbox flags from CoinPageCreator.getCheckboxFlagsFromParameters
+     */
+    public void createV23Collection(SQLiteDatabase db, String collectionName, String coinType,
+                                    ArrayList<Object[]> coinList, int startYear, int endYear,
+                                    long mintMarkFlags, long checkboxFlags) {
+
+        db.execSQL("CREATE TABLE [" + collectionName
+                + "] (_id integer primary key,"
+                + " " + COL_COIN_IDENTIFIER + " text not null,"
+                + " " + COL_COIN_MINT + " text,"
+                + " " + COL_IN_COLLECTION + " integer,"
+                + " advGradeIndex integer default 0,"
+                + " advQuantityIndex integer default 0,"
+                + " advNotes text default '',"
+                + " " + COL_SORT_ORDER + " integer not null,"
+                + " customCoin integer default 0,"
+                + " " + COL_IMAGE_ID + " integer default -1);");
+
+        int sortOrder = 0;
+        for (Object[] coinInfo : coinList) {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(COL_COIN_IDENTIFIER, (String) coinInfo[0]);
+            initialValues.put(COL_COIN_MINT, (String) coinInfo[1]);
+            initialValues.put(COL_IN_COLLECTION, (int) coinInfo[2]);
+            initialValues.put(COL_SORT_ORDER, sortOrder++);
+            if (coinInfo.length > 3) {
+                initialValues.put(COL_IMAGE_ID, (int) coinInfo[3]);
+            }
+            db.insert("[" + collectionName + "]", null, initialValues);
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, collectionName);
+        values.put(COL_COIN_TYPE, coinType);
+        values.put(COL_TOTAL, coinList.size());
+        values.put(COL_START_YEAR, startYear);
+        values.put(COL_END_YEAR, endYear);
+        values.put(COL_SHOW_MINT_MARKS, Long.toString(mintMarkFlags));
+        values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
+        db.insert(TBL_COLLECTION_INFO, null, values);
+    }
+
+    /**
+     * Helper to create a V23-schema collection from a collection's populateCollectionLists
+     * output. This creates a database with proper metadata (mint mark flags, checkbox flags,
+     * imageIds, endYear) that matches what a real user's database would contain. Use for
+     * collections introduced after V14 that need correct flags for upgrade code to work.
+     *
+     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
+     * @param collection           the collection type
+     * @param coinType             the coin type string
+     * @param collectionName       name for the test collection
+     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
+     */
+    public void createV23FromPopulate(SQLiteDatabase db, CollectionInfo collection,
+                                      String coinType, String collectionName,
+                                      String identifierToExclude) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName,
+                identifierToExclude, parameters);
+    }
+
+    /**
+     * Like createV23FromPopulate but uses the provided parameters instead of defaults.
+     * This allows creating V23 databases with non-default configurations (e.g., with
+     * S Proof enabled) to test upgrade correctness for diverse user settings.
+     * The SEMIQ_COINS checkbox flag is stripped from the stored flags to simulate a
+     * real V23 database (which wouldn't have had the SEMIQ flag). The upgrade migration
+     * in upgradeDbStructure will re-add it.
+     *
+     * @param db                   database at V23 schema (from TestDatabaseHelperV23)
+     * @param collection           the collection type
+     * @param coinType             the coin type string
+     * @param collectionName       name for the test collection
+     * @param identifierToExclude  if non-null, exclude coins whose identifier contains this
+     * @param parameters           pre-filled creation parameters
+     */
+    public void createV23FromPopulateWithParams(SQLiteDatabase db, CollectionInfo collection,
+                                                String coinType, String collectionName,
+                                                String identifierToExclude,
+                                                ParcelableHashMap parameters) {
+        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
+        collection.populateCollectionLists(parameters, fullCoinList);
+
+        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
+        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
+        // Strip the SEMIQ_COINS flag — V23 databases wouldn't have it.
+        // The upgradeDbStructure migration will re-add it during upgrade.
+        checkboxFlags &= ~CollectionListInfo.SEMIQ_COINS;
+
+        // Compute endYear from OPT_STOP_YEAR parameter (matching real collection creation
+        // behavior). Real databases set endYear = STOP_YEAR at creation, not from coin data.
+        // If excluding coins for a specific year (simulating a pre-upgrade DB), adjust endYear
+        // down by 1 when the exclude year matches the stop year.
+        int endYear = 0;
+        Object optStopYear = parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        if (optStopYear instanceof Integer) {
+            endYear = (Integer) optStopYear;
+            if (identifierToExclude != null) {
+                try {
+                    int excludeYear = Integer.parseInt(identifierToExclude);
+                    if (excludeYear == endYear) {
+                        endYear = endYear - 1;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        } else {
+            // Fallback for collections without OPT_STOP_YEAR: compute from coin identifiers
+            for (CoinSlot coin : fullCoinList) {
+                if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
+                    continue;
+                }
+                try {
+                    int year = Integer.parseInt(coin.getIdentifier());
+                    endYear = Math.max(endYear, year);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (CoinSlot coin : fullCoinList) {
+            if (identifierToExclude != null && coin.getIdentifier().contains(identifierToExclude)) {
+                continue;
+            }
+            coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), 0, coin.getImageId()});
+        }
+
+        createV23Collection(db, collectionName, coinType, coinList,
+                collection.getStartYear(), endYear, mintMarkFlags, checkboxFlags);
+    }
+
+    /**
+     * Returns a copy of the collection's default parameters with all Boolean options
+     * set to TRUE. This generates maximum-coverage parameter sets for testing upgrade
+     * correctness with all mint marks, checkboxes, etc. enabled.
+     *
+     * @param collection the collection type
+     * @return parameters with all Boolean values set to TRUE
+     */
+    public static ParcelableHashMap getAllEnabledParams(CollectionInfo collection) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        for (java.util.Map.Entry<String, Object> entry : parameters.entrySet()) {
+            if (entry.getValue() instanceof Boolean) {
+                entry.setValue(Boolean.TRUE);
+            }
+        }
+        return parameters;
+    }
+
+    /**
      * Validate updated database
      *
      * @param collectionInfo collection info
@@ -339,6 +545,57 @@ public class BaseTestCase {
                 for (int i = 0; i < newCoinList.size(); i++) {
                     assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
                     assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
+                    assertEquals(newCoinList.get(i).getImageId(), dbCoinList.get(i).getImageId());
+                }
+
+                // Make sure total matches
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                assertNotNull(collectionListEntries);
+                boolean foundTable = false;
+                for (CollectionListInfo collectionListInfo : collectionListEntries) {
+                    if (collectionName.equals(collectionListInfo.getName())) {
+                        foundTable = true;
+                        assertEquals(newCoinList.size(), collectionListInfo.getMax());
+                        break;
+                    }
+                }
+                assertTrue(foundTable);
+            });
+        }
+    }
+
+    /**
+     * Validate updated database using pre-filled parameters. Unlike validateUpdatedDb, this
+     * method does NOT call getCreationParameters — it uses the provided parameters as-is.
+     * This allows testing upgrade correctness for non-default configurations (e.g., with
+     * S Proof enabled) where the default parameters would mask the bug.
+     *
+     * @param collectionInfo collection info
+     * @param collectionName collection name
+     * @param parameters     pre-filled parameters (will not be overwritten)
+     */
+    public void validateUpdatedDbWithParams(final CollectionInfo collectionInfo,
+                                            final String collectionName,
+                                            final ParcelableHashMap parameters) {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+
+                // Create a new database from scratch using the provided parameters
+                ArrayList<CoinSlot> newCoinList = new ArrayList<>();
+                collectionInfo.populateCollectionLists(parameters, newCoinList);
+
+                // Get coins from the updated database
+                ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoinList);
+
+                // Make sure coin lists match
+                assertEquals(newCoinList.size(), dbCoinList.size());
+                for (int i = 0; i < newCoinList.size(); i++) {
+                    assertEquals(newCoinList.get(i).getIdentifier(), dbCoinList.get(i).getIdentifier());
+                    assertEquals(newCoinList.get(i).getMint(), dbCoinList.get(i).getMint());
+                    assertEquals(newCoinList.get(i).getImageId(), dbCoinList.get(i).getImageId());
                 }
 
                 // Make sure total matches
