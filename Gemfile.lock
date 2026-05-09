@@ -122,7 +122,7 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.4.1)
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
-    fastlane-plugin-amazon_appstore (1.5.0)
+    fastlane-plugin-amazon_appstore (1.6.0)
       faraday (~> 1.0)
       faraday_middleware (~> 1.0)
     fastlane-sirp (1.1.0)
@@ -238,7 +238,7 @@ PLATFORMS
 
 DEPENDENCIES
   fastlane (~> 2.233.1)
-  fastlane-plugin-amazon_appstore (~> 1.5.0)
+  fastlane-plugin-amazon_appstore (~> 1.6.0)
 
 BUNDLED WITH
    2.4.10
