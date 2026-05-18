@@ -45,15 +45,15 @@ public class Cartwheels extends CollectionInfo {
     };
 
     private static final Object[][] COIN_IMG_IDS = {
-            {"Flowing Hair", R.drawable.do1795_flowing_hairo},            // 0
-            {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},       // 1
-            {"Seated Liberty", R.drawable.do1860o},                       // 2
-            {"Trade", R.drawable.do1876tradeo},                           // 3
-            {"Morgan", R.drawable.obv_morgan_dollar},                     // 4
-            {"Peace", R.drawable.obv_peace_dollar},                       // 5
-            {"Eisenhower", R.drawable.obv_eisenhower_dollar},             // 6
-            {"Eagle", R.drawable.obv_american_eagle_unc},                 // 7
-            {"Liberty Seated Gobrecht", R.drawable.anostarsdime},         // 8
+            {"Flowing Hair", R.drawable.do1795_flowing_hairo},             // 0
+            {"Draped Bust", R.drawable.do1799_draped_bust_dollaro},        // 1
+            {"Seated Liberty", R.drawable.do1860o},                        // 2
+            {"Trade", R.drawable.do1876tradeo},                            // 3
+            {"Morgan", R.drawable.obv_morgan_dollar},                      // 4
+            {"Peace", R.drawable.obv_peace_dollar},                        // 5
+            {"Eisenhower", R.drawable.obv_eisenhower_dollar},              // 6
+            {"Eagle", R.drawable.obv_american_eagle_unc},                  // 7
+            {"Liberty Seated Gobrecht", R.drawable.anostarsdime},          // 8
             {"1776-2026 Eagle", R.drawable.semiq_2026_american_eagle_unc}, // 9
     };
 
