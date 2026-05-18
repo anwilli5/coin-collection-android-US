@@ -166,7 +166,6 @@ public class RooseveltDimes extends CollectionInfo {
                 continue;
             }
             if(showSilver) {
-                int silverImgId = -1;
                 if (i > 1945 && i <= 1964) {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++));}
                     if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
@@ -174,27 +173,26 @@ public class RooseveltDimes extends CollectionInfo {
                 }
                 if (showSilverProofs) {
                     if (i > 1949 && i < 1965) {coinList.add(new CoinSlot(year, "Silver Proof", coinIndex++));}
-                    if (i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++, silverImgId));}
-                    if (i > 2918) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++, silverImgId));}
+                    if (i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++));}
+                    if (i > 2918) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
                 }
             }
             if(showClad) {
-                int cladImgId = -1;
                 if (i > 1964 && i < 1968) {
                     coinList.add(new CoinSlot(year, "", coinIndex++));
                     coinList.add(new CoinSlot(year, "SMS", coinIndex++));
                 }
                 if (showP) {
                     if (i > 1967 && i < 1980) {coinList.add(new CoinSlot(year, "", coinIndex++));}
-                    if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++, cladImgId));}
+                    if (i > 1979) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
                     if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "P Satin", coinIndex++));}
                 }
                 if (showD) {
-                    if (i > 1967) {coinList.add(new CoinSlot(year, "D", coinIndex++, cladImgId));}
+                    if (i > 1967) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
                     if (showSatin && i > 2004 && i < 2011) {coinList.add(new CoinSlot(year, "D Satin", coinIndex++));}
                 }
                 if (showW && i == 1996) {coinList.add(new CoinSlot(year, "W", coinIndex++));}
-                if (showProofs && i > 1967) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, cladImgId));}
+                if (showProofs && i > 1967) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
             }
         }
     }
