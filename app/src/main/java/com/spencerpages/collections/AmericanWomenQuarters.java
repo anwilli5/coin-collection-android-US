@@ -193,6 +193,22 @@ public class AmericanWomenQuarters extends CollectionInfo {
             total += DatabaseHelper.addFromArrayList(db, collectionListInfo, newCoinIdentifiers);
         }
 
+        if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("Bessie Coleman");
+            dupIdentifiers.add("Edith Kanaka'ole");
+            dupIdentifiers.add("Eleanor Roosevelt");
+            dupIdentifiers.add("Jovita Idar");
+            dupIdentifiers.add("Maria Tallchief");
+            dupIdentifiers.add("Rev. Dr. Pauli Murray");
+            dupIdentifiers.add("Patsy Takemoto Mink");
+            dupIdentifiers.add("Dr. Mary Edwards Walker");
+            dupIdentifiers.add("Celia Cruz");
+            dupIdentifiers.add("Zitkala-Ša");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
         return total;
     }
 }

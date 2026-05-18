@@ -20,10 +20,13 @@ When editing `DatabaseHelper.java` or `DatabaseAdapter.java`, follow these rules
 
 ## upgradeDbStructure rules
 
-- Guard schema changes with `if (oldVersion <= N && !fromImport)` — imported DBs have the latest schema
+- Guard **schema changes** (ALTER TABLE, ADD COLUMN) with `if (oldVersion <= N && !fromImport)` — imported DBs have the latest schema
+- **Data-value migrations** (updating existing column values like checkbox flags) must **omit** the `!fromImport` guard — use just `if (oldVersion <= N)`. Imported databases have the latest schema but carry old data values from the export that also need updating.
 - Use incremental checks (`oldVersion <= N`), never equality checks
 - Never drop existing columns — SQLite has limited ALTER TABLE support
 - Collection-specific coin additions do NOT go here — they go in each collection's `onCollectionDatabaseUpgrade()`
+- **Use `Xxx.COLLECTION_TYPE` qualified references** for collection type names (e.g., `LincolnCents.COLLECTION_TYPE` not `"Pennies"`). If a `COLLECTION_TYPE` value is later renamed via a separate migration, every old migration block that used the constant must be updated to use the old literal string value instead — only the new migration performing the rename should reference the constant.
+- **More generally, if the value of any static import or constant used in a migration block changes, old migrations referencing it will silently pick up the new value and break.** This applies to `COLLECTION_TYPE` constants, column name constants (`COL_*`), table name constants (`TBL_*`), display constants (e.g., `SIMPLE_DISPLAY`), and flag constants. If a constant's value must change, update every old migration block that used it to use the old literal value instead of the constant.
 
 ## Helper methods
 

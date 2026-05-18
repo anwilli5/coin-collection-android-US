@@ -26,10 +26,12 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class RooseveltDimes extends CollectionInfo {
 
@@ -44,11 +46,12 @@ public class RooseveltDimes extends CollectionInfo {
     };
 
     private static final Object[][] COIN_IMG_IDS = {
-            {"Draped Bust", R.drawable.a1797drapeddime},
-            {"Capped Bust", R.drawable.a1820cappeddime},
-            {"Seated", R.drawable.astarsdime},
-            {"Barber", R.drawable.obv_barber_dime},
-            {"Mercury", R.drawable.obv_mercury_dime},
+            {"Draped Bust", R.drawable.a1797drapeddime},              // 0
+            {"Capped Bust", R.drawable.a1820cappeddime},              // 1
+            {"Seated", R.drawable.astarsdime},                        // 2
+            {"Barber", R.drawable.obv_barber_dime},                   // 3
+            {"Mercury", R.drawable.obv_mercury_dime},                 // 4
+            {"Emerging Liberty", R.drawable.semiq_2026_dime_obv_unc}, // 5
     };
 
     private static final Integer START_YEAR = 1946;
@@ -98,6 +101,9 @@ public class RooseveltDimes extends CollectionInfo {
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3, Boolean.FALSE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_3_STRING_ID, R.string.include_clad_coins);
 
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_4_STRING_ID, R.string.include_semiq_coins);
+
         // Use the MINT_MARK_1 checkbox for whether to include 'P' coins
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1_STRING_ID, R.string.include_p);
@@ -138,6 +144,7 @@ public class RooseveltDimes extends CollectionInfo {
         boolean showOld = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_1);
         boolean showSilver = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_2);
         boolean showClad = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         int coinIndex = 0;
 
         if (showOld) {
@@ -148,6 +155,16 @@ public class RooseveltDimes extends CollectionInfo {
 
         for (int i = startYear; i <= stopYear; i++) {
             String year = Integer.toString(i);
+            if (i == 2026) {
+                if (showSemiq) {
+                    int semiqImg = getImgId("Emerging Liberty");
+                    if (showP) {coinList.add(new CoinSlot(year, "P", coinIndex++, semiqImg));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, semiqImg));}
+                    if (showProofs) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, semiqImg));}
+                    if (showSilverProofs) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++, semiqImg));}
+                }
+                continue;
+            }
             if(showSilver) {
                 if (i > 1945 && i <= 1964) {
                     if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++));}
@@ -197,5 +214,23 @@ public class RooseveltDimes extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 23) {
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                    mintVariants.put(CollectionListInfo.MINT_S_PROOF, "S Proof");
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF, "S Silver Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("Emerging Liberty"));
+            }
+        }
+
+        return total;
+    }
 }

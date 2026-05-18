@@ -26,10 +26,12 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class CoinSets extends CollectionInfo {
     public static final String COLLECTION_TYPE = "Coin Sets";
@@ -120,5 +122,23 @@ public class CoinSets extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            // CoinSets uses checkbox-based types, not mint marks.
+            // Use addFromYear with explicit checkbox flags and per-variant image IDs.
+            LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+            mintVariants.put(CollectionListInfo.MINT_SETS, String.format("%nMint Set"));
+            mintVariants.put(CollectionListInfo.PROOF_SETS, String.format("%nProof Set"));
+            mintVariants.put(CollectionListInfo.SILVER_PROOF_SETS, String.format("Silver %nProof Set"));
+            LinkedHashMap<Long, Integer> variantImageIds = new LinkedHashMap<>();
+            variantImageIds.put(CollectionListInfo.MINT_SETS, getImgId("Mint Set"));
+            variantImageIds.put(CollectionListInfo.PROOF_SETS, getImgId("Proof Set"));
+            variantImageIds.put(CollectionListInfo.SILVER_PROOF_SETS, getImgId("Silver Proof Set"));
+            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                    "2026", mintVariants, variantImageIds,
+                    collectionListInfo.getCheckboxFlagsAsLong());
+        }
+        return total;
+    }
 }

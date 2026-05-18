@@ -231,7 +231,7 @@ public class CoinPageCreator extends BaseActivity {
      * TODO Make this easier to maintain, but make sure it doesn't break database
      *      upgrade functionality
      */
-    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2025;
+    public final static Integer OPTVAL_STILL_IN_PRODUCTION = 2026;
 
 
     public final static HashMap<String, String> SHOW_MINT_MARK_CHECKBOX_STRING_ID_OPT_MAP = new HashMap<>();
@@ -1188,6 +1188,8 @@ public class CoinPageCreator extends BaseActivity {
                     checkboxFlags |= CollectionListInfo.PROOF_SETS;
                 } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
                     checkboxFlags |= CollectionListInfo.SILVER_PROOF_SETS;
+                } else if (optionStrId.equals(R.string.include_semiq_coins)) {
+                    checkboxFlags |= CollectionListInfo.SEMIQ_COINS;
                 }
             }
         }
@@ -1392,6 +1394,8 @@ public class CoinPageCreator extends BaseActivity {
                 parameters.put(optName, existingCollection.hasProofSets());
             } else if (optionStrId.equals(R.string.include_silver_proof_sets)) {
                 parameters.put(optName, existingCollection.hasSilverProofSets());
+            } else if (optionStrId.equals(R.string.include_semiq_coins)) {
+                parameters.put(optName, existingCollection.hasSemiqCoins());
             }
         }
         return parameters;

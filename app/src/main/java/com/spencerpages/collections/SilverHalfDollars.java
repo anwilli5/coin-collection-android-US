@@ -26,10 +26,12 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SilverHalfDollars extends CollectionInfo {
 
@@ -55,6 +57,7 @@ public class SilverHalfDollars extends CollectionInfo {
             {"Draped Bust (Old)", R.drawable.ha1796o},                              // 16
             {"Capped Bust (Old)", R.drawable.ha1837o},                              // 17
             {"Seated Liberty (Old)", R.drawable.ha1853o},                           // 18
+            {"Enduring Liberty", R.drawable.semiq_2026_half_obv_unc},               // 19
     };
 
     private static final Integer START_YEAR = 1892;
@@ -127,6 +130,9 @@ public class SilverHalfDollars extends CollectionInfo {
 
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5, Boolean.TRUE);
         parameters.put(CoinPageCreator.OPT_CHECKBOX_5_STRING_ID, R.string.include_kennedy_half);
+
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_6_STRING_ID, R.string.include_semiq_coins);
     }
 
     @Override
@@ -145,6 +151,7 @@ public class SilverHalfDollars extends CollectionInfo {
         boolean showWalker = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_3);
         boolean showFrank = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_4);
         boolean showKen = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_5);
+        boolean showSemiq = getBooleanParameter(parameters, CoinPageCreator.OPT_CHECKBOX_6);
 
         int coinIndex = 0;
 
@@ -188,36 +195,41 @@ public class SilverHalfDollars extends CollectionInfo {
                 if (showS && i != 1948 && i != 1950 && i <= 1954) {coinList.add(new CoinSlot(year, "S", coinIndex++, getImgId("Franklin")));}
                 if (showFProof && i>1949) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Franklin")));}
             }
-            if (showKen) {
+            if (showKen && i != 2026) {
+                int kennedyImg = getImgId("Kennedy");
+                int kennedyProofImg = getImgId("Kennedy Proof");
                 if (i == 1964) {
-                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, getImgId("Kennedy")));}
-                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Kennedy")));}
-                    if (showSilver) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showP) {coinList.add(new CoinSlot(year, "", coinIndex++, kennedyImg));}
+                    if (showD) {coinList.add(new CoinSlot(year, "D", coinIndex++, kennedyImg));}
+                    if (showSilver) {coinList.add(new CoinSlot(year, "Proof", coinIndex++, kennedyProofImg));}
                 }
                 if (i > 1964 && i < 1968) {
                     if (showP) {
-                        coinList.add(new CoinSlot(year, String.format("%n40%% Silver"), coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, String.format("SMS%n40%% Silver"), coinIndex++, getImgId("Kennedy")));
+                        coinList.add(new CoinSlot(year, String.format("%n40%% Silver"), coinIndex++, kennedyImg));
+                        coinList.add(new CoinSlot(year, String.format("SMS%n40%% Silver"), coinIndex++, kennedyImg));
                     }
                 }
                 if (i > 1967 && i < 1971) {
-                    if (showD) {coinList.add(new CoinSlot(year, String.format("D%n40%% Silver"), coinIndex++, getImgId("Kennedy")));}
-                    if (showSilver) {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showD) {coinList.add(new CoinSlot(year, String.format("D%n40%% Silver"), coinIndex++, kennedyImg));}
+                    if (showSilver) {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, kennedyProofImg));}
                 }
                 if (i == 1976) {
-                    if (showS) {coinList.add(new CoinSlot("1776-1796", String.format("S BU%n40%% Silver"), coinIndex++, getImgId("Kennedy")));}
-                    if (showSilver) {coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Proof"), coinIndex++, getImgId("Kennedy Proof")));}
+                    if (showS) {coinList.add(new CoinSlot("1776-1796", String.format("S BU%n40%% Silver"), coinIndex++, kennedyImg));}
+                    if (showSilver) {coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Proof"), coinIndex++, kennedyProofImg));}
                 }
-                if (showSilver && i > 1991) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Kennedy Proof")));
+                if (showSilver && i > 1991) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, kennedyProofImg));
                     if (i == 2014) {
-                        coinList.add(new CoinSlot(year, "P Proof", coinIndex++, getImgId("Kennedy Proof")));
-                        coinList.add(new CoinSlot(year, "D", coinIndex++, getImgId("Kennedy")));
-                        coinList.add(new CoinSlot(year, "S Enhanced", coinIndex++, getImgId("Kennedy")));
+                        coinList.add(new CoinSlot(year, "P Proof", coinIndex++, kennedyProofImg));
+                        coinList.add(new CoinSlot(year, "D", coinIndex++, kennedyImg));
+                        coinList.add(new CoinSlot(year, "S Enhanced", coinIndex++, kennedyImg));
                         coinList.add(new CoinSlot(year, String.format("W%nReverse Proof"), coinIndex++, getImgId("Kennedy Reverse Proof")));
                     }
                     if (i == 2018){coinList.add(new CoinSlot(year, String.format("S%nReverse Proof"), coinIndex++, getImgId("Kennedy Reverse Proof")));}
 
                 }
+            }
+            if (showSemiq && i == 2026){
+                if (showSilver) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, getImgId("Enduring Liberty")));}
             }
         }
     }
@@ -233,5 +245,18 @@ public class SilverHalfDollars extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+        if (oldVersion <= 23) {
+            if (collectionListInfo.getEndYear() >= 2025) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasSemiqCoins()) {
+                    mintVariants.put(CollectionListInfo.MINT_SILVER_PROOF, "S Proof");
+                }
+                total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
+                        "2026", mintVariants, getImgId("Enduring Liberty"));
+            }
+        }
+        return total;
+    }
 }

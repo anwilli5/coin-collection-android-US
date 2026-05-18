@@ -33,7 +33,9 @@ import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class BasicQuarters extends CollectionInfo {
 
@@ -42,6 +44,11 @@ public class BasicQuarters extends CollectionInfo {
     private static final Object[][] COIN_IDENTIFIERS = {
             {"1776-1976", R.drawable.rev_1976_washington_quarter_unc},
             {"Crossing the Delaware", R.drawable.rev_2021_crossing_delaware_quarter_unc},
+            {"Mayflower Compact", R.drawable.semiq_2026_mayflower_compact_unc},
+            {"Revolutionary War", R.drawable.semiq_2026_revolutionary_war_unc},
+            {"Declaration of Independence", R.drawable.semiq_2026_declaration_unc},
+            {"U.S. Constitution", R.drawable.semiq_2026_constitution_unc},
+            {"Gettysburg Address", R.drawable.semiq_2026_gettysburg_unc},
     };
 
     private static final HashMap<String, Integer> COIN_MAP = new HashMap<>();
@@ -53,8 +60,14 @@ public class BasicQuarters extends CollectionInfo {
         }
     }
 
+    private static final String[] SEMIQ_COIN_NAMES = {
+            "Mayflower Compact", "Revolutionary War",
+            "Declaration of Independence", "U.S. Constitution",
+            "Gettysburg Address"
+    };
+
     private static final Integer START_YEAR = 1932;
-    private static final Integer STOP_YEAR = 2021;
+    private static final Integer STOP_YEAR = 2026;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 
@@ -121,6 +134,23 @@ public class BasicQuarters extends CollectionInfo {
             if (i == 2021) {
                 year = "Crossing the Delaware";
             }
+            if (i > 2021 && i < 2026)
+                continue;
+            if (i == 2026) {
+                for (String coinName : SEMIQ_COIN_NAMES) {
+                    if (showMintMarks) {
+                        if (showP) {
+                            coinList.add(new CoinSlot(coinName, "P", coinIndex++));
+                        }
+                        if (showD) {
+                            coinList.add(new CoinSlot(coinName, "D", coinIndex++));
+                        }
+                    } else {
+                        coinList.add(new CoinSlot(coinName, "", coinIndex++));
+                    }
+                }
+                continue;
+            }
 
             if (showMintMarks) {
                 if (showP) {
@@ -177,6 +207,28 @@ public class BasicQuarters extends CollectionInfo {
         if (oldVersion <= 15) {
             // Add in new 2021 coins if applicable
             total += DatabaseHelper.addFromYear(db, collectionListInfo, 1998, 2021, "Crossing the Delaware");
+        }
+
+        if (oldVersion <= 23) {
+            // Remove duplicates from the off-by-one version check bug (PR #280)
+            ArrayList<String> dupIdentifiers = new ArrayList<>();
+            dupIdentifiers.add("Crossing the Delaware");
+            total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
+        }
+
+        if (oldVersion <= 23) {
+            if (collectionListInfo.getEndYear() >= 2021) {
+                LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+                if (collectionListInfo.hasMintMarks()) {
+                    mintVariants.put(CollectionListInfo.MINT_P, "P");
+                    mintVariants.put(CollectionListInfo.MINT_D, "D");
+                } else {
+                    mintVariants.put(0L, "");
+                }
+                total += DatabaseHelper.addFromArrayList(db, collectionListInfo,
+                        new ArrayList<>(Arrays.asList(SEMIQ_COIN_NAMES)), null, mintVariants);
+                DatabaseHelper.updateEndYear(db, collectionListInfo, 2026);
+            }
         }
 
         return total;

@@ -76,7 +76,7 @@ public class EditCollectionParametersTests {
 
         // Verify initial progress
         onView(withText(COLLECTION_NAME)).check(matches(isDisplayed()));
-        onView(withText(UITestHelper.formatCollectionProgress(0, 121))).check(matches(isDisplayed()));
+        onView(withText(UITestHelper.formatCollectionProgress(0, UITestHelper.getExpectedCoinCount(0)))).check(matches(isDisplayed()));
 
         // Long-press the collection
         onView(withText(COLLECTION_NAME)).perform(longClick());

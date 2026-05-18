@@ -128,6 +128,7 @@ public class TutorialDialogsTest {
 
         // 3. Open the collection — add/lock tutorial should appear (screen3)
         onView(withText("Tutorial Test")).perform(click());
+        UITestHelper.waitForDisplayed(withText(R.string.tutorial_add_to_and_lock_collection));
         onView(withText(R.string.tutorial_add_to_and_lock_collection)).check(matches(isDisplayed()));
         onView(withText(R.string.okay_exp)).perform(click());
 

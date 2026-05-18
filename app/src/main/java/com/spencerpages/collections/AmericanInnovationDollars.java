@@ -26,6 +26,7 @@ import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -65,6 +66,10 @@ public class AmericanInnovationDollars extends CollectionInfo {
             {"Michigan", R.drawable.innovation_2025_michigan_unc},
             {"Florida", R.drawable.innovation_2025_florida_unc},
             {"Texas", R.drawable.innovation_2025_texas_unc},
+            {"Iowa", R.drawable.innovation_2026_iowa_unc},
+            {"Wisconsin", R.drawable.innovation_2026_wisconsin_unc},
+            {"California", R.drawable.innovation_2026_california_unc},
+            {"Minnesota", R.drawable.innovation_2026_minnesota_unc},
     };
 
     private static final String[] EIGHTEEN = {
@@ -111,6 +116,12 @@ public class AmericanInnovationDollars extends CollectionInfo {
             "Michigan",
             "Florida",
             "Texas",
+    };
+    private static final String[] TWENTY_SIX = {
+            "Iowa",
+            "Wisconsin",
+            "California",
+            "Minnesota",
     };
     private static final int REVERSE_IMAGE = R.drawable.innovation_2018_introductory_unc;
 
@@ -222,6 +233,13 @@ public class AmericanInnovationDollars extends CollectionInfo {
             if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
             if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
         }
+        for (String identifier : TWENTY_SIX) {
+            String year = Integer.toString(2026);
+            if (showP) {coinList.add(new CoinSlot(year,String.format("P%n%s", identifier) , coinIndex++, getImgId(identifier)));}
+            if (showD) {coinList.add(new CoinSlot(year, String.format("D%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showProof) {coinList.add(new CoinSlot(year, String.format("S%nProof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+            if (showRProof) {coinList.add(new CoinSlot(year, String.format("S%nReverse Proof%n%s", identifier), coinIndex++, getImgId(identifier)));}
+        }
     }
 
     public int getAttributionResId() {
@@ -240,5 +258,40 @@ public class AmericanInnovationDollars extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 23) {
+            // Add in new 2026 coins
+            // AmericanInnovationDollars uses year as identifier and embeds state name
+            // in mint mark, so we need custom logic instead of addFromArrayList.
+            String tableName = collectionListInfo.getName();
+            int newSortOrder = DatabaseHelper.getNextCoinSortOrder(db, tableName);
+            for (String identifier : TWENTY_SIX) {
+                int imageId = getImgId(identifier);
+                if (collectionListInfo.hasPMintMarks()) {
+                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                            String.format("P%n%s", identifier), imageId, newSortOrder);
+                    total++;
+                }
+                if (collectionListInfo.hasDMintMarks()) {
+                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                            String.format("D%n%s", identifier), imageId, newSortOrder);
+                    total++;
+                }
+                if (collectionListInfo.hasSProofMintMarks()) {
+                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                            String.format("S%nProof%n%s", identifier), imageId, newSortOrder);
+                    total++;
+                }
+                if (collectionListInfo.hasRevProofMintMarks()) {
+                    newSortOrder = DatabaseHelper.addCoin(db, tableName, "2026",
+                            String.format("S%nReverse Proof%n%s", identifier), imageId, newSortOrder);
+                    total++;
+                }
+            }
+        }
+
+        return total;
+    }
 }
