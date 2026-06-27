@@ -44,6 +44,7 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * BaseAdapter for the collection pages
@@ -454,7 +455,7 @@ class CoinSlotAdapter extends BaseAdapter {
      * @param query The search query to apply
      */
     public void setSearchQuery(String query) {
-        mSearchQuery = query.toLowerCase();
+        mSearchQuery = query.toLowerCase(Locale.ROOT);
         applyFilter();
     }
 
@@ -486,8 +487,8 @@ class CoinSlotAdapter extends BaseAdapter {
             if (matchesFilter) {
                 // Check search query
                 if (mSearchQuery.isEmpty() ||
-                    coin.getIdentifier().toLowerCase().contains(mSearchQuery) ||
-                    (coin.getMint() != null && coin.getMint().toLowerCase().contains(mSearchQuery))) {
+                    coin.getIdentifier().toLowerCase(Locale.ROOT).contains(mSearchQuery) ||
+                    (coin.getMint() != null && coin.getMint().toLowerCase(Locale.ROOT).contains(mSearchQuery))) {
                     mFilteredCoinList.add(coin);
                 }
             }

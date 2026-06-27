@@ -30,7 +30,7 @@ android {
             }
         }
     }
-    compileSdk 37
+    compileSdk = 37
     // minSdkVersion should be the lowest supported.
     //  - For app versions 1.6 and below this was 4
     //  - Raised to 7 for version 2.0 to support the appcompat support library
@@ -41,14 +41,14 @@ android {
     // targetSdkVersion should be raised to match the latest version of
     // Android and then tested (on that version) to make sure it works.
     defaultConfig {
-        applicationId "com.spencerpages"
-        minSdkVersion 21
-        targetSdkVersion 37
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.spencerpages"
+        minSdk = 21
+        targetSdk = 37
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             // Apply the release signing config only when it was actually populated
             // (either via env vars in CI or signing.properties locally). Without this
@@ -56,7 +56,7 @@ android {
             // storeFile. With it, a local build with no keystore configured simply
             // produces an unsigned release APK (CI always provides the keystore).
             if (signingConfigs.Android.storeFile != null) {
-                signingConfig signingConfigs.Android
+                signingConfig = signingConfigs.Android
             }
             android.applicationVariants.all { variant ->
                 variant.outputs.all {
@@ -65,18 +65,18 @@ android {
             }
         }
         debug {
-            applicationIdSuffix ".debug"
-            debuggable true
+            applicationIdSuffix = ".debug"
+            debuggable = true
         }
     }
-    flavorDimensions "version"
+    flavorDimensions = ["version"]
     productFlavors {
         android {
-            dimension "version"
+            dimension = "version"
         }
         amazon {
-            dimension "version"
-            applicationIdSuffix ".amazon"
+            dimension = "version"
+            applicationIdSuffix = ".amazon"
         }
     }
     testOptions {
@@ -85,11 +85,11 @@ android {
         }
     }
     lint {
-        abortOnError false
+        abortOnError = false
     }
-    namespace 'com.spencerpages'
+    namespace = 'com.spencerpages'
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
     testOptions {
         unitTests.returnDefaultValues = true
