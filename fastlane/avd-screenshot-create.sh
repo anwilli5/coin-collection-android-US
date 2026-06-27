@@ -76,8 +76,10 @@ if [[ -z "${API_LEVEL:-}" ]]; then
   exit 1
 fi
 
-# Preferred image types in order of preference
-IMAGE_TYPES=("google_apis" "google_apis_playstore")
+# Preferred image types in order of preference.
+# API 37+ ships system images only as 16 KB page-size variants (the *_ps16k
+# types), so include those before falling back to the legacy non-ps16k names.
+IMAGE_TYPES=("google_apis_ps16k" "google_apis_playstore_ps16k" "google_apis" "google_apis_playstore")
 
 # AVD definitions: name|device_profile|description
 # Note: AVD names must only contain a-z A-Z 0-9 . _ - (no spaces)
