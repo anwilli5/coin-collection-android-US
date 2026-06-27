@@ -3,22 +3,22 @@ plugins {
 }
 
 android {
-    namespace 'com.spencerpages.sharedtest'
-    compileSdkVersion 37
+    namespace = 'com.spencerpages.sharedtest'
+    compileSdk = 37
     defaultConfig {
-        minSdkVersion 21
+        minSdk = 21
     }
     buildFeatures {
         resValues = false
         buildConfig = false
     }
-    flavorDimensions "version"
+    flavorDimensions = ["version"]
     productFlavors {
         android {
-            dimension "version"
+            dimension = "version"
         }
         amazon {
-            dimension "version"
+            dimension = "version"
         }
     }
 }
