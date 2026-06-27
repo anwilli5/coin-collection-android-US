@@ -1,18 +1,24 @@
-name: Build and Create GitHub Release
+name: Build and Publish Pre-release
 
 on:
-  workflow_dispatch: {} # No inputs from user at trigger time
+  workflow_dispatch:
+    inputs:
+      rc_number:
+        description: 'Release candidate number for this pre-release (e.g. 1 produces tag vX.Y.Z-rc.1).'
+        required: true
+        type: string
+        default: '1'
+      releaseNotes:
+        description: "What's-new text for the Google Play closed testing (alpha) track."
+        required: true
+        type: string
 
 jobs:
-  build_and_create_release:
-    name: 'Build APKs and Create GitHub Release'
+  build_and_prerelease:
+    name: 'Build APKs, Publish Pre-release, Deploy to Play alpha'
     runs-on: ubuntu-latest
-    permissions: # Needed by softprops/action-gh-release to create releases
-      contents: write 
-    outputs: # Output extracted versions for potential use in other workflows if chained via API
-      tag_created: v${{ steps.extract_versions.outputs.manifest_version_name }}
-      version_name_extracted: ${{ steps.extract_versions.outputs.manifest_version_name }}
-      version_code_extracted: ${{ steps.extract_versions.outputs.manifest_version_code }}
+    permissions: # contents:write to create the pre-release; deploy uses Play creds via secrets
+      contents: write
     steps:
       - name: Checkout code (full history for release notes)
         uses: actions/checkout@v7
@@ -41,26 +47,38 @@ jobs:
           echo "manifest_version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "manifest_version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
 
-      - name: Check if Git Tag Exists
+      - name: Compose RC tag and check tags do not exist
         id: check_tag
+        env:
+          INPUT_RC_NUMBER: ${{ github.event.inputs.rc_number }}
         run: |
-          TAG_NAME="v${{ steps.extract_versions.outputs.manifest_version_name }}"
-          echo "Checking for existing tag: $TAG_NAME"
-          # Fetch all tags from remote to ensure local git knows about them
-          git fetch --tags --force # --force to overwrite local tags with remote, ensuring up-to-date check
-          # Check if tag exists locally (which implies it would have been fetched if remote)
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-            echo "Error: Tag $TAG_NAME already exists. Halting workflow to prevent duplicate release."
+          set -euo pipefail
+          VERSION_NAME="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          # Sanitize the RC number to digits only, then strip leading zeros so
+          # e.g. "007" -> "7" (and "0" / "000" -> ""). This rejects 0, which would
+          # otherwise produce a meaningless "-rc.0" tag.
+          RC_NUMBER="$(printf '%s' "$INPUT_RC_NUMBER" | tr -cd '0-9' | sed 's/^0*//')"
+          if [ -z "$RC_NUMBER" ]; then
+            echo "Error: rc_number must be a positive integer (>= 1)."
             exit 1
           fi
-          # As an additional safeguard, explicitly check remote. 
-          # git ls-remote --tags origin refs/tags/$TAG_NAME will output the tag if it exists on remote.
-          # If it outputs something, the tag exists.
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME$"; then
-             echo "Error: Tag $TAG_NAME confirmed to exist on remote 'origin'."
-             exit 1
+          FINAL_TAG="v${VERSION_NAME}"
+          RC_TAG="v${VERSION_NAME}-rc.${RC_NUMBER}"
+          echo "Final release tag (reserved for promotion): $FINAL_TAG"
+          echo "Pre-release tag: $RC_TAG"
+          # Fetch all tags from remote so local git is authoritative.
+          git fetch --tags --force
+          if git rev-parse "$FINAL_TAG" >/dev/null 2>&1; then
+            echo "Error: Final tag $FINAL_TAG already exists; this version was already released. Bump android:versionName before pre-releasing."
+            exit 1
           fi
-          echo "Tag $TAG_NAME does not appear to exist locally or on remote 'origin'. Proceeding."
+          if git rev-parse "$RC_TAG" >/dev/null 2>&1; then
+            echo "Error: Pre-release tag $RC_TAG already exists. Use a higher rc_number."
+            exit 1
+          fi
+          echo "Neither $FINAL_TAG nor $RC_TAG exists. Proceeding."
+          echo "rc_tag=$RC_TAG" >> "$GITHUB_OUTPUT"
+          echo "final_tag=$FINAL_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Java (for Gradle)
         uses: actions/setup-java@v5
@@ -69,10 +87,20 @@ jobs:
           java-version: '17' 
 
       - name: Decode and Place Keystore
-        run: |
-          echo "${{ secrets.SIGNING_KEYSTORE_DATA }}" | base64 --decode > ${{ github.workspace }}/app/release.keystore
         env:
           SIGNING_KEYSTORE_DATA: ${{ secrets.SIGNING_KEYSTORE_DATA }}
+        run: |
+          if [ -z "$SIGNING_KEYSTORE_DATA" ]; then
+            echo "Error: SIGNING_KEYSTORE_DATA secret is not set."
+            exit 1
+          fi
+          # Use printf + env-var (not direct ${{ }} interpolation) so the value never
+          # has to survive shell-quoting at the YAML expansion layer.
+          printf '%s' "$SIGNING_KEYSTORE_DATA" | base64 --decode > "${{ github.workspace }}/app/release.keystore"
+          if [ ! -s "${{ github.workspace }}/app/release.keystore" ]; then
+            echo "Error: decoded keystore is empty. SIGNING_KEYSTORE_DATA may be malformed."
+            exit 1
+          fi
 
       - name: Build Release APKs (Android and Amazon)
         env:
@@ -94,17 +122,78 @@ jobs:
           test -f "app/amazon/release/app-amazon-release-v${MVN}.apk"
           echo "Versioned APKs verified."
 
-      - name: Create GitHub Release
+      - name: Verify APKs are signed with the release key
+        # Fails the workflow early if signing wiring is broken (e.g. missing secrets,
+        # or signingConfig not applied to the release buildType). Without this check,
+        # an unsigned/debug-signed APK could be uploaded to a GitHub Release and only
+        # rejected later by the Play/Amazon stores.
+        run: |
+          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "apksigner not found in \$ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          for APK in \
+            "app/android/release/app-android-release-v${MVN}.apk" \
+            "app/amazon/release/app-amazon-release-v${MVN}.apk"; do
+            echo "Verifying signature: $APK"
+            "$APKSIGNER" verify --verbose "$APK"
+            # Reject debug-signed APKs: the AOSP debug cert's CN is
+            # "CN=Android Debug,O=Android,C=US". Refuse to publish those.
+            if "$APKSIGNER" verify --print-certs "$APK" | grep -q "CN=Android Debug"; then
+              echo "Error: $APK is signed with the Android debug key. Check SIGNING_* secrets."
+              exit 1
+            fi
+          done
+          echo "All APKs verified as signed with a non-debug key."
+
+      - name: Create GitHub Pre-release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v${{ steps.extract_versions.outputs.manifest_version_name }}
-          name: Release v${{ steps.extract_versions.outputs.manifest_version_name }}
+          tag_name: ${{ steps.check_tag.outputs.rc_tag }}
+          name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}
           # body parameter is removed/empty to allow auto-generation
           files: |
             app/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
             app/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
           fail_on_unmatched_files: true # Ensures workflow fails if APKs are not found
           draft: false
-          prerelease: false
+          # Marked as pre-release. F-Droid watches git TAGS, not this flag, so the
+          # RC tag (vX.Y.Z-rc.N) must be excluded by fdroiddata UpdateCheckMode.
+          # The final vX.Y.Z release/tag is created later by promote.yml.
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Create Google Play Key File
+        env:
+          GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
+        run: |
+          if [ -z "$GOOGLE_PLAY_JSON_KEY_DATA" ]; then
+            echo "Error: GOOGLE_PLAY_JSON_KEY_DATA secret is not set."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_PLAY_JSON_KEY_DATA" > /tmp/google_play_key.json
+          python3 -c 'import json,sys; json.load(open("/tmp/google_play_key.json"))' || {
+            echo "Error: GOOGLE_PLAY_JSON_KEY_DATA did not parse as JSON.";
+            exit 1;
+          }
+
+      - name: Deploy to Google Play (alpha / closed testing)
+        env:
+          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
+        run: |
+          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          bundle exec fastlane deploy_playstore_test \
+            apk_path:"app/android/release/app-android-release-v${MVN}.apk" \
+            version_name:"${MVN}" \
+            version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
+            track:"alpha" \
+            release_notes:"$RELEASE_NOTES"
