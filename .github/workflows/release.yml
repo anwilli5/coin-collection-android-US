@@ -54,10 +54,12 @@ jobs:
         run: |
           set -euo pipefail
           VERSION_NAME="${{ steps.extract_versions.outputs.manifest_version_name }}"
-          # Sanitize the RC number to digits only.
-          RC_NUMBER="$(printf '%s' "$INPUT_RC_NUMBER" | tr -cd '0-9')"
+          # Sanitize the RC number to digits only, then strip leading zeros so
+          # e.g. "007" -> "7" (and "0" / "000" -> ""). This rejects 0, which would
+          # otherwise produce a meaningless "-rc.0" tag.
+          RC_NUMBER="$(printf '%s' "$INPUT_RC_NUMBER" | tr -cd '0-9' | sed 's/^0*//')"
           if [ -z "$RC_NUMBER" ]; then
-            echo "Error: rc_number must be a positive integer."
+            echo "Error: rc_number must be a positive integer (>= 1)."
             exit 1
           fi
           FINAL_TAG="v${VERSION_NAME}"

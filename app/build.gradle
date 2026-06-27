@@ -52,8 +52,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             // Apply the release signing config only when it was actually populated
             // (either via env vars in CI or signing.properties locally). Without this
-            // guard, unsigned release builds would fail; with it, devs can still
-            // produce debug-signed release builds for local testing.
+            // guard, Gradle would fail evaluating a signingConfig with a null
+            // storeFile. With it, a local build with no keystore configured simply
+            // produces an unsigned release APK (CI always provides the keystore).
             if (signingConfigs.Android.storeFile != null) {
                 signingConfig signingConfigs.Android
             }

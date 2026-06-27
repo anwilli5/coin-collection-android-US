@@ -92,7 +92,7 @@ jobs:
           TAG="${{ steps.resolve_version.outputs.tag }}"
           echo "Verifying GitHub Release exists for $TAG..."
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null; then
-            echo "Error: GitHub Release for tag $TAG not found. Run the 'Build and Create GitHub Release' workflow first, or supply an existing release_tag input."
+            echo "Error: GitHub Release for tag $TAG not found. Run the 'Build and Publish Pre-release' and 'Promote Pre-release to Release' workflows first, or supply an existing release_tag input."
             exit 1
           fi
           echo "Release $TAG found."

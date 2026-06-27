@@ -192,9 +192,10 @@ compare its SHA-1 to **Play Console → Setup → App integrity →
 App signing → Upload certificate**. They must match exactly.
 
 **Release workflow fails decoding the keystore (`decoded keystore is empty`).**
-`SIGNING_KEYSTORE_DATA` value is not valid base64. Recreate it with
-`base64 -i upload-keystore.jks -o keystore.b64` and paste the entire file
-contents into the secret.
+`SIGNING_KEYSTORE_DATA` value is not valid base64. Recreate it and paste the
+entire file contents into the secret. On macOS/BSD use
+`base64 -i upload-keystore.jks -o keystore.b64`; on Linux/GNU use
+`base64 -w0 upload-keystore.jks > keystore.b64`.
 
 **Promote workflow fails with `pre-release ... not found`.**
 The pre-release workflow has not been run for that `rc_tag`, or the tag is

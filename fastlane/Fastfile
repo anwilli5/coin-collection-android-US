@@ -64,7 +64,7 @@ platform :android do
         apk: options[:apk_path]
         # json_key_file is already set in Appfile
       }
-      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || "Default changelog for #{track} track." } if options[:release_notes]
+      supply_params[:changelogs] = { 'en-US' => options[:release_notes] } if options[:release_notes]
 
       supply(supply_params)
       UI.success("Successfully deployed to Google Play Store (#{track} track)!")
@@ -86,7 +86,7 @@ platform :android do
         track: 'production',
         apk: options[:apk_path] # Use passed APK path
       }
-      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || 'Production release.' } if options[:release_notes]
+      supply_params[:changelogs] = { 'en-US' => options[:release_notes] } if options[:release_notes]
       # supply_params[:release_status] = 'completed' # Optional: to automatically submit for review
       # Optional: Pass version name and code if your supply setup needs them for metadata.
       # supply_params[:version_name] = options[:version_name] if options[:version_name]
