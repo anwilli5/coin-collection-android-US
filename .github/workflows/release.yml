@@ -187,6 +187,8 @@ jobs:
           }
 
       - name: Deploy to Google Play (alpha / closed testing)
+        env:
+          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
           bundle exec fastlane deploy_playstore_test \
@@ -194,4 +196,4 @@ jobs:
             version_name:"${MVN}" \
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
             track:"alpha" \
-            release_notes:"${{ github.event.inputs.releaseNotes }}"
+            release_notes:"$RELEASE_NOTES"

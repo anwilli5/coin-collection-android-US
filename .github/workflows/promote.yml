@@ -147,22 +147,25 @@ jobs:
           }
 
       - name: Deploy to Google Play (Production)
+        env:
+          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           bundle exec fastlane deploy_playstore_production \
             apk_path:"downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
             version_code:"${{ steps.resolve.outputs.version_code }}" \
-            release_notes:"${{ github.event.inputs.releaseNotes }}"
+            release_notes:"$RELEASE_NOTES"
 
       - name: Deploy to Amazon Appstore
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
+          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           bundle exec fastlane deploy_amazon_appstore \
             apk_path:"downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
             version_code:"${{ steps.resolve.outputs.version_code }}" \
-            release_notes:"${{ github.event.inputs.releaseNotes }}"
+            release_notes:"$RELEASE_NOTES"
