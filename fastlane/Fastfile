@@ -10,8 +10,10 @@
 #     https://docs.fastlane.tools/plugins/available-plugins
 #
 
-# Uncomment the line if you want fastlane to automatically update itself
-update_fastlane
+# Note: `update_fastlane` is intentionally NOT called here.
+# Fastlane versions are pinned in the repo's Gemfile/Gemfile.lock; allowing the
+# tool to self-update mid-run on CI has historically caused flaky failures.
+# Run `bundle update fastlane` locally when you need a new version.
 
 default_platform(:android)
 
@@ -45,30 +47,30 @@ platform :android do
     sh("cp metadata/android/en-US/images/phoneScreenshots/*.png ../images/screenshots/")
   end
 
-  desc "Deploy the app to Google Play Store (Internal Test Track) using a pre-built APK."
+  desc "Deploy the app to Google Play Store (tester track) using a pre-built APK."
   lane :deploy_playstore_test do |options|
     begin
-      UI.message("Deploying to Internal Test Track with options: #{options.inspect}")
+      UI.message("Deploying to Play tester track with options: #{options.inspect}")
       UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
 
-      # Gradle build steps are removed. APK is provided via options[:apk_path].
+      # Allow the caller to pick which Play tester track to deploy to.
+      # Defaults to 'alpha' (Closed testing). Other valid values: 'internal',
+      # 'beta'. The previous behavior used 'internal' unconditionally.
+      track = options[:track] && !options[:track].to_s.strip.empty? ? options[:track].to_s : 'alpha'
+      UI.user_error!("Invalid track: #{track}") unless %w[internal alpha beta].include?(track)
 
       supply_params = {
-        track: 'internal',
-        apk: options[:apk_path] # Use passed APK path
+        track: track,
+        apk: options[:apk_path]
         # json_key_file is already set in Appfile
       }
-      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || 'Default changelog for internal track.' } if options[:release_notes]
-      # Optional: Pass version name and code if your supply setup needs them for metadata,
-      # though this is usually derived from the APK or managed in Play Console.
-      # supply_params[:version_name] = options[:version_name] if options[:version_name]
-      # supply_params[:version_code] = options[:version_code].to_i if options[:version_code]
+      supply_params[:changelogs] = { 'en-US' => options[:release_notes] || "Default changelog for #{track} track." } if options[:release_notes]
 
       supply(supply_params)
-      UI.success("Successfully deployed to Google Play Store (Internal Test Track)!")
+      UI.success("Successfully deployed to Google Play Store (#{track} track)!")
     rescue => ex
-      UI.error("Error deploying to Google Play Store (Internal): #{ex}")
-      raise ex # Re-raise the exception to fail the lane
+      UI.error("Error deploying to Google Play Store (tester track): #{ex}")
+      raise ex
     end
   end
 
@@ -106,15 +108,18 @@ platform :android do
 
       # Gradle build steps are removed. APK is provided via options[:apk_path].
 
-      # Handle changelogs by writing to file
-      if options[:release_notes] && options[:version_code]
+      # Handle changelogs by writing to file. The deploy workflow passes
+      # version_code="0" as a sentinel when the operator supplied an explicit
+      # release_tag (in which case the workflow can't trust main's manifest).
+      # Skip the changelog file in that case rather than writing "0.txt".
+      if options[:release_notes] && options[:version_code] && options[:version_code].to_i > 0
         changelog_dir = "./fastlane/metadata/android/en-US/changelogs"
         FileUtils.mkdir_p(changelog_dir) # Ensure directory exists
         changelog_path = File.join(changelog_dir, "#{options[:version_code]}.txt")
         File.open(changelog_path, 'w') { |file| file.write(options[:release_notes]) }
         UI.message("Wrote release notes to #{changelog_path} for version code #{options[:version_code]}")
       else
-        UI.important("No release notes or version code provided for Amazon changelog generation.")
+        UI.important("No release notes or valid version code provided for Amazon changelog generation; relying on existing changelog files (if any).")
       end
 
       # Check to ensure ENV variables are set

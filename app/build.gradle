@@ -5,8 +5,20 @@ plugins {
 android {
     signingConfigs {
         Android {
+            // Local development: read from signing.properties (gitignored) when present.
             def signingPropsFile = new File('../signing.properties')
-            if (signingPropsFile.canRead()) {
+            // CI: when SIGNING_* env vars are set (see .github/workflows/release.yml),
+            // use them instead. Env vars take precedence over signing.properties.
+            def envKeystorePath = System.getenv('SIGNING_KEYSTORE_PATH')
+            def envKeystorePassword = System.getenv('SIGNING_KEYSTORE_PASSWORD')
+            def envKeyAlias = System.getenv('SIGNING_KEY_ALIAS')
+            def envKeyPassword = System.getenv('SIGNING_KEY_PASSWORD')
+            if (envKeystorePath && envKeystorePassword && envKeyAlias && envKeyPassword) {
+                storeFile = file(envKeystorePath)
+                storePassword = envKeystorePassword
+                keyAlias = envKeyAlias
+                keyPassword = envKeyPassword
+            } else if (signingPropsFile.canRead()) {
                 def props = new Properties()
                 def fileInputStream = new FileInputStream(signingPropsFile)
                 props.load(fileInputStream)
@@ -38,6 +50,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
+            // Apply the release signing config only when it was actually populated
+            // (either via env vars in CI or signing.properties locally). Without this
+            // guard, unsigned release builds would fail; with it, devs can still
+            // produce debug-signed release builds for local testing.
+            if (signingConfigs.Android.storeFile != null) {
+                signingConfig signingConfigs.Android
+            }
             android.applicationVariants.all { variant ->
                 variant.outputs.all {
                     outputFileName = "app-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}.apk"

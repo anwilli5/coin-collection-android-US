@@ -1,0 +1,168 @@
+name: Promote Pre-release to Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_tag:
+        description: 'Pre-release tag to promote (e.g. v3.7.4-rc.1).'
+        required: true
+        type: string
+      releaseNotes:
+        description: "What's-new text for Google Play production and the Amazon Appstore."
+        required: true
+        type: string
+
+jobs:
+  promote:
+    name: 'Promote pre-release to production + Amazon (+ F-Droid tag)'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the final release and tag
+    steps:
+      - name: Validate and parse RC tag
+        id: parse
+        env:
+          INPUT_RC_TAG: ${{ github.event.inputs.rc_tag }}
+        run: |
+          set -euo pipefail
+          RC_TAG="$INPUT_RC_TAG"
+          # Only accept a proper pre-release tag: vMAJOR[.MINOR...]-rc.N
+          if ! printf '%s' "$RC_TAG" | grep -Eq '^v[0-9]+(\.[0-9]+)*-rc\.[0-9]+$'; then
+            echo "Error: rc_tag '$RC_TAG' is not of the form vX.Y.Z-rc.N."
+            exit 1
+          fi
+          VERSION_NAME="$(printf '%s' "$RC_TAG" | sed -E 's/^v//; s/-rc\.[0-9]+$//')"
+          FINAL_TAG="v${VERSION_NAME}"
+          echo "rc_tag=$RC_TAG" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "final_tag=$FINAL_TAG" >> "$GITHUB_OUTPUT"
+          echo "Parsed: rc_tag=$RC_TAG versionName=$VERSION_NAME final_tag=$FINAL_TAG"
+
+      - name: Checkout RC tag commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.parse.outputs.rc_tag }}
+          fetch-depth: 0
+
+      - name: Resolve commit and versionCode
+        id: resolve
+        run: |
+          set -euo pipefail
+          COMMIT_SHA="$(git rev-parse HEAD)"
+          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
+          VERSION_CODE=$(grep 'android:versionCode=' "$MANIFEST_PATH" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+          if [ -z "$VERSION_CODE" ]; then
+            echo "Could not extract versionCode from $MANIFEST_PATH at ${{ steps.parse.outputs.rc_tag }}"
+            exit 1
+          fi
+          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "Commit: $COMMIT_SHA versionCode: $VERSION_CODE"
+
+      - name: Verify pre-release exists and final release does not
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RC_TAG="${{ steps.parse.outputs.rc_tag }}"
+          FINAL_TAG="${{ steps.parse.outputs.final_tag }}"
+          if ! gh release view "$RC_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null; then
+            echo "Error: pre-release $RC_TAG not found. Run the 'Build and Publish Pre-release' workflow first."
+            exit 1
+          fi
+          if gh release view "$FINAL_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Error: final release $FINAL_TAG already exists. This pre-release was already promoted."
+            exit 1
+          fi
+          echo "Pre-release $RC_TAG present; final release $FINAL_TAG not yet created."
+
+      - name: Download APKs from pre-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p downloaded_apks
+          RC_TAG="${{ steps.parse.outputs.rc_tag }}"
+          VERSION_NAME="${{ steps.parse.outputs.version_name }}"
+          ANDROID_APK_NAME="app-android-release-v${VERSION_NAME}.apk"
+          AMAZON_APK_NAME="app-amazon-release-v${VERSION_NAME}.apk"
+
+          echo "Downloading APKs from pre-release $RC_TAG..."
+          gh release download "$RC_TAG" \
+            --pattern "$ANDROID_APK_NAME" \
+            --dir downloaded_apks \
+            --repo "$GITHUB_REPOSITORY"
+          gh release download "$RC_TAG" \
+            --pattern "$AMAZON_APK_NAME" \
+            --dir downloaded_apks \
+            --repo "$GITHUB_REPOSITORY"
+
+          if [ ! -f "downloaded_apks/$ANDROID_APK_NAME" ]; then
+            echo "Error: failed to download $ANDROID_APK_NAME"
+            exit 1
+          fi
+          if [ ! -f "downloaded_apks/$AMAZON_APK_NAME" ]; then
+            echo "Error: failed to download $AMAZON_APK_NAME"
+            exit 1
+          fi
+          ls -la downloaded_apks/
+
+      - name: Create final GitHub Release (F-Droid picks up this tag)
+        uses: softprops/action-gh-release@v3
+        with:
+          # The bare vX.Y.Z tag is what F-Droid's UpdateCheckMode watches. It is
+          # created here (not at pre-release time) and points at the exact commit
+          # the verified pre-release APKs were built from.
+          tag_name: ${{ steps.parse.outputs.final_tag }}
+          target_commitish: ${{ steps.resolve.outputs.commit_sha }}
+          name: Release ${{ steps.parse.outputs.final_tag }}
+          # Re-attach the exact same APKs that alpha testers verified.
+          files: |
+            downloaded_apks/app-android-release-v${{ steps.parse.outputs.version_name }}.apk
+            downloaded_apks/app-amazon-release-v${{ steps.parse.outputs.version_name }}.apk
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Create Google Play Key File
+        env:
+          GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
+        run: |
+          if [ -z "$GOOGLE_PLAY_JSON_KEY_DATA" ]; then
+            echo "Error: GOOGLE_PLAY_JSON_KEY_DATA secret is not set."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_PLAY_JSON_KEY_DATA" > /tmp/google_play_key.json
+          python3 -c 'import json,sys; json.load(open("/tmp/google_play_key.json"))' || {
+            echo "Error: GOOGLE_PLAY_JSON_KEY_DATA did not parse as JSON.";
+            exit 1;
+          }
+
+      - name: Deploy to Google Play (Production)
+        run: |
+          VERSION_NAME="${{ steps.parse.outputs.version_name }}"
+          bundle exec fastlane deploy_playstore_production \
+            apk_path:"downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
+            version_name:"${VERSION_NAME}" \
+            version_code:"${{ steps.resolve.outputs.version_code }}" \
+            release_notes:"${{ github.event.inputs.releaseNotes }}"
+
+      - name: Deploy to Amazon Appstore
+        env:
+          AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
+          AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
+        run: |
+          VERSION_NAME="${{ steps.parse.outputs.version_name }}"
+          bundle exec fastlane deploy_amazon_appstore \
+            apk_path:"downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
+            version_name:"${VERSION_NAME}" \
+            version_code:"${{ steps.resolve.outputs.version_code }}" \
+            release_notes:"${{ github.event.inputs.releaseNotes }}"
