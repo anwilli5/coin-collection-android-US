@@ -129,7 +129,7 @@ jobs:
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          # Ruby version defined in .ruby-version
           bundler-cache: true
 
       - name: Create Google Play Key File

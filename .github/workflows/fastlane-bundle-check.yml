@@ -1,0 +1,38 @@
+# Validates that the Fastlane gem bundle installs and loads on the project's
+# pinned Ruby version (.ruby-version). Catches Ruby/gem incompatibilities
+# that normally show up in the release pipelines
+name: Fastlane Bundle Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Gemfile'
+      - 'Gemfile.lock'
+      - '.ruby-version'
+      - 'fastlane/**'
+      - '.github/workflows/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'Gemfile'
+      - 'Gemfile.lock'
+      - '.ruby-version'
+      - 'fastlane/**'
+      - '.github/workflows/**'
+
+jobs:
+  bundle-check:
+    name: Bundle install & Fastlane load
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          # Ruby version defined in .ruby-version
+          bundler-cache: true
+
+      - name: Verify Fastlane loads
+        run: bundle exec fastlane --version
