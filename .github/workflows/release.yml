@@ -94,7 +94,8 @@ jobs:
             echo "Error: SIGNING_KEYSTORE_DATA secret is not set."
             exit 1
           fi
-          # Use printf + env-var (not direct ${{ }} interpolation) so the value never
+          # Use printf + env-var (not direct GitHub Actions expression
+          # interpolation) so the value never
           # has to survive shell-quoting at the YAML expansion layer.
           printf '%s' "$SIGNING_KEYSTORE_DATA" | base64 --decode > "${{ github.workspace }}/app/release.keystore"
           if [ ! -s "${{ github.workspace }}/app/release.keystore" ]; then
