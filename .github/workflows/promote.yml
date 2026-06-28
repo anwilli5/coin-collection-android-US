@@ -129,7 +129,8 @@ jobs:
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          # Ruby version is read from the repo .ruby-version file (single source
+          # of truth shared by all release workflows and the bundle-check CI).
           bundler-cache: true
 
       - name: Create Google Play Key File
