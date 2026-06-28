@@ -61,10 +61,31 @@ platform :android do
 
       supply_params = {
         track: track,
-        apk: options[:apk_path]
-        # json_key_file is already set in Appfile
+        apk: options[:apk_path],
+        # json_key_file is already set in Appfile.
+        # Upload only the APK (and the changelog handled below) — never the
+        # store listing text, images, or screenshots — so a build/track deploy
+        # can't overwrite the live Play listing.
+        # NOTE: paths are relative to fastlane's working directory (the
+        # fastlane/ folder), so this resolves to fastlane/metadata/android.
+        metadata_path: "metadata/android",
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true
       }
-      supply_params[:changelogs] = { 'en-US' => options[:release_notes] } if options[:release_notes]
+
+      # supply has no inline "changelogs" option; the "what's new" text is read
+      # from a versionCode-named file under the metadata path. Write it and
+      # enable changelog upload only when we have release notes and a real
+      # version code (version_code 0 is the deploy.yml sentinel).
+      vc = options[:version_code].to_i
+      if options[:release_notes] && vc > 0
+        changelog_dir = "metadata/android/en-US/changelogs"
+        FileUtils.mkdir_p(changelog_dir)
+        File.write(File.join(changelog_dir, "#{vc}.txt"), options[:release_notes])
+        supply_params[:skip_upload_changelogs] = false
+      end
 
       supply(supply_params)
       UI.success("Successfully deployed to Google Play Store (#{track} track)!")
@@ -84,13 +105,27 @@ platform :android do
       
       supply_params = {
         track: 'production',
-        apk: options[:apk_path] # Use passed APK path
+        apk: options[:apk_path], # Use passed APK path
+        # Upload only the APK (and the changelog handled below) — never the
+        # store listing text, images, or screenshots.
+        # Paths are relative to fastlane's working directory (the fastlane/ folder).
+        metadata_path: "metadata/android",
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true
       }
-      supply_params[:changelogs] = { 'en-US' => options[:release_notes] } if options[:release_notes]
-      # supply_params[:release_status] = 'completed' # Optional: to automatically submit for review
-      # Optional: Pass version name and code if your supply setup needs them for metadata.
-      # supply_params[:version_name] = options[:version_name] if options[:version_name]
-      # supply_params[:version_code] = options[:version_code].to_i if options[:version_code]
+
+      # supply has no inline "changelogs" option; write the "what's new" text to
+      # a versionCode-named file and enable changelog upload only when we have
+      # release notes and a real version code (0 is the deploy.yml sentinel).
+      vc = options[:version_code].to_i
+      if options[:release_notes] && vc > 0
+        changelog_dir = "metadata/android/en-US/changelogs"
+        FileUtils.mkdir_p(changelog_dir)
+        File.write(File.join(changelog_dir, "#{vc}.txt"), options[:release_notes])
+        supply_params[:skip_upload_changelogs] = false
+      end
 
       supply(supply_params)
       UI.success("Successfully deployed to Google Play Store (Production Track)!")
@@ -113,7 +148,7 @@ platform :android do
       # release_tag (in which case the workflow can't trust main's manifest).
       # Skip the changelog file in that case rather than writing "0.txt".
       if options[:release_notes] && options[:version_code] && options[:version_code].to_i > 0
-        changelog_dir = "./fastlane/metadata/android/en-US/changelogs"
+        changelog_dir = "metadata/android/en-US/changelogs"
         FileUtils.mkdir_p(changelog_dir) # Ensure directory exists
         changelog_path = File.join(changelog_dir, "#{options[:version_code]}.txt")
         File.open(changelog_path, 'w') { |file| file.write(options[:release_notes]) }
@@ -129,7 +164,7 @@ platform :android do
         apk: options[:apk_path], # Use passed APK path
         client_id: ENV['AMAZON_CLIENT_ID'],
         client_secret: ENV['AMAZON_CLIENT_SECRET'],
-        metadata_path: "./fastlane/metadata/android", # Explicitly set, though it's the default
+        metadata_path: "metadata/android", # Relative to fastlane/ working dir
         skip_upload_changelogs: false # Ensure plugin tries to read changelog files
         # package_name: options[:package_name] # Optional: if needed and passed
         # version_name: options[:version_name] # Optional: if plugin uses it for metadata
