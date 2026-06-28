@@ -151,24 +151,6 @@ jobs:
           done
           echo "All APKs verified as signed with a non-debug key."
 
-      - name: Create GitHub Pre-release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.check_tag.outputs.rc_tag }}
-          name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}
-          # body parameter is removed/empty to allow auto-generation
-          files: |
-            app/build/outputs/apk/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-            app/build/outputs/apk/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-          fail_on_unmatched_files: true # Ensures workflow fails if APKs are not found
-          draft: false
-          # Marked as pre-release. F-Droid watches git TAGS, not this flag, so the
-          # RC tag (vX.Y.Z-rc.N) must be excluded by fdroiddata UpdateCheckMode.
-          # The final vX.Y.Z release/tag is created later by promote.yml.
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
@@ -200,3 +182,17 @@ jobs:
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
             track:"alpha" \
             release_notes:"$RELEASE_NOTES"
+
+      - name: Create GitHub Pre-release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.check_tag.outputs.rc_tag }}
+          name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}
+          files: |
+            app/build/outputs/apk/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+            app/build/outputs/apk/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
