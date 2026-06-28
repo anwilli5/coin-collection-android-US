@@ -139,9 +139,10 @@ jobs:
         env:
           GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
         run: |
-          # Use printf with the value coming from `env:` rather than direct ${{ }}
+          # Use printf with the value coming from `env:` rather than direct
+          # GitHub Actions expression
           # interpolation. The service-account JSON contains many " characters,
-          # which would break a `echo "${{ secrets.X }}"` style write.
+          # which would break a `echo "$SECRET"` style write.
           if [ -z "$GOOGLE_PLAY_JSON_KEY_DATA" ]; then
             echo "Error: GOOGLE_PLAY_JSON_KEY_DATA secret is not set."
             exit 1
