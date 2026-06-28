@@ -100,7 +100,7 @@ jobs:
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.3'
           bundler-cache: true
 
       - name: Download Release APKs from GitHub Release
