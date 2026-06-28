@@ -84,7 +84,9 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17' 
+          # AGP 9.x (com.android.tools.build:gradle 9.2.1) requires JDK 21 to
+          # run the build; the Android CI workflow (gradle.yml) also uses 21.
+          java-version: '21'
 
       - name: Decode and Place Keystore
         env:
@@ -117,10 +119,10 @@ jobs:
       - name: Verify Versioned APKs Exist
         run: |
           MVN="${{ steps.extract_versions.outputs.manifest_version_name }}" # Manifest Version Name
-          echo "Checking for app/android/release/app-android-release-v${MVN}.apk"
-          test -f "app/android/release/app-android-release-v${MVN}.apk"
-          echo "Checking for app/amazon/release/app-amazon-release-v${MVN}.apk"
-          test -f "app/amazon/release/app-amazon-release-v${MVN}.apk"
+          echo "Checking for app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
+          test -f "app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
+          echo "Checking for app/build/outputs/apk/amazon/release/app-amazon-release-v${MVN}.apk"
+          test -f "app/build/outputs/apk/amazon/release/app-amazon-release-v${MVN}.apk"
           echo "Versioned APKs verified."
 
       - name: Verify APKs are signed with the release key
@@ -136,8 +138,8 @@ jobs:
             exit 1
           fi
           for APK in \
-            "app/android/release/app-android-release-v${MVN}.apk" \
-            "app/amazon/release/app-amazon-release-v${MVN}.apk"; do
+            "app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
+            "app/build/outputs/apk/amazon/release/app-amazon-release-v${MVN}.apk"; do
             echo "Verifying signature: $APK"
             "$APKSIGNER" verify --verbose "$APK"
             # Reject debug-signed APKs: the AOSP debug cert's CN is
@@ -156,8 +158,8 @@ jobs:
           name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}
           # body parameter is removed/empty to allow auto-generation
           files: |
-            app/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-            app/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+            app/build/outputs/apk/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+            app/build/outputs/apk/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
           fail_on_unmatched_files: true # Ensures workflow fails if APKs are not found
           draft: false
           # Marked as pre-release. F-Droid watches git TAGS, not this flag, so the
@@ -193,7 +195,7 @@ jobs:
         run: |
           MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
           bundle exec fastlane deploy_playstore_test \
-            apk_path:"app/android/release/app-android-release-v${MVN}.apk" \
+            apk_path:"app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
             version_name:"${MVN}" \
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
             track:"alpha" \
