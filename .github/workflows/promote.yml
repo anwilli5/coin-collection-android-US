@@ -152,7 +152,7 @@ jobs:
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           bundle exec fastlane deploy_playstore_production \
-            apk_path:"downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
+            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
             version_code:"${{ steps.resolve.outputs.version_code }}" \
             release_notes:"$RELEASE_NOTES"
@@ -165,7 +165,7 @@ jobs:
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           bundle exec fastlane deploy_amazon_appstore \
-            apk_path:"downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
+            apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
             version_code:"${{ steps.resolve.outputs.version_code }}" \
             release_notes:"$RELEASE_NOTES"

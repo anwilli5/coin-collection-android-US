@@ -160,7 +160,7 @@ jobs:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_playstore_test \
-            apk_path:"downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
+            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
             version_code:"${{ steps.resolve_version.outputs.version_code }}" \
             track:"${{ github.event.inputs.play_track }}" \
@@ -172,7 +172,7 @@ jobs:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_playstore_production \
-            apk_path:"downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
+            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
             version_code:"${{ steps.resolve_version.outputs.version_code }}" \
             release_notes:"$RELEASE_NOTES"
@@ -185,7 +185,7 @@ jobs:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_amazon_appstore \
-            apk_path:"downloaded_apks/app-amazon-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
+            apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
             version_code:"${{ steps.resolve_version.outputs.version_code }}" \
             release_notes:"$RELEASE_NOTES"
