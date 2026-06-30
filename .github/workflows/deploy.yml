@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - google_play_testers          # Closed testing (alpha) by default; see play_track
+          - google_play_testers          # Internal testing by default; see play_track
           - production_google_play_and_amazon
         default: 'google_play_testers'
       play_track:
@@ -16,10 +16,10 @@ on:
         required: true
         type: choice
         options:
+          - internal  # Internal testing (limited to ~100 named testers)
           - alpha     # Closed testing
           - beta      # Open testing
-          - internal  # Internal testing (limited to ~100 named testers)
-        default: 'alpha'
+        default: 'internal'
       release_tag:
         description: "Optional. GitHub Release tag to deploy (e.g. v3.2.0). Leave blank to use the version currently in main's AndroidManifest.xml."
         required: false

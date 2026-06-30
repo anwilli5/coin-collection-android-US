@@ -180,7 +180,7 @@ jobs:
             apk_path:"${{ github.workspace }}/app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
             version_name:"${MVN}" \
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
-            track:"alpha" \
+            track:"internal" \
             release_notes:"$RELEASE_NOTES"
 
       - name: Create GitHub Pre-release
