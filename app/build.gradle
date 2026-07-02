@@ -77,6 +77,8 @@ android {
         amazon {
             dimension = "version"
             applicationIdSuffix = ".amazon"
+            // TODO - Up-rev once Amazon's SDK adds support
+            targetSdk = 35
         }
     }
     testOptions {
