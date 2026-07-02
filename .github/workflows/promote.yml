@@ -151,8 +151,10 @@ jobs:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
+          # Promote the release already uploaded to the internal track by the
+          # pre-release workflow (keyed off versionCode) — Google Play forbids
+          # re-uploading an already-published APK, so no apk_path is passed.
           bundle exec fastlane deploy_playstore_production \
-            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
             version_code:"${{ steps.resolve.outputs.version_code }}" \
             release_notes:"$RELEASE_NOTES"

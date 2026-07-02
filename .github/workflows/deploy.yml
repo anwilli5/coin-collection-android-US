@@ -3,22 +3,29 @@ name: Deploy Release to App Stores
 on:
   workflow_dispatch:
     inputs:
-      deployment_target:
-        description: 'Which audience to deploy to'
+      acknowledge_bypass:
+        description: 'I understand this BYPASSES the recommended release + internal testing + promote flow and pushes an APK directly to a live store/track.'
+        required: true
+        type: boolean
+        default: false
+      stores:
+        description: 'Which app store(s) to deploy to'
         required: true
         type: choice
         options:
-          - google_play_testers          # Internal testing by default; see play_track
-          - production_google_play_and_amazon
-        default: 'google_play_testers'
+          - android   # Google Play only
+          - amazon    # Amazon Appstore only
+          - both      # Google Play and Amazon Appstore
+        default: 'both'
       play_track:
-        description: 'Google Play track (used only when deployment_target is google_play_testers)'
+        description: 'Google Play track (used only when stores is android or both; Amazon has no track concept)'
         required: true
         type: choice
         options:
-          - internal  # Internal testing (limited to ~100 named testers)
-          - alpha     # Closed testing
-          - beta      # Open testing
+          - internal    # Internal testing (limited to ~100 named testers)
+          - alpha       # Closed testing
+          - beta        # Open testing
+          - production  # Public production track
         default: 'internal'
       release_tag:
         description: "Optional. GitHub Release tag to deploy (e.g. v3.2.0). Leave blank to use the version currently in main's AndroidManifest.xml."
@@ -37,6 +44,17 @@ jobs:
     permissions:
       contents: read   # Only need to read the GitHub Release to download attached APKs.
     steps:
+      - name: Confirm intentional bypass of the release + test + promote flow
+        # This workflow is a break-glass tool that pushes an APK straight to a
+        # live store/track, skipping the normal pre-release + internal testing +
+        # promote pipeline. Force the operator to explicitly acknowledge that
+        # before anything is deployed; fail fast otherwise.
+        if: github.event.inputs.acknowledge_bypass != 'true'
+        run: |
+          echo "::error::Deploy aborted: this workflow bypasses the recommended release + internal testing + promote pipeline."
+          echo "Re-run and enable the 'acknowledge_bypass' checkbox to confirm you intend a direct store/track deploy."
+          exit 1
+
       - name: Checkout main branch
         uses: actions/checkout@v7
         with:
@@ -136,6 +154,7 @@ jobs:
           ls -la downloaded_apks/
 
       - name: Create Google Play Key File
+        if: github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both'
         env:
           GOOGLE_PLAY_JSON_KEY_DATA: ${{ secrets.GOOGLE_PLAY_JSON_KEY_DATA }}
         run: |
@@ -155,7 +174,7 @@ jobs:
           }
 
       - name: Deploy to Google Play (Testers)
-        if: github.event.inputs.deployment_target == 'google_play_testers'
+        if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track != 'production'
         env:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
@@ -167,7 +186,7 @@ jobs:
             release_notes:"$RELEASE_NOTES"
 
       - name: Deploy to Google Play (Production)
-        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon'
+        if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track == 'production'
         env:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
@@ -178,7 +197,7 @@ jobs:
             release_notes:"$RELEASE_NOTES"
 
       - name: Deploy to Amazon Appstore
-        if: github.event.inputs.deployment_target == 'production_google_play_and_amazon'
+        if: github.event.inputs.stores == 'amazon' || github.event.inputs.stores == 'both'
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}

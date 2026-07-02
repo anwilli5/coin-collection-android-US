@@ -115,19 +115,26 @@ platform :android do
     end
   end
 
-  desc "Deploy the app to Google Play Store (Production Track) using a pre-built APK."
+  desc "Release to the Google Play Store Production track.\n" \
+       "Promotes an already-uploaded release by versionCode (default), or uploads " \
+       "a pre-built APK when options[:apk_path] is provided."
   lane :deploy_playstore_production do |options|
     begin
       UI.message("Deploying to Production Track with options: #{options.inspect}")
-      UI.user_error!("APK path must be provided via options[:apk_path] and exist.") unless options[:apk_path] && File.exist?(options[:apk_path])
 
-      # Gradle build steps are removed. APK is provided via options[:apk_path].
-      
+      # Two modes:
+      #   * Promote (default): the APK was already uploaded (and published) to a
+      #     tester track by the pre-release workflow. Google Play rejects
+      #     re-uploading an already-published APK ("Cannot update a published
+      #     APK"), so promote the existing release to production by versionCode.
+      #   * Upload: when a caller passes options[:apk_path] for a versionCode that
+      #     was never uploaded to any track, upload the binary straight to
+      #     production.
+      upload_mode = options[:apk_path] && !options[:apk_path].to_s.strip.empty?
+
       supply_params = {
-        track: 'production',
-        apk: options[:apk_path], # Use passed APK path
-        # Upload only the APK (and the changelog handled below) — never the
-        # store listing text, images, or screenshots.
+        # Upload only the APK/changelog — never the store listing text, images,
+        # or screenshots.
         # android_metadata_path is absolute (see helper) to avoid CWD ambiguity.
         metadata_path: android_metadata_path,
         skip_upload_metadata: true,
@@ -136,13 +143,35 @@ platform :android do
         skip_upload_changelogs: true
       }
 
+      if upload_mode
+        UI.user_error!("apk_path was provided but does not exist: #{options[:apk_path]}") unless File.exist?(options[:apk_path])
+        supply_params[:track] = 'production'
+        supply_params[:apk] = options[:apk_path]
+      else
+        # Promotion is keyed off the versionCode, so it is required in this mode.
+        version_code = options[:version_code].to_i
+        UI.user_error!("Provide options[:apk_path] to upload, or a positive version_code to promote to production.") unless version_code > 0
+
+        # Track the pre-release build was uploaded to (see deploy_playstore_test /
+        # release.yml, which uses 'internal'). Overridable for flexibility.
+        from_track = options[:from_track] && !options[:from_track].to_s.strip.empty? ? options[:from_track].to_s : 'internal'
+        UI.user_error!("Invalid from_track: #{from_track}") unless %w[internal alpha beta].include?(from_track)
+
+        supply_params[:track] = from_track
+        supply_params[:track_promote_to] = 'production'
+        supply_params[:version_code] = version_code
+        # Promote the existing artifact — do not (re-)upload any binary.
+        supply_params[:skip_upload_apk] = true
+        supply_params[:skip_upload_aab] = true
+      end
+
       # supply has no inline "changelogs" option; write the "what's new" text to
       # a versionCode-named file and enable changelog upload only when one was
       # actually written.
       supply_params[:skip_upload_changelogs] = false if write_changelog_file(options[:version_code], options[:release_notes])
 
       supply(supply_params)
-      UI.success("Successfully deployed to Google Play Store (Production Track)!")
+      UI.success("Successfully released to Google Play Store (Production Track)!")
     rescue => ex
       UI.error("Error deploying to Google Play Store (Production): #{ex}")
       raise ex
