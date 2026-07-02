@@ -197,13 +197,22 @@ platform :android do
       # Check to ensure ENV variables are set
       UI.user_error!("AMAZON_CLIENT_ID and AMAZON_CLIENT_SECRET must be set in environment variables.") unless ENV['AMAZON_CLIENT_ID'] && ENV['AMAZON_CLIENT_SECRET']
 
+      # The Amazon Appstore listing is registered under the amazon-flavor
+      # applicationId — com.spencerpages + the ".amazon" applicationIdSuffix from
+      # app/build.gradle — which differs from the Play package (com.spencerpages)
+      # that the Appfile sets. The plugin sends package_name as the App
+      # Submission API's applicationId (applications/<package_name>/edits), so
+      # without this override it inherits the Appfile's com.spencerpages and
+      # Amazon rejects it with "No app found with the entered Inputs".
+      amazon_package_name = options[:package_name] && !options[:package_name].to_s.strip.empty? ? options[:package_name].to_s : 'com.spencerpages.amazon'
+
       amazon_params = {
         apk: options[:apk_path], # Use passed APK path
+        package_name: amazon_package_name, # Amazon app id (see note above); NOT the Play package
         client_id: ENV['AMAZON_CLIENT_ID'],
         client_secret: ENV['AMAZON_CLIENT_SECRET'],
         metadata_path: android_metadata_path, # Absolute (see helper) to avoid CWD ambiguity
         skip_upload_changelogs: false # Ensure plugin tries to read changelog files
-        # package_name: options[:package_name] # Optional: if needed and passed
         # version_name: options[:version_name] # Optional: if plugin uses it for metadata
       }
 
