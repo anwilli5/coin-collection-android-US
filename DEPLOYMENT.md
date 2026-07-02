@@ -1,11 +1,11 @@
 # Deployment Process
 
 This document is the runbook for **cutting a release** — shipping a new
-version to alpha testers first, then to production (Google Play, Amazon
+version to internal testers first, then to production (Google Play, Amazon
 Appstore, and F-Droid).
 
 > **Prerequisite.** The one-time setup (signing secrets, store credentials,
-> the Google Play closed-testing track, and the F-Droid tag filter) is
+> the Google Play internal-testing track, and the F-Droid tag filter) is
 > already configured for this repository. The steps below assume those
 > secrets and credentials are in place.
 >
@@ -15,13 +15,13 @@ Appstore, and F-Droid).
 > via the `SIGNING_*` secrets — never generate a new one.
 
 The release flow is a **two-stage pipeline**: first a pre-release that only
-reaches alpha testers, then a promotion that ships the *exact same* artifact
+reaches internal testers, then a promotion that ships the *exact same* artifact
 everywhere.
 
 - **Build and Publish Pre-release** ([`.github/workflows/release.yml`](.github/workflows/release.yml))
   builds and signs both flavor APKs (`android` and `amazon`), publishes a
   GitHub **pre-release** tagged `vX.Y.Z-rc.N`, and deploys the `android` APK
-  to the Google Play **alpha** (closed testing) track. It deliberately does
+  to the Google Play **internal** testing track. It deliberately does
   **not** touch Play production, Amazon, or F-Droid.
 - **Promote Pre-release to Release** ([`.github/workflows/promote.yml`](.github/workflows/promote.yml))
   takes a verified pre-release, re-attaches its exact APKs to a final
@@ -34,7 +34,7 @@ everywhere.
 
 > **Why two stages and an RC tag?** F-Droid's build server watches this
 > repo's git **tags** — not GitHub's "pre-release" flag. To keep a build out
-> of F-Droid (and Play production / Amazon) while alpha testing, the
+> of F-Droid (and Play production / Amazon) while internal testing, the
 > pre-release uses a distinct `vX.Y.Z-rc.N` tag and the bare `vX.Y.Z` tag is
 > created only at promotion. F-Droid's metadata is already configured to
 > ignore RC tags (`UpdateCheckMode: Tags ^v[0-9.]+$`), so only the final
@@ -48,9 +48,9 @@ The pipeline has two operator-driven stages.
 
 - **Stage 1 — Pre-release** ([Step 1.1](#11-build-and-publish-the-pre-release))
   builds the signed APKs, publishes them as a GitHub **pre-release** tagged
-  `vX.Y.Z-rc.N`, and ships the `android` APK to Google Play **alpha**. The
+  `vX.Y.Z-rc.N`, and ships the `android` APK to Google Play **internal**. The
   bare `vX.Y.Z` tag is *not* created, so F-Droid, Play production, and Amazon
-  are untouched. Alpha testers verify ([Step 1.2](#12-verify-on-the-alpha-track)).
+  are untouched. Internal testers verify ([Step 1.2](#12-verify-on-the-internal-track)).
 - **Stage 2 — Promote** ([Step 1.3](#13-promote-the-pre-release-to-a-release))
   re-attaches the *exact same* APKs to a final GitHub Release tagged
   `vX.Y.Z` and ships to Google Play **production** and **Amazon**. Creating
@@ -61,9 +61,9 @@ The pipeline has two operator-driven stages.
   AndroidManifest.xml ─►   (Stage 1, Step 1.1)       ─►   (Stage 2, Step 1.3)
   + merge to main          tag vX.Y.Z-rc.N                tag vX.Y.Z
                            GitHub pre-release             final GitHub Release
-                           + Play alpha                   + Play production + Amazon
+                           + Play internal                + Play production + Amazon
                                   │                               │
-                                  └─► Alpha testers verify        ├─► Google Play production
+                                  └─► Internal testers verify     ├─► Google Play production
                                       (Step 1.2)                  ├─► Amazon Appstore
                                                                   └─► F-Droid scans vX.Y.Z tag
                                                                       (1–3 day lag)
@@ -84,7 +84,7 @@ The pipeline has two operator-driven stages.
    - `rc_number`: the release-candidate number for this attempt (`1` the
      first time; bump to `2`, `3`, … if you need another pre-release of the
      same version). This produces the tag `vX.Y.Z-rc.N`.
-   - `releaseNotes`: the "what's new" text shown to Play alpha testers.
+   - `releaseNotes`: the "what's new" text shown to Play internal testers.
 4. The workflow:
    - Refuses to run if the final tag `vX.Y.Z` **or** the chosen
      `vX.Y.Z-rc.N` tag already exists.
@@ -93,17 +93,17 @@ The pipeline has two operator-driven stages.
      debug-signed APKs).
    - Creates a GitHub **pre-release** tagged `vX.Y.Z-rc.N` with both APKs
      attached.
-   - Uploads the `android` APK to the Google Play **alpha** track.
+   - Uploads the `android` APK to the Google Play **internal** track.
 5. F-Droid does **not** build at this stage: the `vX.Y.Z-rc.N` tag is
    excluded by the `fdroiddata` `UpdateCheckMode` regex
    (`Tags ^v[0-9.]+$`), and the bare `vX.Y.Z` tag does not exist yet.
    Amazon and Play production are untouched.
 
-### 1.2 Verify on the alpha track
+### 1.2 Verify on the internal track
 
-1. Open Google Play Console → **Testing → Closed testing → Alpha**. Confirm
+1. Open Google Play Console → **Testing → Internal testing**. Confirm
    a new release exists with the expected `versionCode`.
-2. On a test device opted into the closed-test program, install the build
+2. On a test device opted into the internal-test program, install the build
    from the Play Store and exercise the changed flows.
 3. Watch the Play Console pre-launch report for crashes / policy issues
    before promoting.
@@ -114,17 +114,17 @@ The pipeline has two operator-driven stages.
 
 ### 1.3 Promote the pre-release to a release
 
-Once alpha testing is green:
+Once internal testing is green:
 
 1. **Actions → Promote Pre-release to Release → Run workflow**.
 2. Inputs:
-   - `rc_tag`: the pre-release tag you verified, e.g. `v3.7.4-rc.1`.
+   - `rc_tag`: the pre-release tag you verified, e.g. `v3.8.1-rc.1`.
    - `releaseNotes`: production "what's new" text for Google Play and Amazon.
-     May match or differ from the alpha notes.
+     May match or differ from the internal notes.
 3. The workflow:
    - Verifies the pre-release exists and the final `vX.Y.Z` release does not.
    - Downloads the exact APKs from the pre-release (no rebuild — guaranteeing
-     production gets the same bytes alpha testers verified).
+     production gets the same bytes internal testers verified).
    - Creates the final GitHub Release tagged `vX.Y.Z`, pointing at the same
      commit as the RC tag, with both APKs re-attached.
    - Uploads the `android` APK to Google Play **production** and the
@@ -149,7 +149,7 @@ builds it fresh, the promote workflow downloads it from the pre-release.
 
 - `deploy_playstore_test`
   - Uploads to a Google Play tester track (`alpha`, `beta`, or `internal`).
-    The pre-release workflow always uses `alpha`.
+    The pre-release workflow always uses `internal`.
   - Inputs: `apk_path`, `track`, `release_notes`, optional
     `version_name`, `version_code`.
 - `deploy_playstore_production`
@@ -216,9 +216,9 @@ The secret was pasted with surrounding quotes or had characters stripped.
 Re-download the service-account JSON and paste the complete file contents
 (starts with `{`, ends with `}`).
 
-**Deploy fails: `track 'alpha' is not a valid track`.**
-The Closed testing track is not set up in Play Console. Create it under
-**Testing → Closed testing** and add at least one tester.
+**Deploy fails: `track 'internal' is not a valid track`.**
+The Internal testing track is not set up in Play Console. Create it under
+**Testing → Internal testing** and add at least one tester.
 
 **Amazon Appstore deploy fails: `version_code already submitted`.**
 Same issue as Google Play — Amazon also enforces strictly increasing

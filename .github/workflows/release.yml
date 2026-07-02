@@ -9,13 +9,13 @@ on:
         type: string
         default: '1'
       releaseNotes:
-        description: "What's-new text for the Google Play closed testing (alpha) track."
+        description: "What's-new text for the Google Play internal testing track."
         required: true
         type: string
 
 jobs:
   build_and_prerelease:
-    name: 'Build APKs, Publish Pre-release, Deploy to Play alpha'
+    name: 'Build APKs, Publish Pre-release, Deploy to Play internal'
     runs-on: ubuntu-latest
     permissions: # contents:write to create the pre-release; deploy uses Play creds via secrets
       contents: write
@@ -171,7 +171,7 @@ jobs:
             exit 1;
           }
 
-      - name: Deploy to Google Play (alpha / closed testing)
+      - name: Deploy to Google Play (internal testing)
         env:
           RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
