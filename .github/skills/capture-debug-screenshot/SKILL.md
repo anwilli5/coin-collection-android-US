@@ -29,13 +29,13 @@ with the emulator and capture what is currently on screen.
 
 ### 1. Confirm a device is available
 
-Call `mcp_mobile-mcp_mobile_list_available_devices` to verify an emulator is
+Call `mobile_list_available_devices` to verify an emulator is
 running and reachable. If no device is listed, ask the user to start an
 emulator first.
 
 ### 2. Capture the current screen
 
-Call `mcp_mobile-mcp_mobile_take_screenshot` to capture and display the
+Call `mobile_take_screenshot` to capture and display the
 current screen inline in the chat. This is the primary output of this skill.
 
 ### 3. Navigate before capturing (optional)
@@ -45,21 +45,21 @@ tools **before** taking the screenshot:
 
 | Action | Tool |
 | --- | --- |
-| Discover UI elements | `mcp_mobile-mcp_mobile_list_elements_on_screen` |
-| Tap a coordinate | `mcp_mobile-mcp_mobile_click_on_screen_at_coordinates` |
-| Long-press a coordinate | `mcp_mobile-mcp_mobile_long_press_on_screen_at_coordinates` |
-| Double-tap | `mcp_mobile-mcp_mobile_double_tap_on_screen` |
-| Scroll / swipe | `mcp_mobile-mcp_mobile_swipe_on_screen` |
-| Press a hardware button | `mcp_mobile-mcp_mobile_press_button` |
-| Type text | `mcp_mobile-mcp_mobile_type_keys` |
+| Discover UI elements | `mobile_list_elements_on_screen` |
+| Tap a coordinate | `mobile_click_on_screen_at_coordinates` |
+| Long-press a coordinate | `mobile_long_press_on_screen_at_coordinates` |
+| Double-tap | `mobile_double_tap_on_screen` |
+| Scroll / swipe | `mobile_swipe_on_screen` |
+| Press a hardware button | `mobile_press_button` |
+| Type text | `mobile_type_keys` |
 
-After navigating, call `mcp_mobile-mcp_mobile_take_screenshot` again to
+After navigating, call `mobile_take_screenshot` again to
 capture the resulting screen.
 
 ### 4. Save to disk (optional)
 
 If the user wants to save the screenshot to a file, call
-`mcp_mobile-mcp_mobile_save_screenshot` with the desired path. By default
+`mobile_save_screenshot` with the desired path. By default
 screenshots are only displayed inline and not persisted.
 
 ## Output
@@ -69,10 +69,11 @@ written to the repository unless explicitly requested.
 
 ## Tips
 
-- Use `mcp_mobile-mcp_mobile_list_elements_on_screen` to find tap targets
+- Use `mobile_list_elements_on_screen` to find tap targets
   when you are unsure where a button or element is positioned.
 - Chain multiple interactions (tap → wait → screenshot) to verify multi-step
   flows.
-- All `mcp_mobile-mcp_mobile_*` tool names must be loaded via
-  `tool_search_tool_regex` before first use — search for `mcp_mobile-mcp` to
-  load them.
+- Tool names above are the mobile-mcp server's bare names. Your client
+  prefixes them (GitHub Copilot: `mcp_mobile-mcp_mobile_take_screenshot`;
+  Claude Code: `mcp__mobile-mcp__mobile_take_screenshot`) and may require
+  loading them through its tool-search mechanism before first use.
