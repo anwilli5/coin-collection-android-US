@@ -238,11 +238,14 @@ approach:
 
 - **LincolnCents / JeffersonNickels pattern**: Add the year to `COIN_MAP`
   in the static initializer block.
+
   ```java
   COIN_MAP.put("2026", R.drawable.semiq_2026_penny_obv_unc);
   ```
+
 - **BasicDimes / BasicHalfDollars pattern**: These have no `COIN_MAP`.
   Add a simple conditional in `getCoinSlotImage()`:
+
   ```java
   if ("2026".equals(coinSlot.getIdentifier())) {
       return R.drawable.semiq_2026_dime_obv_unc;
@@ -266,29 +269,38 @@ indices corrupts image assignments for all existing collections.
 - **RooseveltDimes / KennedyHalfDollars pattern**: Add entry to
   `COIN_IMG_IDS`, then use a per-year variable in
   `populateCollectionLists()`:
+
   ```java
   {"Emerging Liberty", R.drawable.semiq_2026_dime_obv_unc},  // in COIN_IMG_IDS
   // In populateCollectionLists, compute per-year override:
   int cladImgId = (i == 2026) ? getImgId("Emerging Liberty") : -1;
   // Pass cladImgId to CoinSlot constructors for that year
   ```
+
   **In `onCollectionDatabaseUpgrade()`**, pass the same imageId:
+
   ```java
   total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026, getImgId("Emerging Liberty"));
   ```
+
 - **Aggregate collections** (AllNickels, SilverDimes, SilverHalfDollars,
   SmallCents): Same approach — add the image to their `COIN_IMG_IDS`
   array and use `getImgId()` in the sub-series population loop:
+
   ```java
   String imgTag = (i == 2026) ? "1776-2026" : "Modern Jefferson";
   coinList.add(new CoinSlot(year, "P", coinIndex++, getImgId(imgTag)));
   ```
+
   **In `onCollectionDatabaseUpgrade()`**, pass the same imageId:
+
   ```java
   total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026, getImgId("1776-2026"));
   ```
+
 - **Named-identifier collections** (CladQuarters, AmericanInnovationDollars):
   Build a parallel `ArrayList<Integer>` of imageIds and pass it:
+
   ```java
   ArrayList<Integer> imageIds = new ArrayList<>();
   for (String identifier : newCoinIdentifiers) {
@@ -309,6 +321,7 @@ checkbox. This requires changes in four files:
    `(1L << (N + 1)) - 1` where N is the new highest bit. The same
    rules apply when adding mint mark flags — use the next bit after
    `MINT_FRANKLIN_PROOF` and update `ALL_MINT_MASK` accordingly.
+
    ```java
    public final static long NEW_FLAG = (1L << 50);
    // Update ALL_CHECKBOXES_MASK: (1L << 51) - 1
@@ -317,9 +330,11 @@ checkbox. This requires changes in four files:
        return (getCheckboxFlagsAsLong() & NEW_FLAG) != 0;
    }
    ```
+
 2. **`CoinPageCreator.java`** — Add encoding (in
    `getCheckboxFlagsFromParameters()`) and decoding (in
    `getParametersFromCollectionListInfo()`):
+
    ```java
    // Encoding:
    } else if (optionStrId.equals(R.string.include_new_flag)) {
@@ -328,6 +343,7 @@ checkbox. This requires changes in four files:
    } else if (optionStrId.equals(R.string.include_new_flag)) {
        parameters.put(optName, existingCollection.hasNewFlag());
    ```
+
 3. **`strings.xml`** — Add the checkbox label string resource.
 4. **Collection class** — Add `OPT_CHECKBOX_N` parameter in
    `getCreationParameters()` and read it in `populateCollectionLists()`.

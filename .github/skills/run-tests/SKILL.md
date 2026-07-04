@@ -27,12 +27,21 @@ APIs. This is the suite to run for most code changes.
 
 - Collection creation and coin counts (`CollectionCreationTests`)
 - Database upgrades from all previous versions (`CollectionUpgradeTests`)
+- Fixture-based upgrade tests covering all parameter configurations
+  (`CollectionUpgradeAllParamsTests`)
+- Targeted upgrade tests for SemiQ coins with non-default parameters
+  (`CollectionUpgradeSemiQParamTests`)
 - Database access patterns (`DatabaseAccessTests`)
 - Export/import (CSV and JSON) (`ExportImportTests`, `ExportImportJsonTests`)
 - Activity launch and lifecycle (`LaunchCoinPageTests`, `MainActivityTests`)
 - Application initialization (`MainApplicationTests`)
 - Collection page behavior (`CollectionPageActivityTests`)
+- Collection creator parameter round-trips (`CoinPageCreatorTests`)
 - Coin image ID correctness (`CoinImageIdTests`)
+
+Also present: `GenerateV23Fixtures` is an `@Ignore`'d manual fixture
+generator — it does not run with the suite and is only run by hand when the
+V23 upgrade fixture files need regenerating.
 
 **Report location:** `app/build/reports/tests/testAndroidDebugUnitTest/index.html`
 
