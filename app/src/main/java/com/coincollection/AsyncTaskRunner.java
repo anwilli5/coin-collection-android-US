@@ -25,31 +25,62 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 public class AsyncTaskRunner {
     private WeakReference<AsyncProgressInterface> mListenerRef;
-    private final static int NUM_DELAY_HALF_SECONDS = 10;
-    private final static ExecutorService mExecutorService = Executors.newCachedThreadPool();
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final Executor mExecutor;
+    private final Handler mMainHandler;
     private final static Semaphore sDoInBackgroundSemaphore = new Semaphore(1, true);
 
-    private static int mLatestTaskId = TASK_NONE;
+    // Default production executor, shared across runners
+    private final static Executor sDefaultExecutor = Executors.newCachedThreadPool();
+
+    // The most recent task ID handled by this runner. Kept per-instance (not
+    // static) so a task started in one activity can't surface progress UI in an
+    // unrelated activity. Only read/written on the main thread.
+    private int mLatestTaskId = TASK_NONE;
+
+    // Result of a task that completed while no listener was attached (e.g. during
+    // a configuration change). Held here and delivered when the next listener
+    // attaches, so no task result is ever dropped. Only accessed on the main thread.
+    private boolean mHasPendingResult = false;
+    private int mPendingResultTaskId = TASK_NONE;
+    private String mPendingResultString = "";
 
     AsyncTaskRunner(AsyncProgressInterface listener) {
+        this(listener, sDefaultExecutor, new Handler(Looper.getMainLooper()));
+    }
+
+    /**
+     * Constructor allowing the executor and main-thread handler to be injected.
+     * Used by tests to run the background work synchronously and drive the main
+     * looper deterministically. Production code uses the single-argument
+     * constructor with the shared thread pool.
+     *
+     * @param listener    the initial listener
+     * @param executor    executor used to run the background work
+     * @param mainHandler handler used to post work to the main thread
+     */
+    AsyncTaskRunner(AsyncProgressInterface listener, Executor executor, Handler mainHandler) {
+        mExecutor = executor;
+        mMainHandler = mainHandler;
         setListener(listener);
     }
 
     /**
      * Set the listener for this task.
-     * 
+     *
      * @param listener an instance of AsyncProgressInterface to handle task events
      */
     protected void setListener(AsyncProgressInterface listener) {
         if (listener != null) {
             mListenerRef = new WeakReference<>(listener);
+            // A newly attached listener picks up any result that completed while
+            // detached, or re-shows progress for a task that is still running.
+            deliverPendingToListener();
         } else {
             mListenerRef = null;
         }
@@ -75,6 +106,13 @@ public class AsyncTaskRunner {
     }
 
     /**
+     * @return the currently attached listener, or null if none is attached
+     */
+    private AsyncProgressInterface getListener() {
+        return (mListenerRef != null) ? mListenerRef.get() : null;
+    }
+
+    /**
      * Execute the task with the given task ID.
      *
      * @param taskId an integer representing the task ID
@@ -82,12 +120,17 @@ public class AsyncTaskRunner {
     protected void execute(int taskId) {
         mMainHandler.post(() -> {
             mLatestTaskId = taskId;
-            // Execute pre-execute on main thread
-            onPreExecute(taskId);
-            mExecutorService.execute(() -> {
-                // Execute background task in a separate thread
-                String resultString = doInBackground(taskId);
-                // Execute post-execute on main thread
+            // Capture the listener that started the task and hold it strongly for
+            // the duration of the background work, so the task always runs to
+            // completion even if the activity is torn down (e.g. rotation) before
+            // it finishes. The result is delivered to whichever listener is
+            // attached when the work completes (see onPostExecute).
+            final AsyncProgressInterface listener = getListener();
+            if (listener != null) {
+                listener.asyncProgressOnPreExecute(taskId);
+            }
+            mExecutor.execute(() -> {
+                final String resultString = doInBackground(taskId, listener);
                 mMainHandler.post(() -> {
                     onPostExecute(taskId, resultString);
                     // Clear the latest task ID if it is still the latest
@@ -101,26 +144,20 @@ public class AsyncTaskRunner {
     }
 
     /**
-     * Perform the background task.
-     * This method uses a semaphore to ensure that background tasks are atomic
-     * 
-     * @param taskId an integer representing the task ID
+     * Perform the background task using the supplied listener.
+     * This method uses a semaphore to ensure that background tasks are atomic.
+     *
+     * @param taskId   an integer representing the task ID
+     * @param listener the listener captured when the task started
      * @return a string result to display, or "" if no result
      */
-    protected String doInBackground(int taskId) {
+    protected String doInBackground(int taskId, AsyncProgressInterface listener) {
+        if (listener == null) {
+            return "";
+        }
         try {
             sDoInBackgroundSemaphore.acquire();
-            for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
-                if (mListenerRef != null && mListenerRef.get() != null) {
-                    return mListenerRef.get().asyncProgressDoInBackground(taskId);
-                }
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    break; // Return empty string (no error) if interrupted
-                }
-            }
-            return "";
+            return listener.asyncProgressDoInBackground(taskId);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return "";
@@ -130,39 +167,44 @@ public class AsyncTaskRunner {
     }
 
     /**
-     * Method to perform on the UI thread before the async task starts.
-     * @param taskId an integer representing the task ID
+     * Deliver a completed task's result on the main thread. If no listener is
+     * attached (mid configuration change), the result is stashed and delivered
+     * when the next listener attaches.
+     *
+     * @param taskId       an integer representing the task ID
+     * @param resultString a string result to display, or "" if no result
      */
-    protected void onPreExecute(int taskId) {
-        for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
-            if (mListenerRef != null && mListenerRef.get() != null) {
-                mListenerRef.get().asyncProgressOnPreExecute(taskId);
-                break;
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                break;
-            }
+    private void onPostExecute(int taskId, String resultString) {
+        AsyncProgressInterface listener = getListener();
+        if (listener != null) {
+            listener.asyncProgressOnPostExecute(taskId, resultString);
+        } else {
+            mHasPendingResult = true;
+            mPendingResultTaskId = taskId;
+            mPendingResultString = resultString;
         }
     }
 
     /**
-     * Method to perform on the UI thread after the async task completes.
-     * @param taskId an integer representing the task ID
-     * @param resultString a string result to display, or "" if no result
+     * Called when a listener attaches. Delivers a pending result if one is
+     * waiting, otherwise re-shows the progress UI if a task is still running.
+     * Must be called on the main thread.
      */
-    protected void onPostExecute(int taskId, String resultString) {
-        for (int i = 0; i < NUM_DELAY_HALF_SECONDS; i++) {
-            if (mListenerRef != null && mListenerRef.get() != null) {
-                mListenerRef.get().asyncProgressOnPostExecute(taskId, resultString);
-                break;
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                break;
-            }
+    private void deliverPendingToListener() {
+        AsyncProgressInterface listener = getListener();
+        if (listener == null) {
+            return;
+        }
+        if (mHasPendingResult) {
+            mHasPendingResult = false;
+            int taskId = mPendingResultTaskId;
+            String resultString = mPendingResultString;
+            mPendingResultTaskId = TASK_NONE;
+            mPendingResultString = "";
+            listener.asyncProgressOnPostExecute(taskId, resultString);
+        } else if (mLatestTaskId != TASK_NONE) {
+            // A task is still running - re-show its progress UI on the new activity
+            listener.asyncProgressOnPreExecute(mLatestTaskId);
         }
     }
 }

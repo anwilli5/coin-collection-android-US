@@ -68,6 +68,16 @@ public class CollectionPage extends BaseActivity {
     public CoinSlotAdapter mCoinSlotAdapter;
     private int mCollectionTypeIndex;
 
+    // Saved off in onCreate so that database-dependent setup can run later, once
+    // the database has been confirmed open (e.g. after process death)
+    private Bundle mSavedInstanceState;
+
+    // Set when onCreate defers database-dependent setup because the database was
+    // not yet open; cleared once the deferred setupFromDatabase() has run. Guards
+    // against the async open callback firing before onCreate has finished
+    // initializing the fields setupFromDatabase() depends on.
+    private boolean mSetupFromDatabasePending = false;
+
     // Saved Instance State Keywords
 
     // Intent Argument Keywords
@@ -125,10 +135,10 @@ public class CollectionPage extends BaseActivity {
 
         // Save off this bundle so that after the database is open we can use it
         // to get the previous CoinSlotAdapter, if present
+        mSavedInstanceState = savedInstanceState;
 
         // Need to get the coin type from the intent that started this process
         mCollectionTypeIndex = mCallingIntent.getIntExtra(COLLECTION_TYPE_INDEX, 0);
-        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
 
         // Capture the collection name from the saved instance state if it's there,
         // otherwise capture from the calling intent. Note that the calling intent
@@ -166,6 +176,31 @@ public class CollectionPage extends BaseActivity {
             createAndShowHelpDialog("first_Time_screen_search", R.string.tutorial_search_feature);
         }
 
+        // At this point the UI is ready to handle any async callbacks
+        setActivityReadyForAsyncCallbacks();
+
+        // Defer database-dependent setup until the database is confirmed open. On a
+        // warm start the database is already open, so run it directly (no behavior
+        // change). On a cold start after process death, BaseActivity.onCreate kicks
+        // off TASK_OPEN_DATABASE asynchronously and setupFromDatabase() then runs
+        // from asyncProgressOnPostExecute() once the open completes.
+        if (mDbAdapter.isOpen()) {
+            setupFromDatabase();
+        } else {
+            mSetupFromDatabasePending = true;
+        }
+    }
+
+    /**
+     * Performs the database-dependent portion of activity setup. This must only be
+     * called once the database is confirmed open, otherwise the DB accesses below
+     * will crash with a NullPointerException (e.g. when returning to this activity
+     * after the OS has killed the app process).
+     */
+    private void setupFromDatabase() {
+
+        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+
         // Determine whether we should show the advanced view or the basic view
         mDisplayType = mDbAdapter.fetchTableDisplay(mCollectionName);
 
@@ -178,7 +213,7 @@ public class CollectionPage extends BaseActivity {
         }
 
         // Populate the coin list
-        if (savedInstanceState == null) {
+        if (mSavedInstanceState == null) {
             boolean populateAdvInfo = (mDisplayType == ADVANCED_DISPLAY);
             mCoinList = mDbAdapter.getCoinList(mCollectionName, populateAdvInfo);
         } else {
@@ -189,7 +224,7 @@ public class CollectionPage extends BaseActivity {
             if (BuildConfig.DEBUG) {
                 Log.d(APP_NAME, "Successfully restored previous state");
             }
-            mCoinList = savedInstanceState.getParcelableArrayList(COIN_LIST);
+            mCoinList = mSavedInstanceState.getParcelableArrayList(COIN_LIST);
             // Search through the hasChanged history and see whether we should
             // re-display the "Unsaved Changes" view
             if (mCoinList != null) {
@@ -205,8 +240,8 @@ public class CollectionPage extends BaseActivity {
         // Initialize coin filter state
         SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         // Use saved filter state if available, otherwise use SharedPreferences
-        if (savedInstanceState != null && savedInstanceState.containsKey("COIN_FILTER_STATE")) {
-            mCoinFilter = savedInstanceState.getInt("COIN_FILTER_STATE", FILTER_SHOW_ALL);
+        if (mSavedInstanceState != null && mSavedInstanceState.containsKey("COIN_FILTER_STATE")) {
+            mCoinFilter = mSavedInstanceState.getInt("COIN_FILTER_STATE", FILTER_SHOW_ALL);
         } else {
             mCoinFilter = filterPreferences.getInt(mCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
         }
@@ -333,6 +368,28 @@ public class CollectionPage extends BaseActivity {
 
         // Scroll to the last position viewed (if saved)
         scrollToIndex(mViewIndex, mViewPosition, false);
+    }
+
+    /**
+     * Once the asynchronous database open completes, run the deferred
+     * database-dependent setup. This is the cold-start path taken when the
+     * activity is recreated after the OS killed the app process.
+     *
+     * @param taskId    an integer representing the task ID
+     * @param resultStr a string result to display, or "" if no result
+     */
+    @Override
+    public void asyncProgressOnPostExecute(int taskId, String resultStr) {
+        super.asyncProgressOnPostExecute(taskId, resultStr);
+        if (taskId == TASK_OPEN_DATABASE && mSetupFromDatabasePending) {
+            dismissProgressDialog();
+            mSetupFromDatabasePending = false;
+            // Only proceed if the open succeeded; on failure super has already
+            // shown the error alert and the database is still not usable.
+            if (resultStr.isEmpty()) {
+                setupFromDatabase();
+            }
+        }
     }
 
     /**

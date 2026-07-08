@@ -663,6 +663,10 @@ public class CoinPageCreator extends BaseActivity {
             return;
         }
 
+        // Capture the collection name (read from the EditText on the UI thread) as a
+        // task input so the background thread never has to touch a View
+        mActivityViewModel.mTaskRequest.collectionName = collectionName;
+
         // Passed all checks - start the creation/update and wait for callbacks to be called
         kickOffAsyncTaskRunner(TASK_CREATE_UPDATE_COLLECTION);
     }
@@ -675,9 +679,9 @@ public class CoinPageCreator extends BaseActivity {
         }
 
         if(taskId == TASK_CREATE_UPDATE_COLLECTION) {
-            // Go ahead and grab what is in the EditText
-            EditText nameEditText = findViewById(R.id.edit_enter_collection_name);
-            String collectionName = nameEditText.getText().toString();
+            // Use the collection name captured on the UI thread (see
+            // performCreateOrUpdateCollection) - never read a View off the UI thread
+            String collectionName = mActivityViewModel.mTaskRequest.collectionName;
 
             // Get the new display order for new collections (display order is preserved
             // for existing collections)

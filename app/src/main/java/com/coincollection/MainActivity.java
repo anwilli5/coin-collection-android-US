@@ -82,11 +82,8 @@ public class MainActivity extends BaseActivity {
     // The number of actual collections in mCollectionListEntries
     public int mNumberOfCollections = 0;
 
-    // Used for the Update Database functionality
-    private boolean mIsImportingCollection = false;
-    private boolean mImportExportLegacyCsv = false;
-    private boolean mExportSingleFileCsv = false;
-    private Uri mImportExportFileUri = null;
+    // Import/export task inputs live in mActivityViewModel.mTaskRequest (not in
+    // activity fields) so they survive configuration changes while a task runs
 
     // App permission requests
     private final static int IMPORT_PERMISSIONS_REQUEST = 0;
@@ -288,11 +285,16 @@ public class MainActivity extends BaseActivity {
         switch (taskId) {
             case TASK_IMPORT_COLLECTIONS: {
                 ExportImportHelper helper = new ExportImportHelper(mRes, mDbAdapter);
-                if (mImportExportLegacyCsv) {
+                if (mActivityViewModel.mTaskRequest.importExportLegacyCsv) {
                     return helper.importCollectionsFromLegacyCSV(getLegacyExportFolderName());
                 } else {
-                    try (InputStream inputStream = getContentResolver().openInputStream(mImportExportFileUri)) {
-                        String fileName = getFileNameFromUri(mImportExportFileUri);
+                    final Uri fileUri = mActivityViewModel.mTaskRequest.importExportFileUri;
+                    if (fileUri == null) {
+                        return mRes.getString(R.string.error_importing,
+                                mRes.getString(R.string.error_no_file_selected));
+                    }
+                    try (InputStream inputStream = getContentResolver().openInputStream(fileUri)) {
+                        String fileName = getFileNameFromUri(fileUri);
                         if (fileName.endsWith(".csv")) {
                             return helper.importCollectionsFromSingleCSV(inputStream);
                         } else {
@@ -305,11 +307,16 @@ public class MainActivity extends BaseActivity {
             }
             case TASK_EXPORT_COLLECTIONS: {
                 ExportImportHelper helper = new ExportImportHelper(mRes, mDbAdapter);
-                if (mImportExportLegacyCsv) {
+                if (mActivityViewModel.mTaskRequest.importExportLegacyCsv) {
                     return helper.exportCollectionsToLegacyCSV(getLegacyExportFolderName());
                 } else {
-                    try (OutputStream outputStream = getContentResolver().openOutputStream(mImportExportFileUri)) {
-                        String fileName = getFileNameFromUri(mImportExportFileUri);
+                    final Uri fileUri = mActivityViewModel.mTaskRequest.importExportFileUri;
+                    if (fileUri == null) {
+                        return mRes.getString(R.string.error_exporting,
+                                mRes.getString(R.string.error_no_file_selected));
+                    }
+                    try (OutputStream outputStream = getContentResolver().openOutputStream(fileUri)) {
+                        String fileName = getFileNameFromUri(fileUri);
                         if (fileName.endsWith(".csv")) {
                             return helper.exportCollectionsToSingleCSV(outputStream, fileName);
                         } else {
@@ -329,7 +336,7 @@ public class MainActivity extends BaseActivity {
         super.asyncProgressOnPostExecute(taskId, resultStr);
         dismissProgressDialog();
         if (taskId == TASK_IMPORT_COLLECTIONS) {
-            mIsImportingCollection = false;
+            mActivityViewModel.mTaskRequest.isImportingCollection = false;
         }
         updateCollectionListFromDatabaseAndUpdateViewForUIThread();
     }
@@ -393,7 +400,7 @@ public class MainActivity extends BaseActivity {
      * Handle when the user starts importing a collection
      */
     private void launchImportTask() {
-        if (!mImportExportLegacyCsv) {
+        if (!mActivityViewModel.mTaskRequest.importExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
@@ -438,10 +445,10 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (!mImportExportLegacyCsv) {
+        if (!mActivityViewModel.mTaskRequest.importExportLegacyCsv) {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            if (mExportSingleFileCsv) {
+            if (mActivityViewModel.mTaskRequest.exportSingleFileCsv) {
                 intent.setType("text/csv");
                 intent.putExtra(Intent.EXTRA_TITLE, "coin-collection-" + getTodayDateString() + ".csv");
             } else {
@@ -463,7 +470,7 @@ public class MainActivity extends BaseActivity {
             }
 
             // Indicate that we're using the legacy CSV
-            mImportExportLegacyCsv = true;
+            mActivityViewModel.mTaskRequest.importExportLegacyCsv = true;
 
             // Check to see if the folder exists already
             File dir = new File(getLegacyExportFolderName());
@@ -543,7 +550,7 @@ public class MainActivity extends BaseActivity {
             switch (requestCode) {
                 case PICK_EXPORT_FILE: {
                     if (resultData != null) {
-                        mImportExportFileUri = resultData.getData();
+                        mActivityViewModel.mTaskRequest.importExportFileUri = resultData.getData();
                         // Finish the export using AsyncTaskRunner to do the heavy lifting
                         kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
                     }
@@ -551,7 +558,7 @@ public class MainActivity extends BaseActivity {
                 }
                 case PICK_IMPORT_FILE: {
                     if (resultData != null) {
-                        mImportExportFileUri = resultData.getData();
+                        mActivityViewModel.mTaskRequest.importExportFileUri = resultData.getData();
                         if (mNumberOfCollections != 0) {
                             showImportConfirmation();
                         } else {
@@ -666,7 +673,7 @@ public class MainActivity extends BaseActivity {
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
 
-        if (hasFocus && !mIsImportingCollection) {
+        if (hasFocus && !mActivityViewModel.mTaskRequest.isImportingCollection) {
             // Only do this if the database has been opened with AsyncTaskRunner first
             // and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
@@ -754,7 +761,7 @@ public class MainActivity extends BaseActivity {
                 .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
                     // Finish the import using AsyncTaskRunner to do the heavy lifting
                     dialog.dismiss();
-                    mIsImportingCollection = true;
+                    mActivityViewModel.mTaskRequest.isImportingCollection = true;
                     kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
                 })
                 .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
@@ -958,7 +965,7 @@ public class MainActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             // In API 30+, access to the SD card is disabled, so don't give the user the option
             // to import from legacy storage. Since there is no choice, go directly to the picker
-            mImportExportLegacyCsv = false;
+            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
             launchImportTask();
             return;
         }
@@ -974,14 +981,14 @@ public class MainActivity extends BaseActivity {
                         case 0: {
                             // Pick back-up file
                             dialog.dismiss();
-                            mImportExportLegacyCsv = false;
+                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
                             launchImportTask();
                             break;
                         }
                         case 1: {
                             // Legacy Storage
                             dialog.dismiss();
-                            mImportExportLegacyCsv = true;
+                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = true;
                             launchImportTask();
                             break;
                         }
@@ -1016,24 +1023,24 @@ public class MainActivity extends BaseActivity {
                         case 0: {
                             // JSON file
                             dialog.dismiss();
-                            mImportExportLegacyCsv = false;
-                            mExportSingleFileCsv = false;
+                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
+                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = false;
                             launchExportTask();
                             break;
                         }
                         case 1: {
                             // CSV file (single-file)
                             dialog.dismiss();
-                            mImportExportLegacyCsv = false;
-                            mExportSingleFileCsv = true;
+                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
+                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = true;
                             launchExportTask();
                             break;
                         }
                         case 2: {
                             // Legacy CSV
                             dialog.dismiss();
-                            mImportExportLegacyCsv = true;
-                            mExportSingleFileCsv = false;
+                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = true;
+                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = false;
                             launchExportTask();
                             break;
                         }
