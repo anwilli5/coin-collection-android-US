@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.SQLException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -57,6 +58,26 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     public static class ActivityViewModel extends ViewModel {
         public AsyncTaskRunner mSavedTaskRunner;
+        // Inputs for the in-flight async task, captured on the UI thread so the
+        // background thread never has to read them from a View and so they survive
+        // a configuration change.
+        public final TaskRequest mTaskRequest = new TaskRequest();
+    }
+
+    /**
+     * Holder for async-task inputs that must be captured on the UI thread ahead
+     * of running the task on the background thread.
+     */
+    public static class TaskRequest {
+        // Collection name for a create/update collection task
+        public String collectionName;
+        // Import/export task inputs - file to read/write and format flags
+        public Uri importExportFileUri;
+        public boolean importExportLegacyCsv;
+        public boolean exportSingleFileCsv;
+        // True while an import task is rewriting the database, so recreated
+        // activities know not to read the database mid-import
+        public boolean isImportingCollection;
     }
 
     // Unit test flag for disabling async tasks
@@ -124,10 +145,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         if (!mDbAdapter.isOpen()) {
             // Use AsyncTaskRunner to open the database in case onUpgrade() is called, which is slow
             kickOffAsyncTaskRunner(TASK_OPEN_DATABASE);
-        } else {
-            // Display the progress dialog for the existing tasks (i.e. import/export)
-            asyncProgressOnPreExecute(mTaskRunner.getLatestTaskId());
         }
+        // Note: If a task (e.g. import/export) is already running when this activity
+        // is (re)created, its progress UI is re-shown and any completed result is
+        // delivered when the subclass calls setActivityReadyForAsyncCallbacks().
     }
 
     /**

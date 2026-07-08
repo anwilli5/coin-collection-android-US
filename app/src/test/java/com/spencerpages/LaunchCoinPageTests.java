@@ -21,12 +21,14 @@
 package com.spencerpages;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.coincollection.BaseActivity;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
@@ -73,6 +75,67 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
                     assertNotNull(coinActivity);
                     coinActivity.onCreate(null);
+
+                    // Clean up
+                    activity.deleteDatabase(scenario1.mCollectionListInfo.getName());
+                }
+            });
+        }
+    }
+
+    /**
+     * Test that recreating a CollectionPage while the database is closed (as
+     * happens when the OS kills the app process and the user returns from
+     * Recents) does not crash. Per WI-02, onCreate must defer all database
+     * access until the asynchronous open completes.
+     */
+    @Test
+    public void test_launchCoinPageWithClosedDatabase() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
+                    // Create the collection in the database
+                    activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
+                            scenario1.mDisplayOrder, scenario1.mCoinList);
+                    activity.updateCollectionListFromDatabase();
+
+                    // Launch the collection
+                    Intent intent = activity.launchCoinPageActivity(scenario1.mCollectionListInfo);
+                    assertNotNull(intent);
+
+                    // Simulate process death: the shared database is not open when
+                    // the activity is recreated
+                    activity.mDbAdapter.close();
+
+                    // Use the real (asynchronous) task path for the database open.
+                    // The synchronous unit-test seam would reopen the database inside
+                    // BaseActivity.onCreate and mask a regression in the deferral.
+                    CollectionPage coinActivity;
+                    BaseActivity.isUnitTest = false;
+                    try {
+                        coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
+                        assertNotNull(coinActivity);
+                        // onCreate must not touch the database directly in this state,
+                        // otherwise it crashes with a NullPointerException
+                        coinActivity.onCreate(null);
+                    } finally {
+                        BaseActivity.isUnitTest = true;
+                    }
+
+                    // The database-dependent setup must have been deferred, not run
+                    // against the closed database
+                    assertNull(coinActivity.mCoinSlotAdapter);
+
+                    // Complete the open and deliver the callback as the task runner
+                    // would, and verify the deferred setup then runs
+                    activity.mDbAdapter.open();
+                    coinActivity.asyncProgressOnPostExecute(BaseActivity.TASK_OPEN_DATABASE, "");
+                    assertNotNull(coinActivity.mCoinSlotAdapter);
+
+                    // Detach the activity from its task runner so the still-queued
+                    // database-open task becomes a no-op when the looper idles
+                    coinActivity.onDestroy();
 
                     // Clean up
                     activity.deleteDatabase(scenario1.mCollectionListInfo.getName());
