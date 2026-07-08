@@ -57,14 +57,21 @@ public class CollectionListInfoFlagParsingTests {
     }
 
     @Test
-    public void parseFlagString_returnsZeroForMangledValues() {
-        // Excel/Sheets turn large integers into scientific notation or floats
-        assertEquals(0L, CollectionListInfo.parseFlagString("2.68435E+8"));
-        assertEquals(0L, CollectionListInfo.parseFlagString("268435456.0"));
-        // Stray whitespace and non-numeric text
-        assertEquals(0L, CollectionListInfo.parseFlagString(" 268435456 "));
+    public void parseFlagString_recoversSpreadsheetFormats() {
+        // Excel/Sheets rewrite large integers when the CSV is edited and saved.
+        // Trailing-decimal and stray-whitespace forms recover exactly.
+        assertEquals(268435456L, CollectionListInfo.parseFlagString("268435456.0"));
+        assertEquals(268435456L, CollectionListInfo.parseFlagString(" 268435456 "));
+        // Scientific notation is inherently lossy (the spreadsheet already
+        // dropped precision) but is still parsed to its nearest integer.
+        assertEquals(268435000L, CollectionListInfo.parseFlagString("2.68435E+8"));
+    }
+
+    @Test
+    public void parseFlagString_returnsZeroForUnrecoverableValues() {
         assertEquals(0L, CollectionListInfo.parseFlagString("true"));
-        // Numeric overflow beyond Long.MAX_VALUE
+        assertEquals(0L, CollectionListInfo.parseFlagString("not a number"));
+        // Numeric overflow beyond Long.MAX_VALUE cannot be represented
         assertEquals(0L, CollectionListInfo.parseFlagString("99999999999999999999"));
     }
 
@@ -76,23 +83,24 @@ public class CollectionListInfoFlagParsingTests {
     @Test
     public void getCheckboxFlagsAsLong_doesNotThrowOnMangledValue() {
         CollectionListInfo info = makeInfoWithFlags("0", "2.68435E+8");
-        assertEquals(0L, info.getCheckboxFlagsAsLong());
+        assertEquals(268435000L, info.getCheckboxFlagsAsLong());
         info.hasSACDollars();
     }
 
     @Test
     public void getMintMarkFlagsAsLong_doesNotThrowOnMangledValue() {
         CollectionListInfo info = makeInfoWithFlags("2.68435E+8", "0");
-        assertEquals(0L, info.getMintMarkFlagsAsLong());
+        assertEquals(268435000L, info.getMintMarkFlagsAsLong());
         info.hasMintMarks();
     }
 
     /**
-     * Import path: the {@code String[]} constructor (CSV import) must sanitize
-     * mangled flag values so a poisoned value never reaches the database.
+     * Import path: the {@code String[]} constructor (CSV import) must recover
+     * spreadsheet-mangled flag values so a poisoned value never reaches the
+     * database and the user's configuration is preserved where possible.
      */
     @Test
-    public void stringArrayConstructor_sanitizesMangledFlags() {
+    public void stringArrayConstructor_recoversMangledFlags() {
         String[] in = new String[]{
                 "Test Collection", // 0 name
                 "Lincoln Cents",   // 1 coin type
@@ -103,11 +111,11 @@ public class CollectionListInfoFlagParsingTests {
                 "2020",            // 6 end year
                 "0",               // 7 mint mark legacy
                 "0",               // 8 checkbox legacy
-                "2.68435E+8",      // 9 mint mark flags (mangled)
-                "268435456.0"      // 10 checkbox flags (mangled)
+                "2.68435E+8",      // 9 mint mark flags (scientific notation)
+                "268435456.0"      // 10 checkbox flags (trailing decimal)
         };
         CollectionListInfo info = new CollectionListInfo(in);
-        assertEquals(0L, info.getMintMarkFlagsAsLong());
-        assertEquals(0L, info.getCheckboxFlagsAsLong());
+        assertEquals(268435000L, info.getMintMarkFlagsAsLong());
+        assertEquals(268435456L, info.getCheckboxFlagsAsLong());
     }
 }

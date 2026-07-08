@@ -336,24 +336,43 @@ public class CollectionListInfo implements Parcelable {
 
     /**
      * Safely parses a mint-mark / checkbox flag string into a long, returning 0
-     * for null, empty, or malformed values instead of throwing.
+     * for null, empty, or unrecoverable values instead of throwing.
      * <p>
      * Flag strings are written verbatim from imported files (CSV/JSON) with no
-     * validation, so they can be corrupted by spreadsheets (e.g. "2.68435E+8",
-     * "268435456.0"), stray whitespace, non-numeric text, or numeric overflow.
-     * A malformed value would otherwise throw {@link NumberFormatException}
-     * during a database upgrade and crash the app on every startup (issue #406).
+     * validation, so they can be corrupted by spreadsheets. Excel/Sheets commonly
+     * rewrite large integers as a trailing-decimal ("268435456.0"), with stray
+     * surrounding whitespace, or in scientific notation ("2.68435E+8"). Such a
+     * value would otherwise throw {@link NumberFormatException} during a database
+     * upgrade and crash the app on every startup (issue #406).
+     * <p>
+     * To support users who edit the exported CSV in a spreadsheet, this method
+     * makes a best effort to recover the integer value from those formats. The
+     * trailing-decimal and whitespace cases recover exactly; scientific notation
+     * is inherently lossy (the spreadsheet already dropped precision) but is
+     * still parsed to its nearest integer rather than discarded. Anything that
+     * still can't be parsed (non-numeric text, values outside the long range)
+     * falls back to 0.
      *
      * @param flagStr the flag string to parse
      * @return the parsed flag value, or 0 if the string is null/empty/invalid
      */
     public static long parseFlagString(String flagStr) {
-        if (flagStr == null || flagStr.isEmpty()) {
+        if (flagStr == null) {
+            return 0L;
+        }
+        String trimmed = flagStr.trim();
+        if (trimmed.isEmpty()) {
             return 0L;
         }
         try {
-            return Long.parseLong(flagStr);
-        } catch (NumberFormatException e) {
+            return Long.parseLong(trimmed);
+        } catch (NumberFormatException ignored) {
+            // Fall through to handle spreadsheet-mangled numeric formats below
+        }
+        try {
+            // Handles "268435456.0" (exact) and "2.68435E+8" (best-effort, lossy)
+            return new java.math.BigDecimal(trimmed).toBigInteger().longValueExact();
+        } catch (NumberFormatException | ArithmeticException ignored) {
             return 0L;
         }
     }
