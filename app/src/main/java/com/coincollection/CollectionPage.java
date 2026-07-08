@@ -213,6 +213,7 @@ public class CollectionPage extends BaseActivity {
         }
 
         // Populate the coin list
+        boolean showUnsavedChanges = false;
         if (mSavedInstanceState == null) {
             boolean populateAdvInfo = (mDisplayType == ADVANCED_DISPLAY);
             mCoinList = mDbAdapter.getCoinList(mCollectionName, populateAdvInfo);
@@ -226,11 +227,13 @@ public class CollectionPage extends BaseActivity {
             }
             mCoinList = mSavedInstanceState.getParcelableArrayList(COIN_LIST);
             // Search through the hasChanged history and see whether we should
-            // re-display the "Unsaved Changes" view
+            // re-display the "Unsaved Changes" view. Defer the actual view update
+            // until after setContentView() has run below, otherwise
+            // findViewById() returns null and showUnsavedTextView() crashes.
             if (mCoinList != null) {
                 for (int i = 0; i < mCoinList.size(); i++) {
                     if (mCoinList.get(i).hasAdvInfoChanged()) {
-                        this.showUnsavedTextView();
+                        showUnsavedChanges = true;
                         break;
                     }
                 }
@@ -339,6 +342,12 @@ public class CollectionPage extends BaseActivity {
                 promptCoinSlotActions(position);
                 return true;
             });
+        }
+
+        // Now that the content view has been set, re-display the "Unsaved
+        // Changes" indicator if the restored state had pending edits.
+        if (showUnsavedChanges) {
+            showUnsavedTextView();
         }
 
         // Setup filter status indicator
