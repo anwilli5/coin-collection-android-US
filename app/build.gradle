@@ -104,8 +104,12 @@ android {
                 showStackTraces = true
                 showStandardStreams = true
             }
-            // Configure JVM arguments to prevent Mockito self-attachment warnings
-            jvmArgs '-XX:+EnableDynamicAgentLoading'
+            // Load Mockito as an explicit Java agent instead of relying on its
+            // inline mock maker self-attaching at runtime. Self-attach is fragile
+            // on JDK 21+ (and fails outright on some JVMs, e.g. the JetBrains
+            // Runtime used in CI), which caused Mockito to break for the rest of
+            // the forked JVM once another test polluted its state.
+            jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", '-XX:+EnableDynamicAgentLoading'
         }
         unitTests.includeAndroidResources = true
     }
@@ -123,6 +127,9 @@ android {
 }
 
 configurations {
+    // Resolves the Mockito jar so it can be passed to the test JVM as a
+    // -javaagent (see testOptions above).
+    mockitoAgent
     configureEach {
         exclude module: 'commons-logging'
     }
@@ -139,6 +146,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.16.1'
     testImplementation 'androidx.test:core:1.7.0'
     testImplementation 'org.mockito:mockito-core:5.23.0'
+    mockitoAgent('org.mockito:mockito-core:5.23.0') { transitive = false }
     androidTestImplementation(project(":shared-test"))
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.7.0'
