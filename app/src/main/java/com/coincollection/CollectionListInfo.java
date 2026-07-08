@@ -323,11 +323,7 @@ public class CollectionListInfo implements Parcelable {
     }
 
     public long getMintMarkFlagsAsLong() {
-        if (mMintMarkFlags.isEmpty()){
-            return 0L;
-        } else {
-            return Long.parseLong(mMintMarkFlags);
-        }
+        return parseFlagString(mMintMarkFlags);
     }
 
     public String getCheckboxFlags() {
@@ -335,10 +331,49 @@ public class CollectionListInfo implements Parcelable {
     }
 
     public long getCheckboxFlagsAsLong() {
-        if (mCheckboxFlags.isEmpty()){
+        return parseFlagString(mCheckboxFlags);
+    }
+
+    /**
+     * Safely parses a mint-mark / checkbox flag string into a long, returning 0
+     * for null, empty, or unrecoverable values instead of throwing.
+     * <p>
+     * Flag strings are written verbatim from imported files (CSV/JSON) with no
+     * validation, so they can be corrupted by spreadsheets. Excel/Sheets commonly
+     * rewrite large integers as a trailing-decimal ("268435456.0"), with stray
+     * surrounding whitespace, or in scientific notation ("2.68435E+8"). Such a
+     * value would otherwise throw {@link NumberFormatException} during a database
+     * upgrade and crash the app on every startup (issue #406).
+     * <p>
+     * To support users who edit the exported CSV in a spreadsheet, this method
+     * makes a best effort to recover the integer value from those formats. The
+     * trailing-decimal and whitespace cases recover exactly; scientific notation
+     * is inherently lossy (the spreadsheet already dropped precision) but is
+     * still parsed to its nearest integer rather than discarded. Anything that
+     * still can't be parsed (non-numeric text, values outside the long range)
+     * falls back to 0.
+     *
+     * @param flagStr the flag string to parse
+     * @return the parsed flag value, or 0 if the string is null/empty/invalid
+     */
+    public static long parseFlagString(String flagStr) {
+        if (flagStr == null) {
             return 0L;
-        } else {
-            return Long.parseLong(mCheckboxFlags);
+        }
+        String trimmed = flagStr.trim();
+        if (trimmed.isEmpty()) {
+            return 0L;
+        }
+        try {
+            return Long.parseLong(trimmed);
+        } catch (NumberFormatException ignored) {
+            // Fall through to handle spreadsheet-mangled numeric formats below
+        }
+        try {
+            // Handles "268435456.0" (exact) and "2.68435E+8" (best-effort, lossy)
+            return new java.math.BigDecimal(trimmed).toBigInteger().longValueExact();
+        } catch (NumberFormatException | ArithmeticException ignored) {
+            return 0L;
         }
     }
 
@@ -965,8 +1000,8 @@ public class CollectionListInfo implements Parcelable {
         mDisplayType = displayType;
         mStartYear = startYear;
         mEndYear = endYear;
-        mMintMarkFlags = mintMarkFlags;
-        mCheckboxFlags = checkboxFlags;
+        mMintMarkFlags = Long.toString(parseFlagString(mintMarkFlags));
+        mCheckboxFlags = Long.toString(parseFlagString(checkboxFlags));
         mCollectionTypeIndex = collectionTypeIndex;
         mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
@@ -990,8 +1025,8 @@ public class CollectionListInfo implements Parcelable {
         mEndYear = (in.length > 6) ? Integer.parseInt(in[6]) : 0;
         int mintMarkFlagsLegacy = (in.length > 7) ? Integer.parseInt(in[7]) : 0;
         int checkboxFlagsLegacy = (in.length > 8) ? Integer.parseInt(in[8]) : 0;
-        mMintMarkFlags = (in.length > 9) ? in[9] : Integer.toString(mintMarkFlagsLegacy);
-        mCheckboxFlags = (in.length > 10) ? in[10] : Integer.toString(checkboxFlagsLegacy);
+        mMintMarkFlags = Long.toString(parseFlagString((in.length > 9) ? in[9] : Integer.toString(mintMarkFlagsLegacy)));
+        mCheckboxFlags = Long.toString(parseFlagString((in.length > 10) ? in[10] : Integer.toString(checkboxFlagsLegacy)));
 
         // If the coin type isn't recognized, an error occurred so just choose a safe value
         int collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(in[1]);

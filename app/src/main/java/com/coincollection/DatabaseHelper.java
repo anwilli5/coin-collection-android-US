@@ -322,7 +322,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     if (semiqTypes.contains(coinType)) {
                         String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
                         String checkboxStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES));
-                        long checkboxFlags = (checkboxStr == null || checkboxStr.isEmpty()) ? 0L : Long.parseLong(checkboxStr);
+                        long checkboxFlags = CollectionListInfo.parseFlagString(checkboxStr);
                         checkboxFlags |= CollectionListInfo.SEMIQ_COINS;
                         ContentValues values = new ContentValues();
                         values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
