@@ -52,7 +52,9 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v5
       with:
-        java-version: 17
+        # JDK version is single-sourced from the repo-root .java-version file.
+        # AGP 9.x needs JDK 21, so the autobuild leg must match the build's JDK.
+        java-version-file: .java-version
         distribution: 'temurin'
 
     # Initializes the CodeQL tools for scanning.

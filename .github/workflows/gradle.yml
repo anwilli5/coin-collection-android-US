@@ -25,7 +25,8 @@ jobs:
     - name: Java Setup
       uses: actions/setup-java@v5
       with:
-        java-version: 21
+        # JDK version is single-sourced from the repo-root .java-version file.
+        java-version-file: .java-version
         distribution: 'temurin'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew

@@ -85,8 +85,9 @@ jobs:
         with:
           distribution: 'temurin'
           # AGP 9.x (com.android.tools.build:gradle 9.2.1) requires JDK 21 to
-          # run the build; the Android CI workflow (gradle.yml) also uses 21.
-          java-version: '21'
+          # run the build. JDK version is single-sourced from the repo-root
+          # .java-version file, shared with gradle.yml and codeql-analysis.yml.
+          java-version-file: .java-version
 
       - name: Decode and Place Keystore
         env:
