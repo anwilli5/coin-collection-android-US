@@ -49,7 +49,7 @@
             android:prompt="@string/select_quantity" />
     </RelativeLayout>
 
-    <EditText
+    <com.coincollection.SafeEditText
         android:id="@+id/notes_edit_text"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -67,5 +67,5 @@
         <!-- actionDone will resend the keyboard after typing
              flagNoExtractUI will prevent the edittext from getting
                              huge in landscape mode -->
-    </EditText>
+    </com.coincollection.SafeEditText>
 </RelativeLayout>
