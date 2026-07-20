@@ -56,6 +56,7 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Activity for managing each collection page
@@ -214,8 +215,8 @@ public class CollectionPage extends BaseActivity {
 
         // Populate the coin list
         boolean showUnsavedChanges = false;
+        boolean populateAdvInfo = (mDisplayType == ADVANCED_DISPLAY);
         if (mSavedInstanceState == null) {
-            boolean populateAdvInfo = (mDisplayType == ADVANCED_DISPLAY);
             mCoinList = mDbAdapter.getCoinList(mCollectionName, populateAdvInfo);
         } else {
 
@@ -226,6 +227,13 @@ public class CollectionPage extends BaseActivity {
                 Log.d(APP_NAME, "Successfully restored previous state");
             }
             mCoinList = mSavedInstanceState.getParcelableArrayList(COIN_LIST);
+            if (mCoinList == null) {
+                // The state was saved before the deferred database setup had
+                // populated the coin list (e.g. the activity was stopped while
+                // the async database open was still pending), so load the list
+                // from the database instead
+                mCoinList = mDbAdapter.getCoinList(mCollectionName, populateAdvInfo);
+            }
             // Search through the hasChanged history and see whether we should
             // re-display the "Unsaved Changes" view. Defer the actual view update
             // until after setContentView() has run below, otherwise
@@ -830,7 +838,7 @@ public class CollectionPage extends BaseActivity {
      */
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // In the advanced view, if we change orientation or something we need
@@ -840,13 +848,21 @@ public class CollectionPage extends BaseActivity {
 
         // Save off position of listview/gridview
         Integer[] viewPos;
+        AbsListView listView;
         if (mDisplayType == ADVANCED_DISPLAY) {
             // Finally, save off the position of the listview
-            ListView listview = findViewById(R.id.advanced_collection_page);
-            viewPos = getAbsListViewPosition(listview);
+            listView = findViewById(R.id.advanced_collection_page);
         } else {
-            GridView gridview = findViewById(R.id.standard_collection_page);
-            viewPos = getAbsListViewPosition(gridview);
+            listView = findViewById(R.id.standard_collection_page);
+        }
+        if (listView != null) {
+            viewPos = getAbsListViewPosition(listView);
+        } else {
+            // The list layout hasn't been inflated yet - setContentView() is
+            // deferred until the async database open completes, so if the
+            // activity is stopped before then there is no view to query. Fall
+            // back to the last known position from onCreate()
+            viewPos = new Integer[]{mViewIndex, mViewPosition};
         }
 
         // Save off these lists that may have unsaved user data
@@ -1001,6 +1017,11 @@ public class CollectionPage extends BaseActivity {
      * @param position the CoinSlot index to delete
      */
     public void deleteCoinSlotAtPosition(int position) {
+        // Ignore stale positions from actions that raced with a list change
+        if (position < 0 || position >= mCoinList.size()) {
+            return;
+        }
+
         // Need to check whether the collection is locked
         SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
 
@@ -1010,8 +1031,15 @@ public class CollectionPage extends BaseActivity {
         } else {
             // Delete the coin from the coin list
             CoinSlot coinSlot = mCoinList.remove(position);
-            // Also remove from the original list
-            mOriginalCoinList.remove(coinSlot);
+            // Also remove the exact same instance from the original list. An
+            // equals-based remove could drop a different equal-by-equals
+            // duplicate (e.g. from a copy), diverging the UI from the database
+            for (Iterator<CoinSlot> it = mOriginalCoinList.iterator(); it.hasNext(); ) {
+                if (it.next() == coinSlot) {
+                    it.remove();
+                    break;
+                }
+            }
             try {
                 mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName, mOriginalCoinList.size());
             } catch (SQLException e) {
@@ -1051,12 +1079,15 @@ public class CollectionPage extends BaseActivity {
             Spinner imgSpinner = coinRenameView.findViewById(R.id.coin_image_select);
             LinearLayout imgRow = coinRenameView.findViewById(R.id.coin_image_row);
 
+            // Capture the coin being edited so the OK callback can act on the
+            // exact instance instead of re-fetching by a position that may be
+            // stale by the time the dialog is confirmed
+            final CoinSlot editCoinSlot = !createNewCoin ? mCoinList.get(position) : null;
             if (!createNewCoin) {
                 // Get coin slot at the position
-                CoinSlot coinSlot = mCoinList.get(position);
-                nameInput.setText(coinSlot.getIdentifier());
-                mintInput.setText(coinSlot.getMint());
-                setupCoinImageSpinner(coinSlot, imgSpinner, imgRow);
+                nameInput.setText(editCoinSlot.getIdentifier());
+                mintInput.setText(editCoinSlot.getMint());
+                setupCoinImageSpinner(editCoinSlot, imgSpinner, imgRow);
             } else {
                 nameInput.setText("");
                 mintInput.setText("");
@@ -1081,7 +1112,12 @@ public class CollectionPage extends BaseActivity {
                             return;
                         }
                         if (!createNewCoin) {
-                            updateCoinDetails(mCoinList.get(position), newName, mintInput.getText().toString(), imageId);
+                            // The list may have changed while the dialog was open,
+                            // so act on the captured coin only if it's still present
+                            if (getCoinListIndexByIdentity(editCoinSlot) == -1) {
+                                return;
+                            }
+                            updateCoinDetails(editCoinSlot, newName, mintInput.getText().toString(), imageId);
                         } else {
                             addNewCoin(newName, mintInput.getText().toString(), imageId);
                         }
@@ -1152,11 +1188,33 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
+     * Finds a coin slot's current index in the filtered coin list by object
+     * identity. Equal-by-equals duplicates (e.g. from a copy, which shares the
+     * identifier and mint) make an equals-based lookup ambiguous, so match the
+     * exact instance instead
+     *
+     * @param coinSlot the CoinSlot to locate
+     * @return the index in mCoinList, or -1 if not present
+     */
+    private int getCoinListIndexByIdentity(CoinSlot coinSlot) {
+        for (int i = 0; i < mCoinList.size(); i++) {
+            if (mCoinList.get(i) == coinSlot) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Display additional actions list
      *
      * @param position the CoinSlot index to update
      */
     public void promptCoinSlotActions(int position) {
+        // Ignore positions outside the current list
+        if (position < 0 || position >= mCoinList.size()) {
+            return;
+        }
 
         // Populate a menu of actions for the collection
         CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
@@ -1164,7 +1222,7 @@ public class CollectionPage extends BaseActivity {
         actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
         actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
         actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
-        final int actionPosition = position;
+        final CoinSlot actionCoinSlot = mCoinList.get(position);
         showAlert(newBuilder()
                 .setTitle(mRes.getString(R.string.coin_actions))
                 .setItems(actionsList, (dialog, item) -> {
@@ -1181,10 +1239,20 @@ public class CollectionPage extends BaseActivity {
                         return;
                     }
 
+                    // The list may have changed while the dialog was open (filter
+                    // change, prior delete), so re-resolve the coin's current
+                    // position by identity and bail if it's no longer displayed.
+                    // Equal-by-equals duplicates (e.g. from a copy) make an
+                    // equals-based lookup match the wrong instance
+                    final int actionPosition = getCoinListIndexByIdentity(actionCoinSlot);
+                    if (actionPosition == -1) {
+                        return;
+                    }
+
                     switch (item) {
                         case ACTIONS_TOGGLE: {
                             // Toggle collected or not
-                            toggleCoinSlotInCollection(mCoinList.get(actionPosition));
+                            toggleCoinSlotInCollection(actionCoinSlot);
                             break;
                         }
                         case ACTIONS_EDIT: {
@@ -1194,7 +1262,7 @@ public class CollectionPage extends BaseActivity {
                         }
                         case ACTIONS_COPY: {
                             // Perform copy
-                            copyCoinSlot(mCoinList.get(actionPosition), actionPosition + 1);
+                            copyCoinSlot(actionCoinSlot, actionPosition + 1);
                             break;
                         }
                         case ACTIONS_DELETE: {
