@@ -1,0 +1,5 @@
+Bug fixes and stability improvements:
+- Fixed crashes reported in the 3.8.2 release
+- Adding 2026 semi-q coins plus a few app improvements
+- Special thanks to Hruday Rudraraju for adding search support.
+- Find us on GitHub for feature requests, feedback, and to contribute to the project!

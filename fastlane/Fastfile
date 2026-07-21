@@ -28,21 +28,68 @@ def android_metadata_path
   File.expand_path("metadata/android", __dir__)
 end
 
-# Write the "what's new" changelog file for the given versionCode and return
-# true when a file was actually written. supply (and the Amazon plugin) read
-# release notes from <metadata_path>/en-US/changelogs/<versionCode>.txt.
-# Writes nothing and returns false when the notes are blank or version_code <= 0
-# (0 is the deploy.yml sentinel meaning "don't trust the manifest versionCode").
-def write_changelog_file(version_code, release_notes)
+# Absolute path to the checked-in "what's new" changelog file for the given
+# versionCode. supply (and the Amazon plugin) read release notes from
+# <metadata_path>/en-US/changelogs/<versionCode>.txt. Returns nil when
+# version_code <= 0 (0 is the deploy.yml sentinel meaning "don't trust the
+# manifest versionCode").
+def changelog_file_path(version_code)
   vc = version_code.to_i
-  return false if release_notes.nil? || release_notes.to_s.strip.empty? || vc <= 0
+  return nil if vc <= 0
+  File.join(android_metadata_path, "en-US", "changelogs", "#{vc}.txt")
+end
 
-  changelog_dir = File.join(android_metadata_path, "en-US", "changelogs")
-  FileUtils.mkdir_p(changelog_dir)
-  changelog_path = File.join(changelog_dir, "#{vc}.txt")
+# True when a non-empty checked-in changelog file exists for the versionCode.
+def changelog_file_exists?(version_code)
+  path = changelog_file_path(version_code)
+  !path.nil? && File.exist?(path) && !File.read(path).strip.empty?
+end
+
+# Write the "what's new" changelog file for the given versionCode and return
+# true when a file was actually written. Release notes are normally checked into
+# the repo at <metadata_path>/en-US/changelogs/<versionCode>.txt; this helper is
+# only used to (over)write that file from an inline string when one is passed
+# explicitly (legacy override). Writes nothing and returns false when the notes
+# are blank or version_code <= 0.
+def write_changelog_file(version_code, release_notes)
+  return false if release_notes.nil? || release_notes.to_s.strip.empty?
+  changelog_path = changelog_file_path(version_code)
+  return false if changelog_path.nil?
+
+  FileUtils.mkdir_p(File.dirname(changelog_path))
   File.write(changelog_path, release_notes)
-  UI.message("Wrote release notes to #{changelog_path} for version code #{vc}")
+  UI.message("Wrote release notes to #{changelog_path} for version code #{version_code.to_i}")
   true
+end
+
+# Prepend a pre-release notice to the checked-in changelog file for the given
+# versionCode so internal testers can see it's a release candidate. Modifies the
+# ephemeral CI checkout only (never committed). Returns true when the notice was
+# prepended. Does nothing when the notice is blank, the versionCode is invalid,
+# or no changelog file exists.
+def prepend_prerelease_notice(version_code, notice)
+  return false if notice.nil? || notice.to_s.strip.empty?
+  path = changelog_file_path(version_code)
+  return false if path.nil? || !File.exist?(path)
+
+  existing = File.read(path)
+  File.write(path, "#{notice.to_s.strip}\n\n#{existing}")
+  UI.message("Prepended pre-release notice to #{path} for version code #{version_code.to_i}")
+  true
+end
+
+# Prepare the "what's new" changelog for upload. Precedence:
+#   1. If options[:release_notes] is provided, (over)write the checked-in
+#      changelog file from it (legacy inline override).
+#   2. Otherwise the checked-in changelog file for the versionCode is used as-is.
+#   3. If options[:prerelease_notice] is provided, prepend it to the changelog
+#      (pre-release / internal-track builds only).
+# Returns true when a changelog file exists for the versionCode (so supply
+# should upload it), false otherwise.
+def prepare_changelog(options)
+  write_changelog_file(options[:version_code], options[:release_notes])
+  prepend_prerelease_notice(options[:version_code], options[:prerelease_notice])
+  changelog_file_exists?(options[:version_code])
 end
 
 platform :android do
@@ -103,9 +150,11 @@ platform :android do
       }
 
       # supply has no inline "changelogs" option; the "what's new" text is read
-      # from a versionCode-named file under the metadata path. Enable changelog
-      # upload only when a changelog file was actually written.
-      supply_params[:skip_upload_changelogs] = false if write_changelog_file(options[:version_code], options[:release_notes])
+      # from the checked-in versionCode-named file under the metadata path.
+      # Enable changelog upload only when a changelog file exists for this
+      # versionCode. For pre-release/internal builds, options[:prerelease_notice]
+      # is prepended to the checked-in notes (ephemeral CI checkout only).
+      supply_params[:skip_upload_changelogs] = false if prepare_changelog(options)
 
       supply(supply_params)
       UI.success("Successfully deployed to Google Play Store (#{track} track)!")
@@ -165,10 +214,11 @@ platform :android do
         supply_params[:skip_upload_aab] = true
       end
 
-      # supply has no inline "changelogs" option; write the "what's new" text to
-      # a versionCode-named file and enable changelog upload only when one was
-      # actually written.
-      supply_params[:skip_upload_changelogs] = false if write_changelog_file(options[:version_code], options[:release_notes])
+      # supply has no inline "changelogs" option; the "what's new" text is read
+      # from the checked-in versionCode-named file under the metadata path.
+      # Enable changelog upload only when a changelog file exists for this
+      # versionCode.
+      supply_params[:skip_upload_changelogs] = false if prepare_changelog(options)
 
       supply(supply_params)
       UI.success("Successfully released to Google Play Store (Production Track)!")
@@ -186,12 +236,13 @@ platform :android do
 
       # Gradle build steps are removed. APK is provided via options[:apk_path].
 
-      # Handle changelogs by writing to file. The deploy workflow passes
-      # version_code="0" as a sentinel when the operator supplied an explicit
-      # release_tag (in which case the workflow can't trust main's manifest).
-      # write_changelog_file skips the file in that case rather than writing "0.txt".
-      unless write_changelog_file(options[:version_code], options[:release_notes])
-        UI.important("No release notes or valid version code provided for Amazon changelog generation; relying on existing changelog files (if any).")
+      # The "what's new" text is read from the checked-in versionCode-named file
+      # under the metadata path. The deploy workflow passes version_code="0" as a
+      # sentinel when the operator supplied an explicit release_tag (in which case
+      # the workflow can't trust main's manifest); prepare_changelog skips the
+      # file lookup in that case and the plugin relies on existing files (if any).
+      unless prepare_changelog(options)
+        UI.important("No checked-in changelog file for this version code; relying on existing changelog files (if any).")
       end
 
       # Check to ensure ENV variables are set
