@@ -32,10 +32,6 @@ on:
         required: false
         type: string
         default: ''
-      releaseNotes:
-        description: 'Release notes for the app store listings. Can match or differ from the GitHub Release notes.'
-        required: true
-        type: string
 
 jobs:
   download_and_deploy:
@@ -175,36 +171,28 @@ jobs:
 
       - name: Deploy to Google Play (Testers)
         if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track != 'production'
-        env:
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_playstore_test \
             apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
             version_code:"${{ steps.resolve_version.outputs.version_code }}" \
-            track:"${{ github.event.inputs.play_track }}" \
-            release_notes:"$RELEASE_NOTES"
+            track:"${{ github.event.inputs.play_track }}"
 
       - name: Deploy to Google Play (Production)
         if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track == 'production'
-        env:
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_playstore_production \
             apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
-            version_code:"${{ steps.resolve_version.outputs.version_code }}" \
-            release_notes:"$RELEASE_NOTES"
+            version_code:"${{ steps.resolve_version.outputs.version_code }}"
 
       - name: Deploy to Amazon Appstore
         if: github.event.inputs.stores == 'amazon' || github.event.inputs.stores == 'both'
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           bundle exec fastlane deploy_amazon_appstore \
             apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
             version_name:"${{ steps.resolve_version.outputs.version_name }}" \
-            version_code:"${{ steps.resolve_version.outputs.version_code }}" \
-            release_notes:"$RELEASE_NOTES"
+            version_code:"${{ steps.resolve_version.outputs.version_code }}"

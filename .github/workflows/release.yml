@@ -8,10 +8,6 @@ on:
         required: true
         type: string
         default: '1'
-      releaseNotes:
-        description: "What's-new text for the Google Play internal testing track."
-        required: true
-        type: string
 
 jobs:
   build_and_prerelease:
@@ -46,6 +42,32 @@ jobs:
           echo "Extracted versionCode: $VERSION_CODE"
           echo "manifest_version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "manifest_version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+
+      - name: Verify checked-in release notes exist
+        # Release notes are checked into the repo at
+        # fastlane/metadata/android/en-US/changelogs/<versionCode>.txt (supply and
+        # the Amazon plugin read them from there). Fail fast with a clear message
+        # if the operator forgot to add/update them for this versionCode.
+        id: release_notes
+        run: |
+          set -euo pipefail
+          VC="${{ steps.extract_versions.outputs.manifest_version_code }}"
+          NOTES_FILE="fastlane/metadata/android/en-US/changelogs/${VC}.txt"
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "::error::Release notes file $NOTES_FILE is missing or empty. Add it (checked in) before running this workflow."
+            exit 1
+          fi
+          echo "Using release notes from $NOTES_FILE:"
+          echo "----------------------------------------"
+          cat "$NOTES_FILE"
+          echo "----------------------------------------"
+          # Google Play limits each language's "what's new" to 500 characters.
+          # The pre-release notice is prepended at deploy time, so warn early if
+          # the base notes are already close to the limit.
+          CHARS=$(wc -m < "$NOTES_FILE" | tr -d ' ')
+          if [ "$CHARS" -gt 500 ]; then
+            echo "::warning::Release notes are ${CHARS} characters; Google Play truncates 'what's new' at 500. The prepended pre-release notice may push it further over."
+          fi
 
       - name: Compose RC tag and check tags do not exist
         id: check_tag
@@ -174,15 +196,20 @@ jobs:
 
       - name: Deploy to Google Play (internal testing)
         env:
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
+          RC_TAG: ${{ steps.check_tag.outputs.rc_tag }}
         run: |
           MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          # Prepend a pre-release notice to the checked-in release notes so
+          # internal testers can tell this is a release candidate, not the final
+          # build. The Fastfile prepends this to the ephemeral CI copy of
+          # <versionCode>.txt before uploading (never committed).
+          PRERELEASE_NOTICE="[PRE-RELEASE ${RC_TAG} - internal testing build, not the final release]"
           bundle exec fastlane deploy_playstore_test \
             apk_path:"${{ github.workspace }}/app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
             version_name:"${MVN}" \
             version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
             track:"internal" \
-            release_notes:"$RELEASE_NOTES"
+            prerelease_notice:"$PRERELEASE_NOTICE"
 
       - name: Create GitHub Pre-release
         uses: softprops/action-gh-release@v3

@@ -78,23 +78,35 @@ The pipeline has two operator-driven stages.
    value is already well into the dozens — just `+1` from whatever's on
    `main` (and confirm it exceeds the latest Play / Amazon production
    versionCode).
-2. Merge the version bump to `main`.
-3. In GitHub, go to **Actions → Build and Publish Pre-release → Run
+2. Write the release notes for this version and **check them in** at
+   [`fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`](fastlane/metadata/android/en-US/changelogs)
+   (the file name must match the new `versionCode`). This single file is the
+   source of "what's new" text for internal testing, Google Play production,
+   and the Amazon Appstore — so newlines and bullet points are supported and
+   render identically everywhere. Keep it under **500 characters** (Google
+   Play truncates longer text). The pre-release workflow automatically
+   prepends a short `[PRE-RELEASE …]` notice to these notes for the internal
+   track only, so you can preview exactly how the notes will read before
+   promoting.
+3. Merge the version bump **and** the release-notes file to `main`.
+4. In GitHub, go to **Actions → Build and Publish Pre-release → Run
    workflow** and fill in the inputs:
    - `rc_number`: the release-candidate number for this attempt (`1` the
      first time; bump to `2`, `3`, … if you need another pre-release of the
      same version). This produces the tag `vX.Y.Z-rc.N`.
-   - `releaseNotes`: the "what's new" text shown to Play internal testers.
-4. The workflow:
+5. The workflow:
    - Refuses to run if the final tag `vX.Y.Z` **or** the chosen
      `vX.Y.Z-rc.N` tag already exists.
+   - Fails fast if the checked-in
+     `changelogs/<versionCode>.txt` release-notes file is missing or empty.
    - Builds `:app:assembleAndroidRelease` and `:app:assembleAmazonRelease`.
    - Verifies the APKs are signed with the release key (fails on
      debug-signed APKs).
    - Creates a GitHub **pre-release** tagged `vX.Y.Z-rc.N` with both APKs
      attached.
-   - Uploads the `android` APK to the Google Play **internal** track.
-5. F-Droid does **not** build at this stage: the `vX.Y.Z-rc.N` tag is
+   - Uploads the `android` APK to the Google Play **internal** track, with a
+     `[PRE-RELEASE vX.Y.Z-rc.N …]` notice prepended to the checked-in notes.
+6. F-Droid does **not** build at this stage: the `vX.Y.Z-rc.N` tag is
    excluded by the `fdroiddata` `UpdateCheckMode` regex
    (`Tags ^v[0-9.]+$`), and the bare `vX.Y.Z` tag does not exist yet.
    Amazon and Play production are untouched.
@@ -102,7 +114,9 @@ The pipeline has two operator-driven stages.
 ### 1.2 Verify on the internal track
 
 1. Open Google Play Console → **Testing → Internal testing**. Confirm
-   a new release exists with the expected `versionCode`.
+   a new release exists with the expected `versionCode`. The "what's new"
+   text shows the `[PRE-RELEASE …]` notice followed by the checked-in
+   release notes — a live preview of how production will read.
 2. On a test device opted into the internal-test program, install the build
    from the Play Store and exercise the changed flows.
 3. Watch the Play Console pre-launch report for crashes / policy issues
@@ -119,10 +133,12 @@ Once internal testing is green:
 1. **Actions → Promote Pre-release to Release → Run workflow**.
 2. Inputs:
    - `rc_tag`: the pre-release tag you verified, e.g. `v3.8.1-rc.1`.
-   - `releaseNotes`: production "what's new" text for Google Play and Amazon.
-     May match or differ from the internal notes.
 3. The workflow:
    - Verifies the pre-release exists and the final `vX.Y.Z` release does not.
+   - Reads the production "what's new" text from the checked-in
+     `changelogs/<versionCode>.txt` file (as of the RC tag commit) — the same
+     notes internal testers saw, minus the `[PRE-RELEASE …]` prefix — and
+     fails fast if that file is missing or empty.
    - Downloads the exact APKs from the pre-release (no rebuild — guaranteeing
      production gets the same bytes internal testers verified).
    - Creates the final GitHub Release tagged `vX.Y.Z`, pointing at the same
@@ -147,22 +163,34 @@ Defined in [`fastlane/Fastfile`](fastlane/Fastfile). Each workflow passes a
 pre-built APK to the relevant lane via `apk_path` — the pre-release workflow
 builds it fresh, the promote workflow downloads it from the pre-release.
 
+Release notes ("what's new" text) are **checked into the repo** at
+[`fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`](fastlane/metadata/android/en-US/changelogs)
+— the standard path `supply` and the Amazon plugin read from. The lanes upload
+whatever is in that file for the target `versionCode`; multi-line notes are
+supported. An optional inline `release_notes:` string can still be passed to
+overwrite the file (legacy override), but the normal flow relies on the
+checked-in file.
+
 - `deploy_playstore_test`
   - Uploads to a Google Play tester track (`alpha`, `beta`, or `internal`).
     The pre-release workflow always uses `internal`.
-  - Inputs: `apk_path`, `track`, `release_notes`, optional
-    `version_name`, `version_code`.
+  - Inputs: `apk_path`, `track`, `version_code`, optional `version_name`,
+    `prerelease_notice`, `release_notes`. The pre-release workflow passes
+    `prerelease_notice`, which is prepended to the checked-in changelog for the
+    internal track (ephemeral CI copy only — never committed).
 - `deploy_playstore_production`
   - Uploads to the Google Play production track. Used by the promote workflow.
-  - Inputs: `apk_path`, `release_notes`.
+  - Inputs: `version_code` (promote mode), optional `apk_path` (upload mode),
+    `release_notes`. Release notes come from the checked-in
+    `changelogs/<versionCode>.txt` file.
 - `deploy_amazon_appstore`
   - Uploads to the Amazon Appstore via `fastlane-plugin-amazon_appstore`.
     Used by the promote workflow.
-  - Inputs: `apk_path`, `release_notes`, `version_code`. The promote workflow
-    passes the real `version_code` (read from the manifest at the RC tag),
-    so the Amazon changelog file is written from `release_notes`. A
+  - Inputs: `apk_path`, `version_code`, optional `release_notes`. The promote
+    workflow passes the real `version_code` (read from the manifest at the RC
+    tag), so the Amazon changelog is read from `changelogs/<versionCode>.txt`. A
     `version_code` of `0` (the sentinel used by the optional `deploy.yml`
-    fallback) skips the changelog rewrite and reuses existing metadata.
+    fallback) skips the file lookup and reuses existing metadata.
 
 ---
 

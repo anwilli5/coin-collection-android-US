@@ -7,10 +7,6 @@ on:
         description: 'Pre-release tag to promote (e.g. v3.7.4-rc.1).'
         required: true
         type: string
-      releaseNotes:
-        description: "What's-new text for Google Play production and the Amazon Appstore."
-        required: true
-        type: string
 
 jobs:
   promote:
@@ -58,6 +54,28 @@ jobs:
           echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
           echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
           echo "Commit: $COMMIT_SHA versionCode: $VERSION_CODE"
+
+      - name: Verify checked-in release notes exist
+        # Production/Amazon "what's new" text comes from the release notes checked
+        # into the repo at fastlane/metadata/android/en-US/changelogs/<versionCode>.txt
+        # (as of the RC tag commit checked out above). No pre-release notice is
+        # prepended for the production release.
+        run: |
+          set -euo pipefail
+          VC="${{ steps.resolve.outputs.version_code }}"
+          NOTES_FILE="fastlane/metadata/android/en-US/changelogs/${VC}.txt"
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "::error::Release notes file $NOTES_FILE is missing or empty at ${{ steps.parse.outputs.rc_tag }}. Add it (checked in) before promoting."
+            exit 1
+          fi
+          echo "Using release notes from $NOTES_FILE:"
+          echo "----------------------------------------"
+          cat "$NOTES_FILE"
+          echo "----------------------------------------"
+          CHARS=$(wc -m < "$NOTES_FILE" | tr -d ' ')
+          if [ "$CHARS" -gt 500 ]; then
+            echo "::warning::Release notes are ${CHARS} characters; Google Play truncates 'what's new' at 500."
+          fi
 
       - name: Verify pre-release exists and final release does not
         env:
@@ -147,27 +165,24 @@ jobs:
           }
 
       - name: Deploy to Google Play (Production)
-        env:
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           # Promote the release already uploaded to the internal track by the
           # pre-release workflow (keyed off versionCode) — Google Play forbids
           # re-uploading an already-published APK, so no apk_path is passed.
+          # Release notes come from the checked-in changelog file for this
+          # versionCode.
           bundle exec fastlane deploy_playstore_production \
             version_name:"${VERSION_NAME}" \
-            version_code:"${{ steps.resolve.outputs.version_code }}" \
-            release_notes:"$RELEASE_NOTES"
+            version_code:"${{ steps.resolve.outputs.version_code }}"
 
       - name: Deploy to Amazon Appstore
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
-          RELEASE_NOTES: ${{ github.event.inputs.releaseNotes }}
         run: |
           VERSION_NAME="${{ steps.parse.outputs.version_name }}"
           bundle exec fastlane deploy_amazon_appstore \
             apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
-            version_code:"${{ steps.resolve.outputs.version_code }}" \
-            release_notes:"$RELEASE_NOTES"
+            version_code:"${{ steps.resolve.outputs.version_code }}"
