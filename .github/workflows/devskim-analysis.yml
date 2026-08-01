@@ -39,6 +39,6 @@ jobs:
           options: '--severity critical,important'
 
       - name: Upload DevSkim scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.3
         with:
           sarif_file: devskim-results.sarif
