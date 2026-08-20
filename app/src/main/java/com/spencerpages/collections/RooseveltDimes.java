@@ -174,7 +174,7 @@ public class RooseveltDimes extends CollectionInfo {
                 if (showSilverProofs) {
                     if (i > 1949 && i < 1965) {coinList.add(new CoinSlot(year, "Silver Proof", coinIndex++));}
                     if (i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++));}
-                    if (i > 2918) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
+                    if (i == 2018) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
                 }
             }
             if(showClad) {
