@@ -231,6 +231,21 @@ public class RooseveltDimes extends CollectionInfo {
             }
         }
 
+        if (oldVersion <= 24) {
+            // #362: the 2018 "S Reverse Silver Proof" was missing from the coin
+            // list, so existing silver-proof collections that span 2018 never
+            // received it. Add it right after the 2018 "S Silver Proof", matching
+            // populateCollectionLists (gated on the silver + silver-proof options
+            // and a range that includes 2018).
+            if (collectionListInfo.hasSilverCoins()
+                    && collectionListInfo.hasSilverProofMintMarks()
+                    && collectionListInfo.getStartYear() <= 2018
+                    && collectionListInfo.getEndYear() >= 2018) {
+                total += DatabaseHelper.addCoinAfter(db, collectionListInfo.getName(),
+                        "2018", "S Silver Proof", "2018", "S Reverse Silver Proof", -1);
+            }
+        }
+
         return total;
     }
 }

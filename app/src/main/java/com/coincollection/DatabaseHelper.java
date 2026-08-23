@@ -352,6 +352,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Insert a single coin immediately after an existing coin, shifting the coins
+     * after it down by one so the new coin lands in the middle of the series rather
+     * than at the end (which is all the append helpers can do). Used when a coin was
+     * missing from the middle of a collection and must be added in its correct slot.
+     *
+     * @param db              the database
+     * @param tableName       the collection table
+     * @param afterIdentifier identifier of the coin the new one should follow
+     * @param afterMint       mint mark of the coin the new one should follow
+     * @param identifier      identifier of the coin to add
+     * @param mint            mint mark of the coin to add
+     * @param imageId         image id for the new coin, or -1 for none
+     * @return 1 if the coin was added, 0 if it already existed or the anchor was not found
+     */
+    public static int addCoinAfter(SQLiteDatabase db, String tableName,
+                                   String afterIdentifier, String afterMint,
+                                   String identifier, String mint, int imageId) {
+        String table = DatabaseAdapter.removeBrackets(tableName);
+        // Idempotent: if the coin is already present, do nothing.
+        SQLiteStatement exists = db.compileStatement("SELECT COUNT(*) FROM [" + table + "] WHERE "
+                + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?");
+        exists.bindString(1, identifier);
+        exists.bindString(2, mint);
+        long present = exists.simpleQueryForLong();
+        exists.close();
+        if (present > 0) {
+            return 0;
+        }
+        SQLiteStatement query = db.compileStatement("SELECT " + COL_SORT_ORDER + " FROM ["
+                + table + "] WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?");
+        query.bindString(1, afterIdentifier);
+        query.bindString(2, afterMint);
+        int anchor;
+        try {
+            anchor = simpleQueryForLong(query);
+        } catch (SQLException e) {
+            return 0;   // the anchor coin is not in this collection; nothing to do
+        } finally {
+            query.close();
+        }
+        db.execSQL("UPDATE [" + table + "] SET " + COL_SORT_ORDER + "=" + COL_SORT_ORDER
+                + "+1 WHERE " + COL_SORT_ORDER + ">?", new Object[]{anchor});
+        addCoin(db, tableName, identifier, mint, imageId, anchor + 1);
+        return 1;
+    }
+
+    /**
      * Upgrades the database
      *
      * @param db         the database to upgrade

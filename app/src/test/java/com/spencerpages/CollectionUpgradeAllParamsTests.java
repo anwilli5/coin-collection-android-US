@@ -36,7 +36,6 @@ import com.coincollection.ExportImportHelper;
 import com.coincollection.MainActivity;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.LincolnCents;
-import com.spencerpages.collections.RooseveltDimes;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,10 +73,6 @@ public class CollectionUpgradeAllParamsTests extends BaseTestCase {
     private static final Set<String> KNOWN_UPGRADE_MISMATCHES = new HashSet<>();
     static {
         KNOWN_UPGRADE_MISMATCHES.add(LincolnCents.COLLECTION_TYPE);
-        // #362: the 2018 "S Reverse Silver Proof" is now generated for newly
-        // created collections, but adding it to already-existing collections
-        // requires a separate database migration (a follow-up change).
-        KNOWN_UPGRADE_MISMATCHES.add(RooseveltDimes.COLLECTION_TYPE);
     }
 
     /**
