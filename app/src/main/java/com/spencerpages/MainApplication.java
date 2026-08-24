@@ -241,8 +241,9 @@ public class MainApplication extends Application {
      * Version 20 - Used in Version 3.6.0 of the app
      * Version 21-23 - Used in Version 3.7.0 of the app
      * Version 24 - Used in Version 3.8.0 of the app
+     * Version 25 - Adds the 2018 Roosevelt "S Reverse Silver Proof" dime (#362)
      */
-    public static final int DATABASE_VERSION = 24;
+    public static final int DATABASE_VERSION = 25;
 
     /**
      * Get the collection index from collection type name

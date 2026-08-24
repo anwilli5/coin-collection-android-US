@@ -21,6 +21,8 @@
 package com.spencerpages;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
@@ -1411,11 +1413,11 @@ public class CollectionCreationTests extends BaseTestCase {
                 {true, false, false, false, true, false, false, false, true, true, true, 12},
                 {true, false, false, false, false, true, false, false, true, true, true, 11},
                 {true, false, false, false, false, false, true, false, true, true, true, 70},
-                {true, false, false, false, false, false, false, true, true, true, true, 61},
+                {true, false, false, false, false, false, false, true, true, true, true, 62},
                 {true, true, true, true, true, true, true, true, true, false, false, 9},
-                {true, true, true, true, true, true, true, true, false, true, false, 101},
+                {true, true, true, true, true, true, true, true, false, true, false, 102},
                 {true, true, true, true, true, true, true, true, false, false, true, 197},
-                {true, true, true, true, true, true, true, true, true, true, true, 299},
+                {true, true, true, true, true, true, true, true, true, true, true, 300},
         };
 
         for (Object[] test : tests) {
@@ -1970,5 +1972,40 @@ public class CollectionCreationTests extends BaseTestCase {
             coinClass.populateCollectionLists(parameters, coinList);
             assertEquals(test[3], coinList.size());
         }
+    }
+
+    /**
+     * For RooseveltDimes
+     * - Regression test for #362: the "S Reverse Silver Proof" variant (from the
+     *   2018-S Reverse Proof Set) must be generated for 2018 when silver proofs
+     *   are enabled, and only for that year.
+     */
+    @Test
+    public void test_RooseveltDimesReverseSilverProof2018() {
+
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        RooseveltDimes coinClass = new RooseveltDimes();
+        coinClass.getCreationParameters(parameters);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, Boolean.TRUE);        // include silver coins
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_7, Boolean.TRUE);  // include silver proofs
+
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        coinClass.populateCollectionLists(parameters, coinList);
+
+        assertTrue("2018 'S Reverse Silver Proof' should be generated",
+                hasCoin(coinList, "2018", "S Reverse Silver Proof"));
+        assertFalse("'S Reverse Silver Proof' should exist only for 2018 (not 2017)",
+                hasCoin(coinList, "2017", "S Reverse Silver Proof"));
+        assertFalse("'S Reverse Silver Proof' should exist only for 2018 (not 2019)",
+                hasCoin(coinList, "2019", "S Reverse Silver Proof"));
+    }
+
+    private static boolean hasCoin(ArrayList<CoinSlot> coinList, String identifier, String mint) {
+        for (CoinSlot slot : coinList) {
+            if (identifier.equals(slot.getIdentifier()) && mint.equals(slot.getMint())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

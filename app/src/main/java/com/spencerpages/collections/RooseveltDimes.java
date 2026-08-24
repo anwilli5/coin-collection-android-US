@@ -174,7 +174,7 @@ public class RooseveltDimes extends CollectionInfo {
                 if (showSilverProofs) {
                     if (i > 1949 && i < 1965) {coinList.add(new CoinSlot(year, "Silver Proof", coinIndex++));}
                     if (i > 1991) {coinList.add(new CoinSlot(year, "S Silver Proof", coinIndex++));}
-                    if (i > 2918) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
+                    if (i == 2018) {coinList.add(new CoinSlot(year, "S Reverse Silver Proof", coinIndex++));}
                 }
             }
             if(showClad) {
@@ -228,6 +228,21 @@ public class RooseveltDimes extends CollectionInfo {
                 }
                 total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
                         "2026", mintVariants, getImgId("Emerging Liberty"));
+            }
+        }
+
+        if (oldVersion <= 24) {
+            // #362: the 2018 "S Reverse Silver Proof" was missing from the coin
+            // list, so existing silver-proof collections that span 2018 never
+            // received it. Add it right after the 2018 "S Silver Proof", matching
+            // populateCollectionLists (gated on the silver + silver-proof options
+            // and a range that includes 2018).
+            if (collectionListInfo.hasSilverCoins()
+                    && collectionListInfo.hasSilverProofMintMarks()
+                    && collectionListInfo.getStartYear() <= 2018
+                    && collectionListInfo.getEndYear() >= 2018) {
+                total += DatabaseHelper.addCoinAfter(db, collectionListInfo.getName(),
+                        "2018", "S Silver Proof", "2018", "S Reverse Silver Proof", -1);
             }
         }
 
