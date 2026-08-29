@@ -103,7 +103,7 @@ jobs:
           echo "final_tag=$FINAL_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Java (for Gradle)
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           # AGP 9.x (com.android.tools.build:gradle 9.2.1) requires JDK 21 to
