@@ -29,6 +29,7 @@ import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
@@ -131,11 +132,85 @@ public class CollectionPageActivityTests extends BaseTestCase {
     }
 
     /**
+     * Test that a coin added via the "Add Coin" action is flagged as a custom coin
+     * and isn't dropped when the collection's parameters are saved again
+     */
+    @Test
+    public void test_addNewCoinIsCustomAndSurvivesCollectionUpdate() {
+        final String customCoinName = "Custom Test Coin";
+        final String customCoinMint = "Custom Test Mint";
+        for (FullCollection collection : mCollectionList) {
+            final CollectionListInfo info = collection.mCollectionListInfo;
+            final String collectionName = info.getName();
+            int coinTypeIdx = info.getCollectionTypeIndex();
+
+            // Add a coin the same way the "Add Coin" menu item does
+            try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(
+                    new Intent(ApplicationProvider.getApplicationContext(), CollectionPage.class)
+                            .putExtra(CollectionPage.COLLECTION_TYPE_INDEX, coinTypeIdx)
+                            .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
+                scenario.onActivity(activity -> {
+                    activity.addNewCoin(customCoinName, customCoinMint, -1);
+
+                    // The hand-added coin must be stored as a custom coin
+                    ArrayList<CoinSlot> dbCoinList = activity.mDbAdapter.getCoinList(collectionName, true);
+                    CoinSlot addedCoin = findCoinSlot(dbCoinList, customCoinName, customCoinMint);
+                    assertNotNull(addedCoin);
+                    assertTrue(addedCoin.isCustomCoin());
+
+                    // Coins generated when the collection was created must not be custom coins
+                    for (CoinSlot coinSlot : dbCoinList) {
+                        if (coinSlot != addedCoin) {
+                            assertFalse(coinSlot.isCustomCoin());
+                        }
+                    }
+
+                    // Mark the coin collected so the merge can be checked for data loss
+                    activity.mDbAdapter.toggleInCollection(collectionName, addedCoin);
+                });
+            }
+
+            // Re-save the collection's parameters, as editing the collection does
+            try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+                    new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class)
+                            .putExtra(CoinPageCreator.EXISTING_COLLECTION_EXTRA, info))) {
+                scenario.onActivity(activity -> {
+                    activity.createOrUpdateCoinListForAsyncThread();
+
+                    // The hand-added coin and its collected status must be preserved
+                    CoinSlot mergedCoin = findCoinSlot(activity.mCoinList, customCoinName, customCoinMint);
+                    assertNotNull(mergedCoin);
+                    assertTrue(mergedCoin.isCustomCoin());
+                    assertTrue(mergedCoin.isInCollection());
+                });
+            }
+        }
+    }
+
+    /**
+     * Look up a coin slot by name and mint
+     *
+     * @param coinList   list of coin slots to search
+     * @param identifier coin name to look for
+     * @param mint       coin mint to look for
+     * @return the matching CoinSlot, or null if not present
+     */
+    private static CoinSlot findCoinSlot(ArrayList<CoinSlot> coinList, String identifier, String mint) {
+        for (CoinSlot coinSlot : coinList) {
+            if (identifier.equals(coinSlot.getIdentifier()) && mint.equals(coinSlot.getMint())) {
+                return coinSlot;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Test that all classes listed in COLLECTION_TYPES are included in
      * BASIC_COLLECTIONS and ADVANCED_COLLECTIONS
      */
     @Test
     public void test_collectionTypes() {
+
         assertEquals(COLLECTION_TYPES.length, (BASIC_COLLECTIONS.length + ADVANCED_COLLECTIONS.length + MORE_COLLECTIONS.length));
         for (Class<?> collectionClass : BASIC_COLLECTIONS) {
             // All basic collections should be in the collection types list

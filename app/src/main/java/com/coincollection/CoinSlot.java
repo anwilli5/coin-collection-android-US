@@ -181,6 +181,23 @@ public class CoinSlot implements Parcelable {
         mImageId = imageId;
     }
 
+    /**
+     * Constructor used when a coin is added to an existing collection by the user
+     *
+     * @param identifier coin name
+     * @param mint       coin mint
+     * @param sortOrder  sort order in collection
+     * @param imageId    image id
+     * @param customCoin whether the coin was manually added by the user
+     */
+    public CoinSlot(String identifier, String mint, int sortOrder, int imageId, boolean customCoin) {
+        mIdentifier = identifier;
+        mMint = mint;
+        mSortOrder = sortOrder;
+        mImageId = imageId;
+        mCustomCoin = customCoin;
+    }
+
     public void setDatabaseId(long databaseId) {
         this.mDatabaseId = databaseId;
     }

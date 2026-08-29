@@ -735,7 +735,8 @@ public class CollectionPage extends BaseActivity {
      */
     public void addNewCoin(String newName, String coinMint, int imageId) {
         int sortOrder = mDbAdapter.getNextCoinSortOrder(mCollectionName);
-        CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder, imageId);
+        // Mark as custom coin since it wasn't added when the collection was created
+        CoinSlot newCoinSlot = new CoinSlot(newName, coinMint, sortOrder, imageId, true);
         try {
             // Insert the new coin into the database
             mDbAdapter.addCoinSlotToCollection(newCoinSlot, mCollectionName, true, mOriginalCoinList.size() + 1);
