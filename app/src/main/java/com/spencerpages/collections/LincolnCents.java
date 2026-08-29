@@ -245,9 +245,12 @@ public class LincolnCents extends CollectionInfo {
             // 1. Bug fix: The bicentennials should not display mint mark "P"
             ContentValues values = new ContentValues();
             values.put(COL_COIN_MINT, "");
-            // This shortcut works because the only penny that carried a "P" mint mark is
-            // the 2017, which isn't added to collections until the oldVersion <= 8 block
-            runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
+            // 2017 is excluded because it's the one year the Philadelphia Mint struck the
+            // cent with a "P". A database this old can't contain 2017 coins yet, but the
+            // exclusion keeps this correct regardless of when it runs.
+            runSqlUpdate(db, tableName, values,
+                    COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?",
+                    new String[]{"P", "2017"});
 
             // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
 
@@ -328,28 +331,6 @@ public class LincolnCents extends CollectionInfo {
         if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
             total += addPennyYear(db, collectionListInfo, 2026);
-        }
-
-        if (oldVersion <= 25) {
-            // Bug fix: Philadelphia pennies added by previous upgrades were stored with the
-            // "P" mint mark, while newly created collections use "" (issue #366). This runs
-            // last so that it also fixes any coins added by the upgrade blocks above.
-            // The 2017 cent is deliberately excluded — it's the one year the Philadelphia
-            // Mint actually put a "P" on the cent, for its 225th anniversary.
-            ContentValues values = new ContentValues();
-            values.put(COL_COIN_MINT, "");
-            runSqlUpdate(db, tableName, values,
-                    COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?",
-                    new String[]{"P", String.valueOf(P_MINT_MARK_YEAR)});
-
-            // Collections created before the 2017 "P" was modeled hold it with an empty mint
-            // mark, so give it the "P" it was actually struck with. Collections without mint
-            // marks correctly use "" for every coin and are left alone.
-            if (collectionListInfo.hasMintMarks() && collectionListInfo.hasPMintMarks()) {
-                values.put(COL_COIN_MINT, "P");
-                runSqlUpdate(db, tableName, values, COIN_SLOT_NAME_MINT_WHERE_CLAUSE,
-                        new String[]{String.valueOf(P_MINT_MARK_YEAR), ""});
-            }
         }
 
         return total;
