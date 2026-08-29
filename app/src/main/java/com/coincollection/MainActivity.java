@@ -88,7 +88,7 @@ public class MainActivity extends BaseActivity {
     // App permission requests
     private final static int IMPORT_PERMISSIONS_REQUEST = 0;
     private final static int EXPORT_PERMISSIONS_REQUEST = 1;
-    private final static int PICK_IMPORT_FILE = 2;
+    public final static int PICK_IMPORT_FILE = 2;
     private final static int PICK_EXPORT_FILE = 3;
 
     // Default list item view positions
@@ -428,11 +428,30 @@ public class MainActivity extends BaseActivity {
 
             if (mNumberOfCollections == 0) {
                 // Finish the import using AsyncTaskRunner to do the heavy lifting
-                kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
+                startImportTask();
             } else {
                 showImportConfirmation();
             }
         }
+    }
+
+    /**
+     * Starts the import task, flagging that the database is being rewritten so that the
+     * collection list isn't read back mid-import (see onWindowFocusChanged). All import
+     * entry points must go through this method.
+     */
+    private void startImportTask() {
+        mActivityViewModel.mTaskRequest.isImportingCollection = true;
+        kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
+    }
+
+    /**
+     * Indicates whether an import task is currently rewriting the database
+     *
+     * @return true while an import is in progress
+     */
+    public boolean isImportInProgress() {
+        return mActivityViewModel.mTaskRequest.isImportingCollection;
     }
 
     /**
@@ -563,7 +582,7 @@ public class MainActivity extends BaseActivity {
                             showImportConfirmation();
                         } else {
                             // Finish the import by kicking off an AsyncTask to do the heavy lifting
-                            kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
+                            startImportTask();
                         }
                     }
                     break;
@@ -673,7 +692,7 @@ public class MainActivity extends BaseActivity {
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
 
-        if (hasFocus && !mActivityViewModel.mTaskRequest.isImportingCollection) {
+        if (hasFocus && !isImportInProgress()) {
             // Only do this if the database has been opened with AsyncTaskRunner first
             // and we aren't modifying the database like crazy (importing)
             // We need this so that new collections that are added/removed get shown
@@ -761,8 +780,7 @@ public class MainActivity extends BaseActivity {
                 .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
                     // Finish the import using AsyncTaskRunner to do the heavy lifting
                     dialog.dismiss();
-                    mActivityViewModel.mTaskRequest.isImportingCollection = true;
-                    kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
+                    startImportTask();
                 })
                 .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
     }
