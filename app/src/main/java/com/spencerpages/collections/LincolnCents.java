@@ -37,6 +37,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class LincolnCents extends CollectionInfo {
 
@@ -186,6 +187,40 @@ public class LincolnCents extends CollectionInfo {
         return STOP_YEAR;
     }
 
+    /**
+     * Gets the mint variants to use when adding coins during a database upgrade. This can't
+     * use DatabaseHelper.addFromYear's default "P"/"D" mint list because the "P" mint mark
+     * was never on any pennies, so Philadelphia coins are stored with an empty mint mark
+     * (matching populateCollectionLists).
+     *
+     * @param collectionListInfo the collection info
+     * @return ordered map of mint mark flag to mint mark string
+     */
+    private static LinkedHashMap<Long, String> getUpgradeMintVariants(CollectionListInfo collectionListInfo) {
+        LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+        if (collectionListInfo.hasMintMarks()) {
+            mintVariants.put(CollectionListInfo.MINT_P, "");
+            mintVariants.put(CollectionListInfo.MINT_D, "D");
+        } else {
+            // Key of 0 is unconditional — (flags & 0) == 0 is always true
+            mintVariants.put(0L, "");
+        }
+        return mintVariants;
+    }
+
+    /**
+     * Adds the coins for a new year, using the penny-specific mint variants
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param year               coin year
+     * @return total number of coins added
+     */
+    private static int addPennyYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
+        return DatabaseHelper.addFromYear(db, collectionListInfo, year - 1, year,
+                String.valueOf(year), getUpgradeMintVariants(collectionListInfo), -1);
+    }
+
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
@@ -208,67 +243,67 @@ public class LincolnCents extends CollectionInfo {
             // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
 
             // Add in new 2013 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
+            total += addPennyYear(db, collectionListInfo, 2013);
         }
 
         if (oldVersion <= 4) {
             // Add in new 2014 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);
+            total += addPennyYear(db, collectionListInfo, 2014);
         }
 
         if (oldVersion <= 6) {
             // Add in new 2015 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);
+            total += addPennyYear(db, collectionListInfo, 2015);
         }
 
         if (oldVersion <= 7) {
             // Add in new 2016 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);
+            total += addPennyYear(db, collectionListInfo, 2016);
         }
 
         if (oldVersion <= 8) {
             // Add in new 2017 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);
+            total += addPennyYear(db, collectionListInfo, 2017);
         }
 
         if (oldVersion <= 11) {
             // Add in new 2018 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);
+            total += addPennyYear(db, collectionListInfo, 2018);
         }
 
         if (oldVersion <= 12) {
             // Add in new 2019 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);
+            total += addPennyYear(db, collectionListInfo, 2019);
         }
 
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
+            total += addPennyYear(db, collectionListInfo, 2020);
         }
 
         if (oldVersion <= 15) {
             // Add in new 2021 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
+            total += addPennyYear(db, collectionListInfo, 2021);
         }
 
         if (oldVersion <= 17) {
             // Add in new 2022 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
+            total += addPennyYear(db, collectionListInfo, 2022);
         }
 
         if (oldVersion <= 18) {
             // Add in new 2023 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
+            total += addPennyYear(db, collectionListInfo, 2023);
         }
 
         if (oldVersion <= 19) {
             // Add in new 2024 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
+            total += addPennyYear(db, collectionListInfo, 2024);
         }
 
         if (oldVersion <= 22) {
             // Add in new 2025 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+            total += addPennyYear(db, collectionListInfo, 2025);
         }
 
         if (oldVersion <= 23) {
@@ -283,7 +318,17 @@ public class LincolnCents extends CollectionInfo {
 
         if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
+            total += addPennyYear(db, collectionListInfo, 2026);
+        }
+
+        if (oldVersion <= 25) {
+            // Bug fix: Philadelphia pennies added by previous upgrades were stored with the
+            // "P" mint mark, while newly created collections use "" (issue #366). This runs
+            // last so that it also fixes any coins added by the upgrade blocks above.
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_MINT, "");
+            // This shortcut works because pennies never carried the "P" mint mark
+            runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
         }
 
         return total;

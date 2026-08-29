@@ -35,7 +35,6 @@ import com.coincollection.CollectionListInfo;
 import com.coincollection.ExportImportHelper;
 import com.coincollection.MainActivity;
 import com.coincollection.helper.ParcelableHashMap;
-import com.spencerpages.collections.LincolnCents;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +45,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Upgrade tests using static V23 JSON fixture files. Each fixture contains all
@@ -65,15 +62,6 @@ import java.util.Set;
 public class CollectionUpgradeAllParamsTests extends BaseTestCase {
 
     private static final String FIXTURE_DIR = "src/test/data/v23-upgrades";
-
-    // Collections with known upgrade vs. fresh-creation mismatches.
-    // LincolnCents: addFromYear uses "P" for Philadelphia, but pennies use "" since
-    // the P mint mark was never on any pennies. This is a pre-existing bug across all
-    // upgrade versions (V4–V24). See https://github.com/anwilli5/coin-collection-android-US/issues/366
-    private static final Set<String> KNOWN_UPGRADE_MISMATCHES = new HashSet<>();
-    static {
-        KNOWN_UPGRADE_MISMATCHES.add(LincolnCents.COLLECTION_TYPE);
-    }
 
     /**
      * Import a V23 fixture, validate each collection after upgrade.
@@ -107,11 +95,6 @@ public class CollectionUpgradeAllParamsTests extends BaseTestCase {
                 assertTrue("No collections imported", collectionListEntries.size() > 0);
 
                 for (CollectionListInfo importedInfo : collectionListEntries) {
-                    // Skip collections with known pre-existing upgrade mismatches
-                    if (KNOWN_UPGRADE_MISMATCHES.contains(importedInfo.getType())) {
-                        continue;
-                    }
-
                     // Reconstruct the parameters used to create this collection
                     ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(importedInfo);
 
