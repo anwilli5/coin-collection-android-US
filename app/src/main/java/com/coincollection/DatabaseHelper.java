@@ -340,7 +340,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // collections used "", and the 2017 cent — the only cent the Philadelphia Mint
         // ever struck with a "P", for its 225th anniversary — never got its mint mark.
         // Note: No fromImport guard — imported databases have the latest schema but
-        // carry the old mint mark values that also need fixing.
+        // carry the old mint mark values that also need fixing. Custom coins are skipped
+        // throughout, matching removeDuplicateCoinsByIdentifier: their mint marks are
+        // user-entered and may intentionally differ from the generated slots.
         if (oldVersion <= 25) {
             // The year is deliberately a literal rather than a constant: if the mint ever
             // uses a "P" again, changing a shared constant would silently alter this block.
@@ -357,11 +359,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         String mintMarkStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS));
                         long mintMarkFlags = CollectionListInfo.parseFlagString(mintMarkStr);
 
-                        // Clear the "P" from every year except 2017
+                        // Clear the "P" from every year except 2017. Custom coins are left
+                        // alone — the mint mark is user-entered, so it isn't ours to correct.
                         ContentValues values = new ContentValues();
                         values.put(COL_COIN_MINT, "");
                         runSqlUpdate(db, name, values,
-                                COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?",
+                                COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?"
+                                        + " AND " + COL_CUSTOM_COIN + "=0",
                                 new String[]{"P", pMintMarkYear});
 
                         // Give the 2017 cent the "P" it was actually struck with. Collections
@@ -370,7 +374,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                 && (mintMarkFlags & CollectionListInfo.MINT_P) != 0;
                         if (hasPMintMarks) {
                             values.put(COL_COIN_MINT, "P");
-                            runSqlUpdate(db, name, values, COIN_SLOT_NAME_MINT_WHERE_CLAUSE,
+                            runSqlUpdate(db, name, values,
+                                    COIN_SLOT_NAME_MINT_WHERE_CLAUSE + " AND " + COL_CUSTOM_COIN + "=0",
                                     new String[]{pMintMarkYear, ""});
                         }
                     }
