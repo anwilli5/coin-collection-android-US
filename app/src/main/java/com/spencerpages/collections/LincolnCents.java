@@ -21,6 +21,7 @@
 package com.spencerpages.collections;
 
 import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.DatabaseHelper.runSqlDelete;
 import static com.coincollection.DatabaseHelper.runSqlUpdate;
@@ -62,6 +63,10 @@ public class LincolnCents extends CollectionInfo {
 
     private static final Integer START_YEAR = 1909;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
+
+    // The only year the Philadelphia Mint put a "P" mint mark on a cent, marking its
+    // 225th anniversary. Every other year's Philadelphia cents carry no mint mark.
+    private static final int P_MINT_MARK_YEAR = 2017;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_lincoln_cent_unc;
 
@@ -147,8 +152,9 @@ public class LincolnCents extends CollectionInfo {
 
             if (showMintMarks) {
                 if (showP) {
-                    // The P was never on any Pennies
-                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    // The P was never on any Pennies, except for 2017, when it was added to
+                    // mark the Philadelphia Mint's 225th anniversary
+                    coinList.add(new CoinSlot(year, (i == P_MINT_MARK_YEAR) ? "P" : "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
@@ -190,16 +196,18 @@ public class LincolnCents extends CollectionInfo {
     /**
      * Gets the mint variants to use when adding coins during a database upgrade. This can't
      * use DatabaseHelper.addFromYear's default "P"/"D" mint list because the "P" mint mark
-     * was never on any pennies, so Philadelphia coins are stored with an empty mint mark
-     * (matching populateCollectionLists).
+     * was only ever on the 2017 penny, so Philadelphia coins from every other year are
+     * stored with an empty mint mark (matching populateCollectionLists).
      *
      * @param collectionListInfo the collection info
+     * @param year               coin year
      * @return ordered map of mint mark flag to mint mark string
      */
-    private static LinkedHashMap<Long, String> getUpgradeMintVariants(CollectionListInfo collectionListInfo) {
+    private static LinkedHashMap<Long, String> getUpgradeMintVariants(CollectionListInfo collectionListInfo,
+                                                                      int year) {
         LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
         if (collectionListInfo.hasMintMarks()) {
-            mintVariants.put(CollectionListInfo.MINT_P, "");
+            mintVariants.put(CollectionListInfo.MINT_P, (year == P_MINT_MARK_YEAR) ? "P" : "");
             mintVariants.put(CollectionListInfo.MINT_D, "D");
         } else {
             // Key of 0 is unconditional — (flags & 0) == 0 is always true
@@ -218,7 +226,7 @@ public class LincolnCents extends CollectionInfo {
      */
     private static int addPennyYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
         return DatabaseHelper.addFromYear(db, collectionListInfo, year - 1, year,
-                String.valueOf(year), getUpgradeMintVariants(collectionListInfo), -1);
+                String.valueOf(year), getUpgradeMintVariants(collectionListInfo, year), -1);
     }
 
     @Override
@@ -237,7 +245,8 @@ public class LincolnCents extends CollectionInfo {
             // 1. Bug fix: The bicentennials should not display mint mark "P"
             ContentValues values = new ContentValues();
             values.put(COL_COIN_MINT, "");
-            // This shortcut works because pennies never carried the "P" mint mark
+            // This shortcut works because the only penny that carried a "P" mint mark is
+            // the 2017, which isn't added to collections until the oldVersion <= 8 block
             runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
 
             // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
@@ -325,10 +334,22 @@ public class LincolnCents extends CollectionInfo {
             // Bug fix: Philadelphia pennies added by previous upgrades were stored with the
             // "P" mint mark, while newly created collections use "" (issue #366). This runs
             // last so that it also fixes any coins added by the upgrade blocks above.
+            // The 2017 cent is deliberately excluded — it's the one year the Philadelphia
+            // Mint actually put a "P" on the cent, for its 225th anniversary.
             ContentValues values = new ContentValues();
             values.put(COL_COIN_MINT, "");
-            // This shortcut works because pennies never carried the "P" mint mark
-            runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
+            runSqlUpdate(db, tableName, values,
+                    COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?",
+                    new String[]{"P", String.valueOf(P_MINT_MARK_YEAR)});
+
+            // Collections created before the 2017 "P" was modeled hold it with an empty mint
+            // mark, so give it the "P" it was actually struck with. Collections without mint
+            // marks correctly use "" for every coin and are left alone.
+            if (collectionListInfo.hasMintMarks() && collectionListInfo.hasPMintMarks()) {
+                values.put(COL_COIN_MINT, "P");
+                runSqlUpdate(db, tableName, values, COIN_SLOT_NAME_MINT_WHERE_CLAUSE,
+                        new String[]{String.valueOf(P_MINT_MARK_YEAR), ""});
+            }
         }
 
         return total;
