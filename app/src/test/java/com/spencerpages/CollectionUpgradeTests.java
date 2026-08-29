@@ -21,6 +21,7 @@
 package com.spencerpages;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -1917,4 +1918,104 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
     }
 
+    /**
+     * The V26 penny mint mark migration must not touch custom (user-added) coins.
+     * Their mint marks are user-entered, so neither the blanket "P" clear nor the
+     * 2017 "P" repair should rewrite them. See issue #366.
+     */
+    @Test
+    public void test_LincolnCentsPMintMarkMigrationPreservesCustomCoins() {
+
+        CollectionInfo collection = new LincolnCents();
+        String coinType = LincolnCents.COLLECTION_TYPE;
+        String collectionName = coinType + " Custom Coin Test";
+
+        ParcelableHashMap parameters = getAllEnabledParams(collection);
+        parameters.put(CoinPageCreator.OPT_STOP_YEAR, 2025);
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(
+                ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName, null, parameters);
+
+        // Put the generated coins back into the buggy pre-V26 state: the 2017 cent
+        // without its "P", and an ordinary year carrying a "P" it never had.
+        ContentValues clear2017 = new ContentValues();
+        clear2017.put(CoinSlot.COL_COIN_MINT, "");
+        db.update("[" + collectionName + "]", clear2017,
+                CoinSlot.COL_COIN_IDENTIFIER + "=? AND " + CoinSlot.COL_COIN_MINT + "=?",
+                new String[]{"2017", "P"});
+
+        ContentValues bogusP = new ContentValues();
+        bogusP.put(CoinSlot.COL_COIN_MINT, "P");
+        db.update("[" + collectionName + "]", bogusP,
+                CoinSlot.COL_COIN_IDENTIFIER + "=? AND " + CoinSlot.COL_COIN_MINT + "=?",
+                new String[]{"2020", ""});
+
+        // Custom coin carrying a "P" the migration must not clear
+        ContentValues customP = new ContentValues();
+        customP.put(CoinSlot.COL_COIN_IDENTIFIER, "1943");
+        customP.put(CoinSlot.COL_COIN_MINT, "P");
+        customP.put(CoinSlot.COL_IN_COLLECTION, 1);
+        customP.put(CoinSlot.COL_SORT_ORDER, 9998);
+        customP.put(CoinSlot.COL_CUSTOM_COIN, 1);
+        db.insert("[" + collectionName + "]", null, customP);
+
+        // Custom 2017 coin with no mint mark, which must not be given a "P"
+        ContentValues custom2017 = new ContentValues();
+        custom2017.put(CoinSlot.COL_COIN_IDENTIFIER, "2017");
+        custom2017.put(CoinSlot.COL_COIN_MINT, "");
+        custom2017.put(CoinSlot.COL_IN_COLLECTION, 1);
+        custom2017.put(CoinSlot.COL_SORT_ORDER, 9999);
+        custom2017.put(CoinSlot.COL_CUSTOM_COIN, 1);
+        db.insert("[" + collectionName + "]", null, custom2017);
+
+        db.close();
+        testDbHelper.close();
+
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+
+                ArrayList<CoinSlot> dbCoins = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoins);
+
+                ArrayList<CoinSlot> custom = new ArrayList<>();
+                ArrayList<CoinSlot> generated = new ArrayList<>();
+                for (CoinSlot coin : dbCoins) {
+                    if (coin.isCustomCoin()) {
+                        custom.add(coin);
+                    } else {
+                        generated.add(coin);
+                    }
+                }
+
+                // Both custom coins keep exactly the mint marks the user gave them
+                assertEquals("Both custom coins should survive", 2, custom.size());
+                assertTrue("Custom '1943 P' should keep its P mint mark",
+                        hasCoin(custom, "1943", "P"));
+                assertTrue("Custom 2017 should keep its empty mint mark",
+                        hasCoin(custom, "2017", ""));
+                assertFalse("Custom 2017 should not have been given a P",
+                        hasCoin(custom, "2017", "P"));
+
+                // The generated coins are corrected
+                assertTrue("Generated 2017 should be repaired to 'P'",
+                        hasCoin(generated, "2017", "P"));
+                assertFalse("Generated 2020 should have its bogus P cleared",
+                        hasCoin(generated, "2020", "P"));
+                assertTrue("Generated 2020 should use an empty mint mark",
+                        hasCoin(generated, "2020", ""));
+            });
+        }
+    }
+
+    private static boolean hasCoin(ArrayList<CoinSlot> coinList, String identifier, String mint) {
+        for (CoinSlot slot : coinList) {
+            if (identifier.equals(slot.getIdentifier()) && mint.equals(slot.getMint())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

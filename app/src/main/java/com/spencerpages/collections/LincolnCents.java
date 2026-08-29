@@ -21,6 +21,7 @@
 package com.spencerpages.collections;
 
 import static com.coincollection.CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE;
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
 import static com.coincollection.CoinSlot.COL_COIN_MINT;
 import static com.coincollection.DatabaseHelper.runSqlDelete;
 import static com.coincollection.DatabaseHelper.runSqlUpdate;
@@ -37,6 +38,7 @@ import com.spencerpages.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class LincolnCents extends CollectionInfo {
 
@@ -61,6 +63,10 @@ public class LincolnCents extends CollectionInfo {
 
     private static final Integer START_YEAR = 1909;
     private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
+
+    // The only year the Philadelphia Mint put a "P" mint mark on a cent, marking its
+    // 225th anniversary. Every other year's Philadelphia cents carry no mint mark.
+    private static final int P_MINT_MARK_YEAR = 2017;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.obv_lincoln_cent_unc;
 
@@ -146,8 +152,9 @@ public class LincolnCents extends CollectionInfo {
 
             if (showMintMarks) {
                 if (showP) {
-                    // The P was never on any Pennies
-                    coinList.add(new CoinSlot(year, "", coinIndex++));
+                    // The P was never on any Pennies, except for 2017, when it was added to
+                    // mark the Philadelphia Mint's 225th anniversary
+                    coinList.add(new CoinSlot(year, (i == P_MINT_MARK_YEAR) ? "P" : "", coinIndex++));
                 }
                 if (showD) {
                     if (i != 1909 && i != 1910 && i != 1921 && i != 1923 && i != 1965 && i != 1966 && i != 1967) {
@@ -186,6 +193,42 @@ public class LincolnCents extends CollectionInfo {
         return STOP_YEAR;
     }
 
+    /**
+     * Gets the mint variants to use when adding coins during a database upgrade. This can't
+     * use DatabaseHelper.addFromYear's default "P"/"D" mint list because the "P" mint mark
+     * was only ever on the 2017 penny, so Philadelphia coins from every other year are
+     * stored with an empty mint mark (matching populateCollectionLists).
+     *
+     * @param collectionListInfo the collection info
+     * @param year               coin year
+     * @return ordered map of mint mark flag to mint mark string
+     */
+    private static LinkedHashMap<Long, String> getUpgradeMintVariants(CollectionListInfo collectionListInfo,
+                                                                      int year) {
+        LinkedHashMap<Long, String> mintVariants = new LinkedHashMap<>();
+        if (collectionListInfo.hasMintMarks()) {
+            mintVariants.put(CollectionListInfo.MINT_P, (year == P_MINT_MARK_YEAR) ? "P" : "");
+            mintVariants.put(CollectionListInfo.MINT_D, "D");
+        } else {
+            // Key of 0 is unconditional — (flags & 0) == 0 is always true
+            mintVariants.put(0L, "");
+        }
+        return mintVariants;
+    }
+
+    /**
+     * Adds the coins for a new year, using the penny-specific mint variants
+     *
+     * @param db                 database
+     * @param collectionListInfo the collection info
+     * @param year               coin year
+     * @return total number of coins added
+     */
+    private static int addPennyYear(SQLiteDatabase db, CollectionListInfo collectionListInfo, int year) {
+        return DatabaseHelper.addFromYear(db, collectionListInfo, year - 1, year,
+                String.valueOf(year), getUpgradeMintVariants(collectionListInfo, year), -1);
+    }
+
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
                                            int oldVersion, int newVersion) {
@@ -202,73 +245,77 @@ public class LincolnCents extends CollectionInfo {
             // 1. Bug fix: The bicentennials should not display mint mark "P"
             ContentValues values = new ContentValues();
             values.put(COL_COIN_MINT, "");
-            // This shortcut works because pennies never carried the "P" mint mark
-            runSqlUpdate(db, tableName, values, COL_COIN_MINT + "=?", new String[]{"P"});
+            // 2017 is excluded because it's the one year the Philadelphia Mint struck the
+            // cent with a "P". A database this old can't contain 2017 coins yet, but the
+            // exclusion keeps this correct regardless of when it runs.
+            runSqlUpdate(db, tableName, values,
+                    COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?",
+                    new String[]{"P", "2017"});
 
             // 3. 1909 V.D.B. - Can't do anything since it is in the middle of the collection
 
             // Add in new 2013 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2013);
+            total += addPennyYear(db, collectionListInfo, 2013);
         }
 
         if (oldVersion <= 4) {
             // Add in new 2014 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2014);
+            total += addPennyYear(db, collectionListInfo, 2014);
         }
 
         if (oldVersion <= 6) {
             // Add in new 2015 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2015);
+            total += addPennyYear(db, collectionListInfo, 2015);
         }
 
         if (oldVersion <= 7) {
             // Add in new 2016 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2016);
+            total += addPennyYear(db, collectionListInfo, 2016);
         }
 
         if (oldVersion <= 8) {
             // Add in new 2017 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2017);
+            total += addPennyYear(db, collectionListInfo, 2017);
         }
 
         if (oldVersion <= 11) {
             // Add in new 2018 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2018);
+            total += addPennyYear(db, collectionListInfo, 2018);
         }
 
         if (oldVersion <= 12) {
             // Add in new 2019 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2019);
+            total += addPennyYear(db, collectionListInfo, 2019);
         }
 
         if (oldVersion <= 13) {
             // Add in new 2020 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2020);
+            total += addPennyYear(db, collectionListInfo, 2020);
         }
 
         if (oldVersion <= 15) {
             // Add in new 2021 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2021);
+            total += addPennyYear(db, collectionListInfo, 2021);
         }
 
         if (oldVersion <= 17) {
             // Add in new 2022 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2022);
+            total += addPennyYear(db, collectionListInfo, 2022);
         }
 
         if (oldVersion <= 18) {
             // Add in new 2023 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2023);
+            total += addPennyYear(db, collectionListInfo, 2023);
         }
 
         if (oldVersion <= 19) {
             // Add in new 2024 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2024);
+            total += addPennyYear(db, collectionListInfo, 2024);
         }
 
         if (oldVersion <= 22) {
             // Add in new 2025 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025);
+            total += addPennyYear(db, collectionListInfo, 2025);
         }
 
         if (oldVersion <= 23) {
@@ -283,7 +330,7 @@ public class LincolnCents extends CollectionInfo {
 
         if (oldVersion <= 23) {
             // Add in new 2026 coins if applicable
-            total += DatabaseHelper.addFromYear(db, collectionListInfo, 2026);
+            total += addPennyYear(db, collectionListInfo, 2026);
         }
 
         return total;

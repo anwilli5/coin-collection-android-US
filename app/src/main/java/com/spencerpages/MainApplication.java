@@ -242,8 +242,9 @@ public class MainApplication extends Application {
      * Version 21-23 - Used in Version 3.7.0 of the app
      * Version 24 - Used in Version 3.8.0 of the app
      * Version 25 - Adds the 2018 Roosevelt "S Reverse Silver Proof" dime (#362)
+     * Version 26 - Fixes Philadelphia penny mint marks, including the 2017 "P" (#366)
      */
-    public static final int DATABASE_VERSION = 25;
+    public static final int DATABASE_VERSION = 26;
 
     /**
      * Get the collection index from collection type name

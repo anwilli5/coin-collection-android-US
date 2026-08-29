@@ -328,6 +328,30 @@ public class CollectionUpgradeSemiQParamTests extends BaseTestCase {
         validateUpdatedDbWithParams(collection, collectionName, validateParams);
     }
 
+    /**
+     * Philadelphia pennies are stored with an empty mint mark since the "P" was never on
+     * any penny. Verifies the upgrade doesn't add "P" coins (issue #366).
+     */
+    @Test
+    public void test_LincolnCentsUpgradeWithMintMarks() {
+        CollectionInfo collection = new LincolnCents();
+        String coinType = "Pennies";
+        String collectionName = coinType + " Upgrade MintMarks";
+
+        ParcelableHashMap createParams = getAllEnabledParams(collection);
+        createParams.put(CoinPageCreator.OPT_STOP_YEAR, 2025);
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(
+                ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName, null, createParams);
+        db.close();
+        testDbHelper.close();
+
+        ParcelableHashMap validateParams = getAllEnabledParams(collection);
+        validateUpdatedDbWithParams(collection, collectionName, validateParams);
+    }
+
     @Test
     public void test_CartwheelsUpgradeWithMintMarks() {
         CollectionInfo collection = new Cartwheels();

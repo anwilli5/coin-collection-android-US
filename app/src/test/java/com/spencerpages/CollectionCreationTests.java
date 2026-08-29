@@ -2000,6 +2000,44 @@ public class CollectionCreationTests extends BaseTestCase {
                 hasCoin(coinList, "2019", "S Reverse Silver Proof"));
     }
 
+    /**
+     * For LincolnCents
+     * - The Philadelphia Mint put a "P" mint mark on the cent only in 2017, to mark its
+     *   225th anniversary. Every other year's Philadelphia cent carries no mint mark.
+     */
+    @Test
+    public void test_LincolnCents2017PMintMark() {
+
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        LincolnCents coinClass = new LincolnCents();
+        coinClass.getCreationParameters(parameters);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);  // include P
+
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        coinClass.populateCollectionLists(parameters, coinList);
+
+        assertTrue("2017 Philadelphia cent should have the 'P' mint mark",
+                hasCoin(coinList, "2017", "P"));
+        assertFalse("2017 Philadelphia cent should not also exist without a mint mark",
+                hasCoin(coinList, "2017", ""));
+        assertFalse("'P' should only be used for 2017 (not 2016)",
+                hasCoin(coinList, "2016", "P"));
+        assertFalse("'P' should only be used for 2017 (not 2018)",
+                hasCoin(coinList, "2018", "P"));
+        assertTrue("2016 Philadelphia cent should have no mint mark",
+                hasCoin(coinList, "2016", ""));
+
+        // Without mint marks enabled, every coin including 2017 uses an empty mint mark
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.FALSE);
+        ArrayList<CoinSlot> noMintMarkList = new ArrayList<>();
+        coinClass.populateCollectionLists(parameters, noMintMarkList);
+        assertFalse("2017 should have no mint mark when mint marks are disabled",
+                hasCoin(noMintMarkList, "2017", "P"));
+        assertTrue("2017 should use an empty mint mark when mint marks are disabled",
+                hasCoin(noMintMarkList, "2017", ""));
+    }
+
     private static boolean hasCoin(ArrayList<CoinSlot> coinList, String identifier, String mint) {
         for (CoinSlot slot : coinList) {
             if (identifier.equals(slot.getIdentifier()) && mint.equals(slot.getMint())) {
