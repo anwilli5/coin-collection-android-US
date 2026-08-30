@@ -224,6 +224,36 @@ public class BaseActivityDialogTests extends BaseTestCase {
     }
 
     /**
+     * Test that an alert raised while the activity is stopped is held and shown
+     * when it comes back, rather than being dropped. A task can finish while the
+     * app is in the background, and its error message must still reach the user
+     */
+    @Test
+    public void test_alertRaisedWhileStoppedIsShownOnResume() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.moveToState(Lifecycle.State.CREATED);
+
+            scenario.onActivity(activity -> withDialogsEnabled(() -> {
+                activity.showCancelableAlert("Task failed");
+                // Nothing can be shown while stopped, so it is held instead
+                assertNull(findDialog(activity, TAG_MESSAGE));
+                assertNotNull(activity.mActivityViewModel.mPendingAlertText);
+            }));
+
+            withDialogsEnabled(() -> {
+                scenario.moveToState(Lifecycle.State.RESUMED);
+                shadowOf(Looper.getMainLooper()).idle();
+            });
+
+            scenario.onActivity(activity -> {
+                assertNotNull(findDialog(activity, TAG_MESSAGE));
+                assertNull(activity.mActivityViewModel.mPendingAlertText);
+            });
+        }
+    }
+
+    /**
      * Executor that holds onto submitted work until the test releases it, so a
      * task can be kept in flight deterministically
      */

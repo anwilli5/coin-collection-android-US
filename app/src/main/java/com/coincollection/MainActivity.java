@@ -318,7 +318,6 @@ public class MainActivity extends BaseActivity {
     @Override
     public void asyncProgressOnPostExecute(int taskId, String resultStr) {
         super.asyncProgressOnPostExecute(taskId, resultStr);
-        dismissProgressDialog();
         if (taskId == TASK_IMPORT_COLLECTIONS) {
             mActivityViewModel.mTaskRequest.isImportingCollection = false;
         }
@@ -1090,6 +1089,12 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDialogResult(int requestId, Bundle result) {
+        // Dialogs survive a configuration change, and the recreated activity
+        // doesn't regain window focus while one is up, so the collection list it
+        // was rebuilt with is still empty. Refresh it before acting on the answer
+        if (mDbAdapter.isOpen() && !isImportInProgress()) {
+            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+        }
         Bundle payload = result.getBundle(KEY_PAYLOAD);
         switch (requestId) {
             case REQUEST_EXPORT_COLLECTIONS: {

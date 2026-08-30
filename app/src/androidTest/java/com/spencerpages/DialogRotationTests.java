@@ -161,6 +161,24 @@ public class DialogRotationTests {
     }
 
     /**
+     * Test that picking an action from the collection actions list after a
+     * rotation still works. The recreated activity never regains window focus
+     * while the dialog is up, so it has to refresh its collection list from a
+     * lifecycle callback instead
+     */
+    @Test
+    public void test_collectionActionsWorkAfterRotation() {
+        openCollectionActions();
+        rotateAndAssertStillDisplayed(R.string.delete);
+
+        // Viewing after the rotation must still open the collection
+        onView(withText(R.string.view)).perform(click());
+        UITestHelper.dismissTutorialDialogs();
+        UITestHelper.waitForDisplayed(withId(R.id.standard_collection_page));
+        UITestHelper.assertNoLeakedWindows();
+    }
+
+    /**
      * Test that the delete confirmation survives a rotation and that
      * confirming afterwards still deletes the collection it was opened for
      */

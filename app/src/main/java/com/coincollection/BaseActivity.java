@@ -73,6 +73,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         // background thread never has to read them from a View and so they survive
         // a configuration change.
         public final TaskRequest mTaskRequest = new TaskRequest();
+        // Alert text captured when the activity wasn't in a state where a dialog
+        // could be shown, held here so it survives a configuration change and can
+        // be shown once the activity is resumed again.
+        public String mPendingAlertText;
     }
 
     /**
@@ -275,7 +279,24 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param text The text to be displayed
      */
     public void showCancelableAlert(String text) {
-        showDialogFragment(MessageDialogFragment.newCancelableInstance(text), TAG_MESSAGE);
+        if (!showDialogFragment(MessageDialogFragment.newCancelableInstance(text), TAG_MESSAGE)) {
+            // A task can finish while the app is in the background, and a
+            // transaction can't be committed then. Hold the message rather than
+            // dropping it, so the user still finds out what went wrong
+            mActivityViewModel.mPendingAlertText = text;
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        // Now that fragment transactions are safe again, show anything that
+        // couldn't be shown while the activity was stopped
+        String pendingAlertText = mActivityViewModel.mPendingAlertText;
+        if (pendingAlertText != null) {
+            mActivityViewModel.mPendingAlertText = null;
+            showCancelableAlert(pendingAlertText);
+        }
     }
 
     /**
@@ -390,24 +411,28 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      *
      * @param fragment the dialog to show
      * @param tag      tag identifying this kind of dialog
+     * @return false if the activity isn't in a state where a dialog can be
+     *         shown, so the caller can decide whether to hold onto it
      */
-    protected void showDialogFragment(DialogFragment fragment, String tag) {
+    protected boolean showDialogFragment(DialogFragment fragment, String tag) {
         // Don't show dialogs in unit tests since there isn't a UI, and
         // it will spam the log with this: Invalid ID 0x00000000.
         if (isUnitTest && BuildConfig.DEBUG) {
-            return;
+            return true;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        // A transaction can't be committed once the state has been saved, and
-        // there is nothing worth showing to an activity that is going away
+        // A transaction can't be committed while the activity is stopped or has
+        // saved its state, and there is nothing worth showing to an activity
+        // that is going away
         if (isFinishing() || fragmentManager.isStateSaved()) {
-            return;
+            return false;
         }
         Fragment existing = fragmentManager.findFragmentByTag(tag);
         if (existing instanceof DialogFragment) {
             ((DialogFragment) existing).dismissAllowingStateLoss();
         }
         fragment.show(fragmentManager, tag);
+        return true;
     }
 
     /**

@@ -413,7 +413,6 @@ public class CollectionPage extends BaseActivity {
     public void asyncProgressOnPostExecute(int taskId, String resultStr) {
         super.asyncProgressOnPostExecute(taskId, resultStr);
         if (taskId == TASK_OPEN_DATABASE && mSetupFromDatabasePending) {
-            dismissProgressDialog();
             mSetupFromDatabasePending = false;
             // Only proceed if the open succeeded; on failure super has already
             // shown the error alert and the database is still not usable.
