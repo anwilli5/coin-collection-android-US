@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
 
 import androidx.fragment.app.Fragment;
@@ -41,6 +42,9 @@ import com.spencerpages.BaseTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 /**
  * Unit tests covering the dialog lifecycle in {@link BaseActivity}. Dialogs are
@@ -154,6 +158,92 @@ public class BaseActivityDialogTests extends BaseTestCase {
                 activity.dismissProgressDialog();
                 assertNull(findDialog(activity, TAG_PROGRESS));
             }));
+        }
+    }
+
+    /**
+     * Test that the progress dialog for a still-running task is restored when
+     * the activity is recreated, and goes away once the task finishes
+     */
+    @Test
+    public void test_progressDialogSurvivesRecreateWhileTaskRuns() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            // Hold the background work so the task stays in flight for the
+            // whole test instead of racing the assertions
+            PendingExecutor executor = new PendingExecutor();
+            AsyncTaskRunner[] runner = new AsyncTaskRunner[1];
+
+            withDialogsEnabled(() -> {
+                scenario.onActivity(activity -> {
+                    runner[0] = new AsyncTaskRunner(activity, executor, new Handler(Looper.getMainLooper()));
+                    // The runner lives in the ViewModel, so it is the same
+                    // instance the recreated activity attaches to
+                    activity.mActivityViewModel.mSavedTaskRunner = runner[0];
+                    activity.mTaskRunner = runner[0];
+                    runner[0].execute(BaseActivity.TASK_EXPORT_COLLECTIONS);
+                });
+                shadowOf(Looper.getMainLooper()).idle();
+            });
+            scenario.onActivity(activity -> assertNotNull(findDialog(activity, TAG_PROGRESS)));
+
+            // The task is still running when the activity is recreated
+            withDialogsEnabled(() -> {
+                scenario.recreate();
+                shadowOf(Looper.getMainLooper()).idle();
+            });
+            scenario.onActivity(activity -> assertNotNull(findDialog(activity, TAG_PROGRESS)));
+
+            // Letting the task finish takes the progress dialog down
+            withDialogsEnabled(() -> {
+                executor.runPending();
+                shadowOf(Looper.getMainLooper()).idle();
+            });
+            scenario.onActivity(activity -> assertNull(findDialog(activity, TAG_PROGRESS)));
+        }
+    }
+
+    /**
+     * Test that a progress dialog restored for a task that is no longer
+     * running is dropped, rather than leaving the user stuck behind a spinner
+     */
+    @Test
+    public void test_staleProgressDialogIsDismissedOnRecreate() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity ->
+                    withDialogsEnabled(() -> activity.createProgressDialog("Working")));
+
+            withDialogsEnabled(() -> {
+                scenario.recreate();
+                shadowOf(Looper.getMainLooper()).idle();
+            });
+
+            scenario.onActivity(activity -> assertNull(findDialog(activity, TAG_PROGRESS)));
+        }
+    }
+
+    /**
+     * Executor that holds onto submitted work until the test releases it, so a
+     * task can be kept in flight deterministically
+     */
+    private static class PendingExecutor implements Executor {
+        private final ArrayList<Runnable> mPending = new ArrayList<>();
+
+        @Override
+        public void execute(Runnable command) {
+            mPending.add(command);
+        }
+
+        /**
+         * Runs everything submitted so far
+         */
+        void runPending() {
+            ArrayList<Runnable> toRun = new ArrayList<>(mPending);
+            mPending.clear();
+            for (Runnable runnable : toRun) {
+                runnable.run();
+            }
         }
     }
 
