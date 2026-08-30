@@ -67,7 +67,7 @@ public class BasicQuarters extends CollectionInfo {
     };
 
     private static final Integer START_YEAR = 1932;
-    private static final Integer STOP_YEAR = 2026;
+    private static final Integer STOP_YEAR = CoinPageCreator.OPTVAL_STILL_IN_PRODUCTION;
 
     private static final int OBVERSE_IMAGE_COLLECTED = R.drawable.quarter_front_92px;
 

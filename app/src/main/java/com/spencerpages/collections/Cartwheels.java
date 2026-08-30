@@ -21,6 +21,11 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_MINT;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -214,7 +219,7 @@ public class Cartwheels extends CollectionInfo {
                         coinList.add(new CoinSlot("1776-1976", String.format("D%nType II"), coinIndex++, getImgId("Eisenhower")));}
                     if (showS) {
                         coinList.add(new CoinSlot("1776-1976", String.format("S%nProof Type I"), coinIndex++, getImgId("Eisenhower")));
-                        coinList.add(new CoinSlot("1776-1976", String.format("S%nProofType II"), coinIndex++, getImgId("Eisenhower")));
+                        coinList.add(new CoinSlot("1776-1976", String.format("S%nProof Type II"), coinIndex++, getImgId("Eisenhower")));
                         coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Silver"), coinIndex++, getImgId("Eisenhower")));
                         coinList.add(new CoinSlot("1776-1976", String.format("S%nSilver Proof"), coinIndex++, getImgId("Eisenhower")));}
                 }
@@ -269,7 +274,7 @@ public class Cartwheels extends CollectionInfo {
                        if (i==2020){coinList.add(new CoinSlot(year, "W Proof Privy Mark", coinIndex++, getImgId("Eagle")));}
                        if (i==2021){
                             coinList.add(new CoinSlot(year, "W Proof Type I", coinIndex++, getImgId("Eagle")));
-                            coinList.add(new CoinSlot(year, "W ProofType II", coinIndex++, getImgId("Eagle")));
+                            coinList.add(new CoinSlot(year, "W Proof Type II", coinIndex++, getImgId("Eagle")));
                             coinList.add(new CoinSlot(year, "W Reverse Proof", coinIndex++, getImgId("Eagle")));}
                     }
                 }
@@ -310,6 +315,24 @@ public class Cartwheels extends CollectionInfo {
                         "2026", mintVariants, getImgId("1776-2026 Eagle"));
             }
         }
+
+        if (oldVersion <= 26) {
+            // Fix the "ProofType II" typos. These live in the mint column, not the
+            // identifier. The old values are deliberately written out here rather than
+            // shared with the generator, so this block can never track a later edit.
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_MINT, String.format("S%nProof Type II"));
+            runSqlUpdate(db, collectionListInfo.getName(), values,
+                    COL_COIN_MINT + "=? AND " + COL_CUSTOM_COIN + "=0",
+                    new String[]{String.format("S%nProofType II")});
+
+            values.clear();
+            values.put(COL_COIN_MINT, "W Proof Type II");
+            runSqlUpdate(db, collectionListInfo.getName(), values,
+                    COL_COIN_MINT + "=? AND " + COL_CUSTOM_COIN + "=0",
+                    new String[]{"W ProofType II"});
+        }
+
         return total;
     }
 }
