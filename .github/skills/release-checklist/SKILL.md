@@ -3,7 +3,7 @@ name: release-checklist
 description: >
   Run the pre-release verification checklist before triggering the GitHub
   Actions release workflow. Verifies unit tests, lint, version bump in
-  AndroidManifest.xml, DATABASE_VERSION, store metadata, screenshots, and
+  version.properties, DATABASE_VERSION, store metadata, screenshots, and
   git state, then reports a summary table. Use when asked to run the release
   checklist, verify release readiness, or check that everything is ready
   before a release.
@@ -35,10 +35,10 @@ No new errors should be introduced. Warnings are acceptable if pre-existing.
 
 ### 3. Version is bumped
 
-Read `app/src/main/AndroidManifest.xml` and check:
+Read `version.properties` at the repo root and check:
 
-- `android:versionCode` — must be incremented from the last release
-- `android:versionName` — must reflect the new version string
+- `versionCode` — must be incremented from the last release
+- `versionName` — must reflect the new version string
 
 Compare with the latest git tag to confirm the version has changed:
 

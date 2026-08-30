@@ -21,27 +21,27 @@ jobs:
         with:
           fetch-depth: 0 # Needed for changelog generation between tags
 
-      - name: Extract versionName and versionCode from Manifest
+      - name: Extract versionName and versionCode from version.properties
         id: extract_versions
         run: |
-          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
-          if [ ! -f "$MANIFEST_PATH" ]; then
-            echo "AndroidManifest.xml not found"
+          VERSION_PROPS_PATH="version.properties"
+          if [ ! -f "$VERSION_PROPS_PATH" ]; then
+            echo "version.properties not found"
             exit 1
           fi
           
-          VERSION_NAME=$(grep 'android:versionName=' "$MANIFEST_PATH" | sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p')
-          VERSION_CODE=$(grep 'android:versionCode=' "$MANIFEST_PATH" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+          VERSION_NAME=$(grep -E '^versionName=' "$VERSION_PROPS_PATH" | cut -d= -f2- | tr -d '[:space:]')
+          VERSION_CODE=$(grep -E '^versionCode=' "$VERSION_PROPS_PATH" | cut -d= -f2- | tr -d '[:space:]')
           
           if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
-            echo "Could not extract versionName or versionCode from $MANIFEST_PATH"
+            echo "Could not extract versionName or versionCode from $VERSION_PROPS_PATH"
             exit 1
           fi
           
           echo "Extracted versionName: $VERSION_NAME"
           echo "Extracted versionCode: $VERSION_CODE"
-          echo "manifest_version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "manifest_version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
 
       - name: Verify checked-in release notes exist
         # Release notes are checked into the repo at
@@ -51,7 +51,7 @@ jobs:
         id: release_notes
         run: |
           set -euo pipefail
-          VC="${{ steps.extract_versions.outputs.manifest_version_code }}"
+          VC="${{ steps.extract_versions.outputs.version_code }}"
           NOTES_FILE="fastlane/metadata/android/en-US/changelogs/${VC}.txt"
           if [ ! -s "$NOTES_FILE" ]; then
             echo "::error::Release notes file $NOTES_FILE is missing or empty. Add it (checked in) before running this workflow."
@@ -75,7 +75,7 @@ jobs:
           INPUT_RC_NUMBER: ${{ github.event.inputs.rc_number }}
         run: |
           set -euo pipefail
-          VERSION_NAME="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          VERSION_NAME="${{ steps.extract_versions.outputs.version_name }}"
           # Sanitize the RC number to digits only, then strip leading zeros so
           # e.g. "007" -> "7" (and "0" / "000" -> ""). This rejects 0, which would
           # otherwise produce a meaningless "-rc.0" tag.
@@ -91,7 +91,7 @@ jobs:
           # Fetch all tags from remote so local git is authoritative.
           git fetch --tags --force
           if git rev-parse "$FINAL_TAG" >/dev/null 2>&1; then
-            echo "Error: Final tag $FINAL_TAG already exists; this version was already released. Bump android:versionName before pre-releasing."
+            echo "Error: Final tag $FINAL_TAG already exists; this version was already released. Bump versionName in version.properties before pre-releasing."
             exit 1
           fi
           if git rev-parse "$RC_TAG" >/dev/null 2>&1; then
@@ -136,12 +136,12 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          # Gradle uses versionName and versionCode from the manifest directly
+          # Gradle reads versionName and versionCode from version.properties
           ./gradlew :app:assembleAndroidRelease :app:assembleAmazonRelease 
 
       - name: Verify Versioned APKs Exist
         run: |
-          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}" # Manifest Version Name
+          MVN="${{ steps.extract_versions.outputs.version_name }}" # Version Name
           echo "Checking for app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
           test -f "app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
           echo "Checking for app/build/outputs/apk/amazon/release/app-amazon-release-v${MVN}.apk"
@@ -154,7 +154,7 @@ jobs:
         # an unsigned/debug-signed APK could be uploaded to a GitHub Release and only
         # rejected later by the Play/Amazon stores.
         run: |
-          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          MVN="${{ steps.extract_versions.outputs.version_name }}"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
           if [ -z "$APKSIGNER" ]; then
             echo "apksigner not found in \$ANDROID_HOME/build-tools"
@@ -198,7 +198,7 @@ jobs:
         env:
           RC_TAG: ${{ steps.check_tag.outputs.rc_tag }}
         run: |
-          MVN="${{ steps.extract_versions.outputs.manifest_version_name }}"
+          MVN="${{ steps.extract_versions.outputs.version_name }}"
           # Prepend a pre-release notice to the checked-in release notes so
           # internal testers can tell this is a release candidate, not the final
           # build. The Fastfile prepends this to the ephemeral CI copy of
@@ -207,7 +207,7 @@ jobs:
           bundle exec fastlane deploy_playstore_test \
             apk_path:"${{ github.workspace }}/app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
             version_name:"${MVN}" \
-            version_code:"${{ steps.extract_versions.outputs.manifest_version_code }}" \
+            version_code:"${{ steps.extract_versions.outputs.version_code }}" \
             track:"internal" \
             prerelease_notice:"$PRERELEASE_NOTICE"
 
@@ -217,8 +217,8 @@ jobs:
           tag_name: ${{ steps.check_tag.outputs.rc_tag }}
           name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}
           files: |
-            app/build/outputs/apk/android/release/app-android-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
-            app/build/outputs/apk/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.manifest_version_name }}.apk
+            app/build/outputs/apk/android/release/app-android-release-v${{ steps.extract_versions.outputs.version_name }}.apk
+            app/build/outputs/apk/amazon/release/app-amazon-release-v${{ steps.extract_versions.outputs.version_name }}.apk
           fail_on_unmatched_files: true
           draft: false
           prerelease: true

@@ -102,7 +102,7 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 7. Tap the "Sanity Test" collection — verify the `CollectionPage` opens (look for `standard_collection_page` GridView; no tutorial dialog this time since it was dismissed in step 6)
 8. Take a screenshot
 9. Navigate back to main activity
-10. Tap "App Info" — verify a dialog appears containing "Coin Collection" and a version string matching the `versionName` in `app/src/main/AndroidManifest.xml` — press BACK to dismiss
+10. Tap "App Info" — verify a dialog appears containing "Coin Collection" and a version string matching the `versionName` in `version.properties` — press BACK to dismiss
 11. Tap "Reorder Collections" — a tutorial dialog appears on first use — dismiss it with "OKAY!" — verify the reorder screen loads (look for `reorder_collections_recycler_view` with the collection name and up/down arrows) — press BACK
 
 **Pass criteria:** App launches; CoinPageCreator, CollectionPage, App Info, and Reorder screens all render without crashes.

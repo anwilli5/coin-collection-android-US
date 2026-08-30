@@ -45,10 +45,14 @@ jobs:
         run: |
           set -euo pipefail
           COMMIT_SHA="$(git rev-parse HEAD)"
-          MANIFEST_PATH="app/src/main/AndroidManifest.xml"
-          VERSION_CODE=$(grep 'android:versionCode=' "$MANIFEST_PATH" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+          VERSION_PROPS_PATH="version.properties"
+          if [ ! -f "$VERSION_PROPS_PATH" ]; then
+            echo "$VERSION_PROPS_PATH not found at ${{ steps.parse.outputs.rc_tag }}. Pre-release tags cut before the version moved out of AndroidManifest.xml cannot be promoted by this workflow."
+            exit 1
+          fi
+          VERSION_CODE=$(grep -E '^versionCode=' "$VERSION_PROPS_PATH" | cut -d= -f2- | tr -d '[:space:]')
           if [ -z "$VERSION_CODE" ]; then
-            echo "Could not extract versionCode from $MANIFEST_PATH at ${{ steps.parse.outputs.rc_tag }}"
+            echo "Could not extract versionCode from $VERSION_PROPS_PATH at ${{ steps.parse.outputs.rc_tag }}"
             exit 1
           fi
           echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
