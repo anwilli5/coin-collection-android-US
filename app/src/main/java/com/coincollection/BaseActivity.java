@@ -96,6 +96,9 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     // Common activity variables
     protected final Context mContext = this;
     protected ProgressDialog mProgressDialog;
+    // The alert currently shown by showAlert(), tracked so it can be dismissed
+    // before the activity is torn down (otherwise the window is leaked)
+    protected AlertDialog mCurrentAlert;
     public Resources mRes;
     protected Intent mCallingIntent;
     public DatabaseAdapter mDbAdapter = null;
@@ -249,9 +252,8 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     @Override
     public void onDestroy() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            dismissProgressDialog();
-        }
+        // Dismiss any open alerts and progress UI to prevent window leaks
+        dismissAllAlerts();
         // If an async task is running, set the listener to null to have it wait before
         // trying its callback. Setting the listener to null also prevents memory leaks
         if (mTaskRunner != null) {
@@ -379,8 +381,31 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         // Don't show alerts in unit tests since there isn't a UI, and
         // it will spam the log with this: Invalid ID 0x00000000.
         if (!isUnitTest || !BuildConfig.DEBUG) {
+            // Dismiss any alert still on screen so only the newest one is tracked
+            dismissCurrentAlert();
             AlertDialog alert = builder.create();
+            // Stop tracking the alert once it goes away on its own (button press,
+            // cancel, etc.) so a stale reference isn't kept around
+            alert.setOnDismissListener(dialog -> {
+                if (mCurrentAlert == dialog) {
+                    mCurrentAlert = null;
+                }
+            });
+            mCurrentAlert = alert;
             alert.show();
+        }
+    }
+
+    /**
+     * Dismisses the alert currently shown by showAlert(), if any
+     */
+    protected void dismissCurrentAlert() {
+        if (mCurrentAlert != null) {
+            AlertDialog alert = mCurrentAlert;
+            mCurrentAlert = null;
+            if (alert.isShowing()) {
+                alert.dismiss();
+            }
         }
     }
 
@@ -389,6 +414,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     protected void dismissAllAlerts() {
         dismissProgressDialog();
+        dismissCurrentAlert();
     }
 
     /**
