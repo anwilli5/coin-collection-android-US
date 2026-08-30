@@ -30,10 +30,10 @@ No new errors should be introduced. Warnings are acceptable if pre-existing.
 
 ### 3. Version is bumped
 
-Read `app/src/main/AndroidManifest.xml` and check:
+Read `version.properties` at the repo root and check:
 
-- `android:versionCode` — must be incremented from the last release
-- `android:versionName` — must reflect the new version string
+- `versionCode` — must be incremented from the last release
+- `versionName` — must reflect the new version string
 
 Compare with the latest git tag to confirm the version has changed:
 

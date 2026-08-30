@@ -2,6 +2,17 @@ plugins {
     id 'com.android.application'
 }
 
+// The app version is single-sourced from the repo-root version.properties,
+// shared with the three release workflows. Read it through providers.fileContents
+// so the file is a tracked configuration input (the configuration cache is
+// enabled in gradle.properties).
+def versionProps = new Properties()
+versionProps.load(new StringReader(
+        providers.fileContents(rootProject.layout.projectDirectory.file('version.properties'))
+                .asText.get()))
+def appVersionCode = versionProps.getProperty('versionCode').trim().toInteger()
+def appVersionName = versionProps.getProperty('versionName').trim()
+
 android {
     signingConfigs {
         Android {
@@ -44,6 +55,8 @@ android {
         applicationId = "com.spencerpages"
         minSdk = 21
         targetSdk = 37
+        versionCode = appVersionCode
+        versionName = appVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -57,11 +70,6 @@ android {
             // produces an unsigned release APK (CI always provides the keystore).
             if (signingConfigs.Android.storeFile != null) {
                 signingConfig = signingConfigs.Android
-            }
-            android.applicationVariants.all { variant ->
-                variant.outputs.all {
-                    outputFileName = "app-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}.apk"
-                }
             }
         }
         debug {
@@ -122,6 +130,18 @@ android {
     packagingOptions {
         resources {
             merges += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
+    }
+}
+
+// Name every APK app-<flavor>-<buildType>-v<versionName>.apk. This applies to
+// debug as well as release: fastlane/Fastfile and release.yml both look up APKs
+// by that exact name.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set(
+                    "app-${variant.flavorName}-${variant.buildType}-v${appVersionName}.apk")
         }
     }
 }

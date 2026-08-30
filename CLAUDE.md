@@ -44,10 +44,11 @@ generation.
 - `DATABASE_VERSION` and `DATABASE_NAME` live in
   `app/src/main/java/com/spencerpages/MainApplication.java` — **not** in
   `DatabaseHelper`. Never hardcode the current version number; check the file.
-- `versionCode`/`versionName` live in `app/src/main/AndroidManifest.xml` —
-  atypical for Android projects (NOT in `build.gradle`). Three release
-  workflows (`release.yml`, `promote.yml`, `deploy.yml`) grep them from there,
-  so keep them in the manifest.
+- `versionCode`/`versionName` live in the repo-root `version.properties` — NOT
+  in `AndroidManifest.xml` and NOT literal values in `build.gradle`.
+  `app/build.gradle` reads that file into `defaultConfig`, and three release
+  workflows (`release.yml`, `promote.yml`, `deploy.yml`) grep it, so keep it as
+  the single source of truth.
 - Every Java file needs the GPL-3.0 license header block — copy it from any
   existing Java file in the repo.
 - `compileSdk 37` / `minSdk 21`. The `amazon` flavor pins `targetSdk 35`
