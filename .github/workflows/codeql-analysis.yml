@@ -50,7 +50,7 @@ jobs:
 
     # Setup required Java version
     - name: Setup Java JDK
-      uses: actions/setup-java@v5.6.0
+      uses: actions/setup-java@v6.0.0
       with:
         # JDK version is single-sourced from the repo-root .java-version file.
         # AGP 9.x needs JDK 21, so the autobuild leg must match the build's JDK.
