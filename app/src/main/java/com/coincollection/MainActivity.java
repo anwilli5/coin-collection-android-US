@@ -23,6 +23,21 @@ package com.coincollection;
 import static com.coincollection.CollectionListInfo.COL_NAME;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
 import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
+import static com.coincollection.dialog.DialogRequests.KEY_PAYLOAD;
+import static com.coincollection.dialog.DialogRequests.KEY_SELECTED_INDEX;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_COLLECTION_NAME;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_COLLECTION_NAMES;
+import static com.coincollection.dialog.DialogRequests.REQUEST_COLLECTION_ACTIONS;
+import static com.coincollection.dialog.DialogRequests.REQUEST_DELETE_COLLECTION;
+import static com.coincollection.dialog.DialogRequests.REQUEST_EXPORT_COLLECTIONS;
+import static com.coincollection.dialog.DialogRequests.REQUEST_EXPORT_FORMAT;
+import static com.coincollection.dialog.DialogRequests.REQUEST_IMPORT_COLLECTIONS;
+import static com.coincollection.dialog.DialogRequests.REQUEST_IMPORT_SOURCE;
+import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_MAIN_ACTIVITY;
+import static com.coincollection.dialog.DialogRequests.REQUEST_SELECT_COLLECTION_TO_DELETE;
+import static com.coincollection.dialog.DialogRequests.TAG_ABOUT;
+import static com.coincollection.dialog.DialogRequests.TAG_CONFIRMATION;
+import static com.coincollection.dialog.DialogRequests.TAG_LIST_CHOICE;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.Manifest;
@@ -56,6 +71,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.coincollection.dialog.AboutDialogFragment;
+import com.coincollection.dialog.ConfirmationDialogFragment;
+import com.coincollection.dialog.ListChoiceDialogFragment;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -124,9 +142,20 @@ public class MainActivity extends BaseActivity {
     private final static int ACTIONS_COPY = 2;
     private final static int ACTIONS_DELETE = 3;
 
+    // Import source menu items
+    private final static int IMPORT_SOURCE_LEGACY = 1;
+
+    // Export format menu items
+    private final static int EXPORT_FORMAT_JSON = 0;
+    private final static int EXPORT_FORMAT_CSV = 1;
+    private final static int EXPORT_FORMAT_LEGACY = 2;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Listen for results from this activity's dialogs
+        registerDialogResultListener(REQUEST_KEY_MAIN_ACTIVITY);
 
         setContentView(R.layout.main_activity_layout);
         View rootView = findViewById(R.id.main_activity_frame);
@@ -182,19 +211,7 @@ public class MainActivity extends BaseActivity {
                             Toast.makeText(mContext, mRes.getString(R.string.no_collections), Toast.LENGTH_SHORT).show();
                             break;
                         }
-                        // Thanks!
-                        // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
-                        CharSequence[] names = new CharSequence[mNumberOfCollections];
-                        for (int i = 0; i < mNumberOfCollections; i++) {
-                            names[i] = mCollectionListEntries.get(i).getName();
-                        }
-
-                        showAlert(newBuilder()
-                                .setTitle(mRes.getString(R.string.select_collection_delete))
-                                .setItems(names, (dialog, item) -> {
-                                    dialog.dismiss();
-                                    showDeleteConfirmation(mCollectionListEntries.get(item).getName());
-                                }));
+                        showSelectCollectionToDelete();
                         break;
                     case IMPORT_COLLECTIONS:
                         promptCsvOrJsonImport();
@@ -206,17 +223,7 @@ public class MainActivity extends BaseActivity {
                         launchReorderFragment();
                         break;
                     case ABOUT:
-
-                        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-                        View layout = inflater.inflate(R.layout.info_popup,
-                                findViewById(R.id.info_layout_root));
-
-                        TextView tv = layout.findViewById(R.id.info_title);
-                        tv.setText(mRes.getString(R.string.info_name_version, BuildConfig.VERSION_NAME));
-                        tv = layout.findViewById(R.id.info_attribution);
-                        tv.setText(buildInfoText());
-
-                        showAlert(newBuilder().setView(layout));
+                        showDialogFragment(AboutDialogFragment.newInstance(buildInfoText().toString()), TAG_ABOUT);
                         break;
                 }
 
@@ -229,43 +236,7 @@ public class MainActivity extends BaseActivity {
         // Add long-press handler for additional actions
         lv.setOnItemLongClickListener((parent, view, position, id) -> {
             if (position < mNumberOfCollections) {
-                // For each collection item, populate a menu of actions for the collection
-                CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
-                actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
-                actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
-                actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
-                actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
-                final int actionPosition = position;
-                showAlert(newBuilder()
-                        .setTitle(mRes.getString(R.string.collection_actions))
-                        .setItems(actionsList, (dialog, item) -> {
-                            switch (item) {
-                                case ACTIONS_VIEW: {
-                                    // Launch collection page
-                                    dialog.dismiss();
-                                    launchCoinPageActivity(mCollectionListEntries.get(actionPosition));
-                                    break;
-                                }
-                                case ACTIONS_EDIT: {
-                                    // Launch edit view
-                                    dialog.dismiss();
-                                    launchCoinPageCreatorActivity(mCollectionListEntries.get(actionPosition));
-                                    break;
-                                }
-                                case ACTIONS_COPY: {
-                                    // Perform copy
-                                    dialog.dismiss();
-                                    copyCollection(mCollectionListEntries.get(actionPosition).getName());
-                                    break;
-                                }
-                                case ACTIONS_DELETE: {
-                                    // Perform delete
-                                    dialog.dismiss();
-                                    showDeleteConfirmation(mCollectionListEntries.get(actionPosition).getName());
-                                    break;
-                                }
-                            }
-                        }));
+                showCollectionActions(mCollectionListEntries.get(position).getName());
                 return true;
             }
             return false;
@@ -781,33 +752,20 @@ public class MainActivity extends BaseActivity {
      * Show dialog for user to confirm export
      */
     private void showExportConfirmation() {
-
-        showAlert(newBuilder()
-                .setMessage(mRes.getString(R.string.export_warning))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
-                    dialog.dismiss();
-                    // Finish the export using AsyncTaskRunner to do the heavy lifting
-                    kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
-                })
-                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
+        showDialogFragment(ConfirmationDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_EXPORT_COLLECTIONS,
+                null, mRes.getString(R.string.export_warning),
+                R.string.yes, R.string.no, null), TAG_CONFIRMATION);
     }
 
     /**
      * Show dialog for user to confirm import
      */
     private void showImportConfirmation() {
-
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.warning))
-                .setMessage(mRes.getString(R.string.import_warning))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
-                    // Finish the import using AsyncTaskRunner to do the heavy lifting
-                    dialog.dismiss();
-                    startImportTask();
-                })
-                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
+        showDialogFragment(ConfirmationDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_IMPORT_COLLECTIONS,
+                mRes.getString(R.string.warning), mRes.getString(R.string.import_warning),
+                R.string.yes, R.string.no, null), TAG_CONFIRMATION);
     }
 
     /**
@@ -816,37 +774,98 @@ public class MainActivity extends BaseActivity {
      * @param name collection name
      */
     private void showDeleteConfirmation(final String name) {
+        // The collection name travels with the dialog, so the confirmation still
+        // knows what it applies to if this activity is recreated while it's open
+        Bundle payload = new Bundle();
+        payload.putString(PAYLOAD_COLLECTION_NAME, name);
+        showDialogFragment(ConfirmationDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_DELETE_COLLECTION,
+                mRes.getString(R.string.warning), mRes.getString(R.string.delete_warning, name),
+                R.string.yes, R.string.no, payload), TAG_CONFIRMATION);
+    }
 
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.warning))
-                .setMessage(mRes.getString(R.string.delete_warning, name))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
-                    dialog.dismiss();
-                    //Do the deleting
-                    Cursor cursor = null;
-                    try {
-                        mDbAdapter.dropCollectionTable(name);
-                        //Get a list of all the database tables
-                        cursor = mDbAdapter.getAllCollectionNames();
-                        int i = 0;
-                        if (cursor.moveToFirst()) {
-                            do {
-                                String name1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
-                                // Fix up the displayOrder
-                                mDbAdapter.updateDisplayOrder(name1, i);
-                                i++;
-                            } while (cursor.moveToNext());
-                        }
-                        cursor.close();
-                    } catch (SQLException e) {
-                        showCancelableAlert(mRes.getString(R.string.error_delete_database));
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-                })
-                .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> dialog.cancel()));
+    /**
+     * Show a list of collections for the user to pick one to delete
+     */
+    private void showSelectCollectionToDelete() {
+        // Thanks!
+        // http://stackoverflow.com/questions/2397106/listview-in-alertdialog
+        String[] names = new String[mNumberOfCollections];
+        for (int i = 0; i < mNumberOfCollections; i++) {
+            names[i] = mCollectionListEntries.get(i).getName();
+        }
+        // Carry the displayed names so the choice resolves against what the user
+        // actually saw, even if the collection list changes underneath
+        Bundle payload = new Bundle();
+        payload.putStringArray(PAYLOAD_COLLECTION_NAMES, names);
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_SELECT_COLLECTION_TO_DELETE,
+                mRes.getString(R.string.select_collection_delete), names, payload), TAG_LIST_CHOICE);
+    }
+
+    /**
+     * Show the actions available for a collection
+     *
+     * @param name collection name
+     */
+    private void showCollectionActions(final String name) {
+        String[] actionsList = new String[NUM_ACTIONS];
+        actionsList[ACTIONS_VIEW] = mRes.getString(R.string.view);
+        actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
+        actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
+        actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
+        // Identify the collection by name rather than list position, which can
+        // point at a different collection by the time an action is picked
+        Bundle payload = new Bundle();
+        payload.putString(PAYLOAD_COLLECTION_NAME, name);
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_COLLECTION_ACTIONS,
+                mRes.getString(R.string.collection_actions), actionsList, payload), TAG_LIST_CHOICE);
+    }
+
+    /**
+     * Finds a collection by name in the current list
+     *
+     * @param name collection name
+     * @return the collection info, or null if it is no longer in the list
+     */
+    private CollectionListInfo getCollectionListInfoByName(String name) {
+        for (int i = 0; i < mNumberOfCollections; i++) {
+            CollectionListInfo listEntry = mCollectionListEntries.get(i);
+            if (listEntry.getName().equals(name)) {
+                return listEntry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Deletes a collection and fixes up the display order of the remaining ones
+     *
+     * @param name collection name
+     */
+    private void deleteCollection(final String name) {
+        Cursor cursor = null;
+        try {
+            mDbAdapter.dropCollectionTable(name);
+            //Get a list of all the database tables
+            cursor = mDbAdapter.getAllCollectionNames();
+            int i = 0;
+            if (cursor.moveToFirst()) {
+                do {
+                    String name1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+                    // Fix up the displayOrder
+                    mDbAdapter.updateDisplayOrder(name1, i);
+                    i++;
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        } catch (SQLException e) {
+            showCancelableAlert(mRes.getString(R.string.error_delete_database));
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     /**
@@ -1036,29 +1055,12 @@ public class MainActivity extends BaseActivity {
         }
 
         // Populate a menu of actions for import
-        CharSequence[] actionsList = new CharSequence[2];
+        String[] actionsList = new String[2];
         actionsList[0] = mRes.getString(R.string.pick_backup_file);
         actionsList[1] = mRes.getString(R.string.legacy_storage);
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.import_place_message))
-                .setItems(actionsList, (dialog, item) -> {
-                    switch (item) {
-                        case 0: {
-                            // Pick back-up file
-                            dialog.dismiss();
-                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
-                            launchImportTask();
-                            break;
-                        }
-                        case 1: {
-                            // Legacy Storage
-                            dialog.dismiss();
-                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = true;
-                            launchImportTask();
-                            break;
-                        }
-                    }
-                }));
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_IMPORT_SOURCE,
+                mRes.getString(R.string.import_place_message), actionsList, null), TAG_LIST_CHOICE);
     }
 
     /**
@@ -1075,41 +1077,91 @@ public class MainActivity extends BaseActivity {
         boolean showLegacyExport = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q);
 
         // Populate a menu of actions for export
-        CharSequence[] actionsList = new CharSequence[showLegacyExport ? 3 : 2];
-        actionsList[0] = mRes.getString(R.string.json_file);
-        actionsList[1] = mRes.getString(R.string.csv_file);
+        String[] actionsList = new String[showLegacyExport ? 3 : 2];
+        actionsList[EXPORT_FORMAT_JSON] = mRes.getString(R.string.json_file);
+        actionsList[EXPORT_FORMAT_CSV] = mRes.getString(R.string.csv_file);
         if (showLegacyExport) {
-            actionsList[2] = mRes.getString(R.string.legacy_storage);
+            actionsList[EXPORT_FORMAT_LEGACY] = mRes.getString(R.string.legacy_storage);
         }
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.export_format_message))
-                .setItems(actionsList, (dialog, item) -> {
-                    switch (item) {
-                        case 0: {
-                            // JSON file
-                            dialog.dismiss();
-                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
-                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = false;
-                            launchExportTask();
-                            break;
-                        }
-                        case 1: {
-                            // CSV file (single-file)
-                            dialog.dismiss();
-                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = false;
-                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = true;
-                            launchExportTask();
-                            break;
-                        }
-                        case 2: {
-                            // Legacy CSV
-                            dialog.dismiss();
-                            mActivityViewModel.mTaskRequest.importExportLegacyCsv = true;
-                            mActivityViewModel.mTaskRequest.exportSingleFileCsv = false;
-                            launchExportTask();
-                            break;
-                        }
-                    }
-                }));
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_MAIN_ACTIVITY, REQUEST_EXPORT_FORMAT,
+                mRes.getString(R.string.export_format_message), actionsList, null), TAG_LIST_CHOICE);
+    }
+
+    @Override
+    protected void onDialogResult(int requestId, Bundle result) {
+        Bundle payload = result.getBundle(KEY_PAYLOAD);
+        switch (requestId) {
+            case REQUEST_EXPORT_COLLECTIONS: {
+                // Finish the export using AsyncTaskRunner to do the heavy lifting
+                kickOffAsyncTaskRunner(TASK_EXPORT_COLLECTIONS);
+                break;
+            }
+            case REQUEST_IMPORT_COLLECTIONS: {
+                // Finish the import using AsyncTaskRunner to do the heavy lifting
+                startImportTask();
+                break;
+            }
+            case REQUEST_DELETE_COLLECTION: {
+                if (payload != null) {
+                    deleteCollection(payload.getString(PAYLOAD_COLLECTION_NAME, ""));
+                }
+                break;
+            }
+            case REQUEST_SELECT_COLLECTION_TO_DELETE: {
+                String[] names = (payload != null) ? payload.getStringArray(PAYLOAD_COLLECTION_NAMES) : null;
+                int index = result.getInt(KEY_SELECTED_INDEX, -1);
+                if (names != null && index >= 0 && index < names.length) {
+                    showDeleteConfirmation(names[index]);
+                }
+                break;
+            }
+            case REQUEST_COLLECTION_ACTIONS: {
+                String name = (payload != null) ? payload.getString(PAYLOAD_COLLECTION_NAME) : null;
+                if (name == null) {
+                    break;
+                }
+                // The collection may have been removed while the dialog was open
+                CollectionListInfo listEntry = getCollectionListInfoByName(name);
+                if (listEntry == null) {
+                    break;
+                }
+                switch (result.getInt(KEY_SELECTED_INDEX, -1)) {
+                    case ACTIONS_VIEW:
+                        launchCoinPageActivity(listEntry);
+                        break;
+                    case ACTIONS_EDIT:
+                        launchCoinPageCreatorActivity(listEntry);
+                        break;
+                    case ACTIONS_COPY:
+                        copyCollection(name);
+                        break;
+                    case ACTIONS_DELETE:
+                        showDeleteConfirmation(name);
+                        break;
+                }
+                break;
+            }
+            case REQUEST_IMPORT_SOURCE: {
+                mActivityViewModel.mTaskRequest.importExportLegacyCsv =
+                        (result.getInt(KEY_SELECTED_INDEX, -1) == IMPORT_SOURCE_LEGACY);
+                launchImportTask();
+                break;
+            }
+            case REQUEST_EXPORT_FORMAT: {
+                int selected = result.getInt(KEY_SELECTED_INDEX, -1);
+                if (selected < 0) {
+                    break;
+                }
+                mActivityViewModel.mTaskRequest.importExportLegacyCsv = (selected == EXPORT_FORMAT_LEGACY);
+                mActivityViewModel.mTaskRequest.exportSingleFileCsv = (selected == EXPORT_FORMAT_CSV);
+                launchExportTask();
+                break;
+            }
+            default: {
+                super.onDialogResult(requestId, result);
+                break;
+            }
+        }
     }
 }

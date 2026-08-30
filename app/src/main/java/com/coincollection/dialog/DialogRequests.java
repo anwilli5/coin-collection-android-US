@@ -52,6 +52,7 @@ public final class DialogRequests {
 
     // Payload keys
     public static final String PAYLOAD_COLLECTION_NAME = "collectionName";
+    public static final String PAYLOAD_COLLECTION_NAMES = "collectionNames";
     public static final String PAYLOAD_HELP_KEY = "helpKey";
     public static final String PAYLOAD_COIN_DATABASE_ID = "coinDatabaseId";
     public static final String PAYLOAD_CREATE_NEW_COIN = "createNewCoin";
