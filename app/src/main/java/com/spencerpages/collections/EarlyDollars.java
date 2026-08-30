@@ -159,7 +159,7 @@ public class EarlyDollars extends CollectionInfo {
 
     @Override
     public int getAttributionResId() {
-        return R.string.attr_early_halfs;
+        return R.string.attr_early_dollars;
     }
 
     @Override

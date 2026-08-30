@@ -20,12 +20,17 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.DatabaseHelper.runSqlDelete;
+
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -110,7 +115,10 @@ public class WashingtonQuarters extends CollectionInfo {
             if (i == 1933 || (i == 1975))
                 continue;
 
-           if (showClad){
+           // Clad quarters start in 1965 — before that the coins are 90% silver and
+           // belong to the showSilver branch below. Without this floor the two
+           // branches generated the same 1932-1964 coins twice.
+           if (showClad && i >= 1965){
                if (showP) {
                    if (i >= 1980) {coinList.add(new CoinSlot(year, "P", coinIndex++));}
                    if (i < 1980){coinList.add(new CoinSlot(year, "", coinIndex++));}
@@ -118,9 +126,6 @@ public class WashingtonQuarters extends CollectionInfo {
                }
                if (showD) {
                    if (i != 1938 && (i < 1965 || i > 1967)) {coinList.add(new CoinSlot(year, "D", coinIndex++));}
-               }
-               if (showS) {
-                   if (i < 1955 && i != 1934 && i != 1949) {coinList.add(new CoinSlot(year, "S", coinIndex++));}
                }
                if (showProofs){
                    if (i > 1967){coinList.add(new CoinSlot(year, "S Proof", coinIndex++));}
@@ -161,6 +166,44 @@ public class WashingtonQuarters extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        int total = 0;
+
+        if (oldVersion <= 26) {
+            // Before V27 the clad branch had no year floor, so it generated the
+            // 1932-1964 coins that belong to the silver branch. The years are
+            // deliberately literals rather than START_YEAR: an old migration must never
+            // pick up a constant's new value. 1933 simply matches nothing, since the
+            // generator has always skipped it.
+            final int firstCladYear = 1965;
+            final int firstQuarterYear = 1932;
+
+            if (collectionListInfo.hasCladCoins()) {
+                ArrayList<String> preCladIdentifiers = new ArrayList<>();
+                for (int year = firstQuarterYear; year < firstCladYear; year++) {
+                    preCladIdentifiers.add(Integer.toString(year));
+                }
+
+                if (collectionListInfo.hasSilverCoins()) {
+                    // Both branches ran, so every pre-1965 coin exists twice. Keep the
+                    // original row (lowest _id, the clad-branch one) so the remaining
+                    // coins stay in the same order a freshly created collection uses.
+                    total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo,
+                            preCladIdentifiers);
+                } else {
+                    // Clad-only: the pre-1965 coins exist exactly once and are wrong
+                    // outright — those quarters are silver, not clad — so remove them.
+                    // Custom coins are user-added and are always left alone.
+                    for (String identifier : preCladIdentifiers) {
+                        total -= runSqlDelete(db, collectionListInfo.getName(),
+                                COL_COIN_IDENTIFIER + "=? AND " + COL_CUSTOM_COIN + "=0",
+                                new String[]{identifier});
+                    }
+                }
+            }
+        }
+
+        return total;
+    }
 }
 

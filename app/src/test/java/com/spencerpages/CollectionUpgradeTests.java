@@ -2018,4 +2018,343 @@ public class CollectionUpgradeTests extends BaseTestCase {
         }
         return false;
     }
+
+    /**
+     * Builds a V23 collection whose coins are generated from the current (fixed) source,
+     * then rewrites a single value back to its pre-V27 buggy form so the V27 migration
+     * has something to repair. The default upgrade helpers cannot do this: they populate
+     * the "old" database from the current generator, so the bug is never present.
+     *
+     * @param collection          the collection type
+     * @param coinType            the coin type string
+     * @param collectionName      name for the test collection
+     * @param identifierToExclude if non-null, exclude coins whose identifier contains this
+     * @param parameters          creation parameters to use
+     * @param legacyValues        one or more corruptions to apply; each row is
+     *                            {column, currentValue, oldValue, matchColumn, matchValue}
+     *                            where matchColumn/matchValue may be null
+     */
+    private void assertLegacyValuesAreMigrated(CollectionInfo collection, String coinType,
+                                               String collectionName, String identifierToExclude,
+                                               ParcelableHashMap parameters,
+                                               String[][] legacyValues) {
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName,
+                identifierToExclude, parameters);
+
+        for (String[] legacyValue : legacyValues) {
+            String column = legacyValue[0];
+            String currentValue = legacyValue[1];
+            String oldValue = legacyValue[2];
+            String matchColumn = legacyValue[3];
+            String matchValue = legacyValue[4];
+
+            ContentValues values = new ContentValues();
+            values.put(column, oldValue);
+            String where = column + "=?";
+            String[] whereArgs = new String[]{currentValue};
+            if (matchColumn != null) {
+                where = where + " AND " + matchColumn + "=?";
+                whereArgs = new String[]{currentValue, matchValue};
+            }
+            int updated = db.update("[" + collectionName + "]", values, where, whereArgs);
+            assertEquals("Expected exactly one coin to carry the pre-V27 value " + oldValue,
+                    1, updated);
+        }
+
+        db.close();
+        testDbHelper.close();
+
+        // Opening the database runs the upgrade, which must restore every corrected value
+        validateUpdatedDbWithParams(collection, collectionName, parameters);
+    }
+
+    /**
+     * The "1776-1796" bicentennial typo on the 40% silver BU half dollar must be
+     * migrated to "1776-1976" for Kennedy half dollar collections.
+     */
+    @Test
+    public void test_KennedyHalfDollarsBicentennialTypoMigration() {
+        CollectionInfo collection = new KennedyHalfDollars();
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+
+        assertLegacyValuesAreMigrated(collection, "Kennedy Half Dollars",
+                "Kennedy Bicentennial Typo", "2026", parameters,
+                new String[][]{{CoinSlot.COL_COIN_IDENTIFIER, "1776-1976", "1776-1796",
+                        CoinSlot.COL_COIN_MINT, String.format("S BU%n40%% Silver")}});
+    }
+
+    /**
+     * The same bicentennial typo must be migrated for silver half dollar collections.
+     */
+    @Test
+    public void test_SilverHalfDollarsBicentennialTypoMigration() {
+        CollectionInfo collection = new SilverHalfDollars();
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+
+        assertLegacyValuesAreMigrated(collection, "Silver Half Dollars",
+                "Silver Bicentennial Typo", "2026", parameters,
+                new String[][]{{CoinSlot.COL_COIN_IDENTIFIER, "1776-1976", "1776-1796",
+                        CoinSlot.COL_COIN_MINT, String.format("S BU%n40%% Silver")}});
+    }
+
+    /**
+     * Both "ProofType II" mint typos must be migrated for Cartwheels collections: the
+     * 1976 Eisenhower "S Proof Type II" and the 2021 Silver Eagle "W Proof Type II".
+     * These live in the mint column rather than the identifier column.
+     */
+    @Test
+    public void test_CartwheelsProofTypeTypoMigration() {
+        CollectionInfo collection = new Cartwheels();
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+
+        assertLegacyValuesAreMigrated(collection, "Cartwheels",
+                "Cartwheels ProofType Typo", "2026", parameters,
+                new String[][]{
+                        {CoinSlot.COL_COIN_MINT, String.format("S%nProof Type II"),
+                                String.format("S%nProofType II"), null, null},
+                        {CoinSlot.COL_COIN_MINT, "W Proof Type II", "W ProofType II", null, null},
+                });
+    }
+
+    /**
+     * The "Kennedy Halve" identifier typo must be migrated for West Point collections.
+     * This identifier doubles as the image-lookup key, so a missed rename would silently
+     * fall back to the default image.
+     */
+    @Test
+    public void test_WestPointKennedyHalveTypoMigration() {
+        CollectionInfo collection = new WestPoint();
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+
+        assertLegacyValuesAreMigrated(collection, "West Point Mint",
+                "West Point Halve Typo", null, parameters,
+                new String[][]{{CoinSlot.COL_COIN_IDENTIFIER,
+                        "2014 W Reverse Proof Kennedy Half",
+                        "2014 W Reverse Proof Kennedy Halve", null, null}});
+    }
+
+    /**
+     * Builds Washington quarter creation parameters with the given silver/clad checkboxes
+     * and every mint mark enabled.
+     */
+    private ParcelableHashMap getWashingtonParams(CollectionInfo collection,
+                                                  boolean showSilver, boolean showClad) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_4, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_5, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, showSilver);
+        parameters.put(CoinPageCreator.OPT_CHECKBOX_2, showClad);
+        return parameters;
+    }
+
+    /**
+     * A pre-V27 Washington quarter collection with both Silver and Clad enabled has every
+     * 1932-1964 coin twice, because the clad branch had no year floor. The migration must
+     * deduplicate it while preserving collected status and leaving custom coins alone.
+     */
+    @Test
+    public void test_WashingtonQuartersCladSilverDeduplication() {
+
+        CollectionInfo collection = new WashingtonQuarters();
+        String coinType = "Washington Quarters";
+        String collectionName = "Washington Clad Silver Dup";
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+
+        ParcelableHashMap parameters = getWashingtonParams(collection, true, true);
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName, null, parameters);
+
+        // Re-create the pre-V27 duplication: every 1932-1964 coin was emitted by both the
+        // clad and the silver branch. Mark one duplicate collected to prove the status
+        // survives onto the kept row.
+        ArrayList<CoinSlot> generated = new ArrayList<>();
+        collection.populateCollectionLists(parameters, generated);
+        int duplicated = 0;
+        for (CoinSlot coin : generated) {
+            int year;
+            try {
+                year = Integer.parseInt(coin.getIdentifier());
+            } catch (NumberFormatException ignored) {
+                continue;
+            }
+            if (year >= 1965) {
+                continue;
+            }
+            ContentValues values = new ContentValues();
+            values.put(CoinSlot.COL_COIN_IDENTIFIER, coin.getIdentifier());
+            values.put(CoinSlot.COL_COIN_MINT, coin.getMint());
+            values.put(CoinSlot.COL_IN_COLLECTION, "1940".equals(coin.getIdentifier()) ? 1 : 0);
+            values.put(CoinSlot.COL_SORT_ORDER, 9000 + duplicated);
+            db.insert("[" + collectionName + "]", null, values);
+            duplicated++;
+        }
+        assertTrue("Expected pre-1965 coins to duplicate", duplicated > 0);
+
+        // A user-added coin that collides with a generated identifier must survive
+        ContentValues customCoin = new ContentValues();
+        customCoin.put(CoinSlot.COL_COIN_IDENTIFIER, "1950");
+        customCoin.put(CoinSlot.COL_COIN_MINT, "");
+        customCoin.put(CoinSlot.COL_IN_COLLECTION, 1);
+        customCoin.put(CoinSlot.COL_SORT_ORDER, 9999);
+        customCoin.put(CoinSlot.COL_CUSTOM_COIN, 1);
+        db.insert("[" + collectionName + "]", null, customCoin);
+
+        ContentValues totalUpdate = new ContentValues();
+        totalUpdate.put(CollectionListInfo.COL_TOTAL, generated.size() + duplicated + 1);
+        db.update(CollectionListInfo.TBL_COLLECTION_INFO, totalUpdate,
+                CollectionListInfo.COL_NAME + "=?", new String[]{collectionName});
+
+        db.close();
+        testDbHelper.close();
+
+        assertUpgradedMatchesGenerated(collection, collectionName, parameters, "1950", true);
+    }
+
+    /**
+     * A pre-V27 clad-only Washington quarter collection has 1932-1964 coins that the clad
+     * branch should never have produced — those quarters are silver. They exist exactly
+     * once, so deduplication cannot help; the migration must delete them outright while
+     * leaving custom coins alone.
+     */
+    @Test
+    public void test_WashingtonQuartersCladOnlyPre1965Removal() {
+
+        CollectionInfo collection = new WashingtonQuarters();
+        String coinType = "Washington Quarters";
+        String collectionName = "Washington Clad Only";
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+
+        ParcelableHashMap parameters = getWashingtonParams(collection, false, true);
+        createV23FromPopulateWithParams(db, collection, coinType, collectionName, null, parameters);
+
+        // Re-create the pre-V27 clad branch, which ran with no year floor. Mark them
+        // collected to prove the removal is unconditional, as intended.
+        int added = 0;
+        for (int year = 1932; year < 1965; year++) {
+            if (year == 1933) {
+                continue;
+            }
+            String identifier = Integer.toString(year);
+            for (String mint : new String[]{"", "D", "S"}) {
+                ContentValues values = new ContentValues();
+                values.put(CoinSlot.COL_COIN_IDENTIFIER, identifier);
+                values.put(CoinSlot.COL_COIN_MINT, mint);
+                values.put(CoinSlot.COL_IN_COLLECTION, 1);
+                values.put(CoinSlot.COL_SORT_ORDER, 9000 + added);
+                db.insert("[" + collectionName + "]", null, values);
+                added++;
+            }
+        }
+        assertTrue("Expected legacy pre-1965 clad coins", added > 0);
+
+        // A user-added pre-1965 coin must survive even though the generated ones don't
+        ContentValues customCoin = new ContentValues();
+        customCoin.put(CoinSlot.COL_COIN_IDENTIFIER, "1940");
+        customCoin.put(CoinSlot.COL_COIN_MINT, "Custom");
+        customCoin.put(CoinSlot.COL_IN_COLLECTION, 1);
+        customCoin.put(CoinSlot.COL_SORT_ORDER, 9999);
+        customCoin.put(CoinSlot.COL_CUSTOM_COIN, 1);
+        db.insert("[" + collectionName + "]", null, customCoin);
+
+        ArrayList<CoinSlot> generated = new ArrayList<>();
+        collection.populateCollectionLists(parameters, generated);
+        ContentValues totalUpdate = new ContentValues();
+        totalUpdate.put(CollectionListInfo.COL_TOTAL, generated.size() + added + 1);
+        db.update(CollectionListInfo.TBL_COLLECTION_INFO, totalUpdate,
+                CollectionListInfo.COL_NAME + "=?", new String[]{collectionName});
+
+        db.close();
+        testDbHelper.close();
+
+        assertUpgradedMatchesGenerated(collection, collectionName, parameters, "1940", false);
+    }
+
+    /**
+     * Launches the app to run the pending upgrade, then asserts that the non-custom coins
+     * exactly match a freshly generated collection and that the single custom coin
+     * survived.
+     *
+     * @param collection        the collection type
+     * @param collectionName    name of the upgraded collection
+     * @param parameters        creation parameters used to build the reference list
+     * @param customIdentifier  identifier of the custom coin that must survive
+     * @param expectCollectedAt whether a pre-1965 "1940" coin should end up collected
+     */
+    private void assertUpgradedMatchesGenerated(final CollectionInfo collection,
+                                                final String collectionName,
+                                                final ParcelableHashMap parameters,
+                                                final String customIdentifier,
+                                                final boolean expectCollectedAt) {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+
+                ArrayList<CoinSlot> expectedCoins = new ArrayList<>();
+                collection.populateCollectionLists(parameters, expectedCoins);
+
+                ArrayList<CoinSlot> dbCoins = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoins);
+
+                ArrayList<CoinSlot> dbNonCustom = new ArrayList<>();
+                ArrayList<CoinSlot> dbCustom = new ArrayList<>();
+                for (CoinSlot coin : dbCoins) {
+                    if (coin.isCustomCoin()) {
+                        dbCustom.add(coin);
+                    } else {
+                        dbNonCustom.add(coin);
+                    }
+                }
+
+                assertEquals("Non-custom coins should match a freshly created collection",
+                        expectedCoins.size(), dbNonCustom.size());
+                for (int i = 0; i < expectedCoins.size(); i++) {
+                    assertEquals(expectedCoins.get(i).getIdentifier(), dbNonCustom.get(i).getIdentifier());
+                    assertEquals(expectedCoins.get(i).getMint(), dbNonCustom.get(i).getMint());
+                    assertEquals(expectedCoins.get(i).getImageId(), dbNonCustom.get(i).getImageId());
+                }
+
+                assertEquals("Custom coin should be preserved", 1, dbCustom.size());
+                assertEquals(customIdentifier, dbCustom.get(0).getIdentifier());
+
+                if (expectCollectedAt) {
+                    // The collected status of a removed duplicate moves onto the kept row
+                    boolean foundCollected = false;
+                    for (CoinSlot coin : dbNonCustom) {
+                        if ("1940".equals(coin.getIdentifier()) && coin.isInCollection()) {
+                            foundCollected = true;
+                            break;
+                        }
+                    }
+                    assertTrue("Collected status should survive deduplication", foundCollected);
+                }
+
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                boolean foundTable = false;
+                for (CollectionListInfo info : collectionListEntries) {
+                    if (collectionName.equals(info.getName())) {
+                        foundTable = true;
+                        assertEquals("Total should include the custom coin",
+                                expectedCoins.size() + 1, info.getMax());
+                        break;
+                    }
+                }
+                assertTrue(foundTable);
+            });
+        }
+    }
 }

@@ -20,6 +20,11 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -63,9 +68,9 @@ public class KennedyHalfDollars extends CollectionInfo {
             {"Franklin Reverse", R.drawable.rev_franklin_half},                     // 12
             {"Walking Liberty Reverse", R.drawable.rev_walking_liberty_half},       // 13
             {"Barber Reverse", R.drawable.rev_barber_half},                         // 14
-            {"Flowing Hair", R.drawable.ha1795o},                                   // 15
-            {"Draped Bust", R.drawable.ha1796o},                                    // 16
-            {"Capped Bust", R.drawable.ha1837o},                                    // 17
+            {"Flowing Hair Alt", R.drawable.ha1795o},                               // 15
+            {"Draped Bust Alt", R.drawable.ha1796o},                                // 16
+            {"Capped Bust Alt", R.drawable.ha1837o},                                // 17
             {"Seated Liberty", R.drawable.ha1853o},                                 // 18
             {"Enduring Liberty", R.drawable.semiq_2026_half_obv_unc},               // 19
     };
@@ -204,7 +209,8 @@ public class KennedyHalfDollars extends CollectionInfo {
                     if (showD) {coinList.add(new CoinSlot(year, String.format("D%n40%% Silver"), coinIndex++, kennedyImg));}
                     if (showSilverProofs) {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, kennedyProofImg));}
                 }
-                if (i == 1976) {{coinList.add(new CoinSlot("1776-1796", String.format("S BU%n40%% Silver"), coinIndex++, kennedyImg));}
+                if (i == 1976) {
+                    coinList.add(new CoinSlot("1776-1976", String.format("S BU%n40%% Silver"), coinIndex++, kennedyImg));
                     if (showSilverProofs) {coinList.add(new CoinSlot("1776-1976", String.format("S %n40%% Proof"), coinIndex++, kennedyProofImg));}
                 }
                 if (showSilverProofs && i > 1991) {coinList.add(new CoinSlot(year, String.format("S%nSilver Proof"), coinIndex++, kennedyProofImg));
@@ -251,6 +257,18 @@ public class KennedyHalfDollars extends CollectionInfo {
                 total += DatabaseHelper.addFromYear(db, collectionListInfo, 2025, 2026,
                         "2026", mintVariants, getImgId("Enduring Liberty"));
             }
+        }
+
+        if (oldVersion <= 26) {
+            // Fix the typo'd bicentennial identifier on the 40% silver BU half dollar.
+            // The old value is deliberately a literal: it must never track a constant
+            // that could change later. Custom coins are skipped because their
+            // identifiers are user-entered and aren't ours to rewrite.
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_IDENTIFIER, "1776-1976");
+            runSqlUpdate(db, collectionListInfo.getName(), values,
+                    COL_COIN_IDENTIFIER + "=? AND " + COL_CUSTOM_COIN + "=0",
+                    new String[]{"1776-1796"});
         }
 
         return total;

@@ -20,6 +20,11 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinPageCreator;
@@ -214,7 +219,7 @@ public class SilverHalfDollars extends CollectionInfo {
                     if (showSilver) {coinList.add(new CoinSlot(year, String.format("S Proof%n40%% Silver"), coinIndex++, kennedyProofImg));}
                 }
                 if (i == 1976) {
-                    if (showS) {coinList.add(new CoinSlot("1776-1796", String.format("S BU%n40%% Silver"), coinIndex++, kennedyImg));}
+                    if (showS) {coinList.add(new CoinSlot("1776-1976", String.format("S BU%n40%% Silver"), coinIndex++, kennedyImg));}
                     if (showSilver) {coinList.add(new CoinSlot("1776-1976", String.format("S%n40%% Proof"), coinIndex++, kennedyProofImg));}
                 }
                 if (showSilver && i > 1991) {coinList.add(new CoinSlot(year, "S Proof", coinIndex++, kennedyProofImg));
@@ -257,6 +262,19 @@ public class SilverHalfDollars extends CollectionInfo {
                         "2026", mintVariants, getImgId("Enduring Liberty"));
             }
         }
+
+        if (oldVersion <= 26) {
+            // Fix the typo'd bicentennial identifier on the 40% silver BU half dollar.
+            // The old value is deliberately a literal: it must never track a constant
+            // that could change later. Custom coins are skipped because their
+            // identifiers are user-entered and aren't ours to rewrite.
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_IDENTIFIER, "1776-1976");
+            runSqlUpdate(db, collectionListInfo.getName(), values,
+                    COL_COIN_IDENTIFIER + "=? AND " + COL_CUSTOM_COIN + "=0",
+                    new String[]{"1776-1796"});
+        }
+
         return total;
     }
 }

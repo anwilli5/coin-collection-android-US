@@ -140,7 +140,7 @@ public class SharedTest {
                     new CollectionListInfo("Coin Sets", 182, 0, getIndexFromCollectionClass(CoinSets.class), 0, 1947, 2023, "0", "492581209243649"),
                     new CollectionListInfo("Kennedy Half Dollars", 231, 0, getIndexFromCollectionClass(KennedyHalfDollars.class), 0, 1964, 2023, "2439", "598134325510185"),
                     new CollectionListInfo("Roosevelt Dimes", 288, 0, getIndexFromCollectionClass(RooseveltDimes.class), 0, 1946, 2023, "2511", "598134325510185"),
-                    new CollectionListInfo("Washington Quarters", 271, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
+                    new CollectionListInfo("Washington Quarters", 188, 0, getIndexFromCollectionClass(WashingtonQuarters.class), 0, 1932, 1998, "399", "35184372088841"),
                     new CollectionListInfo("Innovation Dollars", 132, 0, getIndexFromCollectionClass(AmericanInnovationDollars.class), 0, 0, 0, "647", "0"),
                     new CollectionListInfo("SemiQ 2026", 18, 0, getIndexFromCollectionClass(Semiquincentennials.class), 0, 0, 0, "7", "0"),
             };

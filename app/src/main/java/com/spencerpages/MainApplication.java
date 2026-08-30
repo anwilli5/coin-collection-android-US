@@ -243,8 +243,13 @@ public class MainApplication extends Application {
      * Version 24 - Used in Version 3.8.0 of the app
      * Version 25 - Adds the 2018 Roosevelt "S Reverse Silver Proof" dime (#362)
      * Version 26 - Fixes Philadelphia penny mint marks, including the 2017 "P" (#366)
+     * Version 27 - Fixes collection data bugs, migrated per collection in each class's
+     *              onCollectionDatabaseUpgrade: the "1776-1796" bicentennial identifier
+     *              (KennedyHalfDollars, SilverHalfDollars), duplicated 1932-1964 coins
+     *              (WashingtonQuarters), and the "ProofType II" (Cartwheels) and
+     *              "Kennedy Halve" (WestPoint) typos
      */
-    public static final int DATABASE_VERSION = 26;
+    public static final int DATABASE_VERSION = 27;
 
     /**
      * Get the collection index from collection type name

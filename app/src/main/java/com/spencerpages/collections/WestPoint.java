@@ -20,6 +20,11 @@
 
 package com.spencerpages.collections;
 
+import static com.coincollection.CoinSlot.COL_COIN_IDENTIFIER;
+import static com.coincollection.CoinSlot.COL_CUSTOM_COIN;
+import static com.coincollection.DatabaseHelper.runSqlUpdate;
+
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.coincollection.CoinSlot;
@@ -51,7 +56,7 @@ public class WestPoint extends CollectionInfo {
             {"2020 W Salt River Bay Quarter", R.drawable.parks_2020_salt_river_bay_unc},
             {"2020 W Marsh-Billings Quarter", R.drawable.parks_2020_marsh_billings_rockefeller_unc},
             {"2020 W Tallgrass Prairie Quarter", R.drawable.parks_2020_tallgrass_prairie_unc},
-            {"2014 W Reverse Proof Kennedy Halve", R.drawable.ha2018srevproof},
+            {"2014 W Reverse Proof Kennedy Half", R.drawable.ha2018srevproof},
             {"2006 W Burnished Silver Eagle", R.drawable.obv_american_eagle_unc},
             {"2007 W Burnished Silver Eagle", R.drawable.obv_american_eagle_unc},
             {"2008 W Burnished Silver Eagle", R.drawable.obv_american_eagle_unc},
@@ -111,5 +116,18 @@ public class WestPoint extends CollectionInfo {
 
     @Override
     public int onCollectionDatabaseUpgrade(SQLiteDatabase db, CollectionListInfo collectionListInfo,
-                                           int oldVersion, int newVersion) {return 0;}
+                                           int oldVersion, int newVersion) {
+        if (oldVersion <= 26) {
+            // Fix the "Kennedy Halve" typo. This string is both the persisted identifier
+            // and the COIN_MAP image-lookup key, so without this rename existing rows
+            // would fall back to the default image. The old value is deliberately a
+            // literal so this block can never track a later edit.
+            ContentValues values = new ContentValues();
+            values.put(COL_COIN_IDENTIFIER, "2014 W Reverse Proof Kennedy Half");
+            runSqlUpdate(db, collectionListInfo.getName(), values,
+                    COL_COIN_IDENTIFIER + "=? AND " + COL_CUSTOM_COIN + "=0",
+                    new String[]{"2014 W Reverse Proof Kennedy Halve"});
+        }
+        return 0;
+    }
 }

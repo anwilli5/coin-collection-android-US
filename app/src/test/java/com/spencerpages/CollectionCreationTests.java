@@ -1851,14 +1851,14 @@ public class CollectionCreationTests extends BaseTestCase {
 
         // Show Mint Marks, P, D, S, Expected Result
         Object[][] tests = {
-                {true, true, false, false, false, false, true, true, 100},
-                {true, false, true, false, false, false, true, true, 92},
-                {true, false, false, true, false, false, true, true, 40},
+                {true, true, false, false, false, false, true, true, 68},
+                {true, false, true, false, false, false, true, true, 61},
+                {true, false, false, true, false, false, true, true, 20},
                 {true, false, false, false, true, false, true, true, 30},
                 {true, false, false, false, false, true, true, true, 9},
                 {true, true, true, true, true, true, true, false, 92},
-                {true, true, true, true, true, true, false, true, 179},
-                {true, true, true, true, true, true, true, true, 271},
+                {true, true, true, true, true, true, false, true, 96},
+                {true, true, true, true, true, true, true, true, 188},
         };
 
         for (Object[] test : tests) {
