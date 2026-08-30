@@ -60,7 +60,7 @@ public class AboutDialogFragment extends DialogFragment {
     @Override
     @SuppressLint("InflateParams") // A dialog's view has no parent to attach to
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.info_popup, null);
 
         TextView titleView = layout.findViewById(R.id.info_title);

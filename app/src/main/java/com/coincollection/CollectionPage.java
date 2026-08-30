@@ -20,17 +20,33 @@
 
 package com.coincollection;
 
-import static com.coincollection.CoinPageCreator.getCollectionOrCoinNameFilter;
+import static com.coincollection.dialog.DialogRequests.KEY_COIN_IMAGE_ID;
+import static com.coincollection.dialog.DialogRequests.KEY_COIN_MINT;
+import static com.coincollection.dialog.DialogRequests.KEY_COIN_NAME;
+import static com.coincollection.dialog.DialogRequests.KEY_PAYLOAD;
+import static com.coincollection.dialog.DialogRequests.KEY_SELECTED_INDEX;
+import static com.coincollection.dialog.DialogRequests.KEY_TEXT;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_COIN_DATABASE_ID;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_CREATE_NEW_COIN;
+import static com.coincollection.dialog.DialogRequests.REQUEST_COIN_ACTIONS;
+import static com.coincollection.dialog.DialogRequests.REQUEST_COIN_FILTER;
+import static com.coincollection.dialog.DialogRequests.REQUEST_EDIT_COIN;
+import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_COLLECTION_PAGE;
+import static com.coincollection.dialog.DialogRequests.REQUEST_NONE;
+import static com.coincollection.dialog.DialogRequests.REQUEST_RENAME_COLLECTION;
+import static com.coincollection.dialog.DialogRequests.REQUEST_UNSAVED_CHANGES_EXIT_PAGE;
+import static com.coincollection.dialog.DialogRequests.TAG_COIN_EDIT;
+import static com.coincollection.dialog.DialogRequests.TAG_CONFIRMATION;
+import static com.coincollection.dialog.DialogRequests.TAG_LIST_CHOICE;
+import static com.coincollection.dialog.DialogRequests.TAG_MESSAGE;
+import static com.coincollection.dialog.DialogRequests.TAG_TEXT_INPUT;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.Bundle;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,19 +54,21 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
+import com.coincollection.dialog.CoinEditDialogFragment;
+import com.coincollection.dialog.ConfirmationDialogFragment;
+import com.coincollection.dialog.ListChoiceDialogFragment;
+import com.coincollection.dialog.MessageDialogFragment;
+import com.coincollection.dialog.TextInputDialogFragment;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -130,6 +148,9 @@ public class CollectionPage extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Listen for results from this activity's dialogs
+        registerDialogResultListener(REQUEST_KEY_COLLECTION_PAGE);
 
         // Register back press callback for unsaved changes handling
         setupBackPressedCallback();
@@ -336,14 +357,7 @@ public class CollectionPage extends BaseActivity {
             // Set the onClick listener for the whole view to provide a notice
             // to users if the collection is locked. There's also a onClick listener
             // on the imageView in CoinSlotAdapter
-            listView.setOnItemClickListener((parent, v, position, id) -> {
-                // Need to check whether the collection is locked
-                SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-                if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
-                    // Collection is locked
-                    showLockedMessage();
-                }
-            });
+            listView.setOnItemClickListener((parent, v, position, id) -> isCollectionLocked(true));
 
             // Add long-press handler for additional actions
             listView.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -769,28 +783,9 @@ public class CollectionPage extends BaseActivity {
      * Prompts the user to rename the collection
      */
     private void showCollectionRenamePrompt() {
-        // Create a text box for the new collection name
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        // Make a filter to block out bad characters
-        InputFilter nameFilter = getCollectionOrCoinNameFilter();
-        input.setFilters(new InputFilter[]{nameFilter});
-        input.setText(mCollectionName);
-
-        // Build the alert dialog
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.select_collection_name))
-                .setView(input)
-                .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
-                    dialog.dismiss();
-                    String newName = input.getText().toString();
-                    if (newName.isEmpty()) {
-                        Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    updateCollectionName(newName);
-                })
-                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
+        showDialogFragment(TextInputDialogFragment.newInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_RENAME_COLLECTION,
+                mRes.getString(R.string.select_collection_name), mCollectionName, null), TAG_TEXT_INPUT);
     }
 
     /**
@@ -886,6 +881,22 @@ public class CollectionPage extends BaseActivity {
     }
 
     /**
+     * Checks whether this collection is locked, which blocks any action that
+     * would change it
+     *
+     * @param showMessage if true, tells the user why the action was blocked
+     * @return true if the collection is locked
+     */
+    private boolean isCollectionLocked(boolean showMessage) {
+        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        boolean isLocked = mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false);
+        if (isLocked && showMessage) {
+            showLockedMessage();
+        }
+        return isLocked;
+    }
+
+    /**
      * Display message to save changes before performing an advanced action
      */
     private void showSaveChangesMessage() {
@@ -898,27 +909,20 @@ public class CollectionPage extends BaseActivity {
      * Show an alert that changes aren't saved before changing views
      */
     public void showUnsavedChangesAlertViewChange() {
-        showAlert(newBuilder()
-                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_change_views))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
-                    // Nothing to do, just a warning
-                    dialog.dismiss();
-                }));
+        showDialogFragment(MessageDialogFragment.newAcknowledgeInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_NONE,
+                mRes.getString(R.string.dialog_unsaved_changes_change_views),
+                R.string.okay, null), TAG_MESSAGE);
     }
 
     /**
      * Show an alert that changes aren't saved before exiting activity
      */
     public void showUnsavedChangesAlertAndExitActivity() {
-        showAlert(newBuilder()
-                .setMessage(mRes.getString(R.string.dialog_unsaved_changes_exit))
-                .setCancelable(false)
-                .setPositiveButton(mRes.getString(R.string.okay), (dialog, id) -> {
-                    dialog.dismiss();
-                    finish();
-                })
-                .setNegativeButton(mRes.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
+        showDialogFragment(ConfirmationDialogFragment.newInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_UNSAVED_CHANGES_EXIT_PAGE,
+                null, mRes.getString(R.string.dialog_unsaved_changes_exit),
+                R.string.okay, R.string.cancel, null), TAG_CONFIRMATION);
     }
 
     /**
@@ -927,13 +931,7 @@ public class CollectionPage extends BaseActivity {
      * @param coinSlot the CoinSlot to update
      */
     private void toggleCoinSlotInCollection(CoinSlot coinSlot) {
-        // Need to check whether the collection is locked
-        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-
-        if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
-            // Collection is locked
-            showLockedMessage();
-        } else {
+        if (!isCollectionLocked(true)) {
             // Save current scroll position before making changes
             Integer[] savedScrollPosition;
             if (mDisplayType == SIMPLE_DISPLAY) {
@@ -977,13 +975,7 @@ public class CollectionPage extends BaseActivity {
      * @param coinSlot the CoinSlot to copy
      */
     public void copyCoinSlot(CoinSlot coinSlot, int coinListInsertIndex) {
-        // Need to check whether the collection is locked
-        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-
-        if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
-            // Collection is locked
-            showLockedMessage();
-        } else {
+        if (!isCollectionLocked(true)) {
             // Create the new coin slot
             // - copy() also sets the sort order to original + 1
             // - Mark as custom coin since it wasn't added when the collection was created
@@ -1023,13 +1015,7 @@ public class CollectionPage extends BaseActivity {
             return;
         }
 
-        // Need to check whether the collection is locked
-        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
-
-        if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
-            // Collection is locked
-            showLockedMessage();
-        } else {
+        if (!isCollectionLocked(true)) {
             // Delete the coin from the coin list
             CoinSlot coinSlot = mCoinList.remove(position);
             // Also remove the exact same instance from the original list. An
@@ -1065,127 +1051,72 @@ public class CollectionPage extends BaseActivity {
      * @param createNewCoin if true, creates a new coin at the end of the list
      */
     private void showCoinCreateOrRenamePrompt(int position, boolean createNewCoin) {
-        // Need to check whether the collection is locked
-        SharedPreferences mainPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
+        if (isCollectionLocked(true)) {
+            return;
+        }
+        // Identify the coin by its database id rather than by list position or
+        // object identity - the list is rebuilt when this activity is recreated,
+        // so only the database id still refers to the same coin afterwards
+        final CoinSlot editCoinSlot = !createNewCoin ? mCoinList.get(position) : null;
+        Bundle payload = new Bundle();
+        payload.putBoolean(PAYLOAD_CREATE_NEW_COIN, createNewCoin);
+        payload.putLong(PAYLOAD_COIN_DATABASE_ID,
+                (editCoinSlot != null) ? editCoinSlot.getDatabaseId() : 0);
+        showDialogFragment(CoinEditDialogFragment.newInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_EDIT_COIN,
+                mRes.getString(R.string.edit_coin_info), editCoinSlot,
+                mCollectionTypeIndex, payload), TAG_COIN_EDIT);
+    }
 
-        if (mainPreferences.getBoolean(mCollectionName + IS_LOCKED, false)) {
-            // Collection is locked
-            showLockedMessage();
-        } else {
-            // Get inputs and set default text
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            LinearLayout coinRenameView = (LinearLayout) inflater.inflate(R.layout.coin_update_layout, null);
-            EditText nameInput = coinRenameView.findViewById(R.id.coin_name_edittext);
-            EditText mintInput = coinRenameView.findViewById(R.id.coin_mint_edittext);
-            Spinner imgSpinner = coinRenameView.findViewById(R.id.coin_image_select);
-            LinearLayout imgRow = coinRenameView.findViewById(R.id.coin_image_row);
-
-            // Capture the coin being edited so the OK callback can act on the
-            // exact instance instead of re-fetching by a position that may be
-            // stale by the time the dialog is confirmed
-            final CoinSlot editCoinSlot = !createNewCoin ? mCoinList.get(position) : null;
-            if (!createNewCoin) {
-                // Get coin slot at the position
-                nameInput.setText(editCoinSlot.getIdentifier());
-                mintInput.setText(editCoinSlot.getMint());
-                setupCoinImageSpinner(editCoinSlot, imgSpinner, imgRow);
-            } else {
-                nameInput.setText("");
-                mintInput.setText("");
-                setupCoinImageSpinner(null, imgSpinner, imgRow);
-            }
-
-            // Set filters to block out bad characters
-            InputFilter nameFilter = getCollectionOrCoinNameFilter();
-            nameInput.setFilters(new InputFilter[]{nameFilter});
-            mintInput.setFilters(new InputFilter[]{nameFilter});
-
-            // Build the alert dialog
-            showAlert(newBuilder()
-                    .setTitle(mRes.getString(R.string.edit_coin_info))
-                    .setView(coinRenameView)
-                    .setPositiveButton(mRes.getString(R.string.okay), (dialog, which) -> {
-                        dialog.dismiss();
-                        String newName = nameInput.getText().toString();
-                        int imageId = getSpinnerImageId(imgSpinner);
-                        if (newName.isEmpty()) {
-                            Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_coin_name), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        if (!createNewCoin) {
-                            // The list may have changed while the dialog was open,
-                            // so act on the captured coin only if it's still present
-                            if (getCoinListIndexByIdentity(editCoinSlot) == -1) {
-                                return;
-                            }
-                            updateCoinDetails(editCoinSlot, newName, mintInput.getText().toString(), imageId);
-                        } else {
-                            addNewCoin(newName, mintInput.getText().toString(), imageId);
-                        }
-                    })
-                    .setNegativeButton(mRes.getString(R.string.cancel), (dialog, which) -> dialog.cancel()));
+    /**
+     * Applies the result of the coin create/edit dialog
+     *
+     * @param result the values entered by the user
+     */
+    private void applyCoinEditResult(Bundle result) {
+        Bundle payload = result.getBundle(KEY_PAYLOAD);
+        if (payload == null) {
+            return;
+        }
+        // The collection may have been locked while the dialog was open
+        if (isCollectionLocked(true)) {
+            return;
+        }
+        String newName = result.getString(KEY_COIN_NAME, "");
+        String newMint = result.getString(KEY_COIN_MINT, "");
+        int imageId = result.getInt(KEY_COIN_IMAGE_ID, -1);
+        if (newName.isEmpty()) {
+            Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_coin_name), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (payload.getBoolean(PAYLOAD_CREATE_NEW_COIN, false)) {
+            addNewCoin(newName, newMint, imageId);
+            return;
+        }
+        // The coin may have been deleted while the dialog was open
+        CoinSlot editCoinSlot = getCoinSlotByDatabaseId(payload.getLong(PAYLOAD_COIN_DATABASE_ID, 0));
+        if (editCoinSlot != null) {
+            updateCoinDetails(editCoinSlot, newName, newMint, imageId);
         }
     }
 
     /**
-     * Get image id value from the coin image spinner
+     * Finds a coin slot by its database id, which stays valid across a
+     * configuration change unlike a list position or an object reference
      *
-     * @param imgSpinner coin image spinner
-     * @return image id
+     * @param databaseId the coin's database id
+     * @return the CoinSlot, or null if it is no longer displayed
      */
-    private int getSpinnerImageId(Spinner imgSpinner) {
-        if (imgSpinner.getVisibility() == View.VISIBLE) {
-            // Get the selected image ID when the button is pressed
-            int selectedPosition = imgSpinner.getSelectedItemPosition();
-            if (selectedPosition == AdapterView.INVALID_POSITION) {
-                return -1;
-            } else {
-                return selectedPosition-1;
-            }
-        } else {
-            return -1;
+    private CoinSlot getCoinSlotByDatabaseId(long databaseId) {
+        if (databaseId == 0) {
+            return null;
         }
-    }
-
-    /**
-     * Set up the coin image spinner, if needed
-     *
-     * @param coinSlot coin slot being modified
-     * @param imgSpinner coin image spinner
-     */
-    private void setupCoinImageSpinner(CoinSlot coinSlot, Spinner imgSpinner, LinearLayout imgRow) {
-        CollectionInfo collectionTypeObj = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
-        Object[][] imageIdData = collectionTypeObj.getImageIds();
-
-        if (imageIdData.length != 0) {
-            imgSpinner.setVisibility(View.VISIBLE);
-            imgRow.setVisibility(View.VISIBLE);
-
-            // Ignore image id here to show the actual default for this name
-            int defaultResId = (coinSlot != null) ? collectionTypeObj.getCoinSlotImage(coinSlot, true)
-                    : collectionTypeObj.getCoinImageIdentifier();
-            int defaultImageId = (coinSlot != null) ? coinSlot.getImageId() : -1;
-
-            // Create lists to hold the names and resIds
-            ArrayList<String> names = new ArrayList<>();
-            ArrayList<Integer> resIds = new ArrayList<>();
-            names.add(mContext.getString(R.string.img_default));
-            resIds.add(defaultResId);
-            for (Object[] entry : imageIdData) {
-                names.add((String) entry[0]);
-                resIds.add((Integer) entry[1]);
+        for (CoinSlot coinSlot : mCoinList) {
+            if (coinSlot.getDatabaseId() == databaseId) {
+                return coinSlot;
             }
-
-            // Set up the image select spinner
-            ImageSpinnerAdapter adapter = new ImageSpinnerAdapter(this, names, resIds);
-            imgSpinner.setAdapter(adapter);
-
-            // Set the selected position based on the current image id
-            imgSpinner.setSelection(defaultImageId+1);
-        } else {
-            imgSpinner.setVisibility(View.GONE);
-            imgRow.setVisibility(View.GONE);
         }
+        return null;
     }
 
     /**
@@ -1218,61 +1149,72 @@ public class CollectionPage extends BaseActivity {
         }
 
         // Populate a menu of actions for the collection
-        CharSequence[] actionsList = new CharSequence[NUM_ACTIONS];
+        String[] actionsList = new String[NUM_ACTIONS];
         actionsList[ACTIONS_TOGGLE] = mRes.getString(R.string.toggle_collected);
         actionsList[ACTIONS_EDIT] = mRes.getString(R.string.edit);
         actionsList[ACTIONS_COPY] = mRes.getString(R.string.copy);
         actionsList[ACTIONS_DELETE] = mRes.getString(R.string.delete);
-        final CoinSlot actionCoinSlot = mCoinList.get(position);
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.coin_actions))
-                .setItems(actionsList, (dialog, item) -> {
-                    // Clear the dialog after any option is pressed
-                    dialog.dismiss();
+        // Identify the coin by its database id, which survives this activity
+        // being recreated while the dialog is open
+        Bundle payload = new Bundle();
+        payload.putLong(PAYLOAD_COIN_DATABASE_ID, mCoinList.get(position).getDatabaseId());
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_COIN_ACTIONS,
+                mRes.getString(R.string.coin_actions), actionsList, payload), TAG_LIST_CHOICE);
+    }
 
-                    // Currently if there are unsaved changes, block any of these actions from
-                    // occurring, because the methods don't yet support delayed updating of
-                    // the database (they take effect right away). A cleaner user experience
-                    // would be for all of these changes to happen 'unsaved' (only to the
-                    // data structure) and to committed to the DB when the save is performed.
-                    if (doUnsavedChangesExist()) {
-                        showSaveChangesMessage();
-                        return;
-                    }
+    /**
+     * Performs the action the user picked from the coin actions list
+     *
+     * @param result the selection made by the user
+     */
+    private void applyCoinSlotAction(Bundle result) {
+        Bundle payload = result.getBundle(KEY_PAYLOAD);
+        if (payload == null) {
+            return;
+        }
 
-                    // The list may have changed while the dialog was open (filter
-                    // change, prior delete), so re-resolve the coin's current
-                    // position by identity and bail if it's no longer displayed.
-                    // Equal-by-equals duplicates (e.g. from a copy) make an
-                    // equals-based lookup match the wrong instance
-                    final int actionPosition = getCoinListIndexByIdentity(actionCoinSlot);
-                    if (actionPosition == -1) {
-                        return;
-                    }
+        // Currently if there are unsaved changes, block any of these actions from
+        // occurring, because the methods don't yet support delayed updating of
+        // the database (they take effect right away). A cleaner user experience
+        // would be for all of these changes to happen 'unsaved' (only to the
+        // data structure) and to committed to the DB when the save is performed.
+        if (doUnsavedChangesExist()) {
+            showSaveChangesMessage();
+            return;
+        }
 
-                    switch (item) {
-                        case ACTIONS_TOGGLE: {
-                            // Toggle collected or not
-                            toggleCoinSlotInCollection(actionCoinSlot);
-                            break;
-                        }
-                        case ACTIONS_EDIT: {
-                            // Launch edit view
-                            showCoinCreateOrRenamePrompt(actionPosition, false);
-                            break;
-                        }
-                        case ACTIONS_COPY: {
-                            // Perform copy
-                            copyCoinSlot(actionCoinSlot, actionPosition + 1);
-                            break;
-                        }
-                        case ACTIONS_DELETE: {
-                            // Perform delete
-                            deleteCoinSlotAtPosition(actionPosition);
-                            break;
-                        }
-                    }
-                }));
+        // The list may have changed while the dialog was open (filter change,
+        // prior delete, or this activity being recreated), so re-resolve the
+        // coin and bail if it's no longer displayed
+        CoinSlot actionCoinSlot = getCoinSlotByDatabaseId(payload.getLong(PAYLOAD_COIN_DATABASE_ID, 0));
+        if (actionCoinSlot == null) {
+            return;
+        }
+        final int actionPosition = getCoinListIndexByIdentity(actionCoinSlot);
+
+        switch (result.getInt(KEY_SELECTED_INDEX, -1)) {
+            case ACTIONS_TOGGLE: {
+                // Toggle collected or not
+                toggleCoinSlotInCollection(actionCoinSlot);
+                break;
+            }
+            case ACTIONS_EDIT: {
+                // Launch edit view
+                showCoinCreateOrRenamePrompt(actionPosition, false);
+                break;
+            }
+            case ACTIONS_COPY: {
+                // Perform copy
+                copyCoinSlot(actionCoinSlot, actionPosition + 1);
+                break;
+            }
+            case ACTIONS_DELETE: {
+                // Perform delete
+                deleteCoinSlotAtPosition(actionPosition);
+                break;
+            }
+        }
     }
 
     /**
@@ -1433,17 +1375,49 @@ public class CollectionPage extends BaseActivity {
         filterOptions[FILTER_SHOW_ALL] = mRes.getString(R.string.show_all_coins);
         filterOptions[FILTER_SHOW_COLLECTED] = mRes.getString(R.string.show_collected_coins);
         filterOptions[FILTER_SHOW_MISSING] = mRes.getString(R.string.show_missing_coins);
-        
-        showAlert(newBuilder()
-                .setTitle(mRes.getString(R.string.filter_dialog_title))
-                .setItems(filterOptions, (dialog, selectedFilter) -> {
-                    dialog.dismiss();
-                    
-                    // Only apply filter if it's different from current
-                    if (selectedFilter != mCoinFilter) {
-                        applyFilterState(selectedFilter);
-                    }
-                }));
+
+        showDialogFragment(ListChoiceDialogFragment.newInstance(
+                REQUEST_KEY_COLLECTION_PAGE, REQUEST_COIN_FILTER,
+                mRes.getString(R.string.filter_dialog_title), filterOptions, null), TAG_LIST_CHOICE);
+    }
+
+    @Override
+    public void onDialogResult(int requestId, Bundle result) {
+        switch (requestId) {
+            case REQUEST_RENAME_COLLECTION: {
+                String newName = result.getString(KEY_TEXT, "");
+                if (newName.isEmpty()) {
+                    Toast.makeText(CollectionPage.this, mRes.getString(R.string.dialog_enter_collection_name), Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                updateCollectionName(newName);
+                break;
+            }
+            case REQUEST_UNSAVED_CHANGES_EXIT_PAGE: {
+                finish();
+                break;
+            }
+            case REQUEST_EDIT_COIN: {
+                applyCoinEditResult(result);
+                break;
+            }
+            case REQUEST_COIN_ACTIONS: {
+                applyCoinSlotAction(result);
+                break;
+            }
+            case REQUEST_COIN_FILTER: {
+                int selectedFilter = result.getInt(KEY_SELECTED_INDEX, -1);
+                // Only apply filter if it's different from current
+                if (selectedFilter >= 0 && selectedFilter != mCoinFilter) {
+                    applyFilterState(selectedFilter);
+                }
+                break;
+            }
+            default: {
+                super.onDialogResult(requestId, result);
+                break;
+            }
+        }
     }
     
     /**

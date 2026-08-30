@@ -68,7 +68,7 @@ public class ProgressDialogFragment extends DialogFragment {
         // the user - only by the task completing
         setCancelable(false);
 
-        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        LayoutInflater inflater = getLayoutInflater();
         View progressView = inflater.inflate(R.layout.dialog_progress, null);
         mMessageView = progressView.findViewById(R.id.progress_message);
         mMessageView.setText(requireArguments().getString(ARG_MESSAGE, ""));

@@ -72,7 +72,7 @@ public class TextInputDialogFragment extends BaseDialogFragment {
     @SuppressLint("InflateParams") // A dialog's view has no parent to attach to
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         Bundle args = requireArguments();
-        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        LayoutInflater inflater = getLayoutInflater();
         View inputView = inflater.inflate(R.layout.dialog_text_input, null);
         EditText input = inputView.findViewById(R.id.dialog_text_input);
         input.setFilters(new InputFilter[]{getCollectionOrCoinNameFilter()});
