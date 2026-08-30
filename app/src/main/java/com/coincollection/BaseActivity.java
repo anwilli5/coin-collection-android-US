@@ -42,7 +42,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -56,7 +55,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.coincollection.dialog.MessageDialogFragment;
 import com.coincollection.dialog.ProgressDialogFragment;
-import com.coincollection.helper.NonLeakingAlertDialogBuilder;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
@@ -108,9 +106,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     // Common activity variables
     protected final Context mContext = this;
-    // The alert currently shown by showAlert(), tracked so it can be dismissed
-    // before the activity is torn down (otherwise the window is leaked)
-    protected AlertDialog mCurrentAlert;
     public Resources mRes;
     protected Intent mCallingIntent;
     public DatabaseAdapter mDbAdapter = null;
@@ -261,18 +256,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     }
 
     @Override
-    public void onPause() {
-        // Dismiss any open alerts to prevent memory leaks
-        dismissCurrentAlert();
-        super.onPause();
-    }
-
-    @Override
     public void onDestroy() {
-        // Dismiss any open alert to prevent a window leak. The progress dialog is
-        // deliberately left alone - it is owned by the FragmentManager and belongs
-        // to the task, so it is restored with the recreated activity
-        dismissCurrentAlert();
+        // Note: Dialogs are owned by the FragmentManager, so they are torn down
+        // with the activity and restored with the recreated one - there is
+        // nothing to dismiss here
         // If an async task is running, set the listener to null to have it wait before
         // trying its callback. Setting the listener to null also prevents memory leaks
         if (mTaskRunner != null) {
@@ -394,61 +381,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             return true;
         }
         return false;
-    }
-
-    /**
-     * Creates a new alerter builder and cleans up any previous builders,
-     * to prevent memory leaks
-     *
-     * @return new builder object
-     */
-    protected NonLeakingAlertDialogBuilder newBuilder() {
-        return new NonLeakingAlertDialogBuilder(this);
-    }
-
-    /**
-     * Uses builder to create and show an alert
-     *
-     * @param builder to use to create alert
-     */
-    protected void showAlert(NonLeakingAlertDialogBuilder builder) {
-        // Don't show alerts in unit tests since there isn't a UI, and
-        // it will spam the log with this: Invalid ID 0x00000000.
-        if (!isUnitTest || !BuildConfig.DEBUG) {
-            // Dismiss any alert still on screen so only the newest one is tracked
-            dismissCurrentAlert();
-            AlertDialog alert = builder.create();
-            // Stop tracking the alert once it goes away on its own (button press,
-            // cancel, etc.) so a stale reference isn't kept around
-            alert.setOnDismissListener(dialog -> {
-                if (mCurrentAlert == dialog) {
-                    mCurrentAlert = null;
-                }
-            });
-            mCurrentAlert = alert;
-            alert.show();
-        }
-    }
-
-    /**
-     * Dismisses the alert currently shown by showAlert(), if any
-     */
-    protected void dismissCurrentAlert() {
-        if (mCurrentAlert != null) {
-            AlertDialog alert = mCurrentAlert;
-            mCurrentAlert = null;
-            if (alert.isShowing()) {
-                alert.dismiss();
-            }
-        }
-    }
-
-    /**
-     * Cleans up any notifications currently shown to users
-     */
-    protected void dismissAllAlerts() {
-        dismissProgressDialog();
-        dismissCurrentAlert();
     }
 
     /**
