@@ -100,10 +100,10 @@ public class CollectionListInfoFlagParsingTests {
      * database and the user's configuration is preserved where possible.
      */
     @Test
-    public void stringArrayConstructor_recoversMangledFlags() {
+    public void stringArrayConstructor_recoversMangledFlags() throws ImportFormatException {
         String[] in = new String[]{
                 "Test Collection", // 0 name
-                "Lincoln Cents",   // 1 coin type
+                "Pennies",         // 1 coin type
                 "0",               // 2 collected
                 "0",               // 3 total
                 "0",               // 4 display

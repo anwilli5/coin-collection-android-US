@@ -121,6 +121,19 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Runs a block of database work inside a transaction on this adapter's database
+     * <p>
+     * See {@link DatabaseHelper#runInTransaction(SQLiteDatabase, Runnable)} for the
+     * rollback and nesting semantics.
+     *
+     * @param work the work to run
+     * @throws SQLException if the work failed
+     */
+    public void runInTransaction(Runnable work) throws SQLException {
+        DatabaseHelper.runInTransaction(mDb, work);
+    }
+
+    /**
      * Returns whether a coinIdentifier and coinMint has been marked as collected in a given
      * collection.
      *
@@ -253,29 +266,31 @@ public class DatabaseAdapter {
      */
     public void createAndPopulateNewTable(CollectionListInfo collectionListInfo, int displayOrder, ArrayList<CoinSlot> coinData) throws SQLException {
 
-        // Actually make the table
-        String tableName = collectionListInfo.getName();
-        createCollectionTable(tableName);
+        runInTransaction(() -> {
+            // Actually make the table
+            String tableName = collectionListInfo.getName();
+            createCollectionTable(tableName);
 
-        // We have the list of identifiers, now set them correctly
-        if (coinData != null) {
-            for (CoinSlot coinSlot : coinData) {
-                addCoinSlotToCollection(coinSlot, tableName, false, 0);
+            // We have the list of identifiers, now set them correctly
+            if (coinData != null) {
+                for (CoinSlot coinSlot : coinData) {
+                    addCoinSlotToCollection(coinSlot, tableName, false, 0);
+                }
             }
-        }
 
-        // We also need to add the table to the list of tables
-        ContentValues values = new ContentValues();
-        values.put(COL_NAME, collectionListInfo.getName());
-        values.put(COL_COIN_TYPE, collectionListInfo.getType());
-        values.put(COL_TOTAL, collectionListInfo.getMax());
-        values.put(COL_DISPLAY_ORDER, displayOrder);
-        values.put(COL_DISPLAY, collectionListInfo.getDisplayType());
-        values.put(COL_START_YEAR, collectionListInfo.getStartYear());
-        values.put(COL_END_YEAR, collectionListInfo.getEndYear());
-        values.put(COL_SHOW_MINT_MARKS, collectionListInfo.getMintMarkFlags());
-        values.put(COL_SHOW_CHECKBOXES, collectionListInfo.getCheckboxFlags());
-        runSqlInsert(TBL_COLLECTION_INFO, values);
+            // We also need to add the table to the list of tables
+            ContentValues values = new ContentValues();
+            values.put(COL_NAME, collectionListInfo.getName());
+            values.put(COL_COIN_TYPE, collectionListInfo.getType());
+            values.put(COL_TOTAL, collectionListInfo.getMax());
+            values.put(COL_DISPLAY_ORDER, displayOrder);
+            values.put(COL_DISPLAY, collectionListInfo.getDisplayType());
+            values.put(COL_START_YEAR, collectionListInfo.getStartYear());
+            values.put(COL_END_YEAR, collectionListInfo.getEndYear());
+            values.put(COL_SHOW_MINT_MARKS, collectionListInfo.getMintMarkFlags());
+            values.put(COL_SHOW_CHECKBOXES, collectionListInfo.getCheckboxFlags());
+            runSqlInsert(TBL_COLLECTION_INFO, values);
+        });
     }
 
     /**
@@ -310,12 +325,45 @@ public class DatabaseAdapter {
     }
 
     /**
+     * Return the names of all of the defined collections
+     * <p>
+     * Unlike getAllTables(), this doesn't need the stored coin type to be recognized, so it
+     * also returns collections that getAllTables() would skip.
+     *
+     * @return list of collection names
+     */
+    public ArrayList<String> getAllCollectionNameList() {
+        ArrayList<String> names = new ArrayList<>();
+        Cursor cursor = getAllCollectionNames();
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    names.add(cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
+                } while (cursor.moveToNext());
+            }
+        } finally {
+            cursor.close();
+        }
+        return names;
+    }
+
+    /**
      * Expose the dbHelper's onUpgrade method so we can call it manually when importing collections
      *
      * @param oldVersion the db version to upgrade from
      */
     void upgradeDbForImport(int oldVersion) {
         DatabaseHelper.upgradeDb(mDb, oldVersion, MainApplication.DATABASE_VERSION, true);
+    }
+
+    /**
+     * Check if a name is reserved for internal database use
+     *
+     * @param tableName The collection name
+     * @return true if the name can't be used for a collection
+     */
+    public boolean isReservedCollectionName(String tableName) {
+        return mReservedDbNames.contains(tableName);
     }
 
     /**
@@ -327,7 +375,7 @@ public class DatabaseAdapter {
     public int checkCollectionName(String tableName) {
 
         // Make sure the name isn't in the reserved list
-        if (mReservedDbNames.contains(tableName)) {
+        if (isReservedCollectionName(tableName)) {
             return R.string.collection_name_reserved;
         }
 
@@ -448,10 +496,23 @@ public class DatabaseAdapter {
     /**
      * Returns a list of all collections in the database
      *
+     * @param collectionListEntries List of CollectionListInfo to populate
      * @throws SQLException if a database error occurs
      */
     public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries) throws SQLException {
-        DatabaseHelper.getAllTables(mDb, collectionListEntries, false);
+        DatabaseHelper.getAllTables(mDb, collectionListEntries, false, null);
+    }
+
+    /**
+     * Returns a list of all collections in the database
+     *
+     * @param collectionListEntries List of CollectionListInfo to populate
+     * @param skippedNames          if non-null, populated with the names of collections that
+     *                              were skipped because their coin type isn't recognized
+     * @throws SQLException if a database error occurs
+     */
+    public void getAllTables(ArrayList<CollectionListInfo> collectionListEntries, ArrayList<String> skippedNames) throws SQLException {
+        DatabaseHelper.getAllTables(mDb, collectionListEntries, false, skippedNames);
     }
 
     /**

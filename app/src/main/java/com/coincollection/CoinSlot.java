@@ -446,20 +446,45 @@ public class CoinSlot implements Parcelable {
     }
 
     /**
+     * Parses an integer field from an imported string array
+     *
+     * @param in           input String[]
+     * @param index        string position
+     * @param defaultValue value to use if the field isn't present
+     * @return the parsed value
+     * @throws ImportFormatException if the field is present but isn't a valid integer
+     */
+    private int parseIntOrThrow(String[] in, int index, int defaultValue) throws ImportFormatException {
+        if (!isPresentInStringArray(in, index)) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(in[index].trim());
+        } catch (NumberFormatException e) {
+            throw new ImportFormatException("Invalid numeric coin value '" + in[index]
+                    + "' at position " + index, e);
+        }
+    }
+
+    /**
      * Create a CoinSlot from imported string array
      *
      * @param in input String[]
+     * @throws ImportFormatException if the row can't be parsed
      */
-    public CoinSlot(String[] in, int coinIndex) {
+    public CoinSlot(String[] in, int coinIndex) throws ImportFormatException {
+        if (in.length == 0) {
+            throw new ImportFormatException("Coin row is empty");
+        }
         mIdentifier = isPresentInStringArray(in, 0) ? in[0] : "";
         mMint = isPresentInStringArray(in, 1) ? in[1] : "";
-        mInCollection = (isPresentInStringArray(in, 2) && (Integer.parseInt(in[2]) != 0));
-        mAdvancedGrades = isPresentInStringArray(in, 3) ? Integer.parseInt(in[3]) : 0;
-        mAdvancedQuantities = isPresentInStringArray(in, 4) ? Integer.parseInt(in[4]) : 0;
+        mInCollection = (parseIntOrThrow(in, 2, 0) != 0);
+        mAdvancedGrades = parseIntOrThrow(in, 3, 0);
+        mAdvancedQuantities = parseIntOrThrow(in, 4, 0);
         mAdvancedNotes = isPresentInStringArray(in, 5) ? in[5] : "";
-        mSortOrder = isPresentInStringArray(in, 6) ? Integer.parseInt(in[6]) : coinIndex;
-        mCustomCoin = (isPresentInStringArray(in, 7) && (Integer.parseInt(in[7]) != 0));
-        mImageId = isPresentInStringArray(in, 8) ? Integer.parseInt(in[8]) : -1;
+        mSortOrder = parseIntOrThrow(in, 6, coinIndex);
+        mCustomCoin = (parseIntOrThrow(in, 7, 0) != 0);
+        mImageId = parseIntOrThrow(in, 8, -1);
     }
 
     /**

@@ -28,6 +28,7 @@ import static com.spencerpages.MainApplication.APP_NAME;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -81,6 +82,10 @@ public class MainActivity extends BaseActivity {
 
     // The number of actual collections in mCollectionListEntries
     public int mNumberOfCollections = 0;
+
+    // Tracks whether the "unknown collection type" warning has already been shown, so that
+    // it appears at most once per activity instance instead of on every list refresh
+    private boolean mShownUnknownTypeWarning = false;
 
     // Import/export task inputs live in mActivityViewModel.mTaskRequest (not in
     // activity fields) so they survive configuration changes while a task runs
@@ -293,6 +298,10 @@ public class MainActivity extends BaseActivity {
                         return mRes.getString(R.string.error_importing,
                                 mRes.getString(R.string.error_no_file_selected));
                     }
+                    if (!isSafeDocumentUri(fileUri)) {
+                        return mRes.getString(R.string.error_importing,
+                                mRes.getString(R.string.error_unsupported_file_location));
+                    }
                     try (InputStream inputStream = getContentResolver().openInputStream(fileUri)) {
                         String fileName = getFileNameFromUri(fileUri);
                         if (fileName.endsWith(".csv")) {
@@ -314,6 +323,10 @@ public class MainActivity extends BaseActivity {
                     if (fileUri == null) {
                         return mRes.getString(R.string.error_exporting,
                                 mRes.getString(R.string.error_no_file_selected));
+                    }
+                    if (!isSafeDocumentUri(fileUri)) {
+                        return mRes.getString(R.string.error_exporting,
+                                mRes.getString(R.string.error_unsupported_file_location));
                     }
                     try (OutputStream outputStream = getContentResolver().openOutputStream(fileUri)) {
                         String fileName = getFileNameFromUri(fileUri);
@@ -708,10 +721,22 @@ public class MainActivity extends BaseActivity {
     public void updateCollectionListFromDatabase() {
 
         //Get a list of all the database tables
+        ArrayList<String> skippedCollections = new ArrayList<>();
         try {
-            mDbAdapter.getAllTables(mCollectionListEntries);
+            mDbAdapter.getAllTables(mCollectionListEntries, skippedCollections);
         } catch (SQLException e) {
             showCancelableAlert(mRes.getString(R.string.error_reading_database));
+        }
+
+        // Let the user know once if any collections couldn't be loaded, instead of
+        // silently dropping them from the list
+        if (!skippedCollections.isEmpty() && !mShownUnknownTypeWarning) {
+            mShownUnknownTypeWarning = true;
+            StringBuilder names = new StringBuilder();
+            for (String name : skippedCollections) {
+                names.append("\n").append(name);
+            }
+            showCancelableAlert(mRes.getString(R.string.warning_unknown_collection_types, names.toString()));
         }
 
         // Record the actual number of collections before spacers are added
@@ -945,6 +970,28 @@ public class MainActivity extends BaseActivity {
     public String getLegacyExportFolderName() {
         File sdCard = Environment.getExternalStorageDirectory();
         return sdCard.getAbsolutePath() + LEGACY_EXPORT_FOLDER_NAME;
+    }
+
+    /**
+     * Checks that a URI handed back by the system file picker is one we're willing to
+     * resolve. The SAF picker only ever returns content:// URIs, so anything else (in
+     * particular file:// URIs, or content URIs served by this app's own provider) is
+     * rejected rather than being read from or written to the app's private storage.
+     *
+     * @param uri uri to check
+     * @return true if the uri is safe to resolve
+     */
+    private boolean isSafeDocumentUri(Uri uri) {
+        if (!ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            return false;
+        }
+        String authority = uri.getAuthority();
+        if (authority == null || authority.isEmpty()) {
+            return false;
+        }
+        // Reject content providers exported by this app, which would resolve into our
+        // own private storage rather than a user-chosen document
+        return !authority.equals(getPackageName()) && !authority.startsWith(getPackageName() + ".");
     }
 
     /**

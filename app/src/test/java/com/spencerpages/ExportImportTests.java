@@ -49,6 +49,7 @@ import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
 import com.coincollection.DatabaseAdapter;
 import com.coincollection.ExportImportHelper;
+import com.coincollection.ImportFormatException;
 import com.coincollection.MainActivity;
 import com.spencerpages.collections.AmericanInnovationDollars;
 import com.spencerpages.collections.NativeAmericanDollars;
@@ -337,7 +338,7 @@ public class ExportImportTests extends BaseTestCase {
      * Test that running the collection list info export -> import work
      */
     @Test
-    public void test_csvExportImportMethods() {
+    public void test_csvExportImportMethods() throws ImportFormatException {
         for (CollectionListInfo info : COLLECTION_LIST_INFO_SCENARIOS) {
             DatabaseAdapter fakeDbAdapter = mock(DatabaseAdapter.class);
             when(fakeDbAdapter.fetchTableDisplay(anyString())).thenReturn(info.getDisplayType());
