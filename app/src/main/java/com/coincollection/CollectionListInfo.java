@@ -338,12 +338,13 @@ public class CollectionListInfo implements Parcelable {
      * Safely parses a mint-mark / checkbox flag string into a long, returning 0
      * for null, empty, or unrecoverable values instead of throwing.
      * <p>
-     * Flag strings are written verbatim from imported files (CSV/JSON) with no
-     * validation, so they can be corrupted by spreadsheets. Excel/Sheets commonly
-     * rewrite large integers as a trailing-decimal ("268435456.0"), with stray
-     * surrounding whitespace, or in scientific notation ("2.68435E+8"). Such a
-     * value would otherwise throw {@link NumberFormatException} during a database
-     * upgrade and crash the app on every startup (issue #406).
+     * Flag strings can be corrupted by spreadsheets: Excel/Sheets commonly rewrite
+     * large integers as a trailing-decimal ("268435456.0"), with stray surrounding
+     * whitespace, or in scientific notation ("2.68435E+8"). Such a value would
+     * otherwise throw {@link NumberFormatException} during a database upgrade and
+     * crash the app on every startup (issue #406). Imports now reject unrecoverable
+     * values up front (see {@link #parseImportedFlagString}), but databases written
+     * before that check still carry them, so reads must stay lenient.
      * <p>
      * To support users who edit the exported CSV in a spreadsheet, this method
      * makes a best effort to recover the integer value from those formats. The
@@ -352,11 +353,49 @@ public class CollectionListInfo implements Parcelable {
      * still parsed to its nearest integer rather than discarded. Anything that
      * still can't be parsed (non-numeric text, values outside the long range)
      * falls back to 0.
+     * <p>
+     * This lenient behavior is required by its callers - the runtime flag getters and
+     * the {@code upgradeDbStructure} migration blocks - which read stored values and
+     * must never throw. Use {@link #parseImportedFlagString} on the import path instead.
      *
      * @param flagStr the flag string to parse
      * @return the parsed flag value, or 0 if the string is null/empty/invalid
      */
     public static long parseFlagString(String flagStr) {
+        Long value = parseFlagStringOrNull(flagStr);
+        return (value != null) ? value : 0L;
+    }
+
+    /**
+     * Parses a flag string on the import path, rejecting values that can't be recovered.
+     * <p>
+     * Unlike {@link #parseFlagString}, an unrecoverable value throws instead of quietly
+     * becoming 0, which would wipe the collection's mint mark / checkbox configuration
+     * without telling the user. Spreadsheet-mangled values still recover; only genuinely
+     * unparseable ones are rejected. A missing or empty value still means 0, which is the
+     * legitimate "no flags set" encoding.
+     *
+     * @param flagStr   the flag string to parse
+     * @param fieldName column name to report if the value is invalid
+     * @return the parsed flag value
+     * @throws ImportFormatException if the value is present but can't be parsed
+     */
+    static long parseImportedFlagString(String flagStr, String fieldName) throws ImportFormatException {
+        Long value = parseFlagStringOrNull(flagStr);
+        if (value == null) {
+            throw new ImportFormatException("Invalid " + fieldName + " value '" + flagStr + "'");
+        }
+        return value;
+    }
+
+    /**
+     * Shared flag-string parsing used by {@link #parseFlagString} and
+     * {@link #parseImportedFlagString}
+     *
+     * @param flagStr the flag string to parse
+     * @return the parsed value, 0 if the string is null/empty, or null if unrecoverable
+     */
+    private static Long parseFlagStringOrNull(String flagStr) {
         if (flagStr == null) {
             return 0L;
         }
@@ -373,7 +412,7 @@ public class CollectionListInfo implements Parcelable {
             // Handles "268435456.0" (exact) and "2.68435E+8" (best-effort, lossy)
             return new java.math.BigDecimal(trimmed).toBigInteger().longValueExact();
         } catch (NumberFormatException | ArithmeticException ignored) {
-            return 0L;
+            return null;
         }
     }
 
@@ -923,9 +962,11 @@ public class CollectionListInfo implements Parcelable {
      *
      * @param reader   JsonReader to read from
      * @param coinList List of coins with collection populated
-     * @throws IOException if an error occurred
+     * @throws IOException           if an error occurred
+     * @throws ImportFormatException if the coin type isn't recognized or a flag value
+     *                               can't be parsed
      */
-    public CollectionListInfo(JsonReader reader, ArrayList<CoinSlot> coinList) throws IOException {
+    public CollectionListInfo(JsonReader reader, ArrayList<CoinSlot> coinList) throws IOException, ImportFormatException {
 
         String collectionName = "";
         int totalCoinsCollected = 0;
@@ -935,7 +976,10 @@ public class CollectionListInfo implements Parcelable {
         int endYear = 0;
         String mintMarkFlags = "";
         String checkboxFlags = "";
-        int collectionTypeIndex = 0;
+        // -1 means "no recognized coin type seen yet"; validated after the read loop below
+        // since JSON member order isn't guaranteed
+        int collectionTypeIndex = -1;
+        String coinTypeName = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -973,9 +1017,8 @@ public class CollectionListInfo implements Parcelable {
                     checkboxFlags = reader.nextString();
                     break;
                 case COL_COIN_TYPE:
-                    // If the coin type isn't recognized, an error occurred so just choose a safe value
-                    collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(reader.nextString());
-                    collectionTypeIndex = (collectionTypeIndex != -1) ? collectionTypeIndex : 0;
+                    coinTypeName = reader.nextString();
+                    collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(coinTypeName);
                     break;
                 case JSON_COIN_LIST:
                     // Since the coin list is stored inside of the same JSON object, we'll populate the
@@ -994,43 +1037,86 @@ public class CollectionListInfo implements Parcelable {
         }
         reader.endObject();
 
+        // An unrecognized coin type can't be imported - failing here is far better than
+        // silently turning the collection into the type at index 0
+        if (collectionTypeIndex == -1) {
+            throw new ImportFormatException("Unrecognized collection type '"
+                    + (coinTypeName != null ? coinTypeName : "") + "' for collection '"
+                    + collectionName + "'");
+        }
+
         mCollectionName = collectionName;
         mTotalCoinsCollected = totalCoinsCollected;
         mTotalCoinsInCollection = totalCoinsInCollection;
         mDisplayType = displayType;
         mStartYear = startYear;
         mEndYear = endYear;
-        mMintMarkFlags = Long.toString(parseFlagString(mintMarkFlags));
-        mCheckboxFlags = Long.toString(parseFlagString(checkboxFlags));
+        mMintMarkFlags = Long.toString(parseImportedFlagString(mintMarkFlags, COL_SHOW_MINT_MARKS));
+        mCheckboxFlags = Long.toString(parseImportedFlagString(checkboxFlags, COL_SHOW_CHECKBOXES));
         mCollectionTypeIndex = collectionTypeIndex;
         mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
+    }
+
+    /**
+     * Parses an integer field from an imported string array
+     *
+     * @param in           input String[]
+     * @param index        string position
+     * @param defaultValue value to use if the field isn't present
+     * @return the parsed value
+     * @throws ImportFormatException if the field is present but isn't a valid integer
+     */
+    private static int parseIntOrThrow(String[] in, int index, int defaultValue) throws ImportFormatException {
+        if (in.length <= index || in[index].isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(in[index].trim());
+        } catch (NumberFormatException e) {
+            throw new ImportFormatException("Invalid numeric collection value '" + in[index]
+                    + "' at position " + index, e);
+        }
     }
 
     /**
      * Create a collection list info from imported string array
      *
      * @param in input String[]
+     * @throws ImportFormatException if the row can't be parsed
      */
-    public CollectionListInfo(String[] in) {
+    public CollectionListInfo(String[] in) throws ImportFormatException {
+
+        // Indices 0 through 3 are required for every supported export format version
+        if (in.length < 4) {
+            throw new ImportFormatException("Collection row has " + in.length
+                    + " columns, expected at least 4");
+        }
 
         // Strip out all bad characters.  They shouldn't be there anyway ;)
         mCollectionName = in[0].replace('[', ' ').replace(']', ' ');
-        mTotalCoinsCollected = Integer.parseInt(in[2]);
-        mTotalCoinsInCollection = Integer.parseInt(in[3]);
-        mDisplayType = (in.length > 4) ? Integer.parseInt(in[4]) : 0;
+        mTotalCoinsCollected = parseIntOrThrow(in, 2, 0);
+        mTotalCoinsInCollection = parseIntOrThrow(in, 3, 0);
+        mDisplayType = parseIntOrThrow(in, 4, 0);
 
         // If the properties below aren't present, they will be determined
         // using setCreationParametersFromCoinData()
-        mStartYear = (in.length > 5) ? Integer.parseInt(in[5]) : 0;
-        mEndYear = (in.length > 6) ? Integer.parseInt(in[6]) : 0;
-        int mintMarkFlagsLegacy = (in.length > 7) ? Integer.parseInt(in[7]) : 0;
-        int checkboxFlagsLegacy = (in.length > 8) ? Integer.parseInt(in[8]) : 0;
-        mMintMarkFlags = Long.toString(parseFlagString((in.length > 9) ? in[9] : Integer.toString(mintMarkFlagsLegacy)));
-        mCheckboxFlags = Long.toString(parseFlagString((in.length > 10) ? in[10] : Integer.toString(checkboxFlagsLegacy)));
+        mStartYear = parseIntOrThrow(in, 5, 0);
+        mEndYear = parseIntOrThrow(in, 6, 0);
+        int mintMarkFlagsLegacy = parseIntOrThrow(in, 7, 0);
+        int checkboxFlagsLegacy = parseIntOrThrow(in, 8, 0);
+        mMintMarkFlags = Long.toString(parseImportedFlagString(
+                (in.length > 9) ? in[9] : Integer.toString(mintMarkFlagsLegacy), COL_SHOW_MINT_MARKS));
+        mCheckboxFlags = Long.toString(parseImportedFlagString(
+                (in.length > 10) ? in[10] : Integer.toString(checkboxFlagsLegacy), COL_SHOW_CHECKBOXES));
 
-        // If the coin type isn't recognized, an error occurred so just choose a safe value
+        // An unrecognized coin type can't be imported - failing here is far better than
+        // silently turning the collection into the type at index 0
         int collectionTypeIndex = MainApplication.getIndexFromCollectionNameStr(in[1]);
-        mCollectionTypeIndex = (collectionTypeIndex != -1) ? collectionTypeIndex : 0;
+        if (collectionTypeIndex == -1) {
+            throw new ImportFormatException("Unrecognized collection type '" + in[1]
+                    + "' for collection '" + mCollectionName + "'");
+        }
+        mCollectionTypeIndex = collectionTypeIndex;
         mCollectionInfo = MainApplication.COLLECTION_TYPES[mCollectionTypeIndex];
     }
 

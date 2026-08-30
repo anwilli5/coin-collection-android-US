@@ -312,11 +312,19 @@
     <string name="export_canceled">Export canceled - storage write permission request denied</string>
     <string name="collection_name_reserved">Collection name is reserved, please choose a different name</string>
     <string name="collection_name_exists">A collection with this name already exists, please choose a different name</string>
-    <string name="error_exporting_collections">The following collections could not be exported due to errors:%1$s</string>
     <string name="error_exporting">Could not export collections (%1$s)</string>
     <string name="error_importing">Could not import collections (%1$s)</string>
     <string name="error_no_file_selected">no file was selected</string>
     <string name="error_no_file_manager">No app found to open files. Please install a file manager to import collections</string>
+    <string name="error_importing_collections">The following collections could not be imported due to errors:%1$s</string>
+    <string name="error_import_db_version">The import file\'s database version (%1$s) isn\'t supported by this app, which supports up to version %2$s. The file may have been created by a newer version of the app.</string>
+    <string name="error_import_collection_name_empty">The import file contains a collection with no name</string>
+    <string name="error_import_collection_name_invalid">The import file contains an invalid collection name: \'%1$s\'</string>
+    <string name="error_import_collection_name_reserved">The import file uses a reserved collection name: \'%1$s\'</string>
+    <string name="error_import_collection_name_duplicate">The import file contains more than one collection named \'%1$s\'</string>
+    <string name="error_import_coin_without_collection">a coin was listed before any collection</string>
+    <string name="error_unsupported_file_location">the selected file location isn\'t supported</string>
+    <string name="warning_unknown_collection_types">The following collections use an unknown coin type and can\'t be shown. They may have been created by a newer version of the app:%1$s</string>
 
     <!-- Reorder Collections Page -->
     <string name="changes_saved">Saved changes successfully</string>

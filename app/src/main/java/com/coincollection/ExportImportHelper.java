@@ -36,14 +36,17 @@ import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Locale;
 
 public class ExportImportHelper {
 
@@ -136,6 +139,8 @@ public class ExportImportHelper {
             }
         } catch (IOException | CsvValidationException ignored) {
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
+        } catch (NumberFormatException ignored) {
+            return mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath());
         }
 
         // Read the collection_info table
@@ -147,6 +152,8 @@ public class ExportImportHelper {
             }
         } catch (IOException | CsvValidationException ignored) {
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
+        } catch (ImportFormatException | NumberFormatException | IndexOutOfBoundsException e) {
+            return mRes.getString(R.string.error_importing, e.getMessage());
         }
 
         // We loaded in the collection "metadata" table, so now load in each collection
@@ -175,6 +182,10 @@ public class ExportImportHelper {
             } catch (IOException | CsvValidationException ignored) {
                 collectionErrorMessages.add(mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath()));
                 continue;
+            } catch (ImportFormatException | NumberFormatException | IndexOutOfBoundsException e) {
+                collectionErrorMessages.add(mRes.getString(R.string.error_reading_file,
+                        inputFile.getAbsolutePath() + " - " + e.getMessage()));
+                continue;
             }
             importedCollectionContents.add(collectionContent);
         }
@@ -185,7 +196,7 @@ public class ExportImportHelper {
             for (String message : collectionErrorMessages) {
                 problems.append("\n").append(message);
             }
-            return mRes.getString(R.string.error_exporting_collections, problems.toString());
+            return mRes.getString(R.string.error_importing_collections, problems.toString());
         }
 
         // All data has been parsed from CSV files so perform the DB steps to import
@@ -321,7 +332,8 @@ public class ExportImportHelper {
             // All data has been parsed from CSV files so perform the DB steps to import
             return updateDatabaseFromImport(importDatabaseVersion, importedCollectionInfoList,
                     importedCollectionContents);
-        } catch (IOException e) {
+        } catch (IOException | ImportFormatException | NumberFormatException
+                 | IndexOutOfBoundsException | IllegalStateException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
         }
     }
@@ -338,41 +350,92 @@ public class ExportImportHelper {
                                             ArrayList<CollectionListInfo> importedCollectionInfoList,
                                             ArrayList<ArrayList<CoinSlot>> importedCollectionContents) {
 
-        // Drop existing tables
-        ArrayList<CollectionListInfo> existingCollections = new ArrayList<>();
-        mDbAdapter.getAllTables(existingCollections);
-        for (int i = 0; i < existingCollections.size(); i++) {
-            CollectionListInfo info = existingCollections.get(i);
-            mDbAdapter.dropCollectionTable(info.getName());
+        // Pass 1: validate everything before touching the database, so that a bad import
+        // file can't destroy the user's existing collections
+        String validationError = validateImportData(importDatabaseVersion, importedCollectionInfoList,
+                importedCollectionContents);
+        if (!validationError.isEmpty()) {
+            return validationError;
         }
-        mDbAdapter.dropCollectionInfoTable();
 
-        // Take the data we've stored and replace what's in the database with it
+        // Pass 2: replace the database contents inside a single transaction. If anything
+        // fails the transaction is rolled back and the pre-import database is restored.
         try {
-            // Add new collections
-            mDbAdapter.createCollectionInfoTable();
-            for (int i = 0; i < importedCollectionInfoList.size(); i++) {
-                CollectionListInfo collectionListInfo = importedCollectionInfoList.get(i);
-                ArrayList<CoinSlot> collectionContent = importedCollectionContents.get(i);
-
-                // Check for duplicate or illegal names
-                int checkName = mDbAdapter.checkCollectionName(collectionListInfo.getName());
-                if (checkName != -1) {
-                    return mRes.getString(R.string.error_import);
+            mDbAdapter.runInTransaction(() -> {
+                // Drop existing tables. Names come straight from collection_info rather than
+                // getAllTables() so that a collection whose coin type isn't recognized is
+                // still dropped instead of being left behind as an orphan table.
+                for (String existingName : mDbAdapter.getAllCollectionNameList()) {
+                    mDbAdapter.dropCollectionTable(existingName);
                 }
-                mDbAdapter.createAndPopulateNewTable(collectionListInfo, i, collectionContent);
-            }
+                mDbAdapter.dropCollectionInfoTable();
 
-            // Update any imported tables, if necessary
-            if (importDatabaseVersion != MainApplication.DATABASE_VERSION) {
-                mDbAdapter.upgradeDbForImport(importDatabaseVersion);
-            }
+                // Add new collections
+                mDbAdapter.createCollectionInfoTable();
+                for (int i = 0; i < importedCollectionInfoList.size(); i++) {
+                    mDbAdapter.createAndPopulateNewTable(importedCollectionInfoList.get(i), i,
+                            importedCollectionContents.get(i));
+                }
+
+                // Update any imported tables, if necessary. This must run inside the same
+                // transaction, otherwise a failed upgrade would leave a half-imported database.
+                if (importDatabaseVersion != MainApplication.DATABASE_VERSION) {
+                    mDbAdapter.upgradeDbForImport(importDatabaseVersion);
+                }
+            });
         } catch (SQLException e) {
             // Report an import error message to display on the UI thread
             return mRes.getString(R.string.error_import);
         }
 
         // Success!
+        return "";
+    }
+
+    /**
+     * Validates imported data before any database changes are made
+     *
+     * @param importDatabaseVersion      imported database version
+     * @param importedCollectionInfoList imported list of CollectionListInfo
+     * @param importedCollectionContents imported list of coins
+     * @return "" if the data is valid, otherwise an error string
+     */
+    private String validateImportData(int importDatabaseVersion,
+                                      ArrayList<CollectionListInfo> importedCollectionInfoList,
+                                      ArrayList<ArrayList<CoinSlot>> importedCollectionContents) {
+
+        // Every collection must have a matching (possibly empty) coin list
+        if (importedCollectionInfoList.size() != importedCollectionContents.size()) {
+            return mRes.getString(R.string.error_import);
+        }
+
+        // A database version from a newer app release can't be imported, and a missing or
+        // nonsensical version means the file isn't a valid export
+        if (importDatabaseVersion <= 0 || importDatabaseVersion > MainApplication.DATABASE_VERSION) {
+            return mRes.getString(R.string.error_import_db_version,
+                    String.valueOf(importDatabaseVersion),
+                    String.valueOf(MainApplication.DATABASE_VERSION));
+        }
+
+        // Note: names that match existing collections are allowed - importing intentionally
+        // replaces the entire database, so the export/import round trip must keep working
+        Locale defaultLocale = Locale.getDefault();
+        HashSet<String> importedNames = new HashSet<>();
+        for (CollectionListInfo collectionListInfo : importedCollectionInfoList) {
+            String name = collectionListInfo.getName();
+            if (name == null || name.isEmpty()) {
+                return mRes.getString(R.string.error_import_collection_name_empty);
+            }
+            if (name.contains("[") || name.contains("]")) {
+                return mRes.getString(R.string.error_import_collection_name_invalid, name);
+            }
+            if (mDbAdapter.isReservedCollectionName(name)) {
+                return mRes.getString(R.string.error_import_collection_name_reserved, name);
+            }
+            if (!importedNames.add(name.toLowerCase(defaultLocale))) {
+                return mRes.getString(R.string.error_import_collection_name_duplicate, name);
+            }
+        }
         return "";
     }
 
@@ -420,7 +483,8 @@ public class ExportImportHelper {
         // (otherwise, '\' is the escape character, and it can be
         // typed by users!)
         CSVParser parser = new CSVParserBuilder().withEscapeChar('\0').build();
-        CSVReader csvReader = new CSVReaderBuilder(new FileReader(inputFile))
+        CSVReader csvReader = new CSVReaderBuilder(
+                new InputStreamReader(new FileInputStream(inputFile), StandardCharsets.UTF_8))
                 .withCSVParser(parser).build();
 
         ArrayList<String[]> lineList = new ArrayList<>();
@@ -440,7 +504,8 @@ public class ExportImportHelper {
      * @throws IOException if an error occurs
      */
     private void writeToLegacyCsv(File file, ArrayList<String[]> contents) throws IOException {
-        CSVWriter csvWriter = new CSVWriter(new FileWriter(file));
+        CSVWriter csvWriter = new CSVWriter(
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
         for (String[] fileLine : contents) {
             csvWriter.writeNext(fileLine);
         }
@@ -468,7 +533,8 @@ public class ExportImportHelper {
         // character to effectively allow no escape characters
         // (otherwise, '\' is the escape character, and it can be
         // typed by users!)
-        try (CSVReader csvReader = new CSVReaderBuilder(new InputStreamReader(inputStream))
+        try (CSVReader csvReader = new CSVReaderBuilder(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                     .withCSVParser(new CSVParserBuilder().withEscapeChar('\0').build()).build()) {
 
             while (null != (lineValues = csvReader.readNext())) {
@@ -476,19 +542,14 @@ public class ExportImportHelper {
                 if (lineValues.length == 0) {
                     // Ignore empty lines
                     continue;
-                } else if ((lineValues.length >= 2) && lineValues[0].equals(CSV_SEPARATOR)) {
-                    // Look for CSV separators which we're using to put multiple files in a single CSV
-                    // Make sure any cells following '-----', 'section' are blank, to avoid possible data row
-                    boolean foundNonEmptyCell = false;
-                    for (int i = 2; i < lineValues.length; i++) {
-                        if (!lineValues[i].isEmpty()) {
-                            foundNonEmptyCell = true;
-                            break;
-                        }
-                    }
-                    if (foundNonEmptyCell) {
-                        continue;
-                    }
+                }
+
+                // Look for CSV separators which we're using to put multiple files in a single CSV.
+                // A row only counts as a separator when it names a known section and any cells
+                // following '-----', 'section' are blank - otherwise it's a data row.
+                if ((lineValues.length >= 2) && lineValues[0].equals(CSV_SEPARATOR)
+                        && (SectionType.fromLabel(lineValues[1]) != SectionType.UNKNOWN)
+                        && !hasNonEmptyCellFrom(lineValues, 2)) {
                     currSectionType = SectionType.fromLabel(lineValues[1]);
                     coinIndex = 0;
                     if (currSectionType != SectionType.DATABASE_VERSION) {
@@ -500,7 +561,7 @@ public class ExportImportHelper {
 
                 switch (currSectionType) {
                     case DATABASE_VERSION:
-                        importDatabaseVersion = Integer.parseInt(lineValues[0]);
+                        importDatabaseVersion = Integer.parseInt(lineValues[0].trim());
                         break;
                     case COLLECTIONS:
                         importedCollectionInfoList.add(new CollectionListInfo(lineValues));
@@ -508,19 +569,40 @@ public class ExportImportHelper {
                         importedCollectionContents.add(currCoinList);
                         break;
                     case COIN_LIST:
+                        if (importedCollectionInfoList.isEmpty()) {
+                            return mRes.getString(R.string.error_importing,
+                                    mRes.getString(R.string.error_import_coin_without_collection));
+                        }
                         currCoinList.add(new CoinSlot(lineValues, coinIndex++));
                         break;
                     default:
                         break;
                 }
             }
-        } catch (IOException | CsvValidationException e) {
+        } catch (IOException | CsvValidationException | ImportFormatException
+                 | NumberFormatException | IndexOutOfBoundsException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
         }
 
         // All data has been parsed from the CSV file so perform the DB steps to import
         return updateDatabaseFromImport(importDatabaseVersion, importedCollectionInfoList,
                 importedCollectionContents);
+    }
+
+    /**
+     * Returns true if any cell at or after the given index is non-empty
+     *
+     * @param lineValues CSV row
+     * @param startIndex index to start checking from
+     * @return true if a non-empty cell was found
+     */
+    private static boolean hasNonEmptyCellFrom(String[] lineValues, int startIndex) {
+        for (int i = startIndex; i < lineValues.length; i++) {
+            if (!lineValues[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -536,7 +618,8 @@ public class ExportImportHelper {
         ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
         mDbAdapter.getAllTables(collectionListEntries);
 
-        try (CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream))) {
+        try (CSVWriter csvWriter = new CSVWriter(
+                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
 
             // Write database version
             csvWriter.writeNext(new String[]{CSV_SEPARATOR, SectionType.DATABASE_VERSION.label});
