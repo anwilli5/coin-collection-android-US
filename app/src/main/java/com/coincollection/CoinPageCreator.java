@@ -711,7 +711,7 @@ public class CoinPageCreator extends BaseActivity {
      *
      * @return The input filter
      */
-    static InputFilter getCollectionOrCoinNameFilter() {
+    public static InputFilter getCollectionOrCoinNameFilter() {
         return (source, start, end, dest, dstart, dend) -> {
             for (int i = start; i < end; i++) {
                 if (source.charAt(i) == '[' || source.charAt(i) == ']') {

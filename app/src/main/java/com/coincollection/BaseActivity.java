@@ -20,7 +20,15 @@
 
 package com.coincollection;
 
-import android.app.ProgressDialog;
+import static com.coincollection.dialog.DialogRequests.KEY_PAYLOAD;
+import static com.coincollection.dialog.DialogRequests.KEY_REQUEST_ID;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_HELP_KEY;
+import static com.coincollection.dialog.DialogRequests.REQUEST_HELP_DIALOG;
+import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_BASE_ACTIVITY;
+import static com.coincollection.dialog.DialogRequests.REQUEST_NONE;
+import static com.coincollection.dialog.DialogRequests.TAG_MESSAGE;
+import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,9 +48,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.coincollection.dialog.MessageDialogFragment;
+import com.coincollection.dialog.ProgressDialogFragment;
 import com.coincollection.helper.NonLeakingAlertDialogBuilder;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
@@ -95,7 +108,6 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
 
     // Common activity variables
     protected final Context mContext = this;
-    protected ProgressDialog mProgressDialog;
     // The alert currently shown by showAlert(), tracked so it can be dismissed
     // before the activity is torn down (otherwise the window is leaked)
     protected AlertDialog mCurrentAlert;
@@ -134,6 +146,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         mRes = getResources();
         mCallingIntent = getIntent();
         mActionBar = getSupportActionBar();
+
+        // Listen for results from the shared dialogs. Registering here (rather
+        // than where the dialog is shown) means a dialog answered after this
+        // activity is recreated still reaches the right handler
+        registerDialogResultListener(REQUEST_KEY_BASE_ACTIVITY);
 
         // Look for async tasks kicked-off prior to an orientation change
         mActivityViewModel = new ViewModelProvider(this).get(ActivityViewModel.class);
@@ -221,6 +238,8 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     @Override
     public void asyncProgressOnPostExecute(int taskId, String resultStr) {
+        // The task is done, so its progress UI goes away regardless of outcome
+        dismissProgressDialog();
         if (!resultStr.isEmpty()) {
             showCancelableAlert(resultStr);
         }
@@ -232,28 +251,28 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     protected void setActivityReadyForAsyncCallbacks() {
         mTaskRunner.setListener(this);
-    }
-
-    /**
-     * Displays a message to the user
-     *
-     * @param text The text to be displayed
-     */
-    public void showCancelableAlert(String text) {
-        showAlert(newBuilder().setMessage(text).setCancelable(true));
+        // Attaching either re-showed the progress UI for a still-running task or
+        // delivered a result that dismissed it. If neither happened, any progress
+        // dialog the FragmentManager restored belongs to a task that is long gone,
+        // so drop it rather than leaving the user stuck behind a spinner
+        if (mTaskRunner.getLatestTaskId() == TASK_NONE) {
+            dismissProgressDialog();
+        }
     }
 
     @Override
     public void onPause() {
         // Dismiss any open alerts to prevent memory leaks
-        dismissAllAlerts();
+        dismissCurrentAlert();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        // Dismiss any open alerts and progress UI to prevent window leaks
-        dismissAllAlerts();
+        // Dismiss any open alert to prevent a window leak. The progress dialog is
+        // deliberately left alone - it is owned by the FragmentManager and belongs
+        // to the task, so it is restored with the recreated activity
+        dismissCurrentAlert();
         // If an async task is running, set the listener to null to have it wait before
         // trying its callback. Setting the listener to null also prevents memory leaks
         if (mTaskRunner != null) {
@@ -264,27 +283,44 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     }
 
     /**
-     * Create a new progress dialog
+     * Displays a message to the user
+     *
+     * @param text The text to be displayed
+     */
+    public void showCancelableAlert(String text) {
+        showDialogFragment(MessageDialogFragment.newCancelableInstance(text), TAG_MESSAGE);
+    }
+
+    /**
+     * Create a new progress dialog, or update the message on the one already
+     * shown. Reusing an existing dialog keeps the progress UI stable when a
+     * still-running task re-reports itself after the activity is recreated
+     *
+     * @param message message to display alongside the spinner
      */
     protected void createProgressDialog(String message) {
-        dismissProgressDialog();
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setMessage(message);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setProgress(0);
-        mProgressDialog.show();
+        if (isUnitTest && BuildConfig.DEBUG) {
+            return;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment existing = fragmentManager.findFragmentByTag(TAG_PROGRESS);
+        if (existing instanceof ProgressDialogFragment) {
+            ((ProgressDialogFragment) existing).setMessage(message);
+            return;
+        }
+        showDialogFragment(ProgressDialogFragment.newInstance(message), TAG_PROGRESS);
     }
 
     /**
      * Hides the progress dialog
      */
     protected void dismissProgressDialog() {
-        if (mProgressDialog != null) {
-            if (mProgressDialog.isShowing()) {
-                mProgressDialog.dismiss();
-            }
-            mProgressDialog = null;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment existing = fragmentManager.findFragmentByTag(TAG_PROGRESS);
+        if (existing instanceof DialogFragment) {
+            // The task can finish after the activity has saved its state, so
+            // the dismissal must tolerate state loss
+            ((DialogFragment) existing).dismissAllowingStateLoss();
         }
     }
 
@@ -348,15 +384,13 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         final SharedPreferences mainPreferences = this.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         final Resources res = this.getResources();
         if (mainPreferences.getBoolean(helpStrKey, true)) {
-            showAlert(newBuilder()
-                    .setMessage(res.getString(helpStrId))
-                    .setCancelable(false)
-                    .setPositiveButton(res.getString(R.string.okay_exp), (dialog, id) -> {
-                        dialog.dismiss();
-                        SharedPreferences.Editor editor = mainPreferences.edit();
-                        editor.putBoolean(helpStrKey, false);
-                        editor.apply();
-                    }));
+            // The preference is cleared once the user acknowledges the tip,
+            // which is reported back through onDialogResult()
+            Bundle payload = new Bundle();
+            payload.putString(PAYLOAD_HELP_KEY, helpStrKey);
+            showDialogFragment(MessageDialogFragment.newAcknowledgeInstance(
+                    REQUEST_KEY_BASE_ACTIVITY, REQUEST_HELP_DIALOG,
+                    res.getString(helpStrId), R.string.okay_exp, payload), TAG_MESSAGE);
             return true;
         }
         return false;
@@ -415,6 +449,68 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     protected void dismissAllAlerts() {
         dismissProgressDialog();
         dismissCurrentAlert();
+    }
+
+    /**
+     * Shows a dialog fragment, replacing any dialog already shown under the
+     * same tag. The FragmentManager owns the dialog from here on, so it is
+     * restored automatically if this activity is recreated
+     *
+     * @param fragment the dialog to show
+     * @param tag      tag identifying this kind of dialog
+     */
+    protected void showDialogFragment(DialogFragment fragment, String tag) {
+        // Don't show dialogs in unit tests since there isn't a UI, and
+        // it will spam the log with this: Invalid ID 0x00000000.
+        if (isUnitTest && BuildConfig.DEBUG) {
+            return;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        // A transaction can't be committed once the state has been saved, and
+        // there is nothing worth showing to an activity that is going away
+        if (isFinishing() || fragmentManager.isStateSaved()) {
+            return;
+        }
+        Fragment existing = fragmentManager.findFragmentByTag(tag);
+        if (existing instanceof DialogFragment) {
+            ((DialogFragment) existing).dismissAllowingStateLoss();
+        }
+        fragment.show(fragmentManager, tag);
+    }
+
+    /**
+     * Registers a listener for results delivered by the shared dialog
+     * fragments. The listener is scoped to this activity's lifecycle, so it is
+     * re-established automatically after a configuration change and a dialog
+     * answered afterwards is still handled
+     *
+     * @param requestKey the request key the dialogs report back on
+     */
+    protected void registerDialogResultListener(String requestKey) {
+        getSupportFragmentManager().setFragmentResultListener(requestKey, this,
+                (key, result) -> onDialogResult(result.getInt(KEY_REQUEST_ID, REQUEST_NONE), result));
+    }
+
+    /**
+     * Handles a result reported by one of the shared dialog fragments.
+     * Subclasses should handle their own request ids and defer to this for any
+     * they don't recognize
+     *
+     * @param requestId identifies which dialog reported the result
+     * @param result    the result values, including any echoed-back payload
+     */
+    protected void onDialogResult(int requestId, Bundle result) {
+        if (requestId == REQUEST_HELP_DIALOG) {
+            Bundle payload = result.getBundle(KEY_PAYLOAD);
+            String helpStrKey = (payload != null) ? payload.getString(PAYLOAD_HELP_KEY) : null;
+            if (helpStrKey != null) {
+                // The user has seen this tip, so don't show it again
+                SharedPreferences.Editor editor =
+                        getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE).edit();
+                editor.putBoolean(helpStrKey, false);
+                editor.apply();
+            }
+        }
     }
 
     /**

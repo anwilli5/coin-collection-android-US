@@ -65,6 +65,16 @@ public class BaseActivityAlertTests extends BaseTestCase {
     }
 
     /**
+     * Shows a tracked alert through the showAlert() path under test
+     *
+     * @param activity the host activity
+     * @param message  the alert message
+     */
+    private static void showTestAlert(BaseActivity activity, String message) {
+        activity.showAlert(activity.newBuilder().setMessage(message).setCancelable(true));
+    }
+
+    /**
      * Test that an alert shown by showAlert() is tracked on the activity
      */
     @Test
@@ -73,7 +83,7 @@ public class BaseActivityAlertTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withAlertsEnabled(() -> {
                 assertNull(activity.mCurrentAlert);
-                activity.showCancelableAlert("Test alert");
+                showTestAlert(activity, "Test alert");
                 assertNotNull(activity.mCurrentAlert);
                 assertTrue(activity.mCurrentAlert.isShowing());
             }));
@@ -89,7 +99,7 @@ public class BaseActivityAlertTests extends BaseTestCase {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withAlertsEnabled(() -> {
-                activity.showCancelableAlert("Test alert");
+                showTestAlert(activity, "Test alert");
                 assertNotNull(activity.mCurrentAlert);
                 activity.mCurrentAlert.dismiss();
             }));
@@ -110,11 +120,11 @@ public class BaseActivityAlertTests extends BaseTestCase {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withAlertsEnabled(() -> {
-                activity.showCancelableAlert("First alert");
+                showTestAlert(activity, "First alert");
                 AlertDialog firstAlert = activity.mCurrentAlert;
                 assertNotNull(firstAlert);
 
-                activity.showCancelableAlert("Second alert");
+                showTestAlert(activity, "Second alert");
                 assertNotNull(activity.mCurrentAlert);
                 assertFalse(firstAlert.isShowing());
                 assertTrue(activity.mCurrentAlert.isShowing());
@@ -131,7 +141,7 @@ public class BaseActivityAlertTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             final AlertDialog[] shownAlert = new AlertDialog[1];
             scenario.onActivity(activity -> withAlertsEnabled(() -> {
-                activity.showCancelableAlert("Test alert");
+                showTestAlert(activity, "Test alert");
                 shownAlert[0] = activity.mCurrentAlert;
                 assertNotNull(shownAlert[0]);
             }));
@@ -153,7 +163,7 @@ public class BaseActivityAlertTests extends BaseTestCase {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withAlertsEnabled(() -> {
-                activity.showCancelableAlert("Test alert");
+                showTestAlert(activity, "Test alert");
                 shownAlert[0] = activity.mCurrentAlert;
                 assertNotNull(shownAlert[0]);
             }));
