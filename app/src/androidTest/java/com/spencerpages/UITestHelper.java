@@ -60,6 +60,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsAnything;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -737,6 +740,53 @@ public class UITestHelper {
                 v.performClick();
             }
         };
+    }
+
+    /**
+     * Clears the app's logcat buffer so a later leak check only inspects
+     * output produced by the current test
+     */
+    public static void clearLogcat() {
+        try {
+            Runtime.getRuntime().exec(new String[]{"logcat", "-c"}).waitFor();
+        } catch (IOException e) {
+            // Reading logcat is best-effort - a device that doesn't allow it
+            // simply means the leak check below finds nothing
+        } catch (InterruptedException e) {
+            // Restore the interrupt flag so later blocking calls see it
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Fails if the app leaked a dialog window since the last clearLogcat().
+     * A dismissed-too-late dialog shows up as a WindowLeaked entry naming the
+     * leaking activity's class (e.g. "Activity com.coincollection.MainActivity
+     * has leaked window..."), which is exactly the symptom rotating with a
+     * dialog open used to produce. This app's activities live in the
+     * com.coincollection package, so match on that rather than the application
+     * id (com.spencerpages), which never appears in the leak line
+     */
+    public static void assertNoLeakedWindows() {
+        StringBuilder leaks = new StringBuilder();
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"logcat", "-d", "-b", "main"});
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("WindowLeaked") && line.contains("com.coincollection.")) {
+                        leaks.append(line).append('\n');
+                    }
+                }
+            }
+        } catch (IOException e) {
+            // Can't read logcat on this device, so there is nothing to assert
+            return;
+        }
+        if (leaks.length() != 0) {
+            throw new AssertionError("Leaked dialog window(s):\n" + leaks);
+        }
     }
 
     /**
