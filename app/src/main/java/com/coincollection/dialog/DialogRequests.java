@@ -78,6 +78,7 @@ public final class DialogRequests {
 
     // Fragment tags. Only one dialog of each kind is ever shown at a time
     public static final String TAG_MESSAGE = "message_dialog";
+    public static final String TAG_HELP = "help_dialog";
     public static final String TAG_CONFIRMATION = "confirmation_dialog";
     public static final String TAG_LIST_CHOICE = "list_choice_dialog";
     public static final String TAG_TEXT_INPUT = "text_input_dialog";

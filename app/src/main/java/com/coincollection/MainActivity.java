@@ -1148,8 +1148,11 @@ public class MainActivity extends BaseActivity {
                 break;
             }
             case REQUEST_IMPORT_SOURCE: {
-                mActivityViewModel.mTaskRequest.importExportLegacyCsv =
-                        (result.getInt(KEY_SELECTED_INDEX, -1) == IMPORT_SOURCE_LEGACY);
+                int selected = result.getInt(KEY_SELECTED_INDEX, -1);
+                if (selected < 0) {
+                    break;
+                }
+                mActivityViewModel.mTaskRequest.importExportLegacyCsv = (selected == IMPORT_SOURCE_LEGACY);
                 launchImportTask();
                 break;
             }

@@ -26,6 +26,7 @@ import static com.coincollection.dialog.DialogRequests.PAYLOAD_HELP_KEY;
 import static com.coincollection.dialog.DialogRequests.REQUEST_HELP_DIALOG;
 import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_BASE_ACTIVITY;
 import static com.coincollection.dialog.DialogRequests.REQUEST_NONE;
+import static com.coincollection.dialog.DialogRequests.TAG_HELP;
 import static com.coincollection.dialog.DialogRequests.TAG_MESSAGE;
 import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
 
@@ -311,6 +312,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             return;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
+        // A dismissal committed but not yet executed (e.g. of a stale dialog
+        // restored after process death) must complete first, or the dying
+        // fragment would be found and reused below, leaving no spinner. This
+        // can also be reached while stopped via a task re-attach, and pending
+        // transactions can't be executed then - reuse is harmless in that case
+        if (!fragmentManager.isStateSaved()) {
+            fragmentManager.executePendingTransactions();
+        }
         Fragment existing = fragmentManager.findFragmentByTag(TAG_PROGRESS);
         if (existing instanceof ProgressDialogFragment) {
             ((ProgressDialogFragment) existing).setMessage(message);
@@ -398,7 +407,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             payload.putString(PAYLOAD_HELP_KEY, helpStrKey);
             showDialogFragment(MessageDialogFragment.newAcknowledgeInstance(
                     REQUEST_KEY_BASE_ACTIVITY, REQUEST_HELP_DIALOG,
-                    res.getString(helpStrId), R.string.okay_exp, payload), TAG_MESSAGE);
+                    res.getString(helpStrId), R.string.okay_exp, payload), TAG_HELP);
             return true;
         }
         return false;
@@ -427,6 +436,10 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         if (isFinishing() || fragmentManager.isStateSaved()) {
             return false;
         }
+        // DialogFragment.show() commits asynchronously, so pending transactions
+        // must be settled first or the by-tag lookup misses in-flight dialogs
+        // and two dialogs end up stacked under the same tag
+        fragmentManager.executePendingTransactions();
         Fragment existing = fragmentManager.findFragmentByTag(tag);
         if (existing instanceof DialogFragment) {
             ((DialogFragment) existing).dismissAllowingStateLoss();

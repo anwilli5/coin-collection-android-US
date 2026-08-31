@@ -749,18 +749,23 @@ public class UITestHelper {
     public static void clearLogcat() {
         try {
             Runtime.getRuntime().exec(new String[]{"logcat", "-c"}).waitFor();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             // Reading logcat is best-effort - a device that doesn't allow it
             // simply means the leak check below finds nothing
+        } catch (InterruptedException e) {
+            // Restore the interrupt flag so later blocking calls see it
             Thread.currentThread().interrupt();
         }
     }
 
     /**
      * Fails if the app leaked a dialog window since the last clearLogcat().
-     * A dismissed-too-late dialog shows up as a WindowLeaked entry naming this
-     * app's package, which is exactly the symptom rotating with a dialog open
-     * used to produce
+     * A dismissed-too-late dialog shows up as a WindowLeaked entry naming the
+     * leaking activity's class (e.g. "Activity com.coincollection.MainActivity
+     * has leaked window..."), which is exactly the symptom rotating with a
+     * dialog open used to produce. This app's activities live in the
+     * com.coincollection package, so match on that rather than the application
+     * id (com.spencerpages), which never appears in the leak line
      */
     public static void assertNoLeakedWindows() {
         StringBuilder leaks = new StringBuilder();
@@ -770,7 +775,7 @@ public class UITestHelper {
                     new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.contains("WindowLeaked") && line.contains(BuildConfig.APPLICATION_ID)) {
+                    if (line.contains("WindowLeaked") && line.contains("com.coincollection.")) {
                         leaks.append(line).append('\n');
                     }
                 }
