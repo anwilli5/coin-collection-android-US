@@ -61,7 +61,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled = false
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             // Apply the release signing config only when it was actually populated
             // (either via env vars in CI or signing.properties locally). Without this

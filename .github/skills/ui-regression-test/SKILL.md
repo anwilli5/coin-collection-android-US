@@ -1,13 +1,13 @@
 ---
 name: ui-regression-test
-description: Run a UI sanity check and export/import test against a connected Android emulator using the mobile-mcp MCP server and adb. Covers the two flows Espresso cannot automate (system file picker export/import). Requires a running emulator or connected device and the mobile-mcp server. NOT for general regression testing — the instrumented test suite covers everything else.
+description: Run a UI sanity check, an export/import test, and a minified release-build (R8) smoke test against a connected Android emulator using the mobile-mcp MCP server and adb. Covers the flows Espresso cannot reach — the system file picker, and the obfuscated release APK that neither test suite builds. Requires a running emulator or connected device and the mobile-mcp server. NOT for general regression testing — the instrumented test suite covers everything else.
 ---
 
 # UI Regression Test — Coin Collection App
 
 ## Mission
 
-Run a navigation sanity check and an export/import test for the Coin Collection Android app using the mobile-mcp MCP server and adb commands against a connected emulator or device. These two tests require system file picker interaction that Espresso cannot automate. The Android instrumented test suite (`androidTest/java/com/spencerpages/`) covers all other regression tests.
+Run a navigation sanity check, an export/import test, and a release-build smoke test for the Coin Collection Android app using the mobile-mcp MCP server and adb commands against a connected emulator or device. These tests reach what the Android instrumented test suite (`androidTest/java/com/spencerpages/`) cannot: system file picker interaction that Espresso cannot automate, and the minified/obfuscated release APK, which no test suite builds. The instrumented suite covers all other regression tests.
 
 ## Scope and Preconditions
 
@@ -140,6 +140,79 @@ A first-time tutorial dialog ("Thanks for downloading...") will appear — dismi
 
 ---
 
+### Release Build Smoke Test (R8)
+
+**Goal:** Catch R8 regressions. Release builds are minified, resource-shrunk, and obfuscated (`minifyEnabled` + `shrinkResources` in `app/build.gradle`) to satisfy Google Play's DEX-optimization requirement. Both test suites run against the unminified `androidDebug` variant, so this is the only check that exercises the bytecode users actually receive.
+
+Run this whenever `app/build.gradle`, `app/proguard-rules.txt`, `gradle.properties`, or the dependency list changes — and always before a release.
+
+#### Build and install the release APK
+
+A locally built release APK is unsigned unless `signing.properties` or the `SIGNING_*` environment variables are present, and `adb install` then fails with `INSTALL_PARSE_FAILED_NO_CERTIFICATES`. Sign it with the debug keystore first:
+
+```bash
+./gradlew assembleAndroidRelease
+
+VN=$(grep '^versionName' version.properties | cut -d= -f2 | tr -d ' ')
+APK="app/build/outputs/apk/android/release/app-android-release-v${VN}.apk"
+SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+BUILD_TOOLS=$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)
+
+cp "$APK" release-smoke.apk
+"$BUILD_TOOLS/apksigner" sign \
+  --ks "$HOME/.android/debug.keystore" \
+  --ks-pass pass:android --key-pass pass:android \
+  --ks-key-alias androiddebugkey \
+  release-smoke.apk
+
+adb uninstall com.spencerpages 2>/dev/null || true
+adb install -r release-smoke.apk
+adb logcat -c
+adb shell am start -n com.spencerpages/com.coincollection.MainActivity
+```
+
+The release package is `com.spencerpages` — **not** the `com.spencerpages.debug` used everywhere else in this skill. Both can be installed at once, so confirm which one you are driving before interpreting a result.
+
+#### Paths to exercise
+
+R8 only breaks lookups that resolve a class, method, or resource by name, so drive the flows that resolve something indirectly. Follow the Rules section above for coordinates and tutorial dialogs (they reappear — this is a fresh package).
+
+1. **Launch** — the main activity renders and the process stays alive.
+2. **Collection creation** — "New Collection", open the collection-type spinner (`ImageSpinnerAdapter`, which scales bitmaps at runtime), pick a type, name it, create it. Confirm the new row shows the correct coin image and `0/N` count.
+3. **Coin grid** — open the collection and confirm every coin image renders.
+4. **Advanced view** — three-dot menu, then "Advanced View". This inflates `com.coincollection.SafeEditText` from `advanced_collection_slot.xml` — the app's only XML-referenced custom view, and the one class R8 must not rename. Type into a Notes field and tap SAVE.
+5. **CSV export and import** — "Export Collection", "CSV file (table format)", save; then "Import Collection" and select that file. This is the app's only path through opencsv, its most reflection-adjacent dependency.
+6. **JSON import** — import a JSON export as well, to cover the other serializer.
+
+#### Check for R8-specific failures
+
+A missing keep rule usually surfaces as a runtime linkage error, sometimes without a visible crash dialog. Check the log explicitly:
+
+```bash
+adb logcat -d | grep -E "ClassNotFoundException|NoSuchMethodError|NoSuchFieldError|InflateException|NotFoundException|FATAL EXCEPTION"
+```
+
+Any hit is a FAIL. Deobfuscate the stack trace before diagnosing it. For a locally built APK the mapping is in the build outputs; for a trace reported against a shipped build (a GitHub issue, an F-Droid install) download `mapping-android-release-v<versionName>.txt` from that version's GitHub release — R8 names are not reproducible, so rebuilding the tag will not produce a usable mapping.
+
+```bash
+adb logcat -d > crash.txt
+"$SDK/cmdline-tools/latest/bin/retrace" \
+  app/build/outputs/mapping/androidRelease/mapping.txt crash.txt
+```
+
+Fix by adding the narrowest possible `-keep` rule to `app/proguard-rules.txt`, then re-run this section. Prefer removing the reflection over adding a keep rule — `app/proguard-rules.txt` documents why the app stays reflection-free.
+
+**Pass criteria:** All six paths behave as they do on the debug build, and the log contains none of the errors above.
+
+#### Teardown for this section
+
+```bash
+adb uninstall com.spencerpages
+rm -f release-smoke.apk crash.txt
+```
+
+---
+
 ## Teardown
 
 After all tests complete:
@@ -162,6 +235,7 @@ Provide a summary table:
 | --- | --- | --- |
 | Navigation Sanity Check | | |
 | Export and Import (JSON) | | |
+| Release Build Smoke Test (R8) | | |
 
 Report total PASS / FAIL counts and any issues found.
 
