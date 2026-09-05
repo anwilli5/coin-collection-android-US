@@ -1,0 +1,15 @@
+# R8/ProGuard rules for the release build (minifyEnabled + shrinkResources).
+#
+# Intentionally empty of keep rules. Everything this app needs is already
+# covered by:
+#   * getDefaultProguardFile('proguard-android-optimize.txt') - keeps native
+#     methods, Parcelable CREATORs, enum values()/valueOf(), and annotations.
+#   * The rules AGP generates from the merged resources - these keep every
+#     custom View inflated from layout XML (e.g. com.coincollection.SafeEditText).
+#
+# The app itself does no reflection: no Class.forName, no
+# Resources.getIdentifier, and opencsv is used only through its direct
+# CSVReader/CSVWriter APIs (never its reflective bean binding). Keep it that
+# way. If reflection ever becomes unavoidable, add the matching -keep rule
+# here and smoke-test a release APK - the unit and instrumented suites both
+# run against unminified debug builds and will not catch the breakage.

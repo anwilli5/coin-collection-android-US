@@ -30,6 +30,7 @@ generation.
 ./gradlew testAndroidDebugUnitTest            # Unit tests (Robolectric, primary suite)
 ./gradlew lintAndroidDebug                    # Lint
 ./gradlew connectedAndroidDebugAndroidTest    # Instrumented tests (needs emulator/device)
+bundle exec ruby fastlane/test/fastfile_test.rb  # Fastfile deploy-lane tests
 ```
 
 - Run a single test class:
@@ -38,6 +39,11 @@ generation.
   test runs.
 - Unit test report:
   `app/build/reports/tests/testAndroidDebugUnitTest/index.html`
+- The Fastfile tests run the real deploy lanes with the store upload actions
+  stubbed, so they need no credentials or network. They must be run from the
+  repo root; the suite chdirs into `fastlane/` itself, because fastlane
+  evaluates the Fastfile with `__FILE__` set to the bare string `Fastfile` and
+  its `__dir__`-based path helpers only resolve correctly from there.
 
 ## Key Facts (do not get these wrong)
 
@@ -53,6 +59,13 @@ generation.
   existing Java file in the repo.
 - `compileSdk 37` / `minSdk 21`. The `amazon` flavor pins `targetSdk 35`
   intentionally — never "unify" it with the main `targetSdk`.
+- Release builds run R8 (`minifyEnabled` + `shrinkResources`), required by
+  Google Play's DEX-optimization rule (enforced February 2027). Keep the app
+  reflection-free: nothing may look a class, method, or resource up by name at
+  runtime (no `Class.forName`, no `Resources.getIdentifier`). If that ever
+  becomes unavoidable, add a matching `-keep` rule to `app/proguard-rules.txt`
+  and smoke-test a release APK — debug builds and both test suites are
+  unminified and will not catch the breakage.
 
 ## Critical Invariants
 
