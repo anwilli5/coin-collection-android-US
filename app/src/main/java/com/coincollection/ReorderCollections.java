@@ -20,6 +20,12 @@
 
 package com.coincollection;
 
+import static com.coincollection.dialog.DialogRequests.KEY_REQUEST_ID;
+import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_REORDER_COLLECTIONS;
+import static com.coincollection.dialog.DialogRequests.REQUEST_NONE;
+import static com.coincollection.dialog.DialogRequests.REQUEST_UNSAVED_CHANGES_EXIT_REORDER;
+import static com.coincollection.dialog.DialogRequests.TAG_CONFIRMATION;
+
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -42,6 +48,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.coincollection.dialog.ConfirmationDialogFragment;
 import com.coincollection.helper.SimpleItemTouchHelperCallback;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.R;
@@ -94,6 +101,16 @@ public class ReorderCollections extends Fragment {
         // menu click and return back to the mainActivity.  Without this,
         // the framework won't call onOptionsItemSelected
         setHasOptionsMenu(true);
+
+        // Listen for this fragment's own dialog results. The dialogs are shown by
+        // the host activity's FragmentManager, but on a request key of their own so
+        // the activity's listener isn't displaced
+        getParentFragmentManager().setFragmentResultListener(REQUEST_KEY_REORDER_COLLECTIONS,
+                this, (requestKey, result) -> {
+                    if (result.getInt(KEY_REQUEST_ID, REQUEST_NONE) == REQUEST_UNSAVED_CHANGES_EXIT_REORDER) {
+                        closeFragment();
+                    }
+                });
     }
 
     @Override
@@ -259,14 +276,10 @@ public class ReorderCollections extends Fragment {
         final MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
             Resources res = activity.getResources();
-            activity.showAlert(activity.newBuilder()
-                    .setMessage(res.getString(R.string.dialog_unsaved_changes_exit))
-                    .setCancelable(false)
-                    .setPositiveButton(res.getString(R.string.okay), (dialog, id) -> {
-                        dialog.dismiss();
-                        closeFragment();
-                    })
-                    .setNegativeButton(res.getString(R.string.cancel), (dialog, id) -> dialog.cancel()));
+            activity.showDialogFragment(ConfirmationDialogFragment.newInstance(
+                    REQUEST_KEY_REORDER_COLLECTIONS, REQUEST_UNSAVED_CHANGES_EXIT_REORDER,
+                    null, res.getString(R.string.dialog_unsaved_changes_exit),
+                    R.string.okay, R.string.cancel, null), TAG_CONFIRMATION);
         }
     }
 }
