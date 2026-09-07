@@ -92,6 +92,20 @@ def prepare_changelog(options)
   changelog_file_exists?(options[:version_code])
 end
 
+# Absolute path to the R8 mapping file for the android release variant, or nil
+# when it doesn't exist. The release build minifies and obfuscates (see
+# app/build.gradle), so Play needs this file to deobfuscate crash stack traces.
+# release.yml builds the APK and invokes the deploy lane in the same job, so the
+# file is present alongside the APK; callers may override with
+# options[:mapping_path].
+def r8_mapping_path(options = {})
+  override = options[:mapping_path].to_s.strip
+  return override unless override.empty?
+
+  path = File.expand_path("../app/build/outputs/mapping/androidRelease/mapping.txt", __dir__)
+  File.exist?(path) ? path : nil
+end
+
 platform :android do
   desc "Runs all the tests"
   lane :test_and_lint do
@@ -156,6 +170,16 @@ platform :android do
       # is prepended to the checked-in notes (ephemeral CI checkout only).
       supply_params[:skip_upload_changelogs] = false if prepare_changelog(options)
 
+      # Upload the R8 mapping file so Play Console can deobfuscate crash reports
+      # for this build. Warn rather than fail when it is missing: a caller can
+      # legitimately deploy a pre-built APK without the build tree present.
+      mapping_path = r8_mapping_path(options)
+      if mapping_path
+        supply_params[:mapping_paths] = [mapping_path]
+      else
+        UI.important("No R8 mapping.txt found - Play crash reports for this build will stay obfuscated.")
+      end
+
       supply(supply_params)
       UI.success("Successfully deployed to Google Play Store (#{track} track)!")
     rescue => ex
@@ -196,6 +220,16 @@ platform :android do
         UI.user_error!("apk_path was provided but does not exist: #{options[:apk_path]}") unless File.exist?(options[:apk_path])
         supply_params[:track] = 'production'
         supply_params[:apk] = options[:apk_path]
+
+        # Upload the R8 mapping file alongside the binary so Play Console can
+        # deobfuscate crash reports. Only in upload mode - a promotion reuses the
+        # artifact (and mapping) already uploaded to the tester track.
+        mapping_path = r8_mapping_path(options)
+        if mapping_path
+          supply_params[:mapping_paths] = [mapping_path]
+        else
+          UI.important("No R8 mapping.txt found - Play crash reports for this build will stay obfuscated.")
+        end
       else
         # Promotion is keyed off the versionCode, so it is required in this mode.
         version_code = options[:version_code].to_i

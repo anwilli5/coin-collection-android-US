@@ -2,9 +2,9 @@
 name: release-checklist
 description: >
   Run the pre-release verification checklist before triggering the GitHub
-  Actions release workflow. Verifies unit tests, lint, version bump in
-  version.properties, DATABASE_VERSION, store metadata, screenshots, and
-  git state, then reports a summary table. Use when asked to run the release
+  Actions release workflow. Verifies unit tests, lint, the minified R8 release
+  build, version bump in version.properties, DATABASE_VERSION, store metadata,
+  screenshots, and git state, then reports a summary table. Use when asked to run the release
   checklist, verify release readiness, or check that everything is ready
   before a release.
 disable-model-invocation: true
@@ -33,7 +33,31 @@ All tests must pass. If any fail, report the failures and stop.
 
 No new errors should be introduced. Warnings are acceptable if pre-existing.
 
-### 3. Version is bumped
+### 3. Release build is R8-clean and runs
+
+Release builds are minified, resource-shrunk, and obfuscated (`minifyEnabled` + `shrinkResources` in `app/build.gradle`) to satisfy Google Play's DEX-optimization requirement. Neither test suite covers this — unit and instrumented tests both run against the unminified `androidDebug` variant — so an R8 regression reaches users unless it is caught here.
+
+Build both flavors:
+
+```bash
+./gradlew assembleAndroidRelease assembleAmazonRelease
+```
+
+Then confirm R8 ran and left every collection class distinct:
+
+```bash
+MAP=app/build/outputs/mapping/androidRelease/mapping.txt
+test -f "$MAP" || echo "FAIL: no mapping.txt - R8 did not run"
+echo "source:    $(ls app/src/main/java/com/spencerpages/collections/*.java | wc -l)"
+echo "in map:    $(grep -c '^com\.spencerpages\.collections\.' "$MAP")"
+echo "distinct:  $(grep '^com\.spencerpages\.collections\.' "$MAP" | awk '{print $3}' | sort -u | wc -l)"
+```
+
+All three counts must match. A shortfall in the last one means R8 merged two collection classes, which silently breaks `MainApplication.getIndexFromCollectionClass()`.
+
+Finally run the **Release Build Smoke Test (R8)** section of the `ui-regression-test` skill against the signed release APK. A green unit-test run is not a substitute: R8 failures are runtime-only.
+
+### 4. Version is bumped
 
 Read `version.properties` at the repo root and check:
 
@@ -46,7 +70,7 @@ Compare with the latest git tag to confirm the version has changed:
 git describe --tags --abbrev=0
 ```
 
-### 4. DATABASE_VERSION is correct
+### 5. DATABASE_VERSION is correct
 
 If any database migrations were added since the last release:
 
@@ -56,14 +80,14 @@ If any database migrations were added since the last release:
 
 If no database changes were made, confirm DATABASE_VERSION is unchanged.
 
-### 5. Store metadata is current (if applicable)
+### 6. Store metadata is current (if applicable)
 
 Check if store text needs updating:
 
 - `fastlane/metadata/android/en-US/full_description.txt`
 - `fastlane/metadata/android/en-US/short_description.txt`
 
-### 6. Screenshots are current (if UI changed)
+### 7. Screenshots are current (if UI changed)
 
 If UI changes were made, screenshots may need regenerating:
 
@@ -73,7 +97,7 @@ If UI changes were made, screenshots may need regenerating:
 
 Use the `capture-store-screenshots` skill if regeneration is needed.
 
-### 7. Working tree is clean
+### 8. Working tree is clean
 
 ```bash
 git status
@@ -81,7 +105,7 @@ git status
 
 No uncommitted changes should exist.
 
-### 8. Branch is up to date
+### 9. Branch is up to date
 
 ```bash
 git fetch origin main
@@ -98,6 +122,7 @@ Report a summary table:
 | --- | --- | --- |
 | Unit tests | PASS/FAIL | |
 | Lint | PASS/FAIL | |
+| Release build (R8) | PASS/FAIL | Built, mapping.txt present, smoke test green |
 | Version bumped | YES/NO | vX.Y.Z (code: NN) |
 | DATABASE_VERSION | OK/NEEDS BUMP | Current: N |
 | Store metadata | OK/NEEDS UPDATE | |

@@ -1,6 +1,9 @@
 # Validates that the Fastlane gem bundle installs and loads on the project's
-# pinned Ruby version (.ruby-version). Catches Ruby/gem incompatibilities
-# that normally show up in the release pipelines
+# pinned Ruby version (.ruby-version), then runs the Fastfile unit tests.
+# Catches Ruby/gem incompatibilities that normally show up in the release
+# pipelines, plus lane regressions that still parse — a renamed supply option,
+# a dropped skip_upload_* guard, a mapping file that stops being attached.
+# The job name is a required check; keep it stable.
 name: Fastlane Bundle Check
 
 on:
@@ -36,3 +39,8 @@ jobs:
 
       - name: Verify Fastlane loads
         run: bundle exec fastlane --version
+
+      - name: Run Fastfile unit tests
+        # Drives the real deploy lanes with the store upload actions stubbed,
+        # so no credentials or network access are needed.
+        run: bundle exec ruby fastlane/test/fastfile_test.rb
