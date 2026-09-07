@@ -58,7 +58,7 @@ The pipeline has two operator-driven stages.
 
 ```text
   bump version in          release.yml                    promote.yml
-  AndroidManifest.xml ─►   (Stage 1, Step 1.1)       ─►   (Stage 2, Step 1.3)
+  version.properties  ─►   (Stage 1, Step 1.1)       ─►   (Stage 2, Step 1.3)
   + merge to main          tag vX.Y.Z-rc.N                tag vX.Y.Z
                            GitHub pre-release             final GitHub Release
                            + Play internal                + Play production + Amazon
@@ -71,8 +71,8 @@ The pipeline has two operator-driven stages.
 
 ### 1.1 Build and publish the pre-release
 
-1. Bump `android:versionName` **and** `android:versionCode` in
-   [`app/src/main/AndroidManifest.xml`](app/src/main/AndroidManifest.xml).
+1. Bump `versionName` **and** `versionCode` in
+   [`version.properties`](version.properties) at the repo root.
    `versionCode` must strictly increase from the last published value on
    every store. Because the app has been published for years, the current
    value is already well into the dozens — just `+1` from whatever's on
@@ -187,8 +187,9 @@ checked-in file.
   - Uploads to the Amazon Appstore via `fastlane-plugin-amazon_appstore`.
     Used by the promote workflow.
   - Inputs: `apk_path`, `version_code`, optional `release_notes`. The promote
-    workflow passes the real `version_code` (read from the manifest at the RC
-    tag), so the Amazon changelog is read from `changelogs/<versionCode>.txt`. A
+    workflow passes the real `version_code` (read from `version.properties` at
+    the RC tag), so the Amazon changelog is read from
+    `changelogs/<versionCode>.txt`. A
     `version_code` of `0` (the sentinel used by the optional `deploy.yml`
     fallback) skips the file lookup and reuses existing metadata.
 
@@ -199,8 +200,7 @@ checked-in file.
 **Pre-release workflow fails with `Tag vX.Y.Z already exists` (or
 `vX.Y.Z-rc.N already exists`).**
 The final tag exists because this version was already released — bump
-`android:versionName` in
-[`app/src/main/AndroidManifest.xml`](app/src/main/AndroidManifest.xml) and
+`versionName` in [`version.properties`](version.properties) and
 merge to `main`. If only the RC tag exists, just pick a higher `rc_number`
 and re-run.
 
@@ -236,7 +236,8 @@ version and start a new pre-release.
 
 **Deploy fails: `Google Api Error: ... versionCode N has already been used`.**
 The `versionCode` in the APK has been uploaded to Play before. You cannot
-re-use a versionCode on Google Play. Bump `android:versionCode` and run the
+re-use a versionCode on Google Play. Bump `versionCode` in
+[`version.properties`](version.properties) and run the
 pre-release workflow again.
 
 **Deploy fails: `... GOOGLE_PLAY_JSON_KEY_DATA did not parse as JSON`.**

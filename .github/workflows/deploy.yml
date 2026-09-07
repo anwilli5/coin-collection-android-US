@@ -28,7 +28,7 @@ on:
           - production  # Public production track
         default: 'internal'
       release_tag:
-        description: "Optional. GitHub Release tag to deploy (e.g. v3.2.0). Leave blank to use the version currently in main's AndroidManifest.xml."
+        description: "Optional. GitHub Release tag to deploy (e.g. v3.2.0). Leave blank to use the version currently in main's version.properties."
         required: false
         type: string
         default: ''
@@ -54,7 +54,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v7
         with:
-          ref: 'main' # main carries the latest manifest; used as default version source.
+          ref: 'main' # main carries the latest version.properties; used as default version source.
 
       - name: Resolve target version and tag
         id: resolve_version
@@ -69,27 +69,27 @@ jobs:
             VERSION_NAME="${TAG#v}"
             echo "Using operator-supplied tag: $TAG (versionName=$VERSION_NAME)"
           else
-            MANIFEST_PATH="app/src/main/AndroidManifest.xml"
-            if [ ! -f "$MANIFEST_PATH" ]; then
-              echo "AndroidManifest.xml not found at $MANIFEST_PATH"
+            VERSION_PROPS_PATH="version.properties"
+            if [ ! -f "$VERSION_PROPS_PATH" ]; then
+              echo "version.properties not found at $VERSION_PROPS_PATH"
               exit 1
             fi
-            VERSION_NAME=$(grep 'android:versionName=' "$MANIFEST_PATH" | sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p')
+            VERSION_NAME=$(grep -E '^versionName=' "$VERSION_PROPS_PATH" | cut -d= -f2- | tr -d '[:space:]')
             if [ -z "$VERSION_NAME" ]; then
-              echo "Could not extract versionName from $MANIFEST_PATH"
+              echo "Could not extract versionName from $VERSION_PROPS_PATH"
               exit 1
             fi
             TAG="v$VERSION_NAME"
-            echo "Derived tag from main's manifest: $TAG"
+            echo "Derived tag from main's version.properties: $TAG"
           fi
 
           # versionCode is only used to name the Amazon changelog file. When an
-          # explicit tag is supplied, we cannot trust main's manifest (the tag
-          # may predate it), so use 0 as a sentinel and the Fastfile will skip
-          # writing the Amazon changelog file. Fastlane's `supply` derives the
+          # explicit tag is supplied, we cannot trust main's version.properties
+          # (the tag may predate it), so use 0 as a sentinel and the Fastfile will
+          # skip writing the Amazon changelog file. Fastlane's `supply` derives the
           # Play versionCode from the APK directly.
           if [ -z "$INPUT_RELEASE_TAG" ]; then
-            VERSION_CODE=$(grep 'android:versionCode=' "app/src/main/AndroidManifest.xml" | sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p')
+            VERSION_CODE=$(grep -E '^versionCode=' version.properties | cut -d= -f2- | tr -d '[:space:]')
           else
             VERSION_CODE="0"
           fi
