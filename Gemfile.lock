@@ -41,6 +41,7 @@ GEM
       rake (>= 12.0.0, < 14.0.0)
     domain_name (0.6.20240107)
     dotenv (2.8.1)
+    drb (2.2.3)
     emoji_regex (3.2.3)
     excon (1.5.0)
       logger
@@ -182,7 +183,9 @@ GEM
     logger (1.7.0)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
-    minitest (5.27.0)
+    minitest (6.0.6)
+      drb (~> 2.0)
+      prism (~> 1.5)
     multi_json (1.21.1)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
@@ -193,6 +196,7 @@ GEM
     os (1.1.4)
     ostruct (0.6.3)
     plist (3.7.2)
+    prism (1.9.0)
     pstore (0.2.1)
     public_suffix (7.0.5)
     rake (13.4.2)
@@ -247,7 +251,7 @@ PLATFORMS
 DEPENDENCIES
   fastlane (~> 2.237.0)
   fastlane-plugin-amazon_appstore (~> 1.7.0)
-  minitest (~> 5.25)
+  minitest (~> 6.0)
 
 BUNDLED WITH
    2.4.10
