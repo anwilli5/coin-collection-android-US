@@ -20,6 +20,10 @@
 
 package com.spencerpages;
 
+import static com.coincollection.dialog.DialogRequests.KEY_PAYLOAD;
+import static com.coincollection.dialog.DialogRequests.KEY_SELECTED_INDEX;
+import static com.coincollection.dialog.DialogRequests.PAYLOAD_COIN_DATABASE_ID;
+import static com.coincollection.dialog.DialogRequests.REQUEST_COIN_ACTIONS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -31,7 +35,6 @@ import static org.junit.Assert.assertTrue;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -45,13 +48,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.Robolectric;
-import org.robolectric.shadows.ShadowDialog;
 
 import java.util.Arrays;
 import java.util.List;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class LaunchCoinPageTests extends BaseTestCase {
+
+    // Index of the delete entry in the coin actions list
+    private static final int ACTION_DELETE = 3;
 
     private final CollectionInfo mCoinTypeObj;
 
@@ -288,27 +293,19 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     }
                     int lastPosition = coinCount - 1;
 
-                    // Open the actions dialog for the last coin. Alerts are
-                    // suppressed while isUnitTest is set, so clear it to get a
-                    // real dialog to click on
-                    AlertDialog dialog;
-                    BaseActivity.isUnitTest = false;
-                    try {
-                        coinActivity.promptCoinSlotActions(lastPosition);
-                        dialog = (AlertDialog) ShadowDialog.getLatestDialog();
-                    } finally {
-                        BaseActivity.isUnitTest = true;
-                    }
-                    assertNotNull(dialog);
+                    // Open the actions dialog for the last coin
+                    coinActivity.promptCoinSlotActions(lastPosition);
+                    Bundle deleteResult = buildCoinActionResult(
+                            coinActivity.mCoinList.get(lastPosition), ACTION_DELETE);
 
                     // The list shrinks while the dialog is still open
                     coinActivity.deleteCoinSlotAtPosition(lastPosition);
                     assertEquals(coinCount - 1, coinActivity.mCoinList.size());
 
-                    // Selecting delete (item 3) used to crash in
-                    // ArrayList.remove with the stale position - it must now be
-                    // ignored since the coin is no longer in the list
-                    dialog.getListView().performItemClick(null, 3, 3);
+                    // Selecting delete used to crash in ArrayList.remove with
+                    // the stale position - it must now be ignored since the
+                    // coin is no longer in the list
+                    coinActivity.onDialogResult(REQUEST_COIN_ACTIONS, deleteResult);
                     assertEquals(coinCount - 1, coinActivity.mCoinList.size());
                     assertEquals(coinCount - 1, coinActivity.mOriginalCoinList.size());
                     coinActivity.onDestroy();
@@ -364,19 +361,12 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     assertEquals(original, copy);
 
                     // Open the actions dialog on the second duplicate (the copy)
-                    AlertDialog dialog;
-                    BaseActivity.isUnitTest = false;
-                    try {
-                        coinActivity.promptCoinSlotActions(1);
-                        dialog = (AlertDialog) ShadowDialog.getLatestDialog();
-                    } finally {
-                        BaseActivity.isUnitTest = true;
-                    }
-                    assertNotNull(dialog);
+                    coinActivity.promptCoinSlotActions(1);
 
-                    // Select delete (item 3) - the tapped copy must be removed,
-                    // leaving the original in place at index 0
-                    dialog.getListView().performItemClick(null, 3, 3);
+                    // Select delete - the tapped copy must be removed, leaving
+                    // the original in place at index 0
+                    coinActivity.onDialogResult(REQUEST_COIN_ACTIONS,
+                            buildCoinActionResult(copy, ACTION_DELETE));
                     assertEquals(sizeAfterCopy - 1, coinActivity.mCoinList.size());
                     assertEquals(sizeAfterCopy - 1, coinActivity.mOriginalCoinList.size());
                     assertSame(original, coinActivity.mCoinList.get(0));
@@ -390,6 +380,24 @@ public class LaunchCoinPageTests extends BaseTestCase {
                 }
             });
         }
+    }
+
+    /**
+     * Builds the result the coin actions dialog reports back to the activity.
+     * The dialog identifies the coin by its database id, so a selection made
+     * after the list has changed resolves against the coin the user tapped
+     *
+     * @param coinSlot     the coin the dialog was opened on
+     * @param actionIndex  index of the action picked from the list
+     * @return the result bundle
+     */
+    private static Bundle buildCoinActionResult(CoinSlot coinSlot, int actionIndex) {
+        Bundle payload = new Bundle();
+        payload.putLong(PAYLOAD_COIN_DATABASE_ID, coinSlot.getDatabaseId());
+        Bundle result = new Bundle();
+        result.putBundle(KEY_PAYLOAD, payload);
+        result.putInt(KEY_SELECTED_INDEX, actionIndex);
+        return result;
     }
 
     /**

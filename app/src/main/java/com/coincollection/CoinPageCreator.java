@@ -21,6 +21,9 @@
 package com.coincollection;
 
 import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
+import static com.coincollection.dialog.DialogRequests.REQUEST_COLLECTION_OPTIONS_WARNING;
+import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_COIN_PAGE_CREATOR;
+import static com.coincollection.dialog.DialogRequests.TAG_CONFIRMATION;
 import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.content.Context;
@@ -44,6 +47,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.coincollection.dialog.ConfirmationDialogFragment;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
@@ -267,6 +271,9 @@ public class CoinPageCreator extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Listen for results from this activity's dialogs
+        registerDialogResultListener(REQUEST_KEY_COIN_PAGE_CREATOR);
 
         // Set the actionbar so that clicking the icon takes you back (SO 1010877)
         if (mActionBar != null) {
@@ -573,22 +580,23 @@ public class CoinPageCreator extends BaseActivity {
 
         if (warningResId != -1) {
             // Display a warning before updating
-            showAlert(newBuilder()
-                    .setTitle(mRes.getString(R.string.warning))
-                    .setMessage(mRes.getString(warningResId))
-                    .setCancelable(false)
-                    .setPositiveButton(mRes.getString(R.string.yes), (dialog, id) -> {
-                        // Update collection
-                        dialog.dismiss();
-                        performCreateOrUpdateCollection();
-                    })
-                    .setNegativeButton(mRes.getString(R.string.no), (dialog, id) -> {
-                        // Abort
-                        dialog.cancel();
-                    }));
+            showDialogFragment(ConfirmationDialogFragment.newInstance(
+                    REQUEST_KEY_COIN_PAGE_CREATOR, REQUEST_COLLECTION_OPTIONS_WARNING,
+                    mRes.getString(R.string.warning), mRes.getString(warningResId),
+                    R.string.yes, R.string.no, null), TAG_CONFIRMATION);
         } else {
             // Update without displaying a warning
             performCreateOrUpdateCollection();
+        }
+    }
+
+    @Override
+    protected void onDialogResult(int requestId, Bundle result) {
+        if (requestId == REQUEST_COLLECTION_OPTIONS_WARNING) {
+            // The user accepted the warning, so go ahead with the update
+            performCreateOrUpdateCollection();
+        } else {
+            super.onDialogResult(requestId, result);
         }
     }
 
@@ -711,7 +719,7 @@ public class CoinPageCreator extends BaseActivity {
      *
      * @return The input filter
      */
-    static InputFilter getCollectionOrCoinNameFilter() {
+    public static InputFilter getCollectionOrCoinNameFilter() {
         return (source, start, end, dest, dstart, dend) -> {
             for (int i = start; i < end; i++) {
                 if (source.charAt(i) == '[' || source.charAt(i) == ']') {
