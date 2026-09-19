@@ -1382,6 +1382,21 @@ public class CollectionPage extends BaseActivity {
 
     @Override
     public void onDialogResult(int requestId, Bundle result) {
+        // A dialog restored after process death can be answered before the
+        // deferred database setup has run (or after it was skipped because the
+        // database couldn't be opened), leaving no coin list and no content view
+        // to act on. Drop this page's results until the page is set up
+        if (mSetupFromDatabasePending || mCoinList == null) {
+            switch (requestId) {
+                case REQUEST_RENAME_COLLECTION:
+                case REQUEST_UNSAVED_CHANGES_EXIT_PAGE:
+                case REQUEST_EDIT_COIN:
+                case REQUEST_COIN_ACTIONS:
+                case REQUEST_COIN_FILTER: {
+                    return;
+                }
+            }
+        }
         switch (requestId) {
             case REQUEST_RENAME_COLLECTION: {
                 String newName = result.getString(KEY_TEXT, "");

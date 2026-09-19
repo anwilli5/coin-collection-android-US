@@ -20,30 +20,42 @@
 
 package com.coincollection;
 
-import static com.coincollection.dialog.DialogRequests.TAG_MESSAGE;
+import static com.coincollection.dialog.DialogRequests.TAG_ALERT_PREFIX;
+import static com.coincollection.dialog.DialogRequests.TAG_HELP;
 import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
+import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.dialog.ProgressDialogFragment;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.BaseTestCase;
+import com.spencerpages.MainApplication;
+import com.spencerpages.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -54,21 +66,9 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 public class BaseActivityDialogTests extends BaseTestCase {
 
-    /**
-     * Runs an action with dialog suppression disabled, so a real dialog is
-     * created instead of being skipped for unit tests
-     *
-     * @param action the action to run
-     */
-    private static void withDialogsEnabled(Runnable action) {
-        boolean wasUnitTest = BaseActivity.isUnitTest;
-        BaseActivity.isUnitTest = false;
-        try {
-            action.run();
-        } finally {
-            BaseActivity.isUnitTest = wasUnitTest;
-        }
-    }
+    // Argument key the dialogs carry their message under, mirroring
+    // BaseDialogFragment.ARG_MESSAGE, which isn't visible from this package
+    private static final String ARG_MESSAGE = "message";
 
     /**
      * Finds a dialog by tag in an activity's FragmentManager
@@ -83,6 +83,66 @@ public class BaseActivityDialogTests extends BaseTestCase {
     }
 
     /**
+     * Collects the cancelable alerts an activity is showing, in the order they
+     * were raised. Each alert gets a tag of its own so that alerts stack instead
+     * of replacing one another
+     *
+     * @param activity the host activity
+     * @return the alert dialog fragments currently shown
+     */
+    private static List<Fragment> findAlertDialogs(BaseActivity activity) {
+        activity.getSupportFragmentManager().executePendingTransactions();
+        List<Fragment> alerts = new ArrayList<>();
+        for (Fragment fragment : activity.getSupportFragmentManager().getFragments()) {
+            String tag = fragment.getTag();
+            if (tag != null && tag.startsWith(TAG_ALERT_PREFIX)) {
+                alerts.add(fragment);
+            }
+        }
+        return alerts;
+    }
+
+    /**
+     * @param fragment a message dialog fragment
+     * @return the message the dialog was created with
+     */
+    private static String getDialogMessage(Fragment fragment) {
+        Bundle args = fragment.getArguments();
+        return (args != null) ? args.getString(ARG_MESSAGE) : null;
+    }
+
+    /**
+     * Sets whether a one-time help tip is still due to be shown
+     *
+     * @param helpStrKey the tip's preference key
+     * @param show       true if the tip hasn't been acknowledged yet
+     */
+    private static void setHelpTipPending(String helpStrKey, boolean show) {
+        ApplicationProvider.<Context>getApplicationContext()
+                .getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(helpStrKey, show).apply();
+    }
+
+    /**
+     * Creates the first shared collection scenario (Lincoln Cents) in the
+     * database, so MainActivity has a collection to list and reorder
+     */
+    private void createCollection() {
+        CollectionListInfo info = COLLECTION_LIST_INFO_SCENARIOS[0];
+        try (ActivityScenario<CoinPageCreator> creatorScenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
+            creatorScenario.onActivity(activity -> {
+                activity.mCoinList = new ArrayList<>();
+                ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
+                int index = info.getCollectionTypeIndex();
+                activity.setInternalStateFromCollectionIndex(index, activity.getCollectionListPos(index), parameters);
+                activity.createOrUpdateCoinListForAsyncThread();
+                activity.mDbAdapter.createAndPopulateNewTable(info, 0, activity.mCoinList);
+            });
+        }
+    }
+
+    /**
      * Test that an alert is shown as a dialog fragment, so the FragmentManager
      * owns its lifecycle
      */
@@ -91,9 +151,9 @@ public class BaseActivityDialogTests extends BaseTestCase {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withDialogsEnabled(() -> {
-                assertNull(findDialog(activity, TAG_MESSAGE));
+                assertTrue(findAlertDialogs(activity).isEmpty());
                 activity.showCancelableAlert("Test alert");
-                assertNotNull(findDialog(activity, TAG_MESSAGE));
+                assertEquals(1, findAlertDialogs(activity).size());
             }));
         }
     }
@@ -112,27 +172,27 @@ public class BaseActivityDialogTests extends BaseTestCase {
             scenario.recreate();
             shadowOf(Looper.getMainLooper()).idle();
 
-            scenario.onActivity(activity -> assertNotNull(findDialog(activity, TAG_MESSAGE)));
+            scenario.onActivity(activity -> assertEquals(1, findAlertDialogs(activity).size()));
         }
     }
 
     /**
-     * Test that showing a second alert replaces the first rather than stacking
-     * two dialogs on top of each other
+     * Test that a second alert stacks on top of the first instead of replacing
+     * it. Two messages can be raised back to back (e.g. an import error followed
+     * by a warning) and the first must not be hidden by the second
      */
     @Test
-    public void test_secondAlertReplacesFirst() {
+    public void test_secondAlertStacksOnFirst() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> withDialogsEnabled(() -> {
                 activity.showCancelableAlert("First alert");
-                Fragment firstAlert = findDialog(activity, TAG_MESSAGE);
-                assertNotNull(firstAlert);
-
                 activity.showCancelableAlert("Second alert");
-                Fragment secondAlert = findDialog(activity, TAG_MESSAGE);
-                assertNotNull(secondAlert);
-                assertTrue(firstAlert.isRemoving() || firstAlert != secondAlert);
+
+                List<Fragment> alerts = findAlertDialogs(activity);
+                assertEquals(2, alerts.size());
+                assertEquals("First alert", getDialogMessage(alerts.get(0)));
+                assertEquals("Second alert", getDialogMessage(alerts.get(1)));
             }));
         }
     }
@@ -224,21 +284,24 @@ public class BaseActivityDialogTests extends BaseTestCase {
     }
 
     /**
-     * Test that an alert raised while the activity is stopped is held and shown
-     * when it comes back, rather than being dropped. A task can finish while the
-     * app is in the background, and its error message must still reach the user
+     * Test that alerts raised while the activity is stopped are held and shown
+     * in order when it comes back, rather than being dropped or overwriting each
+     * other. A task can finish while the app is in the background, and its error
+     * messages must still reach the user
      */
     @Test
-    public void test_alertRaisedWhileStoppedIsShownOnResume() {
+    public void test_alertsRaisedWhileStoppedAreShownOnResume() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.moveToState(Lifecycle.State.CREATED);
 
             scenario.onActivity(activity -> withDialogsEnabled(() -> {
                 activity.showCancelableAlert("Task failed");
-                // Nothing can be shown while stopped, so it is held instead
-                assertNull(findDialog(activity, TAG_MESSAGE));
-                assertNotNull(activity.mActivityViewModel.mPendingAlertText);
+                activity.showCancelableAlert("Second failure");
+                // Nothing can be shown while stopped, so both are held instead
+                assertTrue(findAlertDialogs(activity).isEmpty());
+                assertEquals(Arrays.asList("Task failed", "Second failure"),
+                        activity.mActivityViewModel.mPendingAlertText);
             }));
 
             withDialogsEnabled(() -> {
@@ -247,8 +310,11 @@ public class BaseActivityDialogTests extends BaseTestCase {
             });
 
             scenario.onActivity(activity -> {
-                assertNotNull(findDialog(activity, TAG_MESSAGE));
-                assertNull(activity.mActivityViewModel.mPendingAlertText);
+                List<Fragment> alerts = findAlertDialogs(activity);
+                assertEquals(2, alerts.size());
+                assertEquals("Task failed", getDialogMessage(alerts.get(0)));
+                assertEquals("Second failure", getDialogMessage(alerts.get(1)));
+                assertTrue(activity.mActivityViewModel.mPendingAlertText.isEmpty());
             });
         }
     }
@@ -292,7 +358,103 @@ public class BaseActivityDialogTests extends BaseTestCase {
             scenario.moveToState(Lifecycle.State.CREATED);
             scenario.moveToState(Lifecycle.State.RESUMED);
 
-            scenario.onActivity(activity -> assertNotNull(findDialog(activity, TAG_MESSAGE)));
+            scenario.onActivity(activity -> assertEquals(1, findAlertDialogs(activity).size()));
         }
+    }
+
+    /**
+     * Test that a help tip shown from a fragment's onCreateView is displayed.
+     * The reorder fragment shows its tip from onCreateView, which runs inside a
+     * FragmentManager transaction - settling pending transactions from there
+     * used to throw IllegalStateException and crash the app for any user who
+     * hadn't acknowledged the tip yet
+     */
+    @Test
+    public void test_helpDialogShownFromFragmentOnCreateView() {
+        createCollection();
+        // Only the reorder tip is outstanding, so it is the only dialog in play
+        setHelpTipPending("reorder_help1", true);
+        setHelpTipPending("first_Time_screen1", false);
+        setHelpTipPending("first_Time_screen4", false);
+
+        withDialogsEnabled(() -> {
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                    new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+                scenario.onActivity(activity -> {
+                    activity.updateCollectionListFromDatabase();
+                    assertNotNull(activity.launchReorderFragment());
+                    // Runs the fragment transaction, so the fragment's
+                    // onCreateView shows the tip from inside it
+                    activity.getSupportFragmentManager().executePendingTransactions();
+                });
+                shadowOf(Looper.getMainLooper()).idle();
+
+                scenario.onActivity(activity ->
+                        assertNotNull(findDialog(activity, TAG_HELP)));
+            }
+        });
+    }
+
+    /**
+     * Test that a later help tip is still shown once the user has acknowledged
+     * the previous one. The FragmentManager resets a destroyed dialog fragment
+     * so the instance can be reused, which puts it back in the state a brand new
+     * fragment is in - so a liveness check based on the fragment's lifecycle
+     * keeps reporting the acknowledged tip as showing and silently swallows
+     * every tip raised afterwards
+     */
+    @Test
+    public void test_helpTipShownAfterPreviousAcknowledged() {
+        setHelpTipPending("first_Time_screen1", true);
+        setHelpTipPending("first_Time_screen4", true);
+
+        withDialogsEnabled(() -> {
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                    new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+                scenario.onActivity(activity -> {
+                    Fragment firstTip = findDialog(activity, TAG_HELP);
+                    assertNotNull("The intro tip should be shown", firstTip);
+                    // Acknowledging the tip takes it down, as tapping OK does
+                    ((DialogFragment) firstTip).dismiss();
+                    activity.getSupportFragmentManager().executePendingTransactions();
+                });
+                shadowOf(Looper.getMainLooper()).idle();
+
+                scenario.onActivity(activity -> {
+                    assertNull("The acknowledged tip should be gone",
+                            findDialog(activity, TAG_HELP));
+                    activity.createAndShowHelpDialog(
+                            "first_Time_screen4", R.string.tutorial_more_options);
+                    activity.getSupportFragmentManager().executePendingTransactions();
+                    assertNotNull("A tip raised after the first was acknowledged must be shown",
+                            findDialog(activity, TAG_HELP));
+                });
+            }
+        });
+    }
+
+    /**
+     * Test that a second help tip doesn't displace one the user hasn't
+     * acknowledged yet. The first tip's preference is only cleared once it is
+     * acknowledged, so replacing it would make it pop up again later
+     */
+    @Test
+    public void test_secondHelpTipDoesNotReplaceFirst() {
+        setHelpTipPending("first_Time_screen1", true);
+        setHelpTipPending("first_Time_screen4", true);
+
+        withDialogsEnabled(() -> {
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                    new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+                scenario.onActivity(activity -> {
+                    Fragment firstTip = findDialog(activity, TAG_HELP);
+                    assertNotNull("The intro tip should be shown", firstTip);
+
+                    assertTrue(activity.createAndShowHelpDialog(
+                            "first_Time_screen4", R.string.tutorial_more_options));
+                    assertSame(firstTip, findDialog(activity, TAG_HELP));
+                });
+            }
+        });
     }
 }

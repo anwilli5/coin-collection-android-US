@@ -72,22 +72,6 @@ public class CollectionPageDialogWiringTests extends BaseTestCase {
     private static final int TAP_POSITION = 2;
 
     /**
-     * Runs an action with dialog suppression disabled, so a real dialog is
-     * created instead of being skipped for unit tests
-     *
-     * @param action the action to run
-     */
-    private static void withDialogsEnabled(Runnable action) {
-        boolean wasUnitTest = BaseActivity.isUnitTest;
-        BaseActivity.isUnitTest = false;
-        try {
-            action.run();
-        } finally {
-            BaseActivity.isUnitTest = wasUnitTest;
-        }
-    }
-
-    /**
      * Creates the first shared collection scenario (Lincoln Cents) in the
      * database so CollectionPage can load it
      *

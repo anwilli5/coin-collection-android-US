@@ -293,8 +293,8 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     }
                     int lastPosition = coinCount - 1;
 
-                    // Open the actions dialog for the last coin
-                    coinActivity.promptCoinSlotActions(lastPosition);
+                    // Build the result the actions dialog reports back for the
+                    // last coin
                     Bundle deleteResult = buildCoinActionResult(
                             coinActivity.mCoinList.get(lastPosition), ACTION_DELETE);
 
@@ -360,11 +360,9 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     assertNotSame(original, copy);
                     assertEquals(original, copy);
 
-                    // Open the actions dialog on the second duplicate (the copy)
-                    coinActivity.promptCoinSlotActions(1);
-
-                    // Select delete - the tapped copy must be removed, leaving
-                    // the original in place at index 0
+                    // Report delete for the second duplicate (the copy), as the
+                    // actions dialog opened on it would - the tapped copy must be
+                    // removed, leaving the original in place at index 0
                     coinActivity.onDialogResult(REQUEST_COIN_ACTIONS,
                             buildCoinActionResult(copy, ACTION_DELETE));
                     assertEquals(sizeAfterCopy - 1, coinActivity.mCoinList.size());

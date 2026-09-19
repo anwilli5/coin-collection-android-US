@@ -26,8 +26,8 @@ import static com.coincollection.dialog.DialogRequests.PAYLOAD_HELP_KEY;
 import static com.coincollection.dialog.DialogRequests.REQUEST_HELP_DIALOG;
 import static com.coincollection.dialog.DialogRequests.REQUEST_KEY_BASE_ACTIVITY;
 import static com.coincollection.dialog.DialogRequests.REQUEST_NONE;
+import static com.coincollection.dialog.DialogRequests.TAG_ALERT_PREFIX;
 import static com.coincollection.dialog.DialogRequests.TAG_HELP;
-import static com.coincollection.dialog.DialogRequests.TAG_MESSAGE;
 import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
 
 import android.content.Context;
@@ -60,6 +60,11 @@ import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * Base activity containing shared functions and resources between the activities
  */
@@ -76,8 +81,13 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         public final TaskRequest mTaskRequest = new TaskRequest();
         // Alert text captured when the activity wasn't in a state where a dialog
         // could be shown, held here so it survives a configuration change and can
-        // be shown once the activity is resumed again.
-        public String mPendingAlertText;
+        // be shown once the activity is resumed again. More than one alert can be
+        // raised while stopped, so they are held in order instead of the later one
+        // replacing the earlier.
+        public final ArrayList<String> mPendingAlertText = new ArrayList<>();
+        // Counter used to give each cancelable alert a tag of its own. Held here so
+        // that a tag is never reused by an alert shown after a configuration change.
+        public int mAlertCount = 0;
     }
 
     /**
@@ -108,6 +118,27 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public static final int TASK_IMPORT_COLLECTIONS = 1;
     public static final int TASK_CREATE_UPDATE_COLLECTION = 2;
     public static final int TASK_EXPORT_COLLECTIONS = 3;
+
+    // The dialog last shown under each tag, so an in-flight show or dismiss is
+    // taken into account without executing pending fragment transactions
+    private final Map<String, ShownDialog> mShownDialogs = new HashMap<>();
+
+    /**
+     * Record of the dialog last shown under a tag and whether this activity has
+     * already dismissed it. Tracked here rather than asking the FragmentManager,
+     * because a committed but not yet executed show or dismiss isn't reflected by
+     * findFragmentByTag() - and executing pending transactions to settle it isn't
+     * allowed from inside a fragment transaction
+     */
+    private static class ShownDialog {
+        final DialogFragment mFragment;
+        final boolean mDismissed;
+
+        ShownDialog(DialogFragment fragment, boolean dismissed) {
+            mFragment = fragment;
+            mDismissed = dismissed;
+        }
+    }
 
     // Common activity variables
     protected final Context mContext = this;
@@ -280,11 +311,15 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param text The text to be displayed
      */
     public void showCancelableAlert(String text) {
-        if (!showDialogFragment(MessageDialogFragment.newCancelableInstance(text), TAG_MESSAGE)) {
+        // Each alert gets a tag of its own so that a second alert stacks on top of
+        // the first instead of replacing it - two messages can be raised back to
+        // back (e.g. an import error followed by a warning) and both must be seen
+        String tag = TAG_ALERT_PREFIX + (mActivityViewModel.mAlertCount++);
+        if (!showDialogFragment(MessageDialogFragment.newCancelableInstance(text), tag)) {
             // A task can finish while the app is in the background, and a
             // transaction can't be committed then. Hold the message rather than
             // dropping it, so the user still finds out what went wrong
-            mActivityViewModel.mPendingAlertText = text;
+            mActivityViewModel.mPendingAlertText.add(text);
         }
     }
 
@@ -292,11 +327,13 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     protected void onResumeFragments() {
         super.onResumeFragments();
         // Now that fragment transactions are safe again, show anything that
-        // couldn't be shown while the activity was stopped
-        String pendingAlertText = mActivityViewModel.mPendingAlertText;
-        if (pendingAlertText != null) {
-            mActivityViewModel.mPendingAlertText = null;
-            showCancelableAlert(pendingAlertText);
+        // couldn't be shown while the activity was stopped, in the order raised
+        if (!mActivityViewModel.mPendingAlertText.isEmpty()) {
+            ArrayList<String> pendingAlerts = new ArrayList<>(mActivityViewModel.mPendingAlertText);
+            mActivityViewModel.mPendingAlertText.clear();
+            for (String pendingAlertText : pendingAlerts) {
+                showCancelableAlert(pendingAlertText);
+            }
         }
     }
 
@@ -311,16 +348,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         if (isUnitTest && BuildConfig.DEBUG) {
             return;
         }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        // A dismissal committed but not yet executed (e.g. of a stale dialog
-        // restored after process death) must complete first, or the dying
-        // fragment would be found and reused below, leaving no spinner. This
-        // can also be reached while stopped via a task re-attach, and pending
-        // transactions can't be executed then - reuse is harmless in that case
-        if (!fragmentManager.isStateSaved()) {
-            fragmentManager.executePendingTransactions();
-        }
-        Fragment existing = fragmentManager.findFragmentByTag(TAG_PROGRESS);
+        // Reuse the progress dialog already showing under this tag, whether it
+        // was shown by this activity or restored by the FragmentManager. A dialog
+        // this activity has already dismissed is not reused, even if its removal
+        // hasn't been executed yet, so the user isn't left without a spinner
+        DialogFragment existing = getShownDialogFragment(TAG_PROGRESS);
         if (existing instanceof ProgressDialogFragment) {
             ((ProgressDialogFragment) existing).setMessage(message);
             return;
@@ -332,12 +364,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * Hides the progress dialog
      */
     protected void dismissProgressDialog() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment existing = fragmentManager.findFragmentByTag(TAG_PROGRESS);
-        if (existing instanceof DialogFragment) {
+        // Covers both a dialog shown by this activity and one the FragmentManager
+        // restored for a task that was running before a configuration change
+        DialogFragment existing = getShownDialogFragment(TAG_PROGRESS);
+        if (existing != null) {
             // The task can finish after the activity has saved its state, so
             // the dismissal must tolerate state loss
-            ((DialogFragment) existing).dismissAllowingStateLoss();
+            existing.dismissAllowingStateLoss();
+            mShownDialogs.put(TAG_PROGRESS, new ShownDialog(existing, true));
         }
     }
 
@@ -401,6 +435,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         final SharedPreferences mainPreferences = this.getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         final Resources res = this.getResources();
         if (mainPreferences.getBoolean(helpStrKey, true)) {
+            // Only one tip is shown at a time. Keep the one already up (e.g. the
+            // one the FragmentManager restored after a configuration change, or an
+            // earlier tip the user hasn't acknowledged yet) rather than replacing
+            // it - replacing it would leave the first tip's preference set, so it
+            // would pop up again later
+            if (getShownDialogFragment(TAG_HELP) != null) {
+                return true;
+            }
             // The preference is cleared once the user acknowledges the tip,
             // which is reported back through onDialogResult()
             Bundle payload = new Bundle();
@@ -436,16 +478,84 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         if (isFinishing() || fragmentManager.isStateSaved()) {
             return false;
         }
-        // DialogFragment.show() commits asynchronously, so pending transactions
-        // must be settled first or the by-tag lookup misses in-flight dialogs
-        // and two dialogs end up stacked under the same tag
-        fragmentManager.executePendingTransactions();
-        Fragment existing = fragmentManager.findFragmentByTag(tag);
-        if (existing instanceof DialogFragment) {
-            ((DialogFragment) existing).dismissAllowingStateLoss();
+        // Each alert is shown under a tag of its own, so drop the records of
+        // dialogs that are fully gone rather than holding onto them for as long
+        // as this activity lives
+        forgetFinishedDialogs();
+        // Take down whatever is showing under this tag. The lookup goes through
+        // the remembered dialogs instead of executing pending fragment
+        // transactions: this can be called from inside a FragmentManager
+        // transaction (e.g. from a fragment's onCreateView), and executing
+        // transactions from there throws
+        DialogFragment existing = getShownDialogFragment(tag);
+        if (existing != null) {
+            existing.dismissAllowingStateLoss();
         }
         fragment.show(fragmentManager, tag);
+        mShownDialogs.put(tag, new ShownDialog(fragment, false));
         return true;
+    }
+
+    /**
+     * Forgets the records of dialogs the FragmentManager has finished tearing
+     * down. A dialog that is merely dismissed is kept, since its record is what
+     * tells a later lookup not to reuse it while its removal is still pending
+     */
+    private void forgetFinishedDialogs() {
+        Iterator<Map.Entry<String, ShownDialog>> iterator = mShownDialogs.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, ShownDialog> entry = iterator.next();
+            if (!isDialogStillUnderTag(entry.getValue().mFragment, entry.getKey())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Reports whether a dialog fragment is still the one held under a tag. The
+     * tag is set when the show transaction is built and cleared again when the
+     * FragmentManager tears the fragment down (it resets a destroyed fragment so
+     * the instance can be reused), so it covers a show that hasn't been executed
+     * yet while not being fooled by a dialog that has already gone away. The
+     * fragment's lifecycle state can't be used for this - a destroyed dialog is
+     * reset all the way back to INITIALIZED, which is indistinguishable from a
+     * dialog that is only waiting for its transaction to run
+     *
+     * @param fragment the dialog fragment to check
+     * @param tag      tag it was shown under
+     * @return true if the fragment is still held under the tag
+     */
+    private static boolean isDialogStillUnderTag(Fragment fragment, String tag) {
+        return tag.equals(fragment.getTag());
+    }
+
+    /**
+     * Returns the dialog currently showing under a tag, whether it was shown by
+     * this activity (including a show that hasn't been executed yet) or restored
+     * by the FragmentManager after this activity was recreated
+     *
+     * @param tag tag identifying this kind of dialog
+     * @return the dialog fragment, or null if no dialog is showing under the tag
+     */
+    private DialogFragment getShownDialogFragment(String tag) {
+        ShownDialog shown = mShownDialogs.get(tag);
+        if (shown != null) {
+            // What this activity did with the tag last is authoritative, so a
+            // dialog it dismissed isn't reported even if the FragmentManager can
+            // still find the dying fragment by tag
+            if (!shown.mDismissed && !shown.mFragment.isRemoving()
+                    && isDialogStillUnderTag(shown.mFragment, tag)) {
+                return shown.mFragment;
+            }
+            // The dialog is gone (the user dismissed it, or it was torn down),
+            // so drop the record and report that nothing is showing
+            mShownDialogs.remove(tag);
+            return null;
+        }
+        // Nothing was shown under this tag by this instance of the activity, so
+        // look for one the FragmentManager restored
+        Fragment existing = getSupportFragmentManager().findFragmentByTag(tag);
+        return (existing instanceof DialogFragment) ? (DialogFragment) existing : null;
     }
 
     /**

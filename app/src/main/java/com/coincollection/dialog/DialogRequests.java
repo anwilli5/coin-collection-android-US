@@ -78,6 +78,10 @@ public final class DialogRequests {
 
     // Fragment tags. Only one dialog of each kind is ever shown at a time
     public static final String TAG_MESSAGE = "message_dialog";
+    // Prefix for the tags of the cancelable alerts. Each alert gets a tag of its
+    // own (this prefix plus a counter) so that a second alert stacks on top of the
+    // first instead of replacing it
+    public static final String TAG_ALERT_PREFIX = "alert_dialog_";
     public static final String TAG_HELP = "help_dialog";
     public static final String TAG_CONFIRMATION = "confirmation_dialog";
     public static final String TAG_LIST_CHOICE = "list_choice_dialog";

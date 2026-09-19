@@ -1091,8 +1091,9 @@ public class MainActivity extends BaseActivity {
     protected void onDialogResult(int requestId, Bundle result) {
         // Dialogs survive a configuration change, and the recreated activity
         // doesn't regain window focus while one is up, so the collection list it
-        // was rebuilt with is still empty. Refresh it before acting on the answer
-        if (mDbAdapter.isOpen() && !isImportInProgress()) {
+        // was rebuilt with is still empty. Refresh it before acting on the answer,
+        // but only in that case - the list is already up to date otherwise
+        if (mNumberOfCollections == 0 && mDbAdapter.isOpen() && !isImportInProgress()) {
             updateCollectionListFromDatabaseAndUpdateViewForUIThread();
         }
         Bundle payload = result.getBundle(KEY_PAYLOAD);
