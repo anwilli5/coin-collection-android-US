@@ -31,6 +31,7 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.View;
@@ -39,6 +40,8 @@ import android.view.ViewGroup;
 import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.assertion.ViewAssertions;
@@ -106,6 +109,7 @@ public class UITestHelper {
             "first_Time_screen3",
             "first_Time_screen4",
             "first_Time_screen5",
+            "first_Time_screen_search",
             "reorder_help1",
     };
 
@@ -146,6 +150,20 @@ public class UITestHelper {
         Context context = getInstrumentation().getTargetContext();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(collectionName + CollectionPage.IS_LOCKED, false).apply();
+    }
+
+    /**
+     * Clear a collection's saved coin filter, so a test that filtered the grid
+     * doesn't leave the next one looking at an empty collection. The filter is
+     * remembered per collection name in SharedPreferences, and tests reuse
+     * collection names, so it outlives the collection itself.
+     *
+     * @param collectionName the collection whose filter to reset
+     */
+    public static void clearCoinFilter(String collectionName) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().remove(collectionName + CollectionPage.COIN_FILTER).commit();
     }
 
     /**
@@ -854,5 +872,112 @@ public class UITestHelper {
                 return parent.getChildAt(childPosition) == view;
             }
         };
+    }
+
+    /**
+     * Set whether a single first-time tutorial tip is still due to be shown.
+     * {@link #suppressAllTutorials()} and {@link #resetTutorials()} are
+     * all-or-nothing, but a tip test needs exactly one tip outstanding so it
+     * knows which dialog it is looking at.
+     *
+     * @param helpStrKey the tip's preference key
+     * @param pending    true if the tip has not been acknowledged yet
+     */
+    public static void setTutorialPending(String helpStrKey, boolean pending) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(helpStrKey, pending).commit();
+    }
+
+    /**
+     * @param helpStrKey the tip's preference key
+     * @return true if the tip has not been acknowledged yet
+     */
+    public static boolean isTutorialPending(String helpStrKey) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(helpStrKey, true);
+    }
+
+    /**
+     * Rotate the device to landscape.
+     */
+    public static void setOrientationLeft() {
+        try {
+            UiDevice.getInstance(getInstrumentation()).setOrientationLeft();
+        } catch (RemoteException e) {
+            throw new AssertionError("Unable to rotate the device", e);
+        }
+    }
+
+    /**
+     * Rotate the device back to its natural orientation.
+     */
+    public static void setOrientationNatural() {
+        try {
+            UiDevice.getInstance(getInstrumentation()).setOrientationNatural();
+        } catch (RemoteException e) {
+            throw new AssertionError("Unable to rotate the device", e);
+        }
+    }
+
+    /**
+     * Rotate to landscape and back, checking that the given view stays on
+     * screen throughout. Every post-rotation check waits rather than asserting
+     * immediately - the activity is torn down and rebuilt, so the view is
+     * briefly absent even when nothing is wrong.
+     *
+     * @param matcher matcher identifying the open dialog
+     */
+    public static void rotateAndAssertStillDisplayed(Matcher<View> matcher) {
+        setOrientationLeft();
+        waitForDisplayed(matcher);
+        setOrientationNatural();
+        waitForDisplayed(matcher);
+    }
+
+    /**
+     * Create several Lincoln Cents collections, for tests that need the
+     * database to hold more than one collection.
+     *
+     * @param namePrefix prefix each collection name starts with
+     * @param count      how many collections to create
+     */
+    public static void seedCollections(String namePrefix, int count) {
+        for (int i = 0; i < count; i++) {
+            String name = namePrefix + " " + i;
+            createLincolnCentsCollection(name, i);
+            unlockCollection(name);
+        }
+    }
+
+    /**
+     * Count the dialog fragments an activity is showing whose tag starts with
+     * the given prefix. Espresso can only see the focused window, so a test
+     * that cares about two stacked dialogs has to ask the FragmentManager
+     * instead of looking at the screen.
+     *
+     * @param activity  the host activity
+     * @param tagPrefix prefix the dialog tags start with
+     * @return how many matching dialog fragments are added
+     */
+    public static int countDialogsWithTagPrefix(FragmentActivity activity, String tagPrefix) {
+        int count = 0;
+        for (Fragment fragment : activity.getSupportFragmentManager().getFragments()) {
+            String tag = fragment.getTag();
+            if (tag != null && tag.startsWith(tagPrefix)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @param activity the host activity
+     * @param tag      tag identifying this kind of dialog
+     * @return the dialog fragment shown under the tag, or null if there is none
+     */
+    public static Fragment findDialogByTag(FragmentActivity activity, String tag) {
+        return activity.getSupportFragmentManager().findFragmentByTag(tag);
     }
 }
