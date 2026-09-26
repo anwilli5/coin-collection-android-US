@@ -73,6 +73,7 @@ public class CollectionPageBasicViewTests {
 
     @After
     public void tearDown() {
+        UITestHelper.clearCoinFilter(COLLECTION_NAME);
         UITestHelper.deleteAllCollections();
     }
 

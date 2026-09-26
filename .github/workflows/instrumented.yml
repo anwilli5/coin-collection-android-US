@@ -1,0 +1,101 @@
+# Runs the Espresso (instrumented) test suite on Android emulators.
+#
+# Runs on pull requests with the same filters as gradle.yml. The suite is
+# split across parallel shards by AndroidJUnitRunner (numShards/shardIndex),
+# which assigns individual tests to shards, so new tests are picked up
+# automatically and heavy classes are spread out. The "Instrumented Tests" job
+# at the end reports the combined result as a single check.
+#
+# It is not yet a required check: once it has proven stable (quarantine or fix
+# any test that fails intermittently), mark the "Instrumented Tests" check as
+# required in the branch protection rules for main to make it PR-blocking.
+
+name: Instrumented Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'images/**'
+      - 'fastlane/metadata/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shard:
+    name: Instrumented Tests (shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      # Let every shard finish so one run reports all failing tests.
+      fail-fast: false
+      matrix:
+        # Keep in sync with NUM_SHARDS below.
+        shard: [ 0, 1, 2, 3 ]
+    env:
+      NUM_SHARDS: 4
+    steps:
+    - uses: actions/checkout@v7
+    - name: Java Setup
+      uses: actions/setup-java@v6.0.1
+      with:
+        # JDK version is single-sourced from the repo-root .java-version file.
+        java-version-file: .java-version
+        distribution: 'temurin'
+    - name: Gradle Setup
+      uses: gradle/actions/setup-gradle@v6
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    # Hardware acceleration for the x86_64 emulator on Linux runners.
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    # ScreenshotsUITest is excluded: it drives the screengrab store-screenshot
+    # pipeline, which needs its own setup (see the capture-store-screenshots
+    # skill). API 36 and a 1080x2400 @ 420dpi screen match the Medium Phone
+    # emulator the suite is developed against. Without a profile the runner
+    # creates a 320x640 device, where "ifRoom" toolbar items such as Lock and
+    # Save collapse into the overflow menu and the tests cannot find them.
+    #
+    # The Gradle build deliberately runs here, after the emulator boots, rather
+    # than in an earlier step: the freshly booted system stays heavily loaded
+    # for a couple of minutes, and tests started during that window fail with
+    # window-focus timeouts. The build covers that settling time. If the build
+    # gets much faster (e.g. a warm Gradle cache), add an explicit settle wait.
+    - name: Instrumented Test
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 36
+        profile: pixel_6
+        target: google_apis
+        arch: x86_64
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        script: ./gradlew connectedAndroidDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notClass=com.spencerpages.ScreenshotsUITest -Pandroid.testInstrumentationRunnerArguments.numShards=${{ env.NUM_SHARDS }} -Pandroid.testInstrumentationRunnerArguments.shardIndex=${{ matrix.shard }}
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: instrumented-test-reports-shard-${{ matrix.shard }}
+        path: |
+          app/build/reports/androidTests/
+          app/build/outputs/androidTest-results/
+        if-no-files-found: ignore
+
+  # Single check that passes only when every shard passed, so branch
+  # protection can require one stable name regardless of the shard count.
+  result:
+    name: Instrumented Tests
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check shard results
+      run: |
+        echo "Shard result: ${{ needs.shard.result }}"
+        test "${{ needs.shard.result }}" = "success"
