@@ -9,6 +9,15 @@ on:
         type: string
         default: '1'
 
+# release.yml, promote.yml and deploy.yml all upload to the stores, so they
+# share one group and never run at the same time. cancel-in-progress: false
+# queues a new run behind the active one instead of killing a half-finished
+# upload. GitHub keeps only one pending run per group, so a third dispatch
+# replaces (cancels) the one already waiting.
+concurrency:
+  group: store-release-pipeline
+  cancel-in-progress: false
+
 jobs:
   build_and_prerelease:
     name: 'Build APKs, Publish Pre-release, Deploy to Play internal'
@@ -16,6 +25,14 @@ jobs:
     permissions: # contents:write to create the pre-release; deploy uses Play creds via secrets
       contents: write
     steps:
+      - name: Require the main branch
+        # workflow_dispatch can run from any branch; a pre-release must be
+        # built from reviewed code on main.
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Pre-releases must be built from main, but this run was dispatched from ${GITHUB_REF}. Re-run the workflow with 'Use workflow from: main'."
+          exit 1
+
       - name: Checkout code (full history for release notes)
         uses: actions/checkout@v7
         with:
@@ -110,6 +127,13 @@ jobs:
           # run the build. JDK version is single-sourced from the repo-root
           # .java-version file, shared with gradle.yml and codeql-analysis.yml.
           java-version-file: .java-version
+
+      - name: Run unit tests and lint
+        # The same gates gradle.yml runs on pull requests. Run them again here so
+        # nothing is published unless the exact commit being released passes.
+        run: |
+          chmod +x ./gradlew
+          ./gradlew testAndroidDebugUnitTest lintAndroidDebug
 
       - name: Decode and Place Keystore
         env:

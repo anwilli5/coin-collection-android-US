@@ -33,6 +33,12 @@ on:
         type: string
         default: ''
 
+# Shared with release.yml and promote.yml, which also upload to the stores;
+# see release.yml for why cancel-in-progress is false.
+concurrency:
+  group: store-release-pipeline
+  cancel-in-progress: false
+
 jobs:
   download_and_deploy:
     name: 'Download Release APKs and Deploy'
@@ -94,6 +100,20 @@ jobs:
             VERSION_CODE="0"
           fi
 
+          # Later steps build file names and gh/fastlane arguments from these
+          # values, so accept only the shapes a real release can have. Use
+          # bash's [[ =~ ]] rather than grep: grep matches line by line, so it
+          # would accept a value with an embedded newline, which could inject
+          # extra lines into $GITHUB_OUTPUT.
+          if ! [[ "$TAG" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "::error::Release tag '$TAG' is not of the form vX.Y.Z."
+            exit 1
+          fi
+          if ! [[ "$VERSION_CODE" =~ ^[0-9]+$ ]]; then
+            echo "::error::versionCode '$VERSION_CODE' is not a non-negative integer."
+            exit 1
+          fi
+
           echo "Resolved: tag=$TAG versionName=$VERSION_NAME versionCode=$VERSION_CODE"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
@@ -102,8 +122,8 @@ jobs:
       - name: Verify GitHub Release exists for tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.resolve_version.outputs.tag }}
         run: |
-          TAG="${{ steps.resolve_version.outputs.tag }}"
           echo "Verifying GitHub Release exists for $TAG..."
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null; then
             echo "Error: GitHub Release for tag $TAG not found. Run the 'Build and Publish Pre-release' and 'Promote Pre-release to Release' workflows first, or supply an existing release_tag input."
@@ -121,11 +141,11 @@ jobs:
         id: download_apks
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.resolve_version.outputs.tag }}
+          VERSION_NAME: ${{ steps.resolve_version.outputs.version_name }}
         run: |
           set -euo pipefail
           mkdir -p downloaded_apks
-          VERSION_NAME="${{ steps.resolve_version.outputs.version_name }}"
-          TAG="${{ steps.resolve_version.outputs.tag }}"
           ANDROID_APK_NAME="app-android-release-v${VERSION_NAME}.apk"
           AMAZON_APK_NAME="app-amazon-release-v${VERSION_NAME}.apk"
 
@@ -171,28 +191,37 @@ jobs:
 
       - name: Deploy to Google Play (Testers)
         if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track != 'production'
+        env:
+          VERSION_NAME: ${{ steps.resolve_version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.resolve_version.outputs.version_code }}
+          PLAY_TRACK: ${{ github.event.inputs.play_track }}
         run: |
           bundle exec fastlane deploy_playstore_test \
-            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
-            version_name:"${{ steps.resolve_version.outputs.version_name }}" \
-            version_code:"${{ steps.resolve_version.outputs.version_code }}" \
-            track:"${{ github.event.inputs.play_track }}"
+            apk_path:"${GITHUB_WORKSPACE}/downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
+            version_name:"${VERSION_NAME}" \
+            version_code:"${VERSION_CODE}" \
+            track:"${PLAY_TRACK}"
 
       - name: Deploy to Google Play (Production)
         if: (github.event.inputs.stores == 'android' || github.event.inputs.stores == 'both') && github.event.inputs.play_track == 'production'
+        env:
+          VERSION_NAME: ${{ steps.resolve_version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.resolve_version.outputs.version_code }}
         run: |
           bundle exec fastlane deploy_playstore_production \
-            apk_path:"${{ github.workspace }}/downloaded_apks/app-android-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
-            version_name:"${{ steps.resolve_version.outputs.version_name }}" \
-            version_code:"${{ steps.resolve_version.outputs.version_code }}"
+            apk_path:"${GITHUB_WORKSPACE}/downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
+            version_name:"${VERSION_NAME}" \
+            version_code:"${VERSION_CODE}"
 
       - name: Deploy to Amazon Appstore
         if: github.event.inputs.stores == 'amazon' || github.event.inputs.stores == 'both'
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
+          VERSION_NAME: ${{ steps.resolve_version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.resolve_version.outputs.version_code }}
         run: |
           bundle exec fastlane deploy_amazon_appstore \
-            apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${{ steps.resolve_version.outputs.version_name }}.apk" \
-            version_name:"${{ steps.resolve_version.outputs.version_name }}" \
-            version_code:"${{ steps.resolve_version.outputs.version_code }}"
+            apk_path:"${GITHUB_WORKSPACE}/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
+            version_name:"${VERSION_NAME}" \
+            version_code:"${VERSION_CODE}"

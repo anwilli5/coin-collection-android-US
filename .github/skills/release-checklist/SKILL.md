@@ -31,7 +31,7 @@ All tests must pass. If any fail, report the failures and stop.
 ./gradlew lintAndroidDebug
 ```
 
-No new errors should be introduced. Warnings are acceptable if pre-existing.
+Must report no issues. Lint warnings fail the build (`warningsAsErrors` in `app/build.gradle`), so any warning is a failure here too.
 
 ### 3. Release build is R8-clean and runs
 
@@ -132,3 +132,7 @@ Report a summary table:
 
 If all checks pass, the release workflow can be triggered.
 If any check fails, list the required actions before release.
+
+## After the release
+
+Google Play's memory quality requirement (dynamic and bitmap memory thresholds, enforced February 2027, announced in the [August 2026 Android Developers post](https://android-developers.googleblog.com/2026/08/app-quality-memory-optimization-secure-onboarding.html)) can only be checked from real-device data. A few days after a release reaches production, open **Play Console → Android vitals** and compare the new version's memory metrics with those thresholds. If it exceeds them, open an issue.
