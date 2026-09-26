@@ -65,6 +65,10 @@ public class ReorderCollections extends Fragment {
     private ArrayList<CollectionListInfo> mItems = null;
     private Boolean mUnsavedChanges = false;
     public ReorderAdapter mAdapter;
+    // Handles back while there are unsaved changes. It is enabled only while
+    // mUnsavedChanges is set, so otherwise the system pops this fragment itself
+    // and can show the predictive back animation
+    private OnBackPressedCallback mBackPressedCallback;
 
     public void setCollectionList(ArrayList<CollectionListInfo> items) {
         mItems = items;
@@ -72,6 +76,9 @@ public class ReorderCollections extends Fragment {
 
     private void setUnsavedChanges(Boolean unsavedChanges) {
         mUnsavedChanges = unsavedChanges;
+        if (mBackPressedCallback != null) {
+            mBackPressedCallback.setEnabled(unsavedChanges);
+        }
     }
 
     @Override
@@ -174,17 +181,18 @@ public class ReorderCollections extends Fragment {
 
         // Handle back press with OnBackPressedCallback (required for predictive
         // back support in Android 16 / SDK 36, replacing the legacy OnKeyListener approach)
+        mBackPressedCallback = new OnBackPressedCallback(mUnsavedChanges) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mUnsavedChanges) {
+                    showUnsavedChangesAlertAndExitFragment();
+                } else {
+                    closeFragment();
+                }
+            }
+        };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
-                new OnBackPressedCallback(true) {
-                    @Override
-                    public void handleOnBackPressed() {
-                        if (mUnsavedChanges) {
-                            showUnsavedChangesAlertAndExitFragment();
-                        } else {
-                            closeFragment();
-                        }
-                    }
-                });
+                mBackPressedCallback);
     }
 
     @Override

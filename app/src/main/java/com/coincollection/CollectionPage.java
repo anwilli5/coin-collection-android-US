@@ -97,6 +97,11 @@ public class CollectionPage extends BaseActivity {
     // initializing the fields setupFromDatabase() depends on.
     private boolean mSetupFromDatabasePending = false;
 
+    // Handles back while there are unsaved changes. It is enabled only while the
+    // unsaved-changes indicator is showing, so otherwise the system handles back
+    // itself and can show the predictive back animation
+    private OnBackPressedCallback mBackPressedCallback;
+
     // Saved Instance State Keywords
 
     // Intent Argument Keywords
@@ -105,6 +110,7 @@ public class CollectionPage extends BaseActivity {
     private final static String VIEW_INDEX = "view_index";
     private final static String VIEW_POSITION = "view_position";
     private final static String COIN_LIST = "coin_list";
+    private final static String COIN_FILTER_STATE = "COIN_FILTER_STATE";
 
     // Global "enum" values
     public static final int SIMPLE_DISPLAY = 0;
@@ -160,7 +166,7 @@ public class CollectionPage extends BaseActivity {
         mSavedInstanceState = savedInstanceState;
 
         // Need to get the coin type from the intent that started this process
-        mCollectionTypeIndex = mCallingIntent.getIntExtra(COLLECTION_TYPE_INDEX, 0);
+        mCollectionTypeIndex = mCallingIntent.getIntExtra(COLLECTION_TYPE_INDEX, -1);
 
         // Capture the collection name from the saved instance state if it's there,
         // otherwise capture from the calling intent. Note that the calling intent
@@ -169,6 +175,15 @@ public class CollectionPage extends BaseActivity {
             mCollectionName = savedInstanceState.getString(COLLECTION_NAME);
         } else {
             mCollectionName = mCallingIntent.getStringExtra(COLLECTION_NAME);
+        }
+
+        // Nothing can be shown without a valid collection type and name, so close
+        // rather than crash if the launching intent didn't provide them
+        if (mCollectionTypeIndex < 0 || mCollectionTypeIndex >= MainApplication.COLLECTION_TYPES.length
+                || mCollectionName == null) {
+            Toast.makeText(this, mRes.getString(R.string.error_opening_collection), Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
         // Restore the view index and position
@@ -272,8 +287,8 @@ public class CollectionPage extends BaseActivity {
         // Initialize coin filter state
         SharedPreferences filterPreferences = getSharedPreferences(MainApplication.PREFS, MODE_PRIVATE);
         // Use saved filter state if available, otherwise use SharedPreferences
-        if (mSavedInstanceState != null && mSavedInstanceState.containsKey("COIN_FILTER_STATE")) {
-            mCoinFilter = mSavedInstanceState.getInt("COIN_FILTER_STATE", FILTER_SHOW_ALL);
+        if (mSavedInstanceState != null && mSavedInstanceState.containsKey(COIN_FILTER_STATE)) {
+            mCoinFilter = mSavedInstanceState.getInt(COIN_FILTER_STATE, FILTER_SHOW_ALL);
         } else {
             mCoinFilter = filterPreferences.getInt(mCollectionName + COIN_FILTER, FILTER_SHOW_ALL);
         }
@@ -429,6 +444,7 @@ public class CollectionPage extends BaseActivity {
 
         TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.VISIBLE);
+        mBackPressedCallback.setEnabled(true);
     }
 
     /**
@@ -438,6 +454,7 @@ public class CollectionPage extends BaseActivity {
 
         TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.GONE);
+        mBackPressedCallback.setEnabled(false);
     }
 
     @Override
@@ -724,13 +741,21 @@ public class CollectionPage extends BaseActivity {
             return;
         }
 
-        // Update the coin in the coin list
+        // Update the coin in the coin list. The database update reads the new
+        // values from the coin, so set them first and put the old ones back if
+        // the update fails
+        String oldName = coinSlot.getIdentifier();
+        String oldMint = coinSlot.getMint();
+        int oldImageId = coinSlot.getImageId();
+        coinSlot.setIdentifier(coinName);
+        coinSlot.setMint(coinMint);
+        coinSlot.setImageId(imageId);
         try {
-            coinSlot.setIdentifier(coinName);
-            coinSlot.setMint(coinMint);
-            coinSlot.setImageId(imageId);
             mDbAdapter.updateCoinNameMintImage(mCollectionName, coinSlot);
         } catch (SQLException e) {
+            coinSlot.setIdentifier(oldName);
+            coinSlot.setMint(oldMint);
+            coinSlot.setImageId(oldImageId);
             showCancelableAlert(mRes.getString(R.string.error_updating_coin));
             return;
         }
@@ -808,7 +833,7 @@ public class CollectionPage extends BaseActivity {
      * with predictive back enabled (Android 16 / SDK 36).
      */
     private void setupBackPressedCallback() {
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+        mBackPressedCallback = new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
                 if (doUnsavedChangesExist()) {
@@ -820,7 +845,8 @@ public class CollectionPage extends BaseActivity {
                     getOnBackPressedDispatcher().onBackPressed();
                 }
             }
-        });
+        };
+        getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
     }
 
     /* We have one problem, specifically with the advancedView, where all of the
@@ -867,7 +893,7 @@ public class CollectionPage extends BaseActivity {
         outState.putInt(VIEW_POSITION, viewPos[1]);
         outState.putString(COLLECTION_NAME, mCollectionName);
         // Also save the filter state to ensure it's preserved
-        outState.putInt("COIN_FILTER_STATE", mCoinFilter);
+        outState.putInt(COIN_FILTER_STATE, mCoinFilter);
     }
 
     /**
@@ -944,11 +970,13 @@ public class CollectionPage extends BaseActivity {
             // Find the current position of the coin being toggled for smarter scroll restoration
             int coinPositionInCurrentList = mCoinSlotAdapter.getPositionInFilteredList(coinSlot);
             
-            // Preference doesn't exist or Collection is unlocked
+            // Preference doesn't exist or Collection is unlocked. Update the
+            // database first so a failed write leaves the displayed state alone
             try {
                 mDbAdapter.toggleInCollection(mCollectionName, coinSlot);
             } catch (SQLException e) {
                 showCancelableAlert(mRes.getString(R.string.error_updating_database));
+                return;
             }
 
             // Update the coin's collection status
@@ -1015,8 +1043,18 @@ public class CollectionPage extends BaseActivity {
         }
 
         if (!isCollectionLocked(true)) {
+            // Delete the coin from the database first, so a failed delete
+            // leaves the coin lists matching the database
+            CoinSlot coinSlot = mCoinList.get(position);
+            try {
+                mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName, mOriginalCoinList.size() - 1);
+            } catch (SQLException e) {
+                showCancelableAlert(mRes.getString(R.string.error_delete_coin));
+                return;
+            }
+
             // Delete the coin from the coin list
-            CoinSlot coinSlot = mCoinList.remove(position);
+            mCoinList.remove(position);
             // Also remove the exact same instance from the original list. An
             // equals-based remove could drop a different equal-by-equals
             // duplicate (e.g. from a copy), diverging the UI from the database
@@ -1025,12 +1063,6 @@ public class CollectionPage extends BaseActivity {
                     it.remove();
                     break;
                 }
-            }
-            try {
-                mDbAdapter.removeCoinSlotFromCollection(coinSlot, mCollectionName, mOriginalCoinList.size());
-            } catch (SQLException e) {
-                showCancelableAlert(mRes.getString(R.string.error_delete_coin));
-                return;
             }
             
             // Refresh the filter to update the filtered list
