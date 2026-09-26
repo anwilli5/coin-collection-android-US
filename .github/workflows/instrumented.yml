@@ -45,11 +45,15 @@ jobs:
         sudo udevadm trigger --name-match=kvm
     # ScreenshotsUITest is excluded: it drives the screengrab store-screenshot
     # pipeline, which needs its own setup (see the capture-store-screenshots
-    # skill). API 36 matches the emulator the suite is developed against.
+    # skill). API 36 and a 1080x2400 @ 420dpi screen match the Medium Phone
+    # emulator the suite is developed against. Without a profile the runner
+    # creates a 320x640 device, where "ifRoom" toolbar items such as Lock and
+    # Save collapse into the overflow menu and the tests cannot find them.
     - name: Instrumented Test
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 36
+        profile: pixel_6
         target: google_apis
         arch: x86_64
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
