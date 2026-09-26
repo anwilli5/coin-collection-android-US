@@ -30,6 +30,12 @@ jobs:
     # OSSAR runs on windows-latest.
     # ubuntu-latest and macos-latest support coming soon
     runs-on: windows-latest
+    # security-events: write lets upload-sarif publish results for main; the
+    # repository's default GITHUB_TOKEN permissions are read-only.
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     steps:
     - name: Checkout repository
