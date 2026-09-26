@@ -7,5 +7,5 @@ gem 'fastlane-plugin-amazon_appstore', '~> 1.7.0'
 # upload actions stubbed. minitest ships with Ruby but is not a default gem
 # under `bundle exec`, so it has to be declared here.
 group :test do
-  gem "minitest", "~> 5.25"
+  gem "minitest", "~> 6.0"
 end
