@@ -132,5 +132,8 @@ Directory-specific rules live in nested `CLAUDE.md` files:
   files (default rules, MD013 disabled) — authored markdown must be
   lint-clean.
 - **gradle.yml**: runs `testAndroidDebugUnitTest` + `lintAndroidDebug` on PRs.
+- **instrumented.yml**: runs `connectedAndroidDebugAndroidTest` (minus
+  `ScreenshotsUITest`) on an API 36 emulator on PRs — not yet a required
+  check; the workflow header documents how to promote it.
 - **fastlane-bundle-check.yml**: verifies the bundle installs and the
   Fastfile loads when Fastfile changes.
