@@ -651,6 +651,32 @@ public class ExportImportErrorTests extends BaseTestCase {
     }
 
     /**
+     * A spreadsheet-mangled flag value that parses but overflows a long must abort the
+     * import rather than being truncated into an arbitrary mint mark configuration
+     */
+    @Test
+    public void test_csvImportOutOfRangeMangledFlagValue() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupTwoCollections(activity);
+                DbSnapshot before = snapshotDb(activity);
+
+                // Trailing cell 9 is showMintMarks - "1E+30" is numeric but exceeds a long
+                String contents = csvHeader(MainApplication.DATABASE_VERSION)
+                        + CSV_SEPARATOR + "," + ExportImportHelper.JSON_COLLECTIONS + "\n"
+                        + String.join(",", CollectionListInfo.getCsvExportHeader()) + "\n"
+                        + "Imported," + LincolnCents.COLLECTION_TYPE
+                        + ",0,1,0,1909,2020,0,0,1E+30,1\n"
+                        + csvCoinSection("2019,P,1,0,0,,0,0,-1");
+
+                assertFalse(importCsv(activity, contents).isEmpty());
+                assertDbUnchanged(activity, before);
+            });
+        }
+    }
+
+    /**
      * The same check must apply to JSON imports
      */
     @Test

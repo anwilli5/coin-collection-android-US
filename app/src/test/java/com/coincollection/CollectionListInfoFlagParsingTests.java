@@ -73,6 +73,20 @@ public class CollectionListInfoFlagParsingTests {
         assertEquals(0L, CollectionListInfo.parseFlagString("not a number"));
         // Numeric overflow beyond Long.MAX_VALUE cannot be represented
         assertEquals(0L, CollectionListInfo.parseFlagString("99999999999999999999"));
+        assertEquals(0L, CollectionListInfo.parseFlagString("1E+30"));
+        assertEquals(0L, CollectionListInfo.parseFlagString("-1E+30"));
+    }
+
+    /**
+     * The spreadsheet-recovery path must accept the full long range and nothing
+     * beyond it, matching what {@code BigInteger.longValueExact()} allowed
+     */
+    @Test
+    public void parseFlagString_spreadsheetFormatRangeBoundaries() {
+        assertEquals(Long.MAX_VALUE, CollectionListInfo.parseFlagString("9223372036854775807.0"));
+        assertEquals(Long.MIN_VALUE, CollectionListInfo.parseFlagString("-9223372036854775808.0"));
+        assertEquals(0L, CollectionListInfo.parseFlagString("9223372036854775808.0"));
+        assertEquals(0L, CollectionListInfo.parseFlagString("-9223372036854775809.0"));
     }
 
     /**
