@@ -410,8 +410,13 @@ public class CollectionListInfo implements Parcelable {
         }
         try {
             // Handles "268435456.0" (exact) and "2.68435E+8" (best-effort, lossy)
-            return new java.math.BigDecimal(trimmed).toBigInteger().longValueExact();
-        } catch (NumberFormatException | ArithmeticException ignored) {
+            java.math.BigInteger value = new java.math.BigDecimal(trimmed).toBigInteger();
+            // Range check by hand - BigInteger.longValueExact() requires API 31
+            if (value.bitLength() > 63) {
+                return null;
+            }
+            return value.longValue();
+        } catch (NumberFormatException ignored) {
             return null;
         }
     }
