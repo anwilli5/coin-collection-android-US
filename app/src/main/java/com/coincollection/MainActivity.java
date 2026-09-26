@@ -171,8 +171,6 @@ public class MainActivity extends BaseActivity {
         mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
         ListView lv = findViewById(R.id.main_activity_listview);
         lv.setAdapter(mListAdapter);
-        // TODO Not sure what this does?
-        lv.setTextFilterEnabled(true); // Typing narrows down the list
 
         // At this point the UI is ready to handle any async callbacks
         setActivityReadyForAsyncCallbacks();
@@ -274,8 +272,8 @@ public class MainActivity extends BaseActivity {
                                 mRes.getString(R.string.error_unsupported_file_location));
                     }
                     try (InputStream inputStream = getContentResolver().openInputStream(fileUri)) {
-                        String fileName = getFileNameFromUri(fileUri);
-                        if (fileName.endsWith(".csv")) {
+                        String fileName = getFileNameFromUri(getContentResolver(), fileUri);
+                        if (isCsvFile(fileName, getContentResolver().getType(fileUri))) {
                             return helper.importCollectionsFromSingleCSV(inputStream);
                         } else {
                             return helper.importCollectionsFromJson(inputStream);
@@ -300,8 +298,8 @@ public class MainActivity extends BaseActivity {
                                 mRes.getString(R.string.error_unsupported_file_location));
                     }
                     try (OutputStream outputStream = getContentResolver().openOutputStream(fileUri)) {
-                        String fileName = getFileNameFromUri(fileUri);
-                        if (fileName.endsWith(".csv")) {
+                        String fileName = getFileNameFromUri(getContentResolver(), fileUri);
+                        if (isCsvFile(fileName, getContentResolver().getType(fileUri))) {
                             return helper.exportCollectionsToSingleCSV(outputStream, fileName);
                         } else {
                             return helper.exportCollectionsToJson(outputStream, fileName);
@@ -1013,21 +1011,49 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Returns the display name from a file URI
+     * Returns the display name from a file URI. Not every provider reports a
+     * display name, so this falls back to the URI's last path segment
      *
-     * @param uri file uri
-     * @return string display name or "Unknown" if an error occurs
+     * @param resolver content resolver to query
+     * @param uri      file uri
+     * @return the display name, the last path segment, or "" if neither is available
      */
-    private String getFileNameFromUri(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor == null) {
-            return "Unknown";
+    static String getFileNameFromUri(ContentResolver resolver, Uri uri) {
+        try (Cursor cursor = resolver.query(uri, null, null, null, null)) {
+            if (cursor != null) {
+                int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (index >= 0 && cursor.moveToFirst()) {
+                    String fileName = cursor.getString(index);
+                    if (fileName != null && !fileName.isEmpty()) {
+                        return fileName;
+                    }
+                }
+            }
         }
-        int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        cursor.moveToFirst();
-        String fileName = cursor.getString(index);
-        cursor.close();
-        return fileName;
+        String lastSegment = uri.getLastPathSegment();
+        return (lastSegment != null) ? lastSegment : "";
+    }
+
+    /**
+     * Decides whether a document is a CSV file rather than JSON. The provider's
+     * MIME type is used when it identifies the format, since the display name
+     * may be missing or lack an extension; otherwise the extension decides
+     *
+     * @param fileName file name, used when the MIME type doesn't identify the format
+     * @param mimeType MIME type reported by the provider, or null
+     * @return true if the document should be treated as CSV
+     */
+    static boolean isCsvFile(String fileName, String mimeType) {
+        if (mimeType != null) {
+            String type = mimeType.toLowerCase(Locale.ROOT);
+            if (type.equals("text/csv") || type.equals("text/comma-separated-values")) {
+                return true;
+            }
+            if (type.equals("application/json")) {
+                return false;
+            }
+        }
+        return fileName.toLowerCase(Locale.ROOT).endsWith(".csv");
     }
 
     /**
