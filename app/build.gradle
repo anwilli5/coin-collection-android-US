@@ -97,6 +97,12 @@ android {
     }
     lint {
         abortOnError = true
+        warningsAsErrors = true
+        // Newer-version notices depend on upstream releases, not on this code,
+        // and would fail unrelated PRs; Dependabot tracks version bumps instead.
+        // Coin images intentionally ship in drawable-mdpi only.
+        disable += ['GradleDependency', 'NewerVersionAvailable',
+                    'AndroidGradlePluginVersion', 'IconDensities']
     }
     namespace = 'com.spencerpages'
     buildFeatures {
