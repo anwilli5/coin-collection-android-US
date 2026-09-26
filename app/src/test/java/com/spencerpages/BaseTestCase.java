@@ -49,6 +49,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -236,16 +237,15 @@ public class BaseTestCase {
      * @param activity activity that can be used to access the database
      */
     public void deleteAllCollections(Activity activity) {
+        // Collect the names first and close that cursor before dropping anything.
+        // Dropping tables while iterating a cursor over the same info table can
+        // make the cursor skip rows when its CursorWindow is re-filled.
+        ArrayList<String> names = getCollectionNames(activity);
         DatabaseAdapter dbAdapter = new DatabaseAdapter(activity);
         dbAdapter.open();
-        Cursor resultCursor = dbAdapter.getAllCollectionNames();
-        assertNotNull(resultCursor);
-        if (resultCursor.moveToFirst()) {
-            do {
-                dbAdapter.dropCollectionTable(resultCursor.getString(resultCursor.getColumnIndex(COL_NAME)));
-            } while (resultCursor.moveToNext());
+        for (String name : names) {
+            dbAdapter.dropCollectionTable(name);
         }
-        resultCursor.close();
         dbAdapter.close();
     }
 
@@ -832,8 +832,10 @@ public class BaseTestCase {
      */
     FullCollection getRandomTestScenario(CollectionInfo coinType, String collectionName,
                                          Integer[] dates) {
-        int maxGrades = 100;
-        int maxQuantities = 20;
+        // Grades and quantities are stored as indexes into these arrays
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
+        int numGrades = res.getStringArray(R.array.coin_grades).length;
+        int numQuantities = res.getStringArray(R.array.coin_quantities).length;
         int startDate = dates[0];
         int endDate = dates[1];
         int displayOrder = random.nextInt(100000);
@@ -859,8 +861,8 @@ public class BaseTestCase {
         for (CoinSlot coinSlot : coinList) {
             boolean collected = (random.nextInt() % 2) == 1;
             coinSlot.setInCollection(collected);
-            coinSlot.setAdvancedGrades(random.nextInt() % maxGrades);
-            coinSlot.setAdvancedQuantities(random.nextInt() % maxQuantities);
+            coinSlot.setAdvancedGrades(random.nextInt(numGrades));
+            coinSlot.setAdvancedQuantities(random.nextInt(numQuantities));
             coinSlot.setAdvancedNotes(Integer.toString(random.nextInt()));
             numCollected += collected ? 1 : 0;
         }

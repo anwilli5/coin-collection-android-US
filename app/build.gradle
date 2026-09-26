@@ -90,11 +90,6 @@ android {
             targetSdk = 35
         }
     }
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
     lint {
         abortOnError = true
         warningsAsErrors = true
@@ -109,7 +104,7 @@ android {
         buildConfig = true
     }
     testOptions {
-        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
         unitTests.all {
             testLogging {
                 events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
@@ -126,7 +121,6 @@ android {
             // the forked JVM once another test polluted its state.
             jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", '-XX:+EnableDynamicAgentLoading'
         }
-        unitTests.includeAndroidResources = true
     }
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
