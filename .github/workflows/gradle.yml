@@ -34,3 +34,7 @@ jobs:
       run: ./gradlew testAndroidDebugUnitTest --rerun-tasks
     - name: Lint
       run: ./gradlew lintAndroidDebug
+    - name: Compile Amazon flavor
+      # The steps above only build the android flavor; catch amazon-only
+      # compile breaks before release.yml builds its APK.
+      run: ./gradlew compileAmazonDebugSources

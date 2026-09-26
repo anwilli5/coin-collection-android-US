@@ -90,15 +90,19 @@ The pipeline has two operator-driven stages.
    promoting.
 3. Merge the version bump **and** the release-notes file to `main`.
 4. In GitHub, go to **Actions → Build and Publish Pre-release → Run
-   workflow** and fill in the inputs:
+   workflow**, leave **Use workflow from** set to `main`, and fill in the
+   inputs:
    - `rc_number`: the release-candidate number for this attempt (`1` the
      first time; bump to `2`, `3`, … if you need another pre-release of the
      same version). This produces the tag `vX.Y.Z-rc.N`.
 5. The workflow:
+   - Refuses to run unless it was dispatched from `main`.
    - Refuses to run if the final tag `vX.Y.Z` **or** the chosen
      `vX.Y.Z-rc.N` tag already exists.
    - Fails fast if the checked-in
      `changelogs/<versionCode>.txt` release-notes file is missing or empty.
+   - Runs `testAndroidDebugUnitTest` and `lintAndroidDebug`, and stops if
+     either fails.
    - Builds `:app:assembleAndroidRelease` and `:app:assembleAmazonRelease`.
    - Verifies the APKs are signed with the release key (fails on
      debug-signed APKs).
@@ -152,6 +156,11 @@ Once internal testing is green:
    rebuilds from source, and publishes. Expect F-Droid availability to lag
    the GitHub Release by 1–3 days. No action required.
 
+> **One store workflow at a time.** The pre-release, promote, and deploy
+> workflows share a concurrency group, so a second run waits for the active
+> one to finish rather than uploading alongside it. GitHub keeps only one
+> waiting run per group: dispatching a third cancels the one already waiting.
+>
 > The `vX.Y.Z-rc.N` pre-release is kept after promotion as an audit trail.
 > You can delete it manually from the GitHub Releases page if you prefer.
 
@@ -203,6 +212,11 @@ The final tag exists because this version was already released — bump
 `versionName` in [`version.properties`](version.properties) and
 merge to `main`. If only the RC tag exists, just pick a higher `rc_number`
 and re-run.
+
+**Pre-release workflow fails with `Pre-releases must be built from main`.**
+The workflow was dispatched from another branch. Re-run it with **Use
+workflow from** set to `main`. For a hotfix, merge the fix to `main` first;
+the workflow does not build unmerged branches.
 
 **Release workflow fails with `... is signed with the Android debug key`.**
 One of the four `SIGNING_*` secrets is missing or wrong. Confirm all four

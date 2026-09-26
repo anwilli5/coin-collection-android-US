@@ -8,6 +8,12 @@ on:
         required: true
         type: string
 
+# Shared with release.yml and deploy.yml, which also upload to the stores;
+# see release.yml for why cancel-in-progress is false.
+concurrency:
+  group: store-release-pipeline
+  cancel-in-progress: false
+
 jobs:
   promote:
     name: 'Promote pre-release to production + Amazon (+ F-Droid tag)'
@@ -22,8 +28,10 @@ jobs:
         run: |
           set -euo pipefail
           RC_TAG="$INPUT_RC_TAG"
-          # Only accept a proper pre-release tag: vMAJOR[.MINOR...]-rc.N
-          if ! printf '%s' "$RC_TAG" | grep -Eq '^v[0-9]+(\.[0-9]+)*-rc\.[0-9]+$'; then
+          # Only accept a proper pre-release tag: vMAJOR[.MINOR...]-rc.N. Use
+          # bash's [[ =~ ]] rather than grep, which matches line by line and
+          # would accept a value with an embedded newline.
+          if ! [[ "$RC_TAG" =~ ^v[0-9]+(\.[0-9]+)*-rc\.[0-9]+$ ]]; then
             echo "Error: rc_tag '$RC_TAG' is not of the form vX.Y.Z-rc.N."
             exit 1
           fi
