@@ -35,9 +35,9 @@ jobs:
       fail-fast: false
       matrix:
         # Keep in sync with NUM_SHARDS below.
-        shard: [ 0, 1, 2 ]
+        shard: [ 0, 1, 2, 3 ]
     env:
-      NUM_SHARDS: 3
+      NUM_SHARDS: 4
     steps:
     - uses: actions/checkout@v7
     - name: Java Setup
@@ -50,11 +50,6 @@ jobs:
       uses: gradle/actions/setup-gradle@v6
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    # Build the app and test APKs before the emulator starts, so the build
-    # doesn't compete with the running emulator for the runner's CPUs. The
-    # connected test task below then finds them up to date.
-    - name: Build APKs
-      run: ./gradlew assembleAndroidDebug assembleAndroidDebugAndroidTest
     # Hardware acceleration for the x86_64 emulator on Linux runners.
     - name: Enable KVM
       run: |
@@ -67,6 +62,12 @@ jobs:
     # emulator the suite is developed against. Without a profile the runner
     # creates a 320x640 device, where "ifRoom" toolbar items such as Lock and
     # Save collapse into the overflow menu and the tests cannot find them.
+    #
+    # The Gradle build deliberately runs here, after the emulator boots, rather
+    # than in an earlier step: the freshly booted system stays heavily loaded
+    # for a couple of minutes, and tests started during that window fail with
+    # window-focus timeouts. The build covers that settling time. If the build
+    # gets much faster (e.g. a warm Gradle cache), add an explicit settle wait.
     - name: Instrumented Test
       uses: reactivecircus/android-emulator-runner@v2
       with:
