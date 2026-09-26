@@ -27,8 +27,11 @@ import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Intent;
+import android.os.Looper;
+import android.widget.Spinner;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -190,6 +193,37 @@ public class CoinPageCreatorTests extends BaseTestCase {
                     parameters.put(key, Boolean.FALSE);
                 }
             }
+        }
+    }
+
+    /**
+     * The collection parameters are saved as a Parcelable and must come back
+     * unchanged when the activity is recreated (e.g. on rotation)
+     */
+    @Test
+    public void test_parametersSurviveRecreate() {
+        CollectionListInfo info = COLLECTION_LIST_INFO_SCENARIOS[1];
+        ParcelableHashMap parameters = CoinPageCreator.getParametersFromCollectionListInfo(info);
+        int index = info.getCollectionTypeIndex();
+
+        try (ActivityScenario<CoinPageCreator> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), CoinPageCreator.class))) {
+            // Pick the collection type through the spinner, as a user would, so
+            // the spinner's own restored selection matches after the recreate
+            scenario.onActivity(activity -> {
+                Spinner coinTypeSelector = activity.findViewById(R.id.coin_selector);
+                coinTypeSelector.setSelection(activity.getCollectionListPos(index));
+            });
+            shadowOf(Looper.getMainLooper()).idle();
+            scenario.onActivity(activity -> {
+                assertEquals(index, activity.mCoinTypeIndex);
+                activity.setInternalStateFromCollectionIndex(index, activity.getCollectionListPos(index), parameters);
+            });
+            scenario.recreate();
+            scenario.onActivity(activity -> {
+                assertEquals(index, activity.mCoinTypeIndex);
+                assertEquals(parameters, activity.mParameters);
+            });
         }
     }
 }

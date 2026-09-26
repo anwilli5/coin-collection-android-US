@@ -297,6 +297,7 @@
     <string name="error_delete_coin">An error occurred while trying to delete the coin</string>
     <string name="error_updating_coin">An error occurred while trying to update the coin</string>
     <string name="error_opening_database">An error occurred while trying to open the database</string>
+    <string name="error_opening_collection">An error occurred while trying to open the collection</string>
     <string name="error_creating_database">An error occurred while trying to create the database</string>
     <string name="error_updating_database">An error occurred while trying to update the database</string>
     <string name="error_reordering_databases">An error occurred while trying to reorder collections</string>

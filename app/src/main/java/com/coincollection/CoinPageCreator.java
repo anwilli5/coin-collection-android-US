@@ -47,6 +47,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.core.os.BundleCompat;
+
 import com.coincollection.dialog.ConfirmationDialogFragment;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.BuildConfig;
@@ -296,7 +298,7 @@ public class CoinPageCreator extends BaseActivity {
             setInternalStateFromCollectionIndex(
                     savedInstanceState.getInt(_COIN_TYPE_INDEX),
                     savedInstanceState.getInt(_COIN_TYPE_LIST_POS),
-                    savedInstanceState.getParcelable(_PARAMETERS));
+                    BundleCompat.getParcelable(savedInstanceState, _PARAMETERS, ParcelableHashMap.class));
         } else if (mExistingCollection != null) {
             // Updating collection - Setup the parameters based on the existing collection
             setInternalStateFromCollectionIndex(
@@ -766,7 +768,7 @@ public class CoinPageCreator extends BaseActivity {
 
         savedInstanceState.putInt(_COIN_TYPE_INDEX, mCoinTypeIndex);
         savedInstanceState.putInt(_COIN_TYPE_LIST_POS, mCoinTypeListPos);
-        savedInstanceState.putSerializable(_PARAMETERS, mParameters);
+        savedInstanceState.putParcelable(_PARAMETERS, mParameters);
 
         super.onSaveInstanceState(savedInstanceState);
     }

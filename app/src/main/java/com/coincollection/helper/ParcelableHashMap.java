@@ -65,7 +65,8 @@ public class ParcelableHashMap extends HashMap<String, Object> implements Parcel
         ArrayList<String> booleanMap = new ArrayList<>();
         for (String key : this.keySet()) {
             Object value = this.get(key);
-            if (value instanceof String) {
+            // A null value is written as a null string, which reads back as null
+            if (value == null || value instanceof String) {
                 stringMap.add(key);
             } else if (value instanceof Integer) {
                 intMap.add(key);
