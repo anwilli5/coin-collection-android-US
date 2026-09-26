@@ -132,6 +132,10 @@ Directory-specific rules live in nested `CLAUDE.md` files:
   files (default rules, MD013 disabled) — authored markdown must be
   lint-clean.
 - **gradle.yml**: runs `testAndroidDebugUnitTest` + `lintAndroidDebug` on PRs.
+  Lint warnings and errors both fail the build (`warningsAsErrors = true` in
+  `app` and `shared-test`). The newer-version-available checks and
+  `IconDensities` are disabled there; fix a new warning or disable it
+  deliberately with a comment — never turn `warningsAsErrors` back off.
 - **instrumented.yml**: runs `connectedAndroidDebugAndroidTest` (minus
   `ScreenshotsUITest`) on PRs, sharded across 4 parallel API 36 emulators and
   reported as one "Instrumented Tests" check — not yet required; the workflow
