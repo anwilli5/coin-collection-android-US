@@ -184,6 +184,7 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
+    minitest-mock (5.27.0)
     multi_json (1.21.2)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
@@ -269,6 +270,7 @@ DEPENDENCIES
   fastlane (~> 2.240.1)
   fastlane-plugin-amazon_appstore (~> 1.7.0)
   minitest (~> 6.0)
+  minitest-mock (~> 5.27)
 
 BUNDLED WITH
    2.4.10

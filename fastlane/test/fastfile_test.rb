@@ -17,6 +17,7 @@
 # BEGIN PRIVATE KEY block would be flagged by the repo's security scanners.
 
 require 'minitest/autorun'
+require 'minitest/mock'
 require 'fastlane'
 require 'tmpdir'
 require 'json'
@@ -207,7 +208,8 @@ class FastfileTest < Minitest::Test
   def test_blank_mapping_path_override_is_ignored
     built_mapping = File.join(REPO_ROOT, 'app/build/outputs/mapping/androidRelease/mapping.txt')
     expected = File.exist?(built_mapping) ? built_mapping : nil
-    assert_equal(expected, @fastfile.r8_mapping_path(mapping_path: '   '))
+    actual = @fastfile.r8_mapping_path(mapping_path: '   ')
+    expected ? assert_equal(expected, actual) : assert_nil(actual)
   end
 
   # --- Amazon Appstore ----------------------------------------------------
