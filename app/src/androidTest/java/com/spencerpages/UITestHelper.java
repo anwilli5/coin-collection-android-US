@@ -369,18 +369,21 @@ public class UITestHelper {
     }
 
     /**
-     * Wait for the current window to gain focus so Espresso interactions
-     * won't fail with RootViewWithoutFocusException.  Uses UiAutomator
-     * (which does not need Espresso focus) to let the window settle,
-     * then calls Espresso's {@code onIdle()} as a final sync point.
-     * Safe to call at any point — returns quickly if focus is already held.
+     * Wait for the app's current window to have focus so Espresso interactions
+     * won't fail with RootViewWithoutFocusException. The window can be the
+     * activity or a dialog on top of it: Espresso picks the same root it would
+     * use for the next interaction and waits for that root to have focus.
+     * Returns as soon as focus is held, and fails if it never arrives.
      */
     public static void waitForWindowFocus() {
-        UiDevice device = UiDevice.getInstance(getInstrumentation());
-        // waitForIdle blocks until no accessibility events for the given timeout.
-        device.waitForIdle(5_000);
-        // waitForWindowUpdate(null, ...) waits for any window to update.
-        device.waitForWindowUpdate(null, 5_000);
+        waitForAssertion(() -> onView(isRoot()).check((view, noViewFoundException) -> {
+            if (noViewFoundException != null) {
+                throw noViewFoundException;
+            }
+            if (!view.hasWindowFocus()) {
+                throw new AssertionError("The app's window does not have focus");
+            }
+        }));
     }
 
     /**

@@ -20,6 +20,7 @@
 
 package com.spencerpages;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -28,7 +29,7 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtP
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.anything;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
@@ -66,6 +67,23 @@ public class ReorderCollectionsTests {
     }
 
     /**
+     * Assert the collection names at the top of the main list, in order
+     *
+     * @param names expected names, starting from the first row
+     */
+    private static void assertMainListOrder(String... names) {
+        UITestHelper.waitForAssertion(() -> {
+            for (int i = 0; i < names.length; i++) {
+                onData(anything())
+                        .inAdapterView(withId(R.id.main_activity_listview))
+                        .atPosition(i)
+                        .onChildView(withId(R.id.collectionNameTextView))
+                        .check(matches(withText(names[i])));
+            }
+        });
+    }
+
+    /**
      * Verify collection reordering with save.
      */
     @Test
@@ -95,8 +113,13 @@ public class ReorderCollectionsTests {
         // Navigate back
         pressBack();
 
-        // Verify main activity is displayed
+        // Verify main activity is displayed with the new order
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
+        assertMainListOrder("Collection B", "Collection A");
+
+        // The order was saved, so it survives reloading the list from the database
+        UITestHelper.recreateActivity(activityRule);
+        assertMainListOrder("Collection B", "Collection A");
     }
 
     /**
@@ -139,7 +162,8 @@ public class ReorderCollectionsTests {
         // Tap "Okay" — return to main activity (changes discarded)
         onView(withText(R.string.okay)).perform(click());
 
-        // Verify main activity
+        // Verify main activity, with the original order kept
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
+        assertMainListOrder("Collection A", "Collection B");
     }
 }

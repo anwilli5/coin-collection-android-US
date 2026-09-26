@@ -74,25 +74,29 @@ public class LaunchCoinPageTests extends BaseTestCase {
      */
     @Test
     public void test_launchCoinPage() {
+        FullCollection collection = getRandomTestScenarios(mCoinTypeObj, 1).get(0);
+        String collectionName = collection.mCollectionListInfo.getName();
+
+        // Create the collection and get the intent MainActivity launches it with
+        Intent[] intent = new Intent[1];
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
-                for (FullCollection scenario1 : getRandomTestScenarios(mCoinTypeObj, 1)) {
-                    // Create the collection in the database
-                    activity.mDbAdapter.createAndPopulateNewTable(scenario1.mCollectionListInfo,
-                            scenario1.mDisplayOrder, scenario1.mCoinList);
-                    activity.updateCollectionListFromDatabase();
+                activity.mDbAdapter.createAndPopulateNewTable(collection.mCollectionListInfo,
+                        collection.mDisplayOrder, collection.mCoinList);
+                activity.updateCollectionListFromDatabase();
+                intent[0] = activity.launchCoinPageActivity(collection.mCollectionListInfo);
+            });
+        }
+        assertNotNull(intent[0]);
 
-                    // Launch the collection
-                    Intent intent = activity.launchCoinPageActivity(scenario1.mCollectionListInfo);
-                    assertNotNull(intent);
-                    CollectionPage coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
-                    assertNotNull(coinActivity);
-                    coinActivity.onCreate(null);
-
-                    // Clean up
-                    activity.deleteDatabase(scenario1.mCollectionListInfo.getName());
-                }
+        // Launch the collection through the full lifecycle and check that it
+        // loaded the right collection
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(intent[0])) {
+            scenario.onActivity(activity -> {
+                assertEquals(collectionName, activity.getTitle().toString());
+                assertEquals(collection.mCoinList.size(), activity.mOriginalCoinList.size());
+                assertEquals(collection.mCoinList.size(), activity.mCoinList.size());
             });
         }
     }
@@ -126,7 +130,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     // The synchronous unit-test seam would reopen the database inside
                     // BaseActivity.onCreate and mask a regression in the deferral.
                     CollectionPage coinActivity;
-                    BaseActivity.isUnitTest = false;
+                    BaseActivity.sRunTasksInline = false;
                     try {
                         coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
                         assertNotNull(coinActivity);
@@ -134,7 +138,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                         // otherwise it crashes with a NullPointerException
                         coinActivity.onCreate(null);
                     } finally {
-                        BaseActivity.isUnitTest = true;
+                        BaseActivity.sRunTasksInline = true;
                     }
 
                     // The database-dependent setup must have been deferred, not run
@@ -188,7 +192,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     // database-dependent setup (including setContentView) is deferred
                     CollectionPage coinActivity;
                     Bundle outState = new Bundle();
-                    BaseActivity.isUnitTest = false;
+                    BaseActivity.sRunTasksInline = false;
                     try {
                         coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
                         assertNotNull(coinActivity);
@@ -200,7 +204,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                         // with a NullPointerException in getAbsListViewPosition()
                         coinActivity.onSaveInstanceState(outState);
                     } finally {
-                        BaseActivity.isUnitTest = true;
+                        BaseActivity.sRunTasksInline = true;
                     }
                     coinActivity.onDestroy();
 

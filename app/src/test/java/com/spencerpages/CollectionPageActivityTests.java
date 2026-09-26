@@ -91,7 +91,11 @@ public class CollectionPageActivityTests extends BaseTestCase {
                             .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
                 scenario.onActivity(activity -> {
 
-                    if (!activity.mCoinList.isEmpty()) {
+                    if (collection.mCollectionListInfo.getMax() == 0) {
+                        // A deliberately empty scenario, so there are no coins to act on
+                        assertTrue(activity.mCoinList.isEmpty());
+                    } else {
+                        assertFalse("Scenario " + collectionName + " must have coins", activity.mCoinList.isEmpty());
 
                         // Make copy of coins
                         activity.copyCoinSlot(activity.mCoinList.get(0), 1);
@@ -274,70 +278,67 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
             scenario.onActivity(activity -> {
                 
-                if (!activity.mCoinList.isEmpty()) {
-                    int originalSize = activity.mCoinList.size();
-                    
-                    // Initially, filter should be SHOW_ALL
-                    assertEquals(CollectionPage.FILTER_SHOW_ALL, activity.mCoinFilter);
-                    assertEquals(originalSize, activity.mCoinList.size());
-                    
-                    // Set up test data - toggle some coins to collected status
-                    if (originalSize > 2) {
-                        activity.mOriginalCoinList.get(0).setInCollection(true);
-                        activity.mOriginalCoinList.get(1).setInCollection(true);
-                        activity.mOriginalCoinList.get(2).setInCollection(false);
-                        if (originalSize > 3) {
-                            activity.mOriginalCoinList.get(3).setInCollection(false);
-                        }
-                        
-                        // Test SHOW_COLLECTED filter
-                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
-                        activity.applyCurrentFilter();
-                        
-                        // Should only show collected coins (at least 2)
-                        assertTrue("Should have at least 2 collected coins", activity.mCoinList.size() >= 2);
-                        for (CoinSlot coin : activity.mCoinList) {
-                            assertTrue("All coins in filtered list should be collected", coin.isInCollection());
-                        }
-                        
-                        // Test SHOW_MISSING filter
-                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
-                        activity.applyCurrentFilter();
-                        
-                        // Should only show missing coins
-                        assertFalse("Should have at least 1 missing coin", activity.mCoinList.isEmpty());
-                        for (CoinSlot coin : activity.mCoinList) {
-                            assertFalse("All coins in filtered list should be missing", coin.isInCollection());
-                        }
-                        
-                        // Test back to SHOW_ALL
-                        activity.mCoinFilter = CollectionPage.FILTER_SHOW_ALL;
-                        activity.applyCurrentFilter();
-                        assertEquals("SHOW_ALL should show all coins", originalSize, activity.mCoinList.size());
-                        
-                        // Test filter cycling (like the toggle button would do)
-                        for (int i = 0; i < 6; i++) {
-                            int expectedFilter = i % 3;
-                            activity.mCoinFilter = expectedFilter;
-                            activity.applyCurrentFilter();
-                            
-                            // Verify the filter state is correct
-                            switch (expectedFilter) {
-                                case CollectionPage.FILTER_SHOW_ALL:
-                                    assertEquals("SHOW_ALL should show all coins", originalSize, activity.mCoinList.size());
-                                    break;
-                                case CollectionPage.FILTER_SHOW_COLLECTED:
-                                    for (CoinSlot coin : activity.mCoinList) {
-                                        assertTrue("Collected filter should only show collected coins", coin.isInCollection());
-                                    }
-                                    break;
-                                case CollectionPage.FILTER_SHOW_MISSING:
-                                    for (CoinSlot coin : activity.mCoinList) {
-                                        assertFalse("Missing filter should only show missing coins", coin.isInCollection());
-                                    }
-                                    break;
+                assertTrue("Scenario must have more than 2 coins", activity.mCoinList.size() > 2);
+                int originalSize = activity.mCoinList.size();
+
+                // Initially, filter should be SHOW_ALL
+                assertEquals(CollectionPage.FILTER_SHOW_ALL, activity.mCoinFilter);
+                assertEquals(originalSize, activity.mCoinList.size());
+
+                // Set up test data - toggle some coins to collected status
+                activity.mOriginalCoinList.get(0).setInCollection(true);
+                activity.mOriginalCoinList.get(1).setInCollection(true);
+                activity.mOriginalCoinList.get(2).setInCollection(false);
+                if (originalSize > 3) {
+                    activity.mOriginalCoinList.get(3).setInCollection(false);
+                }
+
+                // Test SHOW_COLLECTED filter
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
+                activity.applyCurrentFilter();
+
+                // Should only show collected coins (at least 2)
+                assertTrue("Should have at least 2 collected coins", activity.mCoinList.size() >= 2);
+                for (CoinSlot coin : activity.mCoinList) {
+                    assertTrue("All coins in filtered list should be collected", coin.isInCollection());
+                }
+
+                // Test SHOW_MISSING filter
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
+                activity.applyCurrentFilter();
+
+                // Should only show missing coins
+                assertFalse("Should have at least 1 missing coin", activity.mCoinList.isEmpty());
+                for (CoinSlot coin : activity.mCoinList) {
+                    assertFalse("All coins in filtered list should be missing", coin.isInCollection());
+                }
+
+                // Test back to SHOW_ALL
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_ALL;
+                activity.applyCurrentFilter();
+                assertEquals("SHOW_ALL should show all coins", originalSize, activity.mCoinList.size());
+
+                // Test filter cycling (like the toggle button would do)
+                for (int i = 0; i < 6; i++) {
+                    int expectedFilter = i % 3;
+                    activity.mCoinFilter = expectedFilter;
+                    activity.applyCurrentFilter();
+
+                    // Verify the filter state is correct
+                    switch (expectedFilter) {
+                        case CollectionPage.FILTER_SHOW_ALL:
+                            assertEquals("SHOW_ALL should show all coins", originalSize, activity.mCoinList.size());
+                            break;
+                        case CollectionPage.FILTER_SHOW_COLLECTED:
+                            for (CoinSlot coin : activity.mCoinList) {
+                                assertTrue("Collected filter should only show collected coins", coin.isInCollection());
                             }
-                        }
+                            break;
+                        case CollectionPage.FILTER_SHOW_MISSING:
+                            for (CoinSlot coin : activity.mCoinList) {
+                                assertFalse("Missing filter should only show missing coins", coin.isInCollection());
+                            }
+                            break;
                     }
                 }
             });
@@ -360,57 +361,56 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
             scenario.onActivity(activity -> {
                 
-                if (!activity.mCoinList.isEmpty() && activity.mCoinList.size() > 2) {
-                    // Set up initial state: some coins collected, some missing
-                    activity.mOriginalCoinList.get(0).setInCollection(true);
-                    activity.mOriginalCoinList.get(1).setInCollection(false);
-                    activity.mOriginalCoinList.get(2).setInCollection(true);
-                    
-                    // Test SHOW_COLLECTED filter
-                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
-                    activity.applyCurrentFilter();
-                    int collectedCount = activity.mCoinList.size();
-                    assertTrue("Should have collected coins", collectedCount > 0);
-                    
-                    // Simulate toggling a collected coin to missing (this would happen when user clicks)
-                    // Find the first collected coin in the filtered list
-                    CoinSlot firstCollectedCoin = activity.mCoinList.get(0);
-                    assertTrue("First coin should be collected", firstCollectedCoin.isInCollection());
-                    
-                    // Simulate the toggle operation
-                    firstCollectedCoin.setInCollection(false);
-                    // Update in original list too
-                    for (CoinSlot originalCoin : activity.mOriginalCoinList) {
-                        if (originalCoin.equals(firstCollectedCoin)) {
-                            originalCoin.setInCollection(false);
-                            break;
-                        }
+                assertTrue("Scenario must have more than 2 coins", activity.mCoinList.size() > 2);
+                // Set up initial state: some coins collected, some missing
+                activity.mOriginalCoinList.get(0).setInCollection(true);
+                activity.mOriginalCoinList.get(1).setInCollection(false);
+                activity.mOriginalCoinList.get(2).setInCollection(true);
+
+                // Test SHOW_COLLECTED filter
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
+                activity.applyCurrentFilter();
+                int collectedCount = activity.mCoinList.size();
+                assertTrue("Should have collected coins", collectedCount > 0);
+
+                // Simulate toggling a collected coin to missing (this would happen when user clicks)
+                // Find the first collected coin in the filtered list
+                CoinSlot firstCollectedCoin = activity.mCoinList.get(0);
+                assertTrue("First coin should be collected", firstCollectedCoin.isInCollection());
+
+                // Simulate the toggle operation
+                firstCollectedCoin.setInCollection(false);
+                // Update in original list too
+                for (CoinSlot originalCoin : activity.mOriginalCoinList) {
+                    if (originalCoin.equals(firstCollectedCoin)) {
+                        originalCoin.setInCollection(false);
+                        break;
                     }
-                    
-                    // Reapply filter (this is what toggleCoinSlotInCollection does)
-                    activity.applyCurrentFilter();
-                    
-                    // The toggled coin should no longer appear in the SHOW_COLLECTED view
-                    assertEquals("Collected count should decrease by 1", collectedCount - 1, activity.mCoinList.size());
-                    for (CoinSlot coin : activity.mCoinList) {
-                        assertTrue("All remaining coins should still be collected", coin.isInCollection());
-                        assertNotEquals("Toggled coin should not be in the list", firstCollectedCoin, coin);
-                    }
-                    
-                    // Test SHOW_MISSING filter now
-                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
-                    activity.applyCurrentFilter();
-                    
-                    // The toggled coin should now appear in the SHOW_MISSING view
-                    boolean foundToggledCoin = false;
-                    for (CoinSlot coin : activity.mCoinList) {
-                        assertFalse("All coins should be missing", coin.isInCollection());
-                        if (coin.equals(firstCollectedCoin)) {
-                            foundToggledCoin = true;
-                        }
-                    }
-                    assertTrue("Toggled coin should appear in missing view", foundToggledCoin);
                 }
+
+                // Reapply filter (this is what toggleCoinSlotInCollection does)
+                activity.applyCurrentFilter();
+
+                // The toggled coin should no longer appear in the SHOW_COLLECTED view
+                assertEquals("Collected count should decrease by 1", collectedCount - 1, activity.mCoinList.size());
+                for (CoinSlot coin : activity.mCoinList) {
+                    assertTrue("All remaining coins should still be collected", coin.isInCollection());
+                    assertNotEquals("Toggled coin should not be in the list", firstCollectedCoin, coin);
+                }
+
+                // Test SHOW_MISSING filter now
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
+                activity.applyCurrentFilter();
+
+                // The toggled coin should now appear in the SHOW_MISSING view
+                boolean foundToggledCoin = false;
+                for (CoinSlot coin : activity.mCoinList) {
+                    assertFalse("All coins should be missing", coin.isInCollection());
+                    if (coin.equals(firstCollectedCoin)) {
+                        foundToggledCoin = true;
+                    }
+                }
+                assertTrue("Toggled coin should appear in missing view", foundToggledCoin);
             });
         }
     }
@@ -431,51 +431,44 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
             scenario.onActivity(activity -> {
 
-                if (!activity.mCoinList.isEmpty()) {
-                    int originalSize = activity.mCoinList.size();
+                assertTrue("Scenario must have at least 3 coins", activity.mCoinList.size() >= 3);
+                int originalSize = activity.mCoinList.size();
 
-                    // Initially, search query should be empty and all coins shown
-                    assertEquals(originalSize, activity.mCoinList.size());
+                // Initially, search query should be empty and all coins shown
+                assertEquals(originalSize, activity.mCoinList.size());
 
-                    // Set up test data - unique names for some coins
-                    activity.mOriginalCoinList.get(0).setIdentifier("UniqueCoinName1");
-                    if (activity.mOriginalCoinList.size() > 1) {
-                        activity.mOriginalCoinList.get(1).setIdentifier("CommonName");
-                    }
-                    if (activity.mOriginalCoinList.size() > 2) {
-                        activity.mOriginalCoinList.get(2).setIdentifier("CommonName");
-                    }
+                // Set up test data - unique names for some coins
+                activity.mOriginalCoinList.get(0).setIdentifier("UniqueCoinName1");
+                activity.mOriginalCoinList.get(1).setIdentifier("CommonName");
+                activity.mOriginalCoinList.get(2).setIdentifier("CommonName");
 
-                    android.widget.SearchView searchView = activity.findViewById(R.id.search_view);
+                android.widget.SearchView searchView = activity.findViewById(R.id.search_view);
 
-                    // Test search for "UniqueCoinName1"
-                    searchView.setQuery("UniqueCoinName1", true);
-                    assertEquals(1, activity.mCoinList.size());
-                    assertEquals("UniqueCoinName1", activity.mCoinList.get(0).getIdentifier());
+                // Test search for "UniqueCoinName1"
+                searchView.setQuery("UniqueCoinName1", true);
+                assertEquals(1, activity.mCoinList.size());
+                assertEquals("UniqueCoinName1", activity.mCoinList.get(0).getIdentifier());
 
-                    // Test search for "CommonName"
-                    searchView.setQuery("CommonName", true);
-                    if (originalSize >= 3) {
-                        assertEquals(2, activity.mCoinList.size());
-                        for (CoinSlot coin : activity.mCoinList) {
-                            assertEquals("CommonName", coin.getIdentifier());
-                        }
-                    }
-
-                    // Test search for something that doesn't exist
-                    searchView.setQuery("NonExistentCoin", true);
-                    assertEquals(0, activity.mCoinList.size());
-
-                    // Test clearing search query
-                    searchView.setQuery("", true);
-                    assertEquals(originalSize, activity.mCoinList.size());
-
-                    // Test case-insensitivity
-                    activity.mOriginalCoinList.get(0).setIdentifier("MixedCaseName");
-                    searchView.setQuery("mixedcasename", true);
-                    assertEquals(1, activity.mCoinList.size());
-                    assertEquals("MixedCaseName", activity.mCoinList.get(0).getIdentifier());
+                // Test search for "CommonName"
+                searchView.setQuery("CommonName", true);
+                assertEquals(2, activity.mCoinList.size());
+                for (CoinSlot coin : activity.mCoinList) {
+                    assertEquals("CommonName", coin.getIdentifier());
                 }
+
+                // Test search for something that doesn't exist
+                searchView.setQuery("NonExistentCoin", true);
+                assertEquals(0, activity.mCoinList.size());
+
+                // Test clearing search query
+                searchView.setQuery("", true);
+                assertEquals(originalSize, activity.mCoinList.size());
+
+                // Test case-insensitivity
+                activity.mOriginalCoinList.get(0).setIdentifier("MixedCaseName");
+                searchView.setQuery("mixedcasename", true);
+                assertEquals(1, activity.mCoinList.size());
+                assertEquals("MixedCaseName", activity.mCoinList.get(0).getIdentifier());
             });
         }
     }
@@ -495,44 +488,43 @@ public class CollectionPageActivityTests extends BaseTestCase {
                         .putExtra(CollectionPage.COLLECTION_NAME, collectionName))) {
             scenario.onActivity(activity -> {
 
-                if (activity.mOriginalCoinList.size() >= 4) {
-                    // Setup:
-                    // 0: "Gold", Collected
-                    // 1: "Gold", Missing
-                    // 2: "Silver", Collected
-                    // 3: "Silver", Missing
-                    activity.mOriginalCoinList.get(0).setIdentifier("Gold");
-                    activity.mOriginalCoinList.get(0).setInCollection(true);
+                assertTrue("Scenario must have at least 4 coins", activity.mOriginalCoinList.size() >= 4);
+                // Setup:
+                // 0: "Gold", Collected
+                // 1: "Gold", Missing
+                // 2: "Silver", Collected
+                // 3: "Silver", Missing
+                activity.mOriginalCoinList.get(0).setIdentifier("Gold");
+                activity.mOriginalCoinList.get(0).setInCollection(true);
 
-                    activity.mOriginalCoinList.get(1).setIdentifier("Gold");
-                    activity.mOriginalCoinList.get(1).setInCollection(false);
+                activity.mOriginalCoinList.get(1).setIdentifier("Gold");
+                activity.mOriginalCoinList.get(1).setInCollection(false);
 
-                    activity.mOriginalCoinList.get(2).setIdentifier("Silver");
-                    activity.mOriginalCoinList.get(2).setInCollection(true);
+                activity.mOriginalCoinList.get(2).setIdentifier("Silver");
+                activity.mOriginalCoinList.get(2).setInCollection(true);
 
-                    activity.mOriginalCoinList.get(3).setIdentifier("Silver");
-                    activity.mOriginalCoinList.get(3).setInCollection(false);
+                activity.mOriginalCoinList.get(3).setIdentifier("Silver");
+                activity.mOriginalCoinList.get(3).setInCollection(false);
 
-                    SearchView searchView = activity.findViewById(R.id.search_view);
+                SearchView searchView = activity.findViewById(R.id.search_view);
 
-                    // Filter: Collected, Search: "Gold" -> Result: 1 coin (0)
-                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
-                    activity.applyCurrentFilter();
-                    searchView.setQuery("Gold", true);
+                // Filter: Collected, Search: "Gold" -> Result: 1 coin (0)
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_COLLECTED;
+                activity.applyCurrentFilter();
+                searchView.setQuery("Gold", true);
 
-                    assertEquals(1, activity.mCoinList.size());
-                    assertTrue(activity.mCoinList.get(0).isInCollection());
-                    assertEquals("Gold", activity.mCoinList.get(0).getIdentifier());
+                assertEquals(1, activity.mCoinList.size());
+                assertTrue(activity.mCoinList.get(0).isInCollection());
+                assertEquals("Gold", activity.mCoinList.get(0).getIdentifier());
 
-                    // Filter: Missing, Search: "Silver" -> Result: 1 coin (3)
-                    activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
-                    activity.applyCurrentFilter();
-                    searchView.setQuery("Silver", true);
+                // Filter: Missing, Search: "Silver" -> Result: 1 coin (3)
+                activity.mCoinFilter = CollectionPage.FILTER_SHOW_MISSING;
+                activity.applyCurrentFilter();
+                searchView.setQuery("Silver", true);
 
-                    assertEquals(1, activity.mCoinList.size());
-                    assertFalse(activity.mCoinList.get(0).isInCollection());
-                    assertEquals("Silver", activity.mCoinList.get(0).getIdentifier());
-                }
+                assertEquals(1, activity.mCoinList.size());
+                assertFalse(activity.mCoinList.get(0).isInCollection());
+                assertEquals("Silver", activity.mCoinList.get(0).getIdentifier());
             });
         }
     }

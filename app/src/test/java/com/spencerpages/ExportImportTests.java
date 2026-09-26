@@ -29,6 +29,7 @@ import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -91,6 +92,25 @@ public class ExportImportTests extends BaseTestCase {
     }
 
     /**
+     * Find a coin in a collection, failing the test if it isn't there
+     *
+     * @param activity       activity whose database to search
+     * @param collectionName collection to search
+     * @param identifier     coin identifier
+     * @param mint           coin mint, compared ignoring surrounding whitespace
+     * @return the coin
+     */
+    private static CoinSlot findCoin(MainActivity activity, String collectionName,
+                                     String identifier, String mint) {
+        for (CoinSlot coin : activity.mDbAdapter.getCoinList(collectionName, true)) {
+            if (coin.getIdentifier().equals(identifier) && coin.getMint().trim().equals(mint)) {
+                return coin;
+            }
+        }
+        throw new AssertionError("No coin " + identifier + " " + mint + " in " + collectionName);
+    }
+
+    /**
      * Test exporting one of each collection type using legacy CSV format
      */
     @Test
@@ -99,7 +119,6 @@ public class ExportImportTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
-                //assertTrue(waitForMainActivitySetup(activity));
                 assertTrue(setEnabledPermissions(activity));
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
@@ -169,7 +188,6 @@ public class ExportImportTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
-                //assertTrue(waitForMainActivitySetup(activity));
                 assertTrue(setEnabledPermissions(activity));
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
@@ -214,7 +232,6 @@ public class ExportImportTests extends BaseTestCase {
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
                 // Set up collections
-                //assertTrue(waitForMainActivitySetup(activity));
                 assertTrue(setEnabledPermissions(activity));
                 assertTrue(setupOneOfEachCollectionTypes(activity));
                 activity.updateCollectionListFromDatabase();
@@ -266,7 +283,17 @@ public class ExportImportTests extends BaseTestCase {
                 assertEquals("", helper.importCollectionsFromLegacyCSV(v1DbDir.getAbsolutePath()));
                 ArrayList<String> afterCollectionNames = getCollectionNames(activity);
                 assertEquals(26, afterCollectionNames.size());
-                //assertEquals(beforeCollectionNames, afterCollectionNames);
+
+                // Spot-check names and order, including a name whose '/' was
+                // encoded as _SL_ in the file name
+                assertEquals("Pennies", afterCollectionNames.get(0));
+                assertEquals("Sacagawea/Native American Dollars", afterCollectionNames.get(9));
+                assertEquals("American Innovation Dollars", afterCollectionNames.get(25));
+
+                // Spot-check that the collected state came across
+                assertTrue(findCoin(activity, "National Park Quarters", "Hot Springs", "D").isInCollection());
+                assertTrue(findCoin(activity, "Franklin Half Dollars", "1948", "").isInCollection());
+                assertFalse(findCoin(activity, "Pennies", "1909 V.D.B", "").isInCollection());
             });
         }
     }
@@ -377,8 +404,8 @@ public class ExportImportTests extends BaseTestCase {
                 compareCollectionListInfos(info, checkInfo);
                 testNum++;
 
-            } catch (Exception ignored) {
-                fail();
+            } catch (Exception e) {
+                throw new AssertionError(e);
             }
         }
     }

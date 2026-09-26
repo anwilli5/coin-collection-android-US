@@ -119,8 +119,8 @@ public class ExportImportJsonTests extends BaseTestCase {
                         compareCollectionListInfos(scenario1.mCollectionListInfo, checkInfo);
                         assertEquals(scenario1.mCoinList, checkCoinList);
 
-                    } catch (Exception ignored) {
-                        fail();
+                    } catch (Exception e) {
+                        throw new AssertionError(e);
                     }
 
                     // Clean up
