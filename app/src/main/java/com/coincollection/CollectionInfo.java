@@ -34,9 +34,11 @@ import java.util.HashMap;
 public abstract class CollectionInfo {
 
     /**
-     * Set this to true in unit tests to make helper methods throw exceptions.
+     * When true, the lookup helpers below throw instead of falling back to a
+     * default, so a test catches a bad image tag or parameter key. The unit
+     * tests turn this on.
      */
-    public static boolean isUnitTest = false;
+    public static boolean sStrictLookups = false;
 
     /**
      * Returns the image id (R.drawable.image_name) that should be
@@ -162,7 +164,7 @@ public abstract class CollectionInfo {
                 return i;
             }
         }
-        if (isUnitTest) {
+        if (sStrictLookups) {
             throw new IllegalStateException("getImgId called with invalid tag: " + imgIdTag);
         }
         return -1;
@@ -180,7 +182,7 @@ public abstract class CollectionInfo {
                 return Boolean.parseBoolean((String) value);
             }
         }
-        if (isUnitTest) {
+        if (sStrictLookups) {
             throw new IllegalStateException("Parameter " + key + " not found or invalid");
         }
         return false; // Default to false if not found
@@ -202,7 +204,7 @@ public abstract class CollectionInfo {
                 }
             }
         }
-        if (isUnitTest) {
+        if (sStrictLookups) {
             throw new IllegalStateException("Parameter " + key + " not found or invalid");
         }
         return 0; // Default to 0 if not found or parsing fails

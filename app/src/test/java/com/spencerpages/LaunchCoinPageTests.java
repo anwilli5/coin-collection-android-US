@@ -126,7 +126,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     // The synchronous unit-test seam would reopen the database inside
                     // BaseActivity.onCreate and mask a regression in the deferral.
                     CollectionPage coinActivity;
-                    BaseActivity.isUnitTest = false;
+                    BaseActivity.sRunTasksInline = false;
                     try {
                         coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
                         assertNotNull(coinActivity);
@@ -134,7 +134,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                         // otherwise it crashes with a NullPointerException
                         coinActivity.onCreate(null);
                     } finally {
-                        BaseActivity.isUnitTest = true;
+                        BaseActivity.sRunTasksInline = true;
                     }
 
                     // The database-dependent setup must have been deferred, not run
@@ -188,7 +188,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                     // database-dependent setup (including setContentView) is deferred
                     CollectionPage coinActivity;
                     Bundle outState = new Bundle();
-                    BaseActivity.isUnitTest = false;
+                    BaseActivity.sRunTasksInline = false;
                     try {
                         coinActivity = Robolectric.buildActivity(CollectionPage.class, intent).get();
                         assertNotNull(coinActivity);
@@ -200,7 +200,7 @@ public class LaunchCoinPageTests extends BaseTestCase {
                         // with a NullPointerException in getAbsListViewPosition()
                         coinActivity.onSaveInstanceState(outState);
                     } finally {
-                        BaseActivity.isUnitTest = true;
+                        BaseActivity.sRunTasksInline = true;
                     }
                     coinActivity.onDestroy();
 

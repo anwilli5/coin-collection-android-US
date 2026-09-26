@@ -106,8 +106,11 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
         public boolean isImportingCollection;
     }
 
-    // Unit test flag for disabling async tasks
-    public static boolean isUnitTest = false;
+    // Test seams, turned on by the Robolectric unit tests. There is no window
+    // to show dialogs in there, and running tasks inline on the calling thread
+    // lets a test see a task's result without waiting on a background thread
+    public static boolean sSkipDialogs = false;
+    public static boolean sRunTasksInline = false;
 
     // Async Task info
     protected ActivityViewModel mActivityViewModel = null;
@@ -345,7 +348,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param message message to display alongside the spinner
      */
     protected void createProgressDialog(String message) {
-        if (isUnitTest && BuildConfig.DEBUG) {
+        if (sSkipDialogs) {
             return;
         }
         // Reuse the progress dialog already showing under this tag, whether it
@@ -468,7 +471,7 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     protected boolean showDialogFragment(DialogFragment fragment, String tag) {
         // Don't show dialogs in unit tests since there isn't a UI, and
         // it will spam the log with this: Invalid ID 0x00000000.
-        if (isUnitTest && BuildConfig.DEBUG) {
+        if (sSkipDialogs) {
             return true;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -599,14 +602,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * @param taskId type of task
      */
     public void kickOffAsyncTaskRunner(int taskId) {
-        if (!isUnitTest || !BuildConfig.DEBUG) {
-            mTaskRunner.execute(taskId);
-        } else {
-            // Call the tasks on the current thread (used for unit tests)
+        if (sRunTasksInline) {
+            // Run the task to completion on the current thread (used for unit tests)
             asyncProgressOnPreExecute(taskId);
             String resultStr = asyncProgressDoInBackground(taskId);
             asyncProgressOnPostExecute(taskId, resultStr);
+            return;
         }
+        mTaskRunner.execute(taskId);
     }
 
     /**

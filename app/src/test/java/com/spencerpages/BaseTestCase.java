@@ -114,8 +114,9 @@ public class BaseTestCase {
     public void testSetup() {
         // This list keeps tracked of previously used random collection names, to prevent duplicates
         mPreviousRandCollectionNames = new ArrayList<>();
-        CollectionInfo.isUnitTest = true;
-        BaseActivity.isUnitTest = true;
+        CollectionInfo.sStrictLookups = true;
+        BaseActivity.sSkipDialogs = true;
+        BaseActivity.sRunTasksInline = true;
     }
 
     /**
@@ -125,12 +126,12 @@ public class BaseTestCase {
      * @param action the action to run
      */
     public static void withDialogsEnabled(Runnable action) {
-        boolean wasUnitTest = BaseActivity.isUnitTest;
-        BaseActivity.isUnitTest = false;
+        boolean wasSkippingDialogs = BaseActivity.sSkipDialogs;
+        BaseActivity.sSkipDialogs = false;
         try {
             action.run();
         } finally {
-            BaseActivity.isUnitTest = wasUnitTest;
+            BaseActivity.sSkipDialogs = wasSkippingDialogs;
         }
     }
 

@@ -64,14 +64,14 @@ public class ImportRaceTests extends BaseTestCase {
                 // here. The synchronous unit-test seam would run the import to
                 // completion inline, setting and clearing the flag within this call
                 // and hiding the state the window focus handler has to observe.
-                BaseActivity.isUnitTest = false;
+                BaseActivity.sRunTasksInline = false;
                 try {
                     // The result intent carries no URI, so the queued task fails fast
                     // without performing any file I/O
                     activity.onActivityResult(MainActivity.PICK_IMPORT_FILE,
                             Activity.RESULT_OK, new Intent());
                 } finally {
-                    BaseActivity.isUnitTest = true;
+                    BaseActivity.sRunTasksInline = true;
                 }
 
                 assertTrue(activity.isImportInProgress());
