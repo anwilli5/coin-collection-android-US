@@ -57,6 +57,9 @@ public class CoinEditDialogFragment extends BaseDialogFragment {
 
     private static final String ARG_COIN_SLOT = "coinSlot";
     private static final String ARG_COLLECTION_TYPE_INDEX = "collectionTypeIndex";
+    // The image spinner lists the "default" image first, so spinner positions are
+    // one ahead of image ids (the default is image id -1, at position 0)
+    private static final int IMG_SPINNER_DEFAULT_OFFSET = 1;
 
     /**
      * Creates a coin create/edit dialog
@@ -141,7 +144,7 @@ public class CoinEditDialogFragment extends BaseDialogFragment {
             if (selectedPosition == AdapterView.INVALID_POSITION) {
                 return -1;
             } else {
-                return selectedPosition - 1;
+                return selectedPosition - IMG_SPINNER_DEFAULT_OFFSET;
             }
         } else {
             return -1;
@@ -185,7 +188,7 @@ public class CoinEditDialogFragment extends BaseDialogFragment {
             imgSpinner.setAdapter(adapter);
 
             // Set the selected position based on the current image id
-            imgSpinner.setSelection(defaultImageId + 1);
+            imgSpinner.setSelection(defaultImageId + IMG_SPINNER_DEFAULT_OFFSET);
         } else {
             imgSpinner.setVisibility(View.GONE);
             imgRow.setVisibility(View.GONE);
