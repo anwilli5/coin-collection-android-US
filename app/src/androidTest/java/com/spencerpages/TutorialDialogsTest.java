@@ -83,6 +83,10 @@ public class TutorialDialogsTest {
      * 3. Open collection → add/lock tutorial (screen3)
      * 4. Back to main → more options tutorial (screen4, because mNumberOfCollections > 0)
      * 5. Open collection again → edit/copy/delete tutorial (screen5)
+     * <p>
+     * The tutorials are dialog fragments, so each one appears once its
+     * transaction is committed rather than synchronously with the tap that
+     * triggered it - hence the waits before each assertion.
      */
     @Test
     public void test_tutorialDialogsAppear() {
@@ -108,6 +112,7 @@ public class TutorialDialogsTest {
 
         // 2. Tap "New Collection" — creation page tutorial should appear
         onView(withText(R.string.create_new_collection)).perform(click());
+        UITestHelper.waitForDisplayed(withText(R.string.tutorial_select_coin_and_create));
         onView(withText(R.string.tutorial_select_coin_and_create)).check(matches(isDisplayed()));
         onView(withText(R.string.okay_exp)).perform(click());
 
@@ -138,6 +143,7 @@ public class TutorialDialogsTest {
         // 4. Go back to main activity — more options tutorial should appear (screen4)
         //    because onResume() sees mNumberOfCollections > 0 on this return visit
         pressBack();
+        UITestHelper.waitForDisplayed(withText(R.string.tutorial_more_options));
         onView(withText(R.string.tutorial_more_options)).check(matches(isDisplayed()));
         onView(withText(R.string.okay_exp)).perform(click());
 
@@ -147,6 +153,7 @@ public class TutorialDialogsTest {
         // 5. Open collection AGAIN — edit/copy/delete tutorial should appear (screen5)
         //    (only shows when screen3 didn't show on this visit)
         onView(withText("Tutorial Test")).perform(click());
+        UITestHelper.waitForDisplayed(withText(R.string.tutorial_edit_copy_delete_coins));
         onView(withText(R.string.tutorial_edit_copy_delete_coins)).check(matches(isDisplayed()));
         onView(withText(R.string.okay_exp)).perform(click());
 

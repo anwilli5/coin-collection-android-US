@@ -31,13 +31,17 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.assertion.ViewAssertions;
@@ -60,6 +64,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsAnything;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,6 +82,14 @@ public class UITestHelper {
     private static final long DEFAULT_TIMEOUT_MS = 30_000;
     private static final long POLL_INTERVAL_MS = 250;
     private static final long SYSTEM_DIALOG_DISMISS_INTERVAL_MS = 5_000;
+    private static final int MAX_LOGCAT_ERROR_CHARS = 2_000;
+
+    /**
+     * Why the last clearLogcat() call failed, or null if it succeeded. Starts
+     * out set so that a leak assertion made without clearing logcat first
+     * fails instead of quietly inspecting another test's output
+     */
+    private static String sLogcatClearError = "logcat was never cleared";
 
     public static String getString(@StringRes int resId) {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -94,6 +109,7 @@ public class UITestHelper {
             "first_Time_screen3",
             "first_Time_screen4",
             "first_Time_screen5",
+            "first_Time_screen_search",
             "reorder_help1",
     };
 
@@ -134,6 +150,20 @@ public class UITestHelper {
         Context context = getInstrumentation().getTargetContext();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(collectionName + CollectionPage.IS_LOCKED, false).apply();
+    }
+
+    /**
+     * Clear a collection's saved coin filter, so a test that filtered the grid
+     * doesn't leave the next one looking at an empty collection. The filter is
+     * remembered per collection name in SharedPreferences, and tests reuse
+     * collection names, so it outlives the collection itself.
+     *
+     * @param collectionName the collection whose filter to reset
+     */
+    public static void clearCoinFilter(String collectionName) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().remove(collectionName + CollectionPage.COIN_FILTER).commit();
     }
 
     /**
@@ -740,6 +770,82 @@ public class UITestHelper {
     }
 
     /**
+     * Clears the app's logcat buffer so a later leak check only inspects
+     * output produced by the current test. Records why the clear failed (if
+     * it did) so that assertNoLeakedWindows() can tell "no leak was found"
+     * apart from "the leak check never ran"
+     */
+    public static void clearLogcat() {
+        sLogcatClearError = runLogcat(new String[]{"logcat", "-c"}, null);
+    }
+
+    /**
+     * Fails if the app leaked a dialog window since the last clearLogcat().
+     * A dismissed-too-late dialog shows up as a WindowLeaked entry naming the
+     * leaking activity's class (e.g. "Activity com.coincollection.MainActivity
+     * has leaked window..."), which is exactly the symptom rotating with a
+     * dialog open used to produce. This app's activities live in the
+     * com.coincollection package, so match on that rather than the application
+     * id (com.spencerpages), which never appears in the leak line.
+     * Also fails when logcat could not be cleared or read, since a check that
+     * never inspected any logs must not be reported as a passing one
+     */
+    public static void assertNoLeakedWindows() {
+        if (sLogcatClearError != null) {
+            throw new AssertionError("Window leak check did not run: " + sLogcatClearError);
+        }
+        StringBuilder leaks = new StringBuilder();
+        String readError = runLogcat(new String[]{"logcat", "-d", "-b", "main"}, leaks);
+        if (readError != null) {
+            throw new AssertionError("Window leak check did not run: " + readError);
+        }
+        if (leaks.length() != 0) {
+            throw new AssertionError("Leaked dialog window(s):\n" + leaks);
+        }
+    }
+
+    /**
+     * Runs a logcat command to completion, collecting any WindowLeaked lines
+     * that name this app's activities. stderr is merged into stdout so that a
+     * failing command's diagnostics show up in the returned message
+     *
+     * @param command logcat command to run
+     * @param leaks   collects matching leak lines, or null to only drain output
+     * @return null if the command succeeded, otherwise why it did not
+     */
+    private static String runLogcat(String[] command, StringBuilder leaks) {
+        String description = "'" + TextUtils.join(" ", command) + "'";
+        StringBuilder output = new StringBuilder();
+        try {
+            Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (leaks != null && line.contains("WindowLeaked")
+                            && line.contains("com.coincollection.")) {
+                        leaks.append(line).append('\n');
+                    }
+                    if (output.length() < MAX_LOGCAT_ERROR_CHARS) {
+                        output.append(line).append('\n');
+                    }
+                }
+            }
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                return description + " exited with " + exitCode + ":\n" + output;
+            }
+            return null;
+        } catch (IOException e) {
+            return description + " could not be run: " + e;
+        } catch (InterruptedException e) {
+            // Restore the interrupt flag so later blocking calls see it
+            Thread.currentThread().interrupt();
+            return description + " was interrupted";
+        }
+    }
+
+    /**
      * Matcher for the nth child of a parent view.
      * Useful for matching a specific child within an AdapterView or RecyclerView.
      *
@@ -766,5 +872,112 @@ public class UITestHelper {
                 return parent.getChildAt(childPosition) == view;
             }
         };
+    }
+
+    /**
+     * Set whether a single first-time tutorial tip is still due to be shown.
+     * {@link #suppressAllTutorials()} and {@link #resetTutorials()} are
+     * all-or-nothing, but a tip test needs exactly one tip outstanding so it
+     * knows which dialog it is looking at.
+     *
+     * @param helpStrKey the tip's preference key
+     * @param pending    true if the tip has not been acknowledged yet
+     */
+    public static void setTutorialPending(String helpStrKey, boolean pending) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(helpStrKey, pending).commit();
+    }
+
+    /**
+     * @param helpStrKey the tip's preference key
+     * @return true if the tip has not been acknowledged yet
+     */
+    public static boolean isTutorialPending(String helpStrKey) {
+        Context context = getInstrumentation().getTargetContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(helpStrKey, true);
+    }
+
+    /**
+     * Rotate the device to landscape.
+     */
+    public static void setOrientationLeft() {
+        try {
+            UiDevice.getInstance(getInstrumentation()).setOrientationLeft();
+        } catch (RemoteException e) {
+            throw new AssertionError("Unable to rotate the device", e);
+        }
+    }
+
+    /**
+     * Rotate the device back to its natural orientation.
+     */
+    public static void setOrientationNatural() {
+        try {
+            UiDevice.getInstance(getInstrumentation()).setOrientationNatural();
+        } catch (RemoteException e) {
+            throw new AssertionError("Unable to rotate the device", e);
+        }
+    }
+
+    /**
+     * Rotate to landscape and back, checking that the given view stays on
+     * screen throughout. Every post-rotation check waits rather than asserting
+     * immediately - the activity is torn down and rebuilt, so the view is
+     * briefly absent even when nothing is wrong.
+     *
+     * @param matcher matcher identifying the open dialog
+     */
+    public static void rotateAndAssertStillDisplayed(Matcher<View> matcher) {
+        setOrientationLeft();
+        waitForDisplayed(matcher);
+        setOrientationNatural();
+        waitForDisplayed(matcher);
+    }
+
+    /**
+     * Create several Lincoln Cents collections, for tests that need the
+     * database to hold more than one collection.
+     *
+     * @param namePrefix prefix each collection name starts with
+     * @param count      how many collections to create
+     */
+    public static void seedCollections(String namePrefix, int count) {
+        for (int i = 0; i < count; i++) {
+            String name = namePrefix + " " + i;
+            createLincolnCentsCollection(name, i);
+            unlockCollection(name);
+        }
+    }
+
+    /**
+     * Count the dialog fragments an activity is showing whose tag starts with
+     * the given prefix. Espresso can only see the focused window, so a test
+     * that cares about two stacked dialogs has to ask the FragmentManager
+     * instead of looking at the screen.
+     *
+     * @param activity  the host activity
+     * @param tagPrefix prefix the dialog tags start with
+     * @return how many matching dialog fragments are added
+     */
+    public static int countDialogsWithTagPrefix(FragmentActivity activity, String tagPrefix) {
+        int count = 0;
+        for (Fragment fragment : activity.getSupportFragmentManager().getFragments()) {
+            String tag = fragment.getTag();
+            if (tag != null && tag.startsWith(tagPrefix)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @param activity the host activity
+     * @param tag      tag identifying this kind of dialog
+     * @return the dialog fragment shown under the tag, or null if there is none
+     */
+    public static Fragment findDialogByTag(FragmentActivity activity, String tag) {
+        return activity.getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

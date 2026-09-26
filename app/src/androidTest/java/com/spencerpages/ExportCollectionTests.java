@@ -21,6 +21,7 @@
 package com.spencerpages;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -110,8 +111,9 @@ public class ExportCollectionTests {
     }
 
     /**
-     * Test that export dialog and rotation work without crashing.
-     * Verifies the format picker dialog survives a rotation.
+     * Test that the export format picker survives a rotation. The dialog is
+     * owned by the FragmentManager, so rotating with it open must restore it
+     * rather than dropping the user's pending choice on the floor.
      */
     @Test
     public void test_exportCollectionsAndRotate() {
@@ -122,9 +124,13 @@ public class ExportCollectionTests {
         onView(withText(R.string.json_file)).check(matches(isDisplayed()));
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             setOrientationLeft();
-            // After rotation, verify the activity recovers
-            UITestHelper.waitForDisplayed(withId(R.id.main_activity_listview));
+            // The picker is still up after the rotation
+            UITestHelper.waitForDisplayed(withText(R.string.json_file));
             setOrientationNatural();
+            UITestHelper.waitForDisplayed(withText(R.string.json_file));
         }
+        // Dismissing the picker returns to the collection list
+        pressBack();
+        UITestHelper.waitForDisplayed(withId(R.id.main_activity_listview));
     }
 }

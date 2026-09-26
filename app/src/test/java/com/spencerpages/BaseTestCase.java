@@ -119,6 +119,22 @@ public class BaseTestCase {
     }
 
     /**
+     * Runs an action with dialog suppression disabled, so a real dialog is
+     * created instead of being skipped for unit tests
+     *
+     * @param action the action to run
+     */
+    public static void withDialogsEnabled(Runnable action) {
+        boolean wasUnitTest = BaseActivity.isUnitTest;
+        BaseActivity.isUnitTest = false;
+        try {
+            action.run();
+        } finally {
+            BaseActivity.isUnitTest = wasUnitTest;
+        }
+    }
+
+    /**
      * Gets a minimally populated CollectionListInfo
      *
      * @param name           collection name
