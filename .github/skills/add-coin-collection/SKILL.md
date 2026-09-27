@@ -183,6 +183,16 @@ Add a `CollectionListInfo` entry to `COLLECTION_LIST_INFO_SCENARIOS[]` in
 `shared-test/src/main/java/com/spencerpages/SharedTest.java` covering the
 new collection type with representative parameters.
 
+#### Golden master (`CollectionGoldenMasterTests`)
+
+Create the new type's golden master, then read it through: it lists every
+coin, mint and image the collection creates under several parameter
+combinations.
+
+```bash
+./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.CollectionGoldenMasterTests" -PupdateGoldenMasters
+```
+
 ### 7. Build and verify
 
 Run `./gradlew assembleDebug` to confirm compilation, then run
@@ -212,5 +222,6 @@ Run `./gradlew assembleDebug` to confirm compilation, then run
       (see database-migration skill §6 for rules)
 - [ ] Unit test added in `CollectionCreationTests`
 - [ ] Scenario added in `SharedTest.COLLECTION_LIST_INFO_SCENARIOS`
+- [ ] Golden master created in `app/src/test/data/golden-master/` and reviewed
 - [ ] `./gradlew assembleDebug` succeeds
 - [ ] `./gradlew testAndroidDebugUnitTest` passes

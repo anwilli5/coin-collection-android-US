@@ -38,10 +38,23 @@ APIs. This is the suite to run for most code changes.
 - Collection page behavior (`CollectionPageActivityTests`)
 - Collection creator parameter round-trips (`CoinPageCreatorTests`)
 - Coin image ID correctness (`CoinImageIdTests`)
+- Golden-master snapshots of every collection type's coins, images and
+  image id table (`CollectionGoldenMasterTests`, fixtures in
+  `app/src/test/data/golden-master/`)
 
 Also present: `GenerateV23Fixtures` is an `@Ignore`'d manual fixture
 generator — it does not run with the suite and is only run by hand when the
 V23 upgrade fixture files need regenerating.
+
+A `CollectionGoldenMasterTests` failure means a collection's output changed.
+If the change is intended, regenerate the fixtures and review the diff:
+
+```bash
+./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.CollectionGoldenMasterTests" -PupdateGoldenMasters
+```
+
+Regenerating still fails if a type moved in `COLLECTION_TYPES` or an existing
+image id entry changed, since both are append-only.
 
 **Report location:** `app/build/reports/tests/testAndroidDebugUnitTest/index.html`
 
