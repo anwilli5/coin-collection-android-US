@@ -95,6 +95,13 @@ For each affected collection in `app/src/main/java/com/spencerpages/collections/
    collection's test method.
 2. **CollectionUpgradeTests**: Verify upgrade test coverage includes the new
    database version.
+3. **CollectionGoldenTests**: Regenerate the golden files and review
+   the diff. Expect only the new year's coins, the new `stopYear`, and any new
+   image ids appended at the end:
+
+   ```bash
+   ./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.CollectionGoldenTests" -PupdateGoldens
+   ```
 
 ### Step 6: Build and verify
 

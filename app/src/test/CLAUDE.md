@@ -44,3 +44,7 @@ These rules apply to test code (`app/src/test/`, `app/src/androidTest/`, and
 - Database migration → add upgrade path test in `CollectionUpgradeTests`
 - New collection type → add creation test + SharedTest scenario
 - Changed collection parameters → update `SharedTest.COLLECTION_LIST_INFO_SCENARIOS`
+- Any change to what a collection creates (coins, mints, images, image ids,
+  parameters) → regenerate the golden files with
+  `./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.CollectionGoldenTests" -PupdateGoldens`
+  and review the fixture diff. Never hand-edit them

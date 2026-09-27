@@ -400,6 +400,16 @@ collections. They typically pass without changes when annual coins are
 added, since both the upgrade path and the fresh creation should
 produce the same result.
 
+#### CollectionGoldenTests
+
+Any change to what a collection creates changes its golden file. Regenerate
+and review the diff; it should show exactly the coins, images or image ids
+this migration adds or fixes, and nothing else:
+
+```bash
+./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.CollectionGoldenTests" -PupdateGoldens
+```
+
 ### 8. Build and verify
 
 ```bash
@@ -455,6 +465,7 @@ produce the same result.
 - [ ] `CollectionCreationTests` expected counts updated (including aggregates)
 - [ ] `SharedTest.COLLECTION_LIST_INFO_SCENARIOS` updated (max coins, checkbox flags)
 - [ ] `CollectionUpgradeTests` verified (usually auto-passes)
+- [ ] Golden files regenerated and the diff reviewed
 - [ ] `./gradlew assembleDebug` succeeds
 - [ ] `./gradlew testAndroidDebugUnitTest` passes
 - [ ] Migration blocks use `Xxx.COLLECTION_TYPE` qualified references for collection type names (not raw string literals)

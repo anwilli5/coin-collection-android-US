@@ -74,6 +74,8 @@ For any new checkbox or flag added to a collection:
 - `SharedTest.COLLECTION_LIST_INFO_SCENARIOS` updated if checkbox or mint
   mark flags changed
 - Round-trip test (`CoinPageCreatorTests.test_createFromParameters`) passes
+- Golden file diffs (`app/src/test/data/golden/`) show only
+  the intended coin, image or image id changes
 
 ## 5. Resource completeness
 
