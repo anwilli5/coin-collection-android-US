@@ -46,34 +46,24 @@ import com.spencerpages.collections.AmericanWomenQuarters;
 import com.spencerpages.collections.Cartwheels;
 import com.spencerpages.collections.CladQuarters;
 import com.spencerpages.collections.CoinSets;
-import com.spencerpages.collections.BarberDimes;
-import com.spencerpages.collections.BarberHalfDollars;
-import com.spencerpages.collections.BarberQuarters;
 import com.spencerpages.collections.BasicDimes;
 import com.spencerpages.collections.BasicHalfDollars;
 import com.spencerpages.collections.BasicInnovationDollars;
 import com.spencerpages.collections.BasicQuarters;
-import com.spencerpages.collections.BuffaloNickels;
 import com.spencerpages.collections.EarlyDimes;
 import com.spencerpages.collections.EarlyDollars;
 import com.spencerpages.collections.EarlyHalfDollars;
 import com.spencerpages.collections.EarlyQuarters;
 import com.spencerpages.collections.EisenhowerDollar;
 import com.spencerpages.collections.FirstSpouseGoldCoins;
-import com.spencerpages.collections.FranklinHalfDollars;
 import com.spencerpages.collections.HalfCents;
 import com.spencerpages.collections.HalfDimes;
-import com.spencerpages.collections.IndianHeadCents;
 import com.spencerpages.collections.JeffersonNickels;
 import com.spencerpages.collections.KennedyHalfDollars;
 import com.spencerpages.collections.LargeCents;
-import com.spencerpages.collections.LibertyHeadNickels;
 import com.spencerpages.collections.LincolnCents;
-import com.spencerpages.collections.MercuryDimes;
-import com.spencerpages.collections.MorganDollars;
 import com.spencerpages.collections.NationalParkQuarters;
 import com.spencerpages.collections.NativeAmericanDollars;
-import com.spencerpages.collections.PeaceDollars;
 import com.spencerpages.collections.PresidentialDollars;
 import com.spencerpages.collections.RooseveltDimes;
 import com.spencerpages.collections.SilverDimes;
@@ -81,13 +71,10 @@ import com.spencerpages.collections.SilverHalfDollars;
 import com.spencerpages.collections.SilverQuarters;
 import com.spencerpages.collections.SmallCents;
 import com.spencerpages.collections.SmallDollars;
-import com.spencerpages.collections.StandingLibertyQuarters;
-import com.spencerpages.collections.StateQuarters;
 import com.spencerpages.collections.SusanBAnthonyDollars;
 import com.spencerpages.collections.Trimes;
 import com.spencerpages.collections.TwentyCents;
 import com.spencerpages.collections.TwoCents;
-import com.spencerpages.collections.WalkingLibertyHalfDollars;
 import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
@@ -97,6 +84,14 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 
+/**
+ * Per-collection upgrade tests from hand-built old databases.
+ *
+ * <p>Tests using createV1Collection() write a database at version 1, the oldest the upgrade
+ * code handles. Authentic data from the first app version in this repository (database
+ * version 8) is tested by CollectionUpgradeV1FixtureTests instead; the version 1 tests here
+ * remain because they run version-gated upgrade steps that data can't reach.
+ */
 @RunWith(RobolectricTestRunner.class)
 public class CollectionUpgradeTests extends BaseTestCase {
 
@@ -145,125 +140,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         coinList.add(new Object[]{"Introductory", "", 0});
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For BarberDimes
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_BarberDimesUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new BarberDimes();
-        String coinType = "Barber Dimes";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1892;
-        int endYear = 1916;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For BarberHalfDollars
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_BarberHalfDollarsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new BarberHalfDollars();
-        String coinType = "Barber Half Dollars";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1892;
-        int endYear = 1915;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For BarberQuarters
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_BarberQuartersUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new BarberQuarters();
-        String coinType = "Barber Quarters";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1892;
-        int endYear = 1916;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For BuffaloNickels
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_BuffaloNickelsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new BuffaloNickels();
-        String coinType = "Buffalo Nickels";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1913;
-        int endYear = 1938;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i == 1922 || i == 1932 || i == 1933) {
-                continue;
-            }
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
         testDbHelper.close();
@@ -354,64 +230,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For FranklinHalfDollars
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_FranklinHalfDollarsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new FranklinHalfDollars();
-        String coinType = "Franklin Half Dollars";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1948;
-        int endYear = 1963;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For IndianHeadCents
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_IndianHeadCentsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new IndianHeadCents();
-        String coinType = "Indian Head Cents";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1859;
-        int endYear = 1909;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
      * For JeffersonNickels
      * - Test that the number of coins is correct upon collection upgrades
      */
@@ -483,40 +301,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For LibertyHeadNickels
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_LibertyHeadNickelsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new LibertyHeadNickels();
-        String coinType = "Liberty Head Nickels";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1883;
-        int endYear = 1912;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i == 1883) {
-                coinList.add(new Object[]{"1883 w/ Cents", "", 0});
-                coinList.add(new Object[]{"1883 w/o Cents", "", 0});
-            } else {
-                coinList.add(new Object[]{Integer.toString(i), "", 0});
-            }
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
      * For LincolnCents
      * - Test that the number of coins is correct upon collection upgrades
      */
@@ -545,70 +329,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
             }
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For MercuryDimes
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_MercuryDimesUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new MercuryDimes();
-        String coinType = "Mercury Dimes";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1916;
-        int endYear = 1945;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i == 1922 || i == 1932 || i == 1933) {
-                continue;
-            }
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For MorganDollars
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_MorganDollarsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new MorganDollars();
-        String coinType = "Morgan Dollars";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1878;
-        int endYear = 1921;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i > 1904 && i < 1921) {
-                continue;
-            }
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
         db.close();
@@ -670,38 +390,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
         SQLiteDatabase db = testDbHelper.getWritableDatabase();
         ArrayList<Object[]> coinList = new ArrayList<>();
         for (int i = startYear; i <= VERSION_1_YEAR; i++) {
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For PeaceDollars
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_PeaceDollarsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new PeaceDollars();
-        String coinType = "Peace Dollars";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1921;
-        int endYear = 1935;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i >= 1929 && i <= 1933) {
-                continue;
-            }
             coinList.add(new Object[]{Integer.toString(i), "", 0});
         }
         createV1Collection(db, collectionName, coinType, coinList);
@@ -785,124 +473,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For StandingLibertyQuarters
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_StandingLibertyQuartersUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new StandingLibertyQuarters();
-        String coinType = "Standing Liberty Quarters";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1916;
-        int endYear = 1930;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i == 1922) {
-                continue;
-            }
-            if (i == 1917) {
-                coinList.add(new Object[]{"1917 Type 1", "", 0});
-                coinList.add(new Object[]{"1917 Type 2", "", 0});
-            } else {
-                coinList.add(new Object[]{Integer.toString(i), "", 0});
-            }
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
-     * For StateQuarters
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_StateQuartersUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new StateQuarters();
-        String coinType = "State Quarters";
-        String collectionName = coinType + " Upgrade";
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        coinList.add(new Object[]{"Delaware", "", 0});
-        coinList.add(new Object[]{"Pennsylvania", "", 0});
-        coinList.add(new Object[]{"New Jersey", "", 0});
-        coinList.add(new Object[]{"Georgia", "", 0});
-        coinList.add(new Object[]{"Connecticut", "", 0});
-        coinList.add(new Object[]{"Massachusetts", "", 0});
-        coinList.add(new Object[]{"Maryland", "", 0});
-        coinList.add(new Object[]{"South Carolina", "", 0});
-        coinList.add(new Object[]{"New Hampshire", "", 0});
-        coinList.add(new Object[]{"Virginia", "", 0});
-        coinList.add(new Object[]{"New York", "", 0});
-        coinList.add(new Object[]{"North Carolina", "", 0});
-        coinList.add(new Object[]{"Rhode Island", "", 0});
-        coinList.add(new Object[]{"Vermont", "", 0});
-        coinList.add(new Object[]{"Kentucky", "", 0});
-        coinList.add(new Object[]{"Tennessee", "", 0});
-        coinList.add(new Object[]{"Ohio", "", 0});
-        coinList.add(new Object[]{"Louisiana", "", 0});
-        coinList.add(new Object[]{"Indiana", "", 0});
-        coinList.add(new Object[]{"Mississippi", "", 0});
-        coinList.add(new Object[]{"Illinois", "", 0});
-        coinList.add(new Object[]{"Alabama", "", 0});
-        coinList.add(new Object[]{"Maine", "", 0});
-        coinList.add(new Object[]{"Missouri", "", 0});
-        coinList.add(new Object[]{"Arkansas", "", 0});
-        coinList.add(new Object[]{"Michigan", "", 0});
-        coinList.add(new Object[]{"Florida", "", 0});
-        coinList.add(new Object[]{"Texas", "", 0});
-        coinList.add(new Object[]{"Iowa", "", 0});
-        coinList.add(new Object[]{"Wisconsin", "", 0});
-        coinList.add(new Object[]{"California", "", 0});
-        coinList.add(new Object[]{"Minnesota", "", 0});
-        coinList.add(new Object[]{"Oregon", "", 0});
-        coinList.add(new Object[]{"Kansas", "", 0});
-        coinList.add(new Object[]{"West Virginia", "", 0});
-        coinList.add(new Object[]{"Nevada", "", 0});
-        coinList.add(new Object[]{"Nebraska", "", 0});
-        coinList.add(new Object[]{"Colorado", "", 0});
-        coinList.add(new Object[]{"North Dakota", "", 0});
-        coinList.add(new Object[]{"South Dakota", "", 0});
-        coinList.add(new Object[]{"Montana", "", 0});
-        coinList.add(new Object[]{"Washington", "", 0});
-        coinList.add(new Object[]{"Idaho", "", 0});
-        coinList.add(new Object[]{"Wyoming", "", 0});
-        coinList.add(new Object[]{"Utah", "", 0});
-        coinList.add(new Object[]{"Oklahoma", "", 0});
-        coinList.add(new Object[]{"New Mexico", "", 0});
-        coinList.add(new Object[]{"Arizona", "", 0});
-        coinList.add(new Object[]{"Alaska", "", 0});
-        coinList.add(new Object[]{"Hawaii", "", 0});
-        coinList.add(new Object[]{"District of Columbia", "", 0});
-        coinList.add(new Object[]{"Puerto Rico", "", 0});
-        coinList.add(new Object[]{"Guam", "", 0});
-        coinList.add(new Object[]{"American Samoa", "", 0});
-        coinList.add(new Object[]{"U.S. Virgin Islands", "", 0});
-        coinList.add(new Object[]{"Northern Mariana Islands", "", 0});
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-        // Compare against a new database
-        ParcelableHashMap parameters = new ParcelableHashMap();
-        parameters.put(CoinPageCreator.OPT_CHECKBOX_1, Boolean.TRUE);
-        validateUpdatedDb(collection, collectionName, parameters);
-    }
-
-    /**
      * For SusanBAnthonyDollars
      * - Test that the number of coins is correct upon collection upgrades
      */
@@ -935,38 +505,6 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
-     * For WalkingLibertyHalfDollars
-     * - Test that the number of coins is correct upon collection upgrades
-     */
-    @Test
-    public void test_WalkingLibertyHalfDollarsUpgrade() {
-
-        // Test Parameters
-        CollectionInfo collection = new WalkingLibertyHalfDollars();
-        String coinType = "Walking Liberty Half Dollars";
-        String collectionName = coinType + " Upgrade";
-        int startYear = 1916;
-        int endYear = 1947;
-
-        // Create V1 database and run upgrade
-        TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
-        SQLiteDatabase db = testDbHelper.getWritableDatabase();
-        ArrayList<Object[]> coinList = new ArrayList<>();
-        for (int i = startYear; i <= endYear; i++) {
-            if (i == 1922 || (i >= 1924 && i <= 1926) || (i >= 1930 && i <= 1932)) {
-                continue;
-            }
-            coinList.add(new Object[]{Integer.toString(i), "", 0});
-        }
-        createV1Collection(db, collectionName, coinType, coinList);
-        db.close();
-        testDbHelper.close();
-
-        // Compare against a new database
-        validateUpdatedDb(collection, collectionName);
-    }
-
-    /**
      * For BasicQuarters
      * - Test that the number of coins is correct upon collection upgrades
      */
@@ -978,7 +516,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
         String coinType = "Quarters";
         String collectionName = coinType + " Upgrade";
         int startYear = 1932;
-        int endYear = 2021;
+        int endYear = 1998;
 
         // Create V1 database and run upgrade
         TestDatabaseHelper testDbHelper = new TestDatabaseHelper(ApplicationProvider.getApplicationContext());
@@ -988,12 +526,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
             if (i == 1933 || i == 1975) {
                 continue;
             }
-            if (i > 1998 && i < 2021) {
-                continue;
-            }
-            if (i == 2021) {
-                coinList.add(new Object[]{"Crossing the Delaware", "", 0});
-            } else if (i == 1976) {
+            if (i == 1976) {
                 coinList.add(new Object[]{"1776-1976", "", 0});
             } else {
                 coinList.add(new Object[]{Integer.toString(i), "", 0});
@@ -1010,9 +543,7 @@ public class CollectionUpgradeTests extends BaseTestCase {
     /**
      * For BasicQuarters (V23 upgrade path)
      * - Tests that a V23 BasicQuarters collection with endYear=2021 (the V23-era STOP_YEAR)
-     *   correctly receives the 2026 SemiQ coins on upgrade. The V1 test above masks this
-     *   because setCreationParametersFromCoinData uses the current STOP_YEAR (2026) during
-     *   the V14 upgrade, giving V1 collections a higher endYear than real V23 collections had.
+     *   correctly receives the 2026 SemiQ coins on upgrade.
      */
     @Test
     public void test_BasicQuartersV23Upgrade() {
