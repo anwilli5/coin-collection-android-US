@@ -398,7 +398,10 @@ to identify which specific scenario fails.
 The existing upgrade tests auto-validate against freshly created
 collections. They typically pass without changes when annual coins are
 added, since both the upgrade path and the fresh creation should
-produce the same result.
+produce the same result. The same holds for the fixture-based
+`CollectionUpgradeV1FixtureTests` and `CollectionUpgradeAllParamsTests`,
+whose fixtures are frozen old databases — fix the migration, never the
+fixtures.
 
 #### CollectionGoldenTests
 

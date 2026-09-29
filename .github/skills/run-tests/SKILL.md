@@ -29,6 +29,8 @@ APIs. This is the suite to run for most code changes.
 - Database upgrades from all previous versions (`CollectionUpgradeTests`)
 - Fixture-based upgrade tests covering all parameter configurations
   (`CollectionUpgradeAllParamsTests`)
+- Upgrades of the coin lists the first app version (database version 8)
+  created, from frozen fixtures (`CollectionUpgradeV1FixtureTests`)
 - Targeted upgrade tests for SemiQ coins with non-default parameters
   (`CollectionUpgradeSemiQParamTests`)
 - Database access patterns (`DatabaseAccessTests`)
@@ -42,9 +44,12 @@ APIs. This is the suite to run for most code changes.
   image id table (`CollectionGoldenTests`, fixtures in
   `app/src/test/data/golden/`)
 
-Also present: `GenerateV23Fixtures` is an `@Ignore`'d manual fixture
-generator — it does not run with the suite and is only run by hand when the
-V23 upgrade fixture files need regenerating.
+Also present: `GenerateV23Fixtures` and `GenerateV1Fixtures` are `@Ignore`'d
+manual fixture generators — they do not run with the suite. Their fixtures
+(`app/src/test/data/v23-upgrades/`, `app/src/test/data/v1-upgrades/`) are
+frozen snapshots of old databases: never regenerate them to make a failing
+upgrade test pass. `GenerateV1Fixtures` rebuilds its files from the V1 source
+in git history, so running it only confirms they are authentic.
 
 A `CollectionGoldenTests` failure means a collection's output changed.
 If the change is intended, regenerate the fixtures and review the diff:

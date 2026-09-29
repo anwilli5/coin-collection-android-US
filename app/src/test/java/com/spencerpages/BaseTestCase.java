@@ -271,7 +271,8 @@ public class BaseTestCase {
     }
 
     /**
-     * DB Helper for setting up test databases
+     * DB Helper for setting up test databases at database version 1 (older than the V1
+     * fixtures in CollectionUpgradeV1FixtureTests, which are at version 8)
      */
     public static class TestDatabaseHelper extends SQLiteOpenHelper {
 
