@@ -25,9 +25,11 @@ import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIS
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_COLLECTION_LIST_FILE_NAME;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_DB_VERSION_FILE;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
+import static com.coincollection.CollectionPage.SIMPLE_DISPLAY;
 import static com.coincollection.MainActivity.NUMBER_OF_COLLECTION_LIST_SPACERS;
 import static com.spencerpages.MainApplication.COLLECTION_TYPES;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,6 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.coincollection.CoinPageCreator;
 import com.coincollection.CoinSlot;
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
@@ -52,7 +55,10 @@ import com.coincollection.DatabaseAdapter;
 import com.coincollection.ExportImportHelper;
 import com.coincollection.ImportFormatException;
 import com.coincollection.MainActivity;
+import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.collections.AmericanInnovationDollars;
+import com.spencerpages.collections.BuffaloNickels;
+import com.spencerpages.collections.LincolnCents;
 import com.spencerpages.collections.NativeAmericanDollars;
 
 import org.junit.Rule;
@@ -67,8 +73,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 @RunWith(RobolectricTestRunner.class)
 public class ExportImportTests extends BaseTestCase {
@@ -264,6 +272,294 @@ public class ExportImportTests extends BaseTestCase {
                 compareListOfCoinSlotLists(beforeCoinLists, afterCoinLists, true);
                 closeStream(inputStream);
             });
+        }
+    }
+
+    /**
+     * Strings that are valid user input but hard on the export formats: CSV delimiters,
+     * quotes, line breaks, backslashes (the CSV reader has escaping turned off), surrounding
+     * whitespace, non-BMP characters, and text that looks like an export section separator.
+     *
+     * <p>Carriage returns are left out on purpose: CSV import reads "\r\n" and "\r" as "\n".
+     * Keeping them would leave a stray "\r" at the end of every row of a CSV that was re-saved
+     * with Windows line endings, which would then fail to import.
+     */
+    private static final String[] HOSTILE_STRINGS = {
+            "a,b\"c\"\nd",
+            "\uD83D\uDE01, \"quoted\"",
+            "\"",
+            "\"\"",
+            ",",
+            "'; DROP TABLE collection_info; --",
+            "C:\\new\\table \\n \\\"",
+            "  padded  ",
+            "tab\there",
+            "trailing newline\n",
+            "\nleading newline",
+            "\u00D1and\u00FA caf\u00E9 \u2615 \uD834\uDD1E \uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67",
+            "=1+2",
+            ExportImportHelper.CSV_SEPARATOR,
+            ExportImportHelper.JSON_COIN_LIST,
+            new String(new char[500]).replace("\0", "x,\"y\"\n"),
+    };
+
+    /** Collection name with the characters a user can type (no [ or ], and none that
+     * Windows forbids in the legacy export's file names) */
+    private static final String HOSTILE_COLLECTION_NAME =
+            "Grandpa's Wheat Cents, 1909\u20132025 \uD83D\uDE01";
+
+    /**
+     * Gets the default creation parameters for a collection type
+     *
+     * @param coinType collection type
+     * @return the default parameters
+     */
+    private static ParcelableHashMap getDefaultParameters(String coinType) {
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        COLLECTION_TYPES[MainApplication.getIndexFromCollectionNameStr(coinType)]
+                .getCreationParameters(parameters);
+        return parameters;
+    }
+
+    /**
+     * Gets the coins a new collection of a type gets with the default parameters
+     *
+     * @param coinType collection type
+     * @return the coins
+     */
+    private static ArrayList<CoinSlot> getDefaultCoins(String coinType) {
+        ArrayList<CoinSlot> coinList = new ArrayList<>();
+        COLLECTION_TYPES[MainApplication.getIndexFromCollectionNameStr(coinType)]
+                .populateCollectionLists(getDefaultParameters(coinType), coinList);
+        return coinList;
+    }
+
+    /**
+     * Creates a collection in the database with the metadata the collection creator stores
+     * for the type's default parameters
+     *
+     * @param activity     activity whose database to populate
+     * @param name         collection name
+     * @param coinType     collection type
+     * @param coinList     coins to store
+     * @param displayOrder display order
+     */
+    private void createCollection(MainActivity activity, String name, String coinType,
+                                  ArrayList<CoinSlot> coinList, int displayOrder) {
+        ParcelableHashMap parameters = getDefaultParameters(coinType);
+        int collected = 0;
+        for (CoinSlot coin : coinList) {
+            collected += coin.isInCollection() ? 1 : 0;
+        }
+        Integer startYear = (Integer) parameters.get(CoinPageCreator.OPT_START_YEAR);
+        Integer stopYear = (Integer) parameters.get(CoinPageCreator.OPT_STOP_YEAR);
+        CollectionListInfo collectionListInfo = new CollectionListInfo(
+                name,
+                coinList.size(),
+                collected,
+                MainApplication.getIndexFromCollectionNameStr(coinType),
+                SIMPLE_DISPLAY,
+                (startYear != null) ? startYear : 0,
+                (stopYear != null) ? stopYear : 0,
+                Long.toString(CoinPageCreator.getMintMarkFlagsFromParameters(parameters)),
+                Long.toString(CoinPageCreator.getCheckboxFlagsFromParameters(parameters)));
+        createNewTable(activity, collectionListInfo, coinList, displayOrder);
+    }
+
+    /**
+     * Creates a Lincoln Cents collection whose notes and custom coins carry HOSTILE_STRINGS,
+     * followed by an ordinary Buffalo Nickels collection, so that a parser that loses its
+     * place in the hostile rows also corrupts the collection after them
+     *
+     * @param activity activity whose database to populate
+     */
+    private void setupHostileCollections(MainActivity activity) {
+        ArrayList<CoinSlot> coinList = getDefaultCoins(LincolnCents.COLLECTION_TYPE);
+
+        // Hostile notes on the generated coins, with varied advanced-view values
+        for (int i = 0; i < HOSTILE_STRINGS.length; i++) {
+            CoinSlot coin = coinList.get(i);
+            coin.setAdvancedNotes(HOSTILE_STRINGS[i]);
+            coin.setInCollection(i % 2 == 0);
+            coin.setAdvancedGrades(i % 5);
+            coin.setAdvancedQuantities(i % 7);
+        }
+
+        // Custom coins (as added with "Add Coin") with hostile identifiers, mints and notes
+        int sortOrder = coinList.size();
+        int imageId = coinList.get(0).getImageId();
+        for (int i = 0; i < HOSTILE_STRINGS.length; i++) {
+            CoinSlot coin = new CoinSlot(HOSTILE_STRINGS[i],
+                    HOSTILE_STRINGS[HOSTILE_STRINGS.length - 1 - i], sortOrder++, imageId, true);
+            coin.setAdvancedNotes(HOSTILE_STRINGS[(i + 1) % HOSTILE_STRINGS.length]);
+            coin.setInCollection(i % 3 == 0);
+            coinList.add(coin);
+        }
+        // A row that starts like a section separator: "-----", "coinList", ...
+        coinList.add(new CoinSlot(ExportImportHelper.CSV_SEPARATOR, ExportImportHelper.JSON_COIN_LIST,
+                sortOrder, imageId, true));
+
+        createCollection(activity, HOSTILE_COLLECTION_NAME, LincolnCents.COLLECTION_TYPE, coinList, 0);
+        createCollection(activity, BuffaloNickels.COLLECTION_TYPE, BuffaloNickels.COLLECTION_TYPE,
+                getDefaultCoins(BuffaloNickels.COLLECTION_TYPE), 1);
+        activity.updateCollectionListFromDatabase();
+    }
+
+    /**
+     * Asserts that two coin lists match field by field, so a failure names the coin and field
+     *
+     * @param collectionName   collection being compared
+     * @param expected         coins before the round trip
+     * @param actual           coins after the round trip
+     * @param compareNewFields true to compare the fields the legacy CSV format lacks (sort
+     *                         order, custom coin flag, image id)
+     */
+    private static void assertCoinListsEqual(String collectionName, ArrayList<CoinSlot> expected,
+                                             ArrayList<CoinSlot> actual, boolean compareNewFields) {
+        assertEquals("Coin count for " + collectionName, expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            CoinSlot want = expected.get(i);
+            CoinSlot got = actual.get(i);
+            String label = collectionName + " coin " + i + " ";
+            assertEquals(label + "identifier", want.getIdentifier(), got.getIdentifier());
+            assertEquals(label + "mint", want.getMint(), got.getMint());
+            assertEquals(label + "in collection", want.isInCollection(), got.isInCollection());
+            assertEquals(label + "grade", want.getAdvancedGrades(), got.getAdvancedGrades());
+            assertEquals(label + "quantity", want.getAdvancedQuantities(), got.getAdvancedQuantities());
+            assertEquals(label + "notes", want.getAdvancedNotes(), got.getAdvancedNotes());
+            if (compareNewFields) {
+                assertEquals(label + "sort order", want.getSortOrder(), got.getSortOrder());
+                assertEquals(label + "custom coin", want.isCustomCoin(), got.isCustomCoin());
+                assertEquals(label + "image id", want.getImageId(), got.getImageId());
+            }
+        }
+    }
+
+    /**
+     * Deletes every collection, runs the import, and checks the collections came back intact
+     *
+     * @param activity         activity whose database to use
+     * @param runImport        runs the import, returning its error message ("" on success)
+     * @param compareNewFields false for the legacy CSV format, which lacks some fields
+     */
+    private void deleteImportAndCompare(MainActivity activity, Supplier<String> runImport,
+                                        boolean compareNewFields) {
+        ArrayList<String> beforeNames = getCollectionNames(activity);
+        ArrayList<ArrayList<CoinSlot>> beforeCoinLists =
+                getCoinSlotListsFromCollectionNames(activity.mDbAdapter, beforeNames);
+        assertEquals(Arrays.asList(HOSTILE_COLLECTION_NAME, BuffaloNickels.COLLECTION_TYPE), beforeNames);
+
+        deleteAllCollections(activity);
+        activity.updateCollectionListFromDatabase();
+        assertEquals(0, getCollectionNames(activity).size());
+
+        assertEquals("", runImport.get());
+        ArrayList<String> afterNames = getCollectionNames(activity);
+        assertEquals(beforeNames, afterNames);
+        ArrayList<ArrayList<CoinSlot>> afterCoinLists =
+                getCoinSlotListsFromCollectionNames(activity.mDbAdapter, afterNames);
+        for (int i = 0; i < beforeNames.size(); i++) {
+            assertCoinListsEqual(beforeNames.get(i), beforeCoinLists.get(i), afterCoinLists.get(i),
+                    compareNewFields);
+        }
+    }
+
+    /**
+     * Hostile-but-valid notes, identifiers, mints and collection names survive a
+     * single-file CSV export and import, and exporting again gives the same bytes
+     */
+    @Test
+    public void test_csvRoundTripHostileData() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupHostileCollections(activity);
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+
+                File exportFile = getTempFile("hostile-export.csv");
+                OutputStream outputStream = openOutputStream(exportFile);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToSingleCSV(outputStream, LEGACY_EXPORT_FOLDER_NAME));
+                closeStream(outputStream);
+
+                deleteImportAndCompare(activity, () -> {
+                    InputStream inputStream = openInputStream(exportFile);
+                    String result = helper.importCollectionsFromSingleCSV(inputStream);
+                    closeStream(inputStream);
+                    return result;
+                }, true);
+
+                File reExportFile = getTempFile("hostile-re-export.csv");
+                outputStream = openOutputStream(reExportFile);
+                helper.exportCollectionsToSingleCSV(outputStream, LEGACY_EXPORT_FOLDER_NAME);
+                closeStream(outputStream);
+                assertArrayEquals(readAllBytes(exportFile), readAllBytes(reExportFile));
+            });
+        }
+    }
+
+    /**
+     * Hostile-but-valid notes, identifiers, mints and collection names survive a JSON
+     * export and import, and exporting again gives the same bytes
+     */
+    @Test
+    public void test_jsonRoundTripHostileData() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupHostileCollections(activity);
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+
+                File exportFile = getTempFile("hostile-export.json");
+                OutputStream outputStream = openOutputStream(exportFile);
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToJson(outputStream, LEGACY_EXPORT_FOLDER_NAME));
+                closeStream(outputStream);
+
+                deleteImportAndCompare(activity, () -> {
+                    InputStream inputStream = openInputStream(exportFile);
+                    String result = helper.importCollectionsFromJson(inputStream);
+                    closeStream(inputStream);
+                    return result;
+                }, true);
+
+                File reExportFile = getTempFile("hostile-re-export.json");
+                outputStream = openOutputStream(reExportFile);
+                helper.exportCollectionsToJson(outputStream, LEGACY_EXPORT_FOLDER_NAME);
+                closeStream(outputStream);
+                assertArrayEquals(readAllBytes(exportFile), readAllBytes(reExportFile));
+            });
+        }
+    }
+
+    /**
+     * Hostile-but-valid notes, identifiers, mints and collection names survive a legacy
+     * (one file per collection) CSV export and import
+     */
+    @Test
+    public void test_legacyCsvRoundTripHostileData() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                assertTrue(setEnabledPermissions(activity));
+                setupHostileCollections(activity);
+                ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
+
+                assertEquals(activity.mRes.getString(R.string.success_export, LEGACY_EXPORT_FOLDER_NAME),
+                        helper.exportCollectionsToLegacyCSV(activity.getLegacyExportFolderName()));
+
+                deleteImportAndCompare(activity,
+                        () -> helper.importCollectionsFromLegacyCSV(activity.getLegacyExportFolderName()),
+                        false);
+            });
+        }
+    }
+
+    private static byte[] readAllBytes(File file) {
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new AssertionError(e);
         }
     }
 
