@@ -36,7 +36,12 @@ jobs:
       - name: Run DevSkim scanner
         uses: microsoft/DevSkim-Action@v1
         with:
-          options: '--severity critical,important'
+          # DS137138 (http URL) only ever fires on XML namespace declarations such
+          # as xmlns:android="http://schemas.android.com/apk/res/android". Those are
+          # identifiers that must stay http, and the app makes no network requests.
+          exclude-rules: 'DS137138'
+          # Severity names are case-sensitive
+          extra-options: '--severity Critical,Important'
 
       - name: Upload DevSkim scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4.38.1
