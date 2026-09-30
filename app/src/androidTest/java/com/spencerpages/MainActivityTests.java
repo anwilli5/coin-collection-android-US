@@ -28,7 +28,6 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -117,7 +116,7 @@ public class MainActivityTests {
 
         // Enter collection name
         onView(withId(R.id.edit_enter_collection_name))
-                .perform(typeText("Lincoln Cents Test"), closeSoftKeyboard());
+                .perform(replaceText("Lincoln Cents Test"), closeSoftKeyboard());
 
         // Select "Pennies" from the coin type spinner (default is "Select Collection Type")
         onView(withId(R.id.coin_selector)).perform(click());
@@ -151,7 +150,7 @@ public class MainActivityTests {
 
         // Enter collection name
         onView(withId(R.id.edit_enter_collection_name))
-                .perform(typeText("Presidential Dollars Test"), closeSoftKeyboard());
+                .perform(replaceText("Presidential Dollars Test"), closeSoftKeyboard());
 
         // Select "Presidential Dollars" from the coin type spinner
         onView(withId(R.id.coin_selector)).perform(click());

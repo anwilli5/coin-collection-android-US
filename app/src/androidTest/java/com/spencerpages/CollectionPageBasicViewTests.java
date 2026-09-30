@@ -246,9 +246,7 @@ public class CollectionPageBasicViewTests {
         onView(withId(R.id.coin_name_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.coin_mint_edittext)).check(matches(isDisplayed()));
 
-        // Enter name and mint. replaceText, not typeText: typing opens the soft
-        // keyboard, and the dialog is still moving back down after it closes, so
-        // the tap on "Okay" below can land where the button was and miss
+        // Enter name and mint
         onView(withId(R.id.coin_name_edittext))
                 .perform(replaceText("Custom Coin"), closeSoftKeyboard());
         onView(withId(R.id.coin_mint_edittext))

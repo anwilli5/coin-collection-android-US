@@ -26,6 +26,10 @@ These rules apply to test code (`app/src/test/`, `app/src/androidTest/`, and
 - Requires a running emulator or connected device
 - Helper: `UITestHelper.java` provides common test utilities
 - `ScreenshotsUITest.java` is for automated store screenshots — don't modify unless updating those
+- Enter text with `replaceText`, never `typeText`. Typing goes through the
+  emulator's soft keyboard, which autocorrects ("Lincoln Cents Test" became
+  "Lincoln Center Test" on CI) and moves a dialog as it closes, so the next
+  tap can miss its button
 
 ## Shared test library (shared-test/)
 
