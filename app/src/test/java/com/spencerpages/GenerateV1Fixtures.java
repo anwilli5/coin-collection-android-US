@@ -91,8 +91,8 @@ public class GenerateV1Fixtures {
     /** Database version used by the V1 code */
     static final int V1_DATABASE_VERSION = 8;
 
-    // Gradle test runner CWD is the app/ directory
-    private static final String OUTPUT_DIR = "src/test/data/v1-upgrades";
+    // Under app/src/test/data
+    private static final String OUTPUT_DIR = "v1-upgrades";
 
     private static final String V1_SOURCE_PATH =
             "app/src/main/java/com/spencerpages/CoinPageCreator.java";
@@ -204,7 +204,7 @@ public class GenerateV1Fixtures {
 
         Class<?> creatorClass = compileV1Creator(stringArrays);
 
-        new File(OUTPUT_DIR).mkdirs();
+        BaseTestCase.getTestDataSourceFile(OUTPUT_DIR).mkdirs();
         writeFixture(creatorClass, screens, "v1-default.json", V1Screen::defaults);
         writeFixture(creatorClass, screens, "v1-all-options.json", screen -> {
             V1Options options = screen.defaults();
@@ -292,7 +292,7 @@ public class GenerateV1Fixtures {
         json.append("  ]\n");
         json.append("}\n");
 
-        File outputFile = new File(OUTPUT_DIR, filename);
+        File outputFile = BaseTestCase.getTestDataSourceFile(OUTPUT_DIR + "/" + filename);
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(outputFile.toPath()),
                 StandardCharsets.UTF_8)) {
             writer.write(json.toString());

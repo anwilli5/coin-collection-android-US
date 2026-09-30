@@ -40,9 +40,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -61,7 +58,8 @@ import java.util.ArrayList;
 @RunWith(RobolectricTestRunner.class)
 public class CollectionUpgradeAllParamsTests extends BaseTestCase {
 
-    private static final String FIXTURE_DIR = "src/test/data/v23-upgrades";
+    // Under app/src/test/data
+    private static final String FIXTURE_DIR = "v23-upgrades";
 
     /**
      * Import a V23 fixture, validate each collection after upgrade.
@@ -78,13 +76,9 @@ public class CollectionUpgradeAllParamsTests extends BaseTestCase {
             scenario.onActivity(activity -> {
                 // Import the V23 fixture (triggers V23→V24 upgrade automatically)
                 ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-                File fixtureFile = new File(FIXTURE_DIR, fixtureFilename);
-                InputStream inputStream;
-                try {
-                    inputStream = new FileInputStream(fixtureFile);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException("Fixture not found: " + fixtureFile, e);
-                }
+                String fixturePath = FIXTURE_DIR + "/" + fixtureFilename;
+                InputStream inputStream = openTestData(fixturePath);
+                assertNotNull("Fixture not found: " + fixturePath, inputStream);
                 String importResult = helper.importCollectionsFromJson(inputStream);
                 assertEquals("", importResult);
 

@@ -68,8 +68,8 @@ import java.util.TreeMap;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class CollectionGoldenTests extends BaseTestCase {
 
-    // Gradle test runner CWD is the app/ directory
-    private static final String FIXTURE_DIR = "src/test/data/golden";
+    // Under app/src/test/data
+    private static final String FIXTURE_DIR = "golden";
 
     static final String UPDATE_COMMAND = "./gradlew testAndroidDebugUnitTest"
             + " --tests \"com.spencerpages.CollectionGoldenTests\" -PupdateGoldens";
@@ -105,8 +105,8 @@ public class CollectionGoldenTests extends BaseTestCase {
     @Test
     public void test_matchesGolden() throws IOException {
         String actual = render();
-        File fixture = new File(FIXTURE_DIR, mTypeName + ".txt");
-        String expected = fixture.exists() ? readFixture(fixture) : null;
+        String fixturePath = FIXTURE_DIR + "/" + mTypeName + ".txt";
+        String expected = readFixture(fixturePath);
 
         // Enforced even when updating, so these can't be approved by accident
         if (expected != null) {
@@ -124,7 +124,8 @@ public class CollectionGoldenTests extends BaseTestCase {
 
         if (UPDATE_FIXTURES) {
             if (!actual.equals(expected)) {
-                new File(FIXTURE_DIR).mkdirs();
+                File fixture = getTestDataSourceFile(fixturePath);
+                fixture.getParentFile().mkdirs();
                 Files.write(fixture.toPath(), actual.getBytes(StandardCharsets.UTF_8));
             }
             return;
@@ -288,10 +289,10 @@ public class CollectionGoldenTests extends BaseTestCase {
                 .replace("\r", "\\r");
     }
 
-    private static String readFixture(File fixture) throws IOException {
+    private static String readFixture(String fixturePath) throws IOException {
+        String contents = readTestData(fixturePath);
         // Tolerate CRLF line endings from a Windows checkout
-        return new String(Files.readAllBytes(fixture.toPath()), StandardCharsets.UTF_8)
-                .replace("\r\n", "\n");
+        return contents == null ? null : contents.replace("\r\n", "\n");
     }
 
     private static String findLine(String snapshot, String prefix) {

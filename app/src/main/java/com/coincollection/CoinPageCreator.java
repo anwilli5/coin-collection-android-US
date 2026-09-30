@@ -516,7 +516,7 @@ public class CoinPageCreator extends BaseActivity {
         });
 
         // Create help dialog to create a new collection
-        createAndShowHelpDialog("first_Time_screen2", R.string.tutorial_select_coin_and_create);
+        createAndShowHelpDialog(MainApplication.HELP_TIP_CREATE_COLLECTION, R.string.tutorial_select_coin_and_create);
 
         // Finally, update the UI element values and display state
         // (VISIBLE vs. GONE) of the UI from the internal state.

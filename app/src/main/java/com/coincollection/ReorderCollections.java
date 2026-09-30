@@ -51,6 +51,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.coincollection.dialog.ConfirmationDialogFragment;
 import com.coincollection.helper.SimpleItemTouchHelperCallback;
 import com.spencerpages.BuildConfig;
+import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class ReorderCollections extends Fragment {
         // Show help to reorder the collection
         MainActivity activity = (MainActivity) getActivity();
         if (activity != null) {
-            activity.createAndShowHelpDialog("reorder_help1", R.string.tutorial_reorder_collections);
+            activity.createAndShowHelpDialog(MainApplication.HELP_TIP_REORDER, R.string.tutorial_reorder_collections);
 
             // Setup the actionbar for the reorder page
             if (activity.mActionBar != null) {

@@ -81,6 +81,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
@@ -88,7 +91,11 @@ import java.util.Random;
 public class BaseTestCase {
 
     public final static int VERSION_1_YEAR = 2013;
-    public static final Random random = new Random(98320498);
+    private static final long RANDOM_SEED = 98320498;
+
+    // Test data generator, reseeded before every test so each test gets the same
+    // data whichever tests ran before it
+    protected Random random;
 
     private ArrayList<String> mPreviousRandCollectionNames;
 
@@ -113,6 +120,8 @@ public class BaseTestCase {
      */
     @Before
     public void testSetup() {
+        // Seeded so failures are reproducible - nothing security-related depends on it
+        random = new Random(RANDOM_SEED); // DevSkim: ignore DS148264
         // This list keeps tracked of previously used random collection names, to prevent duplicates
         mPreviousRandCollectionNames = new ArrayList<>();
         CollectionInfo.sStrictLookups = true;
@@ -791,7 +800,7 @@ public class BaseTestCase {
             scenarioList.add(new Integer[]{endYear - 1, endYear});
             // Choose some random date ranges
             for (int i = 0; i < numRandomScenarios; i++) {
-                int randStartYear = startYear + DatabaseAccessTests.random.nextInt(endYear - startYear + 1);
+                int randStartYear = startYear + random.nextInt(endYear - startYear + 1);
                 int randEndYear = randStartYear + random.nextInt(endYear - randStartYear + 1);
                 scenarioList.add(new Integer[]{randStartYear, randEndYear});
             }
@@ -960,6 +969,63 @@ public class BaseTestCase {
         } catch (IOException e) {
             fail();
         }
+    }
+
+    /**
+     * Open a fixture from app/src/test/data, which app/build.gradle puts on the
+     * unit-test classpath
+     *
+     * @param path path relative to app/src/test/data
+     * @return input stream, or null if there is no such fixture
+     */
+    static InputStream openTestData(String path) {
+        return BaseTestCase.class.getClassLoader().getResourceAsStream(path);
+    }
+
+    /**
+     * Read a text fixture from app/src/test/data
+     *
+     * @param path path relative to app/src/test/data
+     * @return the contents, or null if there is no such fixture
+     * @throws IOException if the fixture can't be read
+     */
+    static String readTestData(String path) throws IOException {
+        try (InputStream inputStream = openTestData(path)) {
+            if (inputStream == null) {
+                return null;
+            }
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    /**
+     * Get a fixture directory from app/src/test/data, for code that takes a path
+     *
+     * @param path path relative to app/src/test/data
+     * @return the directory's copy on the unit-test classpath
+     */
+    static File getTestDataDir(String path) {
+        URL url = BaseTestCase.class.getClassLoader().getResource(path);
+        assertNotNull("No test data directory: " + path, url);
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    /**
+     * Get the app/src/test/data source directory, for tests and generators that
+     * write fixtures back to it. app/build.gradle passes it in, so this only
+     * works when the tests run through Gradle
+     *
+     * @param path path relative to app/src/test/data
+     * @return the file or directory in the source tree
+     */
+    static File getTestDataSourceFile(String path) {
+        String sourceDir = System.getProperty("testDataSourceDir");
+        assertNotNull("testDataSourceDir isn't set - run this through Gradle", sourceDir);
+        return new File(sourceDir, path);
     }
 
     /**

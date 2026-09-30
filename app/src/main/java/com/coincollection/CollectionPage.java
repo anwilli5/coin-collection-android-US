@@ -201,16 +201,16 @@ public class CollectionPage extends BaseActivity {
 
         // Tell the user they can now lock the collections
         // Check whether it is the users first time using the app
-        boolean displayedHelp = createAndShowHelpDialog("first_Time_screen3", R.string.tutorial_add_to_and_lock_collection);
+        boolean displayedHelp = createAndShowHelpDialog(MainApplication.HELP_TIP_LOCK_COLLECTION, R.string.tutorial_add_to_and_lock_collection);
 
         // Tell the user they can edit/copy coins now
         if (!displayedHelp) {
-            displayedHelp = createAndShowHelpDialog("first_Time_screen5", R.string.tutorial_edit_copy_delete_coins);
+            displayedHelp = createAndShowHelpDialog(MainApplication.HELP_TIP_EDIT_COINS, R.string.tutorial_edit_copy_delete_coins);
         }
 
         // Tell the user about the search feature
         if (!displayedHelp) {
-            createAndShowHelpDialog("first_Time_screen_search", R.string.tutorial_search_feature);
+            createAndShowHelpDialog(MainApplication.HELP_TIP_SEARCH, R.string.tutorial_search_feature);
         }
 
         // At this point the UI is ready to handle any async callbacks

@@ -10,6 +10,13 @@ These rules apply to test code (`app/src/test/`, `app/src/androidTest/`, and
 - Test runner: Robolectric (AndroidJUnit4 via Robolectric)
 - Run with: `./gradlew testAndroidDebugUnitTest`
 - Default variant: `androidDebug` (not amazon)
+- Fixtures live in `app/src/test/data/`, which Gradle puts on the test
+  classpath: read them with `openTestData()` / `readTestData()` /
+  `getTestDataDir()`, not a path relative to the working directory. Code that
+  writes fixtures back (`-PupdateGoldens`, the `Generate*Fixtures` classes)
+  uses `getTestDataSourceFile()`
+- `random` is reseeded before every test, so a test gets the same data
+  whichever tests ran before it
 
 ## Instrumented tests (app/src/androidTest/)
 

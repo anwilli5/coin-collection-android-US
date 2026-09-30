@@ -38,3 +38,14 @@ jobs:
       # The steps above only build the android flavor; catch amazon-only
       # compile breaks before release.yml builds its APK.
       run: ./gradlew compileAmazonDebugSources
+    - name: Coverage
+      # Reads the coverage of the Unit Test run above (the tests aren't rerun)
+      # and fails below the floors set in app/build.gradle
+      run: ./gradlew checkAndroidDebugUnitTestCoverage
+    - name: Upload coverage report
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: unit-test-coverage
+        path: app/build/reports/coverage/test/android/debug/
+        if-no-files-found: ignore
