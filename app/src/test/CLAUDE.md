@@ -30,6 +30,10 @@ These rules apply to test code (`app/src/test/`, `app/src/androidTest/`, and
   emulator's soft keyboard, which autocorrects ("Lincoln Cents Test" became
   "Lincoln Center Test" on CI) and moves a dialog as it closes, so the next
   tap can miss its button
+- After a tap that opens or swaps a window (dialog, activity), check the new
+  window with `UITestHelper.waitForDisplayed`, not a bare
+  `onView(...).check(...)`. CI emulators often take 9–12 s to give the new
+  window focus, past Espresso's single 10 s wait
 
 ## Shared test library (shared-test/)
 

@@ -185,7 +185,7 @@ public class MainActivityTests {
         onView(withText("Presidential Dollars Test")).perform(longClick());
 
         // Verify "Collection Actions" dialog with 4 options
-        onView(withText(R.string.collection_actions)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withText(R.string.collection_actions));
         onView(withText(R.string.view)).check(matches(isDisplayed()));
         onView(withText(R.string.edit)).check(matches(isDisplayed()));
         onView(withText(R.string.copy)).check(matches(isDisplayed()));
@@ -201,13 +201,13 @@ public class MainActivityTests {
         onView(withText(R.string.delete_collection)).perform(click());
 
         // Verify picker dialog
-        onView(withText(R.string.select_collection_delete)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withText(R.string.select_collection_delete));
 
         // Select the copy to delete
         onView(withText("Presidential Dollars Test Copy")).perform(click());
 
         // Verify warning dialog
-        onView(withText(R.string.warning)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withText(R.string.warning));
 
         // Confirm deletion
         onView(withText(R.string.yes)).perform(click());
@@ -239,13 +239,13 @@ public class MainActivityTests {
         onView(withText(R.string.delete_collection)).perform(click());
 
         // Verify picker dialog
-        onView(withText(R.string.select_collection_delete)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withText(R.string.select_collection_delete));
 
         // Select "Delete Me"
         onView(withText("Delete Me")).perform(click());
 
         // Verify warning dialog with YES/NO
-        onView(withText(R.string.warning)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withText(R.string.warning));
         onView(withText(R.string.yes)).check(matches(isDisplayed()));
         onView(withText(R.string.no)).check(matches(isDisplayed()));
 
@@ -271,7 +271,7 @@ public class MainActivityTests {
         onView(withText(R.string.app_info)).perform(click());
 
         // Verify info dialog elements
-        onView(withId(R.id.info_attribution)).check(matches(isDisplayed()));
+        UITestHelper.waitForDisplayed(withId(R.id.info_attribution));
         onView(withId(R.id.info_title)).check(matches(isDisplayed()));
 
         // Dismiss with back press
