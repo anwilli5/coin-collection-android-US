@@ -83,6 +83,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Per-collection upgrade tests from hand-built old databases.
@@ -1445,6 +1447,109 @@ public class CollectionUpgradeTests extends BaseTestCase {
                     }
                 }
                 assertTrue(foundTable);
+            });
+        }
+    }
+
+    /**
+     * Innovation Dollar collections can hold the duplicates reported in issue #340.
+     * Before PR #280 each of BasicInnovationDollars' 2020-2024 upgrade blocks ran one
+     * database version too late, so a database at version 16, 18, 19 or 20 got that
+     * block's states added a second time, once per mint mark. The V24 upgrade must
+     * remove every one of them and keep the collected status of either copy.
+     */
+    @Test
+    public void test_BasicInnovationDollarsDuplicateRemoval() {
+
+        CollectionInfo collection = new BasicInnovationDollars();
+        String coinType = "American Innovation Dollars";
+        String collectionName = coinType + " Dup Test";
+
+        // Show both mint marks so each state has a P and a D row to deduplicate
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
+        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
+        collection.populateCollectionLists(parameters, fullCoinList);
+        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
+        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
+
+        // The V23 collection: everything but the 2026 coins, which the upgrade adds
+        List<String> coins2026 = Arrays.asList("Iowa", "Wisconsin", "California", "Minnesota");
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (CoinSlot coin : fullCoinList) {
+            if (!coins2026.contains(coin.getIdentifier())) {
+                // Ohio P was collected before the duplicate was added
+                int inCollection = coin.getIdentifier().equals("Ohio") && coin.getMint().equals("P") ? 1 : 0;
+                coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), inCollection, coin.getImageId()});
+            }
+        }
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23Collection(db, collectionName, coinType, coinList,
+                collection.getStartYear(), 0, mintMarkFlags, checkboxFlags);
+
+        // The states each late block added again: 2020 (from version 16), 2021 and
+        // 2022 (from 18), 2023 (from 19) and 2024 (from 20)
+        String[] duplicatedStates = {
+                "Connecticut", "Massachusetts", "Maryland", "South Carolina",
+                "New Hampshire", "Virginia", "New York", "North Carolina",
+                "Rhode Island", "Vermont", "Kentucky", "Tennessee",
+                "Ohio", "Louisiana", "Indiana", "Mississippi",
+                "Illinois", "Alabama", "Maine", "Missouri",
+        };
+        int sortOrder = 9000;
+        for (String state : duplicatedStates) {
+            for (String mint : new String[]{"P", "D"}) {
+                ContentValues values = new ContentValues();
+                values.put(CoinSlot.COL_COIN_IDENTIFIER, state);
+                values.put(CoinSlot.COL_COIN_MINT, mint);
+                // Maryland was collected on the duplicate rows only
+                values.put(CoinSlot.COL_IN_COLLECTION, state.equals("Maryland") ? 1 : 0);
+                values.put(CoinSlot.COL_SORT_ORDER, sortOrder++);
+                db.insert("[" + collectionName + "]", null, values);
+            }
+        }
+        ContentValues totalUpdate = new ContentValues();
+        totalUpdate.put(CollectionListInfo.COL_TOTAL, coinList.size() + duplicatedStates.length * 2);
+        db.update(CollectionListInfo.TBL_COLLECTION_INFO, totalUpdate,
+                CollectionListInfo.COL_NAME + "=?", new String[]{collectionName});
+        db.close();
+        testDbHelper.close();
+
+        // Opening the database runs the upgrade
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                ArrayList<CoinSlot> dbCoins = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoins);
+
+                // Exactly the coins a new collection has, in the same order
+                assertEquals("Coin count after upgrade", fullCoinList.size(), dbCoins.size());
+                for (int i = 0; i < fullCoinList.size(); i++) {
+                    CoinSlot expected = fullCoinList.get(i);
+                    CoinSlot actual = dbCoins.get(i);
+                    assertEquals(expected.getIdentifier(), actual.getIdentifier());
+                    assertEquals(expected.getMint(), actual.getMint());
+                    boolean expectCollected = actual.getIdentifier().equals("Maryland")
+                            || (actual.getIdentifier().equals("Ohio") && actual.getMint().equals("P"));
+                    assertEquals("Collected status of " + actual.getIdentifier() + " " + actual.getMint(),
+                            expectCollected, actual.isInCollection());
+                }
+
+                ArrayList<CollectionListInfo> collectionListEntries = new ArrayList<>();
+                activity.mDbAdapter.getAllTables(collectionListEntries);
+                CollectionListInfo info = null;
+                for (CollectionListInfo entry : collectionListEntries) {
+                    if (collectionName.equals(entry.getName())) {
+                        info = entry;
+                    }
+                }
+                assertNotNull(info);
+                assertEquals("Stored total", fullCoinList.size(), info.getMax());
             });
         }
     }
