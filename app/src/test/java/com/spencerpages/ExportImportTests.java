@@ -571,7 +571,7 @@ public class ExportImportTests extends BaseTestCase {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
-                File v1DbDir = new File("src/test/data/v1-coin-collection-files");
+                File v1DbDir = getTestDataDir("v1-coin-collection-files");
                 assertTrue(setEnabledPermissions(activity));
 
                 // Run import and check results
@@ -712,9 +712,9 @@ public class ExportImportTests extends BaseTestCase {
     @Test
     public void test_importSavedFiles() {
         Object[][] testFiles = {
-                {"src/test/data/coin-collection-010822-16.json", 11},
-                {"src/test/data/coin-collection-010822-17.csv", 11},
-                {"src/test/data/coin-collection-010822-17-excel.csv", 11},
+                {"coin-collection-010822-16.json", 11},
+                {"coin-collection-010822-17.csv", 11},
+                {"coin-collection-010822-17-excel.csv", 11},
         };
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
@@ -722,8 +722,8 @@ public class ExportImportTests extends BaseTestCase {
                 for (Object[] testFile : testFiles) {
                     ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
                     String filePath = (String) testFile[0];
-                    File file = new File(filePath);
-                    InputStream inputStream = openInputStream(file);
+                    InputStream inputStream = openTestData(filePath);
+                    assertNotNull("Fixture not found: " + filePath, inputStream);
                     if (filePath.endsWith(".csv")) {
                         assertEquals("", helper.importCollectionsFromSingleCSV(inputStream));
                     } else {

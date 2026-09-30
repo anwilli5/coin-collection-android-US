@@ -165,7 +165,7 @@ public class MainActivity extends BaseActivity {
         // until they made it to the create collection screen.  That isn't necessary anymore, but
         // if they are upgrading from that don't show them the help screen if first_Time_screen1
         // isn't set
-        createAndShowHelpDialog("first_Time_screen1", R.string.intro_message);
+        createAndShowHelpDialog(MainApplication.HELP_TIP_INTRO, R.string.intro_message);
 
         // Instantiate the FrontAdapter
         mListAdapter = new FrontAdapter(mContext, mCollectionListEntries, mNumberOfCollections);
@@ -246,7 +246,7 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         // If the collection has coins then show the more options help (if not yet shown)
         if (mNumberOfCollections > 0) {
-            createAndShowHelpDialog("first_Time_screen4", R.string.tutorial_more_options);
+            createAndShowHelpDialog(MainApplication.HELP_TIP_MORE_OPTIONS, R.string.tutorial_more_options);
         }
     }
 

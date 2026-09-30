@@ -76,6 +76,9 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             debuggable = true
+            // Unit-test runs record JaCoCo coverage, checked by
+            // checkAndroidDebugUnitTestCoverage below
+            enableUnitTestCoverage = true
         }
     }
     flavorDimensions = ["version"]
@@ -122,7 +125,23 @@ android {
             jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", '-XX:+EnableDynamicAgentLoading'
             // -PupdateGoldens rewrites the CollectionGoldenTests fixtures
             systemProperty 'updateGoldens', project.hasProperty('updateGoldens')
+            // Where that and the fixture generators write back to; tests read
+            // the fixtures from the classpath (see sourceSets below)
+            systemProperty 'testDataSourceDir', file('src/test/data').absolutePath
+            // Robolectric loads the app's classes itself, without a code
+            // source, and JaCoCo skips such classes unless told otherwise.
+            // Instrument only the app's packages: the Android classes
+            // Robolectric loads the same way would make the tests ~5x slower
+            jacoco {
+                includeNoLocationClasses = true
+                includes = ['com.coincollection.*', 'com.spencerpages.*']
+            }
         }
+    }
+    sourceSets {
+        // Unit-test fixtures, loaded with getResourceAsStream() so the tests
+        // don't depend on the working directory
+        test.resources.srcDir 'src/test/data'
     }
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
@@ -145,6 +164,40 @@ androidComponents {
         variant.outputs.each { output ->
             output.outputFileName.set(
                     "app-${variant.flavorName}-${variant.buildType}-v${appVersionName}.apk")
+        }
+    }
+}
+
+// Coverage gate for the unit tests, run by gradle.yml. Raise the floors as
+// coverage grows; don't lower them to get a change through.
+def coverageFloors = [LINE: 0.88, BRANCH: 0.85]
+tasks.register('checkAndroidDebugUnitTestCoverage') {
+    group = 'verification'
+    description = 'Fails if unit-test line or branch coverage is below its floor.'
+    inputs.files(tasks.named('createAndroidDebugUnitTestCoverageReport'))
+    inputs.property('floors', coverageFloors)
+    doLast { task ->
+        def reportXml = task.inputs.files.asFileTree.matching { include '**/report.xml' }.singleFile
+        // JaCoCo reports declare a DTD; allow the declaration but never fetch it
+        def slurper = new groovy.xml.XmlSlurper(false, false, true)
+        slurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+        def report = slurper.parse(reportXml)
+        def failures = []
+        coverageFloors.each { type, floor ->
+            // The report's own counters are the totals; packages nest theirs
+            def counter = report.counter.find { it.@type == type }
+            def covered = counter.@covered.toInteger()
+            def total = covered + counter.@missed.toInteger()
+            def summary = String.format('%s coverage %.2f%% (floor %.0f%%)',
+                    type, 100.0 * covered / total, 100.0 * floor)
+            task.logger.lifecycle(summary)
+            if (covered < floor * total) {
+                failures << summary
+            }
+        }
+        if (failures) {
+            throw new GradleException("Unit-test coverage is below its floor:\n  "
+                    + failures.join('\n  ') + "\nReport: ${reportXml.parentFile}/index.html")
         }
     }
 }

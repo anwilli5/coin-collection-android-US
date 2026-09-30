@@ -101,18 +101,6 @@ public class UITestHelper {
         return context.getResources().getStringArray(arrayResId)[index];
     }
 
-    // SharedPreferences keys for tutorial dialogs
-    private static final String PREFS_NAME = "mainPreferences";
-    private static final String[] TUTORIAL_KEYS = {
-            "first_Time_screen1",
-            "first_Time_screen2",
-            "first_Time_screen3",
-            "first_Time_screen4",
-            "first_Time_screen5",
-            "first_Time_screen_search",
-            "reorder_help1",
-    };
-
     /**
      * Suppress all first-time tutorial dialogs by setting their
      * SharedPreferences flags to false (already seen).
@@ -121,9 +109,9 @@ public class UITestHelper {
      */
     public static void suppressAllTutorials() {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        for (String key : TUTORIAL_KEYS) {
+        for (String key : MainApplication.HELP_TIP_KEYS) {
             editor.putBoolean(key, false);
         }
         editor.commit();
@@ -135,9 +123,9 @@ public class UITestHelper {
      */
     public static void resetTutorials() {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        for (String key : TUTORIAL_KEYS) {
+        for (String key : MainApplication.HELP_TIP_KEYS) {
             editor.putBoolean(key, true);
         }
         editor.commit();
@@ -148,7 +136,7 @@ public class UITestHelper {
      */
     public static void unlockCollection(String collectionName) {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(collectionName + CollectionPage.IS_LOCKED, false).apply();
     }
 
@@ -162,7 +150,7 @@ public class UITestHelper {
      */
     public static void clearCoinFilter(String collectionName) {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         prefs.edit().remove(collectionName + CollectionPage.COIN_FILTER).commit();
     }
 
@@ -255,14 +243,15 @@ public class UITestHelper {
 
         // Mark a deterministic but natural-looking subset as collected.
         // Shuffle indices with a fixed seed so the result is reproducible
-        // across runs but doesn't show an obvious stride pattern.
+        // across runs but doesn't show an obvious stride pattern. Nothing
+        // security-related depends on it.
         int total = coinList.size();
         int numToCollect = (int) (total * collectedFraction);
         ArrayList<Integer> indices = new ArrayList<>(total);
         for (int i = 0; i < total; i++) {
             indices.add(i);
         }
-        Collections.shuffle(indices, new Random(42));
+        Collections.shuffle(indices, new Random(42)); // DevSkim: ignore DS148264
         int numCollected = 0;
         for (int i = 0; i < numToCollect && i < total; i++) {
             coinList.get(indices.get(i)).setInCollection(true);
@@ -888,7 +877,7 @@ public class UITestHelper {
      */
     public static void setTutorialPending(String helpStrKey, boolean pending) {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(helpStrKey, pending).commit();
     }
 
@@ -898,7 +887,7 @@ public class UITestHelper {
      */
     public static boolean isTutorialPending(String helpStrKey) {
         Context context = getInstrumentation().getTargetContext();
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         return prefs.getBoolean(helpStrKey, true);
     }
 

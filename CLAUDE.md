@@ -29,6 +29,7 @@ generation.
 ./gradlew assembleDebug                       # Build debug APKs
 ./gradlew testAndroidDebugUnitTest            # Unit tests (Robolectric, primary suite)
 ./gradlew lintAndroidDebug                    # Lint
+./gradlew checkAndroidDebugUnitTestCoverage   # Unit-test coverage report + floor check
 ./gradlew connectedAndroidDebugAndroidTest    # Instrumented tests (needs emulator/device)
 bundle exec ruby fastlane/test/fastfile_test.rb  # Fastfile deploy-lane tests
 ```
@@ -39,6 +40,8 @@ bundle exec ruby fastlane/test/fastfile_test.rb  # Fastfile deploy-lane tests
   test runs.
 - Unit test report:
   `app/build/reports/tests/testAndroidDebugUnitTest/index.html`
+- Coverage report (JaCoCo):
+  `app/build/reports/coverage/test/android/debug/index.html`
 - The Fastfile tests run the real deploy lanes with the store upload actions
   stubbed, so they need no credentials or network. They must be run from the
   repo root; the suite chdirs into `fastlane/` itself, because fastlane
@@ -131,7 +134,10 @@ Directory-specific rules live in nested `CLAUDE.md` files:
 - **markdownlint** (`markdownlint.yml`): markdownlint-cli2 runs on all `.md`
   files (default rules, MD013 disabled) — authored markdown must be
   lint-clean.
-- **gradle.yml**: runs `testAndroidDebugUnitTest` + `lintAndroidDebug` on PRs.
+- **gradle.yml**: runs `testAndroidDebugUnitTest` + `lintAndroidDebug` on PRs,
+  then fails if unit-test line or branch coverage drops below the floors in
+  `app/build.gradle` (`coverageFloors`) and uploads the coverage report.
+  Raise the floors as coverage grows — never lower them to land a change.
   Lint warnings and errors both fail the build (`warningsAsErrors = true` in
   `app` and `shared-test`). The newer-version-available checks and
   `IconDensities` are disabled there; fix a new warning or disable it

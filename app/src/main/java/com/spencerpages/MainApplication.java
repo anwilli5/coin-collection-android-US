@@ -87,6 +87,27 @@ public class MainApplication extends Application {
     // dialogs have been seen before.
     public static final String PREFS = "mainPreferences";
 
+    // SharedPreferences keys for the one-time help tips, passed to
+    // BaseActivity.createAndShowHelpDialog(). Don't change the strings - they
+    // record which tips existing users have already seen. Add any new tip to
+    // HELP_TIP_KEYS too, since the UI tests use it to suppress every tip.
+    public static final String HELP_TIP_INTRO = "first_Time_screen1";
+    public static final String HELP_TIP_CREATE_COLLECTION = "first_Time_screen2";
+    public static final String HELP_TIP_LOCK_COLLECTION = "first_Time_screen3";
+    public static final String HELP_TIP_MORE_OPTIONS = "first_Time_screen4";
+    public static final String HELP_TIP_EDIT_COINS = "first_Time_screen5";
+    public static final String HELP_TIP_SEARCH = "first_Time_screen_search";
+    public static final String HELP_TIP_REORDER = "reorder_help1";
+    public static final String[] HELP_TIP_KEYS = {
+            HELP_TIP_INTRO,
+            HELP_TIP_CREATE_COLLECTION,
+            HELP_TIP_LOCK_COLLECTION,
+            HELP_TIP_MORE_OPTIONS,
+            HELP_TIP_EDIT_COINS,
+            HELP_TIP_SEARCH,
+            HELP_TIP_REORDER,
+    };
+
     // List of all the supported collection types by the app.  New collections
     // should be added here, but don't reorder (reorder lists below)
     public static final CollectionInfo[] COLLECTION_TYPES = {

@@ -76,6 +76,23 @@ correctness issues.
 
 **Report location:** `app/build/reports/lint-results-androidDebug.html`
 
+### Coverage
+
+Debug unit-test runs record JaCoCo coverage of the app's classes. Build the
+report and check it against the floors in `app/build.gradle`
+(`coverageFloors`, line and branch):
+
+```bash
+./gradlew checkAndroidDebugUnitTestCoverage
+```
+
+This runs the unit tests first if they are not up to date. CI runs the same
+check and uploads the report as the `unit-test-coverage` artifact. If it
+fails, add tests for the uncovered code rather than lowering a floor; raise
+the floors when coverage grows.
+
+**Report location:** `app/build/reports/coverage/test/android/debug/index.html`
+
 ### Instrumented tests (requires running emulator)
 
 On-device tests using Espresso and UIAutomator. Only needed when testing UI
@@ -163,6 +180,9 @@ Then run the full suite to confirm no regressions:
 - Use `SharedTest.COLLECTION_LIST_INFO_SCENARIOS` for parametrized test data
 - Use `SharedTest.compareCollectionListInfos()` and `compareCoinSlots()` for
   deep-equality assertions
+- Read fixtures under `app/src/test/data/` with `BaseTestCase.openTestData()` /
+  `readTestData()` (they are on the test classpath), never by a path relative
+  to the working directory
 - Default test variant is `androidDebug` (not `amazonDebug`)
 - Two product flavors exist: `android` and `amazon`
 

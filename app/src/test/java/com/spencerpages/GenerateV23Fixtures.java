@@ -71,15 +71,15 @@ import java.util.Map;
 @RunWith(RobolectricTestRunner.class)
 public class GenerateV23Fixtures extends BaseTestCase {
 
-    // Gradle test runner CWD is the app/ directory
-    private static final String OUTPUT_DIR = "src/test/data/v23-upgrades";
+    // Under app/src/test/data
+    private static final String OUTPUT_DIR = "v23-upgrades";
 
     /**
      * Generates all V23 fixture files. Run this single test to regenerate everything.
      */
     @Test
     public void generateAllFixtures() {
-        new File(OUTPUT_DIR).mkdirs();
+        getTestDataSourceFile(OUTPUT_DIR).mkdirs();
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
             scenario.onActivity(activity -> {
@@ -140,10 +140,10 @@ public class GenerateV23Fixtures extends BaseTestCase {
         activity.updateCollectionListFromDatabase();
 
         // Export to JSON
-        File outputFile = new File(OUTPUT_DIR, filename);
+        File outputFile = getTestDataSourceFile(OUTPUT_DIR + "/" + filename);
         try (OutputStream outputStream = new FileOutputStream(outputFile)) {
             ExportImportHelper helper = new ExportImportHelper(activity.mRes, activity.mDbAdapter);
-            helper.exportCollectionsToJson(outputStream, OUTPUT_DIR);
+            helper.exportCollectionsToJson(outputStream, outputFile.getPath());
         } catch (IOException e) {
             throw new RuntimeException("Failed to write fixture: " + filename, e);
         }

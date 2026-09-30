@@ -23,6 +23,9 @@ package com.coincollection;
 import static com.coincollection.dialog.DialogRequests.TAG_ALERT_PREFIX;
 import static com.coincollection.dialog.DialogRequests.TAG_HELP;
 import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
+import static com.spencerpages.MainApplication.HELP_TIP_INTRO;
+import static com.spencerpages.MainApplication.HELP_TIP_MORE_OPTIONS;
+import static com.spencerpages.MainApplication.HELP_TIP_REORDER;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -373,9 +376,9 @@ public class BaseActivityDialogTests extends BaseTestCase {
     public void test_helpDialogShownFromFragmentOnCreateView() {
         createCollection();
         // Only the reorder tip is outstanding, so it is the only dialog in play
-        setHelpTipPending("reorder_help1", true);
-        setHelpTipPending("first_Time_screen1", false);
-        setHelpTipPending("first_Time_screen4", false);
+        setHelpTipPending(HELP_TIP_REORDER, true);
+        setHelpTipPending(HELP_TIP_INTRO, false);
+        setHelpTipPending(HELP_TIP_MORE_OPTIONS, false);
 
         withDialogsEnabled(() -> {
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
@@ -405,8 +408,8 @@ public class BaseActivityDialogTests extends BaseTestCase {
      */
     @Test
     public void test_helpTipShownAfterPreviousAcknowledged() {
-        setHelpTipPending("first_Time_screen1", true);
-        setHelpTipPending("first_Time_screen4", true);
+        setHelpTipPending(HELP_TIP_INTRO, true);
+        setHelpTipPending(HELP_TIP_MORE_OPTIONS, true);
 
         withDialogsEnabled(() -> {
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
@@ -424,7 +427,7 @@ public class BaseActivityDialogTests extends BaseTestCase {
                     assertNull("The acknowledged tip should be gone",
                             findDialog(activity, TAG_HELP));
                     activity.createAndShowHelpDialog(
-                            "first_Time_screen4", R.string.tutorial_more_options);
+                            HELP_TIP_MORE_OPTIONS, R.string.tutorial_more_options);
                     activity.getSupportFragmentManager().executePendingTransactions();
                     assertNotNull("A tip raised after the first was acknowledged must be shown",
                             findDialog(activity, TAG_HELP));
@@ -440,8 +443,8 @@ public class BaseActivityDialogTests extends BaseTestCase {
      */
     @Test
     public void test_secondHelpTipDoesNotReplaceFirst() {
-        setHelpTipPending("first_Time_screen1", true);
-        setHelpTipPending("first_Time_screen4", true);
+        setHelpTipPending(HELP_TIP_INTRO, true);
+        setHelpTipPending(HELP_TIP_MORE_OPTIONS, true);
 
         withDialogsEnabled(() -> {
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
@@ -451,7 +454,7 @@ public class BaseActivityDialogTests extends BaseTestCase {
                     assertNotNull("The intro tip should be shown", firstTip);
 
                     assertTrue(activity.createAndShowHelpDialog(
-                            "first_Time_screen4", R.string.tutorial_more_options));
+                            HELP_TIP_MORE_OPTIONS, R.string.tutorial_more_options));
                     assertSame(firstTip, findDialog(activity, TAG_HELP));
                 });
             }

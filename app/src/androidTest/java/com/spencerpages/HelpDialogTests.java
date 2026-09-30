@@ -26,6 +26,9 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.coincollection.dialog.DialogRequests.TAG_HELP;
+import static com.spencerpages.MainApplication.HELP_TIP_INTRO;
+import static com.spencerpages.MainApplication.HELP_TIP_MORE_OPTIONS;
+import static com.spencerpages.MainApplication.HELP_TIP_REORDER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -62,10 +65,6 @@ public class HelpDialogTests {
 
     private static final String COLLECTION_NAME = "Help Tip Test";
     private static final String SECOND_COLLECTION_NAME = "Help Tip Test Two";
-
-    private static final String TIP_INTRO = "first_Time_screen1";
-    private static final String TIP_MORE_OPTIONS = "first_Time_screen4";
-    private static final String TIP_REORDER = "reorder_help1";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
@@ -129,7 +128,7 @@ public class HelpDialogTests {
         // The tip must be marked pending after the recreate: the helper
         // suppresses every tutorial as part of rebuilding the activity
         UITestHelper.recreateActivity(activityRule);
-        UITestHelper.setTutorialPending(TIP_REORDER, true);
+        UITestHelper.setTutorialPending(HELP_TIP_REORDER, true);
 
         onView(withText(R.string.reorder_collection)).perform(click());
 
@@ -150,7 +149,7 @@ public class HelpDialogTests {
     @Test
     public void test_reorderTipSurvivesRotation() {
         UITestHelper.recreateActivity(activityRule);
-        UITestHelper.setTutorialPending(TIP_REORDER, true);
+        UITestHelper.setTutorialPending(HELP_TIP_REORDER, true);
 
         onView(withText(R.string.reorder_collection)).perform(click());
         UITestHelper.waitForDisplayed(withText(R.string.tutorial_reorder_collections));
@@ -170,7 +169,7 @@ public class HelpDialogTests {
      */
     @Test
     public void test_introTipSurvivesRotationWithoutBeingReplaced() {
-        UITestHelper.setTutorialPending(TIP_INTRO, true);
+        UITestHelper.setTutorialPending(HELP_TIP_INTRO, true);
         recreateKeepingTips();
         UITestHelper.waitForDisplayed(withText(R.string.intro_message));
 
@@ -190,8 +189,8 @@ public class HelpDialogTests {
      */
     @Test
     public void test_laterTipShownAfterEarlierAcknowledged() {
-        UITestHelper.setTutorialPending(TIP_INTRO, true);
-        UITestHelper.setTutorialPending(TIP_MORE_OPTIONS, true);
+        UITestHelper.setTutorialPending(HELP_TIP_INTRO, true);
+        UITestHelper.setTutorialPending(HELP_TIP_MORE_OPTIONS, true);
         recreateKeepingTips();
 
         // Acknowledge the intro tip, which leaves a destroyed tip behind
@@ -214,7 +213,7 @@ public class HelpDialogTests {
      */
     @Test
     public void test_tipAcknowledgementPersistsAcrossRotation() {
-        UITestHelper.setTutorialPending(TIP_INTRO, true);
+        UITestHelper.setTutorialPending(HELP_TIP_INTRO, true);
         recreateKeepingTips();
 
         UITestHelper.waitForDisplayed(withText(R.string.intro_message));
@@ -223,7 +222,7 @@ public class HelpDialogTests {
 
         UITestHelper.waitForAssertion(() -> assertFalse(
                 "Acknowledging the tip should clear its preference",
-                UITestHelper.isTutorialPending(TIP_INTRO)));
+                UITestHelper.isTutorialPending(HELP_TIP_INTRO)));
 
         UITestHelper.setOrientationLeft();
         UITestHelper.waitForDisplayed(withId(R.id.main_activity_listview));

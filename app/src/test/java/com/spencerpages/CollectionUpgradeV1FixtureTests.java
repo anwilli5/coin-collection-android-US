@@ -46,10 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,8 +70,8 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 public class CollectionUpgradeV1FixtureTests extends BaseTestCase {
 
-    // Gradle test runner CWD is the app/ directory
-    private static final String FIXTURE_DIR = "src/test/data/v1-upgrades";
+    // Under app/src/test/data
+    private static final String FIXTURE_DIR = "v1-upgrades";
 
     /** A collection from a V1 fixture file */
     private static class V1Collection {
@@ -118,9 +115,10 @@ public class CollectionUpgradeV1FixtureTests extends BaseTestCase {
     }
 
     private static List<V1Collection> readFixture(String fixtureFilename) {
-        File fixtureFile = new File(FIXTURE_DIR, fixtureFilename);
+        String fixturePath = FIXTURE_DIR + "/" + fixtureFilename;
         try {
-            String contents = new String(Files.readAllBytes(fixtureFile.toPath()), StandardCharsets.UTF_8);
+            String contents = readTestData(fixturePath);
+            assertNotNull("Fixture not found: " + fixturePath, contents);
             JSONObject root = new JSONObject(contents);
             assertEquals(GenerateV1Fixtures.V1_DATABASE_VERSION, root.getInt("databaseVersion"));
             JSONArray collectionArray = root.getJSONArray("collections");
@@ -130,7 +128,7 @@ public class CollectionUpgradeV1FixtureTests extends BaseTestCase {
             }
             return collections;
         } catch (IOException | JSONException e) {
-            throw new RuntimeException("Failed to read fixture: " + fixtureFile, e);
+            throw new RuntimeException("Failed to read fixture: " + fixturePath, e);
         }
     }
 
