@@ -27,7 +27,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
-import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
@@ -246,11 +246,13 @@ public class CollectionPageBasicViewTests {
         onView(withId(R.id.coin_name_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.coin_mint_edittext)).check(matches(isDisplayed()));
 
-        // Enter name and mint
+        // Enter name and mint. replaceText, not typeText: typing opens the soft
+        // keyboard, and the dialog is still moving back down after it closes, so
+        // the tap on "Okay" below can land where the button was and miss
         onView(withId(R.id.coin_name_edittext))
-                .perform(typeText("Custom Coin"), closeSoftKeyboard());
+                .perform(replaceText("Custom Coin"), closeSoftKeyboard());
         onView(withId(R.id.coin_mint_edittext))
-                .perform(typeText("P"), closeSoftKeyboard());
+                .perform(replaceText("P"), closeSoftKeyboard());
 
         // Tap "Okay"
         onView(withText(R.string.okay)).perform(click());
