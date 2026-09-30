@@ -27,7 +27,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.longClick;
-import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
@@ -248,9 +248,9 @@ public class CollectionPageBasicViewTests {
 
         // Enter name and mint
         onView(withId(R.id.coin_name_edittext))
-                .perform(typeText("Custom Coin"), closeSoftKeyboard());
+                .perform(replaceText("Custom Coin"), closeSoftKeyboard());
         onView(withId(R.id.coin_mint_edittext))
-                .perform(typeText("P"), closeSoftKeyboard());
+                .perform(replaceText("P"), closeSoftKeyboard());
 
         // Tap "Okay"
         onView(withText(R.string.okay)).perform(click());
