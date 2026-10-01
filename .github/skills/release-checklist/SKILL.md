@@ -135,4 +135,16 @@ If any check fails, list the required actions before release.
 
 ## After the release
 
+If the release shipped a new `DATABASE_VERSION`, add it to the upgrade-path
+fixtures so future migrations are tested against what this release creates:
+add a `Snapshot` for it (the release tag's commit) to
+`GenerateUpgradeFixtures.SNAPSHOTS`, remove the `@Ignore` locally and run
+
+```bash
+./gradlew testAndroidDebugUnitTest --tests "com.spencerpages.GenerateUpgradeFixtures"
+```
+
+Commit only the new `app/src/test/data/upgrade-paths/v<N>.json.gz`; every
+existing fixture must come out byte-identical. Then run `UpgradePathTests`.
+
 Google Play's memory quality requirement (dynamic and bitmap memory thresholds, enforced February 2027, announced in the [August 2026 Android Developers post](https://android-developers.googleblog.com/2026/08/app-quality-memory-optimization-secure-onboarding.html)) can only be checked from real-device data. A few days after a release reaches production, open **Play Console → Android vitals** and compare the new version's memory metrics with those thresholds. If it exceeds them, open an issue.
