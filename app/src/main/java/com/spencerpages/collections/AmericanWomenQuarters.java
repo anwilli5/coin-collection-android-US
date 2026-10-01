@@ -209,6 +209,21 @@ public class AmericanWomenQuarters extends CollectionInfo {
             total -= DatabaseHelper.removeDuplicateCoinsByIdentifier(db, collectionListInfo, dupIdentifiers);
         }
 
+        if (oldVersion <= 26) {
+            // The blocks above added each quarter's mints in DatabaseHelper's mint iteration
+            // order, which puts S before D, while new collections use P, D, S. Swap them back.
+            // The identifiers are literals: an old migration must never pick up a changed
+            // constant.
+            String[] upgradeAddedQuarters = {
+                    "Bessie Coleman", "Edith Kanaka'ole", "Eleanor Roosevelt", "Jovita Idar",
+                    "Maria Tallchief", "Rev. Dr. Pauli Murray", "Patsy Takemoto Mink",
+                    "Dr. Mary Edwards Walker", "Celia Cruz", "Zitkala-Ša", "Ida B. Wells",
+                    "Juliette Gordon Low", "Dr. Vera Rubin", "Stacey Park Milbern", "Althea Gibson"};
+            for (String identifier : upgradeAddedQuarters) {
+                DatabaseHelper.putMintsInOrder(db, collectionListInfo.getName(), identifier, "D", "S");
+            }
+        }
+
         return total;
     }
 }

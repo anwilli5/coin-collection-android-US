@@ -1170,6 +1170,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Puts two of a coin's mints in the given order by swapping their sort orders if the
+     * second sorts first. Only acts when the coin has exactly one non-custom row for each
+     * mint; custom coins are user-added and always left alone. A row keeps everything but its
+     * sort order, so collected status and advanced details move with the coin.
+     *
+     * @param db         the database
+     * @param tableName  the collection table
+     * @param identifier the coin identifier
+     * @param firstMint  the mint that should sort first
+     * @param secondMint the mint that should sort second
+     * @return true if the rows were swapped
+     */
+    public static boolean putMintsInOrder(SQLiteDatabase db, String tableName, String identifier,
+                                          String firstMint, String secondMint) {
+        long[] first = getSingleCoinIdAndSortOrder(db, tableName, identifier, firstMint);
+        long[] second = getSingleCoinIdAndSortOrder(db, tableName, identifier, secondMint);
+        if (first == null || second == null || first[1] <= second[1]) {
+            return false;
+        }
+        runInTransaction(db, () -> {
+            setSortOrder(db, tableName, first[0], second[1]);
+            setSortOrder(db, tableName, second[0], first[1]);
+        });
+        return true;
+    }
+
+    /**
+     * @return {_id, sortOrder} of the coin's only non-custom row with this mint, or null if
+     * it has none or more than one
+     */
+    private static long[] getSingleCoinIdAndSortOrder(SQLiteDatabase db, String tableName,
+                                                      String identifier, String mint) {
+        try (Cursor cursor = db.query("[" + DatabaseAdapter.removeBrackets(tableName) + "]",
+                new String[]{COL_COIN_ID, COL_SORT_ORDER},
+                COIN_SLOT_NAME_MINT_WHERE_CLAUSE + " AND " + COL_CUSTOM_COIN + "=0",
+                new String[]{identifier, mint}, null, null, null)) {
+            if (cursor.getCount() != 1 || !cursor.moveToFirst()) {
+                return null;
+            }
+            return new long[]{cursor.getLong(0), cursor.getLong(1)};
+        }
+    }
+
+    private static void setSortOrder(SQLiteDatabase db, String tableName, long coinId, long sortOrder) {
+        ContentValues values = new ContentValues();
+        values.put(COL_SORT_ORDER, sortOrder);
+        if (runSqlUpdate(db, tableName, values, COL_COIN_ID + "=?",
+                new String[]{String.valueOf(coinId)}) != 1) {
+            throw new SQLException("Failed to set the sort order of coin " + coinId + " in [" + tableName + "]");
+        }
+    }
+
+    /**
      * Remove duplicate coins from a collection table for specific identifiers. For each
      * (coinIdentifier, coinMint) group of non-custom coins whose identifier is in the
      * provided list and that has more than one row, keeps the row with the lowest _id
