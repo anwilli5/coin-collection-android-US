@@ -82,8 +82,14 @@ public class CoinSlotAdapterTests extends BaseTestCase {
      * Creates the test collection with the given display type and lock state
      */
     private static void createCollection(int displayType, boolean locked) {
+        createCollection(displayType, locked, getTestCoins());
+    }
+
+    /**
+     * Creates the test collection with the given display type, lock state and coins
+     */
+    private static void createCollection(int displayType, boolean locked, ArrayList<CoinSlot> coins) {
         Context context = ApplicationProvider.getApplicationContext();
-        ArrayList<CoinSlot> coins = getTestCoins();
         int collected = 0;
         for (CoinSlot coin : coins) {
             collected += coin.isInCollection() ? 1 : 0;
@@ -223,6 +229,58 @@ public class CoinSlotAdapterTests extends BaseTestCase {
                     assertEquals(original.get(i).getAdvancedQuantities(), dbCoins.get(i).getAdvancedQuantities());
                     assertEquals(original.get(i).getAdvancedNotes(), dbCoins.get(i).getAdvancedNotes());
                     assertEquals(original.get(i).isInCollection(), dbCoins.get(i).isInCollection());
+                }
+            });
+        }
+    }
+
+    /**
+     * Coins whose grade/quantity indexes are outside the arrays, as a hand-edited or corrupt
+     * backup can leave them (import doesn't range-check them)
+     */
+    private static ArrayList<CoinSlot> getOutOfRangeCoins() {
+        ArrayList<CoinSlot> coins = new ArrayList<>();
+        coins.add(new CoinSlot(0, "1909", "", false, 81, -1, "", 0, false, -1));
+        coins.add(new CoinSlot(0, "1910", "", false, -1, 81, "", 1, false, -1));
+        return coins;
+    }
+
+    @Test
+    public void test_outOfRangeGradeAndQuantityShowAsUnset() {
+        createCollection(CollectionPage.ADVANCED_DISPLAY, false, getOutOfRangeCoins());
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(collectionPageIntent())) {
+            scenario.onActivity(activity -> {
+                AbsListView listView = activity.findViewById(R.id.advanced_collection_page);
+                for (int i = 0; i < activity.mCoinList.size(); i++) {
+                    CoinSlot coin = activity.mCoinList.get(i);
+                    View row = getRow(listView, i);
+                    assertEquals(0, ((Spinner) row.findViewById(R.id.grade_selector)).getSelectedItemPosition());
+                    assertEquals(0, ((Spinner) row.findViewById(R.id.quantity_selector)).getSelectedItemPosition());
+                    assertEquals(0, (int) coin.getAdvancedGrades());
+                    assertEquals(0, (int) coin.getAdvancedQuantities());
+                    // Showing the value as unset isn't an edit the user has to save
+                    assertFalse(coin.hasAdvInfoChanged());
+                }
+                assertFalse(isUnsavedIndicatorShown(activity));
+            });
+        }
+    }
+
+    @Test
+    public void test_outOfRangeGradeAndQuantityShowAsUnsetWhenLocked() {
+        createCollection(CollectionPage.ADVANCED_DISPLAY, true, getOutOfRangeCoins());
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(collectionPageIntent())) {
+            scenario.onActivity(activity -> {
+                Resources res = activity.getResources();
+                String expectedGrade = res.getString(R.string.grade_text_view_template_without_grade,
+                        res.getStringArray(R.array.coin_grades)[0]);
+                String expectedQuantity = res.getString(R.string.quantities_text_view_template,
+                        res.getStringArray(R.array.coin_quantities)[0]);
+                AbsListView listView = activity.findViewById(R.id.advanced_collection_page);
+                for (int i = 0; i < activity.mCoinList.size(); i++) {
+                    View row = getRow(listView, i);
+                    assertEquals(expectedGrade, ((TextView) row.findViewById(R.id.grade_textview)).getText().toString());
+                    assertEquals(expectedQuantity, ((TextView) row.findViewById(R.id.quantity_textview)).getText().toString());
                 }
             });
         }

@@ -23,6 +23,7 @@ package com.coincollection;
 import android.content.res.Resources;
 import android.database.SQLException;
 import android.os.Environment;
+import android.util.Log;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -137,9 +138,11 @@ public class ExportImportHelper {
             } else {
                 return mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath());
             }
-        } catch (IOException | CsvValidationException ignored) {
+        } catch (IOException | CsvValidationException e) {
+            Log.e(MainApplication.APP_NAME, "Failed to read " + inputFile.getAbsolutePath(), e);
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            Log.e(MainApplication.APP_NAME, "Invalid database version in " + inputFile.getAbsolutePath(), e);
             return mRes.getString(R.string.error_reading_file, inputFile.getAbsolutePath());
         }
 
@@ -150,7 +153,8 @@ public class ExportImportHelper {
             for (String[] items : fileContents) {
                 importedCollectionInfoList.add(new CollectionListInfo(items));
             }
-        } catch (IOException | CsvValidationException ignored) {
+        } catch (IOException | CsvValidationException e) {
+            Log.e(MainApplication.APP_NAME, "Failed to read " + inputFile.getAbsolutePath(), e);
             return mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath());
         } catch (ImportFormatException | NumberFormatException | IndexOutOfBoundsException e) {
             return mRes.getString(R.string.error_importing, e.getMessage());
@@ -179,7 +183,8 @@ public class ExportImportHelper {
                 for (String[] items : fileContents) {
                     collectionContent.add(new CoinSlot(items, coinIndex++));
                 }
-            } catch (IOException | CsvValidationException ignored) {
+            } catch (IOException | CsvValidationException e) {
+                Log.e(MainApplication.APP_NAME, "Failed to read " + inputFile.getAbsolutePath(), e);
                 collectionErrorMessages.add(mRes.getString(R.string.error_open_file_reading, inputFile.getAbsolutePath()));
                 continue;
             } catch (ImportFormatException | NumberFormatException | IndexOutOfBoundsException e) {

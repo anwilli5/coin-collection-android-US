@@ -57,6 +57,8 @@ class CoinSlotAdapter extends BaseAdapter {
      */
     private final CollectionPage mCollectionPageContext;
     private final Resources mRes;
+    private final String[] mGrades;
+    private final String[] mQuantities;
 
     // Information about the collections needed for the basic coin list view
 
@@ -102,6 +104,8 @@ class CoinSlotAdapter extends BaseAdapter {
         mDisplayType = displayType;
 
         mRes = mCollectionPageContext.getResources();
+        mGrades = mRes.getStringArray(R.array.coin_grades);
+        mQuantities = mRes.getStringArray(R.array.coin_quantities);
         SharedPreferences mainPreferences = mCollectionPageContext.getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE);
         mDisplayIsLocked = mainPreferences.getBoolean(mTableName + CollectionPage.IS_LOCKED, false);
     }
@@ -284,6 +288,11 @@ class CoinSlotAdapter extends BaseAdapter {
         // Get the coin slot at the position in the list
         CoinSlot coinSlot = mFilteredCoinList.get(position);
 
+        // Imported backups aren't range-checked, so a hand-edited or corrupt file can leave
+        // grade/quantity indexes outside the arrays. Treat those as unset rather than crash
+        coinSlot.setAdvancedGrades(indexOrDefault(coinSlot.getAdvancedGrades(), mGrades.length));
+        coinSlot.setAdvancedQuantities(indexOrDefault(coinSlot.getAdvancedQuantities(), mQuantities.length));
+
         // Set up on-click listeners for the image
         final ImageView imageView = coinView.findViewById(R.id.coinImage);
         imageView.setTag(coinSlot);
@@ -325,20 +334,18 @@ class CoinSlotAdapter extends BaseAdapter {
 
         if (mDisplayIsLocked) {
             // Setup the locked view and return
-            String[] grades = mRes.getStringArray(R.array.coin_grades);
             TextView gradeTextView = coinView.findViewById(R.id.grade_textview);
             int gradeIndex = coinSlot.getAdvancedGrades();
             if (gradeIndex != 0) {
                 // Prefix the grade with 'Grade:'
-                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template, grades[gradeIndex]));
+                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template, mGrades[gradeIndex]));
             } else {
                 // 'Grade:' will be printed
-                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template_without_grade, grades[gradeIndex]));
+                gradeTextView.setText(mRes.getString(R.string.grade_text_view_template_without_grade, mGrades[gradeIndex]));
             }
 
-            String[] quantities = mRes.getStringArray(R.array.coin_quantities);
             TextView quantitiesTextView = coinView.findViewById(R.id.quantity_textview);
-            quantitiesTextView.setText(mRes.getString(R.string.quantities_text_view_template, quantities[coinSlot.getAdvancedQuantities()]));
+            quantitiesTextView.setText(mRes.getString(R.string.quantities_text_view_template, mQuantities[coinSlot.getAdvancedQuantities()]));
 
             TextView notesTextView = coinView.findViewById(R.id.notes_textview);
             notesTextView.setText(mRes.getString(R.string.notes_text_view_template, coinSlot.getAdvancedNotes()));
@@ -414,6 +421,17 @@ class CoinSlotAdapter extends BaseAdapter {
         // Make the edittext scrollable
         // TODO Get scrolling working all the way
         // notesEditText.setMovementMethod(new ScrollingMovementMethod());
+    }
+
+    /**
+     * Returns the index if it's valid for an array of the given length, otherwise 0
+     *
+     * @param index  the stored index (may be null for coins loaded without advanced info)
+     * @param length the array length
+     * @return a valid index into the array
+     */
+    private static int indexOrDefault(Integer index, int length) {
+        return (index != null && index >= 0 && index < length) ? index : 0;
     }
 
     /**
