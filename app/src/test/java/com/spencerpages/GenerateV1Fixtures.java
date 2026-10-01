@@ -521,7 +521,7 @@ public class GenerateV1Fixtures {
      * Runs a command and returns its output, or null if it exits with an error (after
      * printing the output)
      */
-    private static String runProcess(String... command) throws IOException, InterruptedException {
+    static String runProcess(String... command) throws IOException, InterruptedException {
         Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
         byte[] output;
         try (InputStream in = process.getInputStream()) {
@@ -538,7 +538,7 @@ public class GenerateV1Fixtures {
     /**
      * Quotes a string as a JSON (and Java) string literal
      */
-    private static String quote(String value) {
+    static String quote(String value) {
         StringBuilder out = new StringBuilder("\"");
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);

@@ -33,6 +33,13 @@ APIs. This is the suite to run for most code changes.
   created, from frozen fixtures (`CollectionUpgradeV1FixtureTests`)
 - Targeted upgrade tests for SemiQ coins with non-default parameters
   (`CollectionUpgradeSemiQParamTests`)
+- Upgrades from every database version that shipped since 10, with every
+  collection type under default, all-on, all-off and pairwise option sets
+  (`UpgradePathTests`, fixtures in `app/src/test/data/upgrade-paths/`).
+  Each upgraded collection must match a new one coin for coin and keep
+  its collected coins and chosen options. Differences that are understood
+  are listed in its `KNOWN` list; a known difference that stops occurring
+  fails the test too, so a fix must delete its entry
 - Database access patterns (`DatabaseAccessTests`)
 - Export/import (CSV and JSON) (`ExportImportTests`, `ExportImportJsonTests`)
 - Activity launch and lifecycle (`LaunchCoinPageTests`, `MainActivityTests`)
@@ -44,12 +51,14 @@ APIs. This is the suite to run for most code changes.
   image id table (`CollectionGoldenTests`, fixtures in
   `app/src/test/data/golden/`)
 
-Also present: `GenerateV23Fixtures` and `GenerateV1Fixtures` are `@Ignore`'d
-manual fixture generators — they do not run with the suite. Their fixtures
-(`app/src/test/data/v23-upgrades/`, `app/src/test/data/v1-upgrades/`) are
+Also present: `GenerateV23Fixtures`, `GenerateV1Fixtures` and
+`GenerateUpgradeFixtures` are `@Ignore`'d manual fixture generators — they do
+not run with the suite. Their fixtures (`app/src/test/data/v23-upgrades/`,
+`app/src/test/data/v1-upgrades/`, `app/src/test/data/upgrade-paths/`) are
 frozen snapshots of old databases: never regenerate them to make a failing
-upgrade test pass. `GenerateV1Fixtures` rebuilds its files from the V1 source
-in git history, so running it only confirms they are authentic.
+upgrade test pass. `GenerateV1Fixtures` and `GenerateUpgradeFixtures` rebuild
+their files from old source in git history, so running them only confirms the
+committed files are authentic (the output must be byte-identical).
 
 A `CollectionGoldenTests` failure means a collection's output changed.
 If the change is intended, regenerate the fixtures and review the diff:
