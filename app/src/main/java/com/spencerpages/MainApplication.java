@@ -268,7 +268,8 @@ public class MainApplication extends Application {
      *              onCollectionDatabaseUpgrade: the "1776-1796" bicentennial identifier
      *              (KennedyHalfDollars, SilverHalfDollars), duplicated 1932-1964 coins
      *              (WashingtonQuarters), and the "ProofType II" (Cartwheels) and
-     *              "Kennedy Halve" (WestPoint) typos
+     *              "Kennedy Halve" (WestPoint) typos, and puts the D and S coins of the
+     *              2023-2025 American Women Quarters back in the order new collections use
      */
     public static final int DATABASE_VERSION = 27;
 
