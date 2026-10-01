@@ -121,19 +121,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY + " INTEGER DEFAULT " + CollectionPage.SIMPLE_DISPLAY);
 
             // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
-            if (resultCursor.moveToFirst()) {
-                do {
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
 
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_GRADE_INDEX + " INTEGER DEFAULT 0");
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_QUANTITY_INDEX + " INTEGER DEFAULT 0");
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_NOTES + " TEXT DEFAULT \"\"");
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_GRADE_INDEX + " INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_QUANTITY_INDEX + " INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_ADV_NOTES + " TEXT DEFAULT \"\"");
 
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
+                        // Move to the next collection
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         if (oldVersion <= 7) {
@@ -143,30 +143,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL("ALTER TABLE " + TBL_COLLECTION_INFO + " ADD COLUMN " + COL_DISPLAY_ORDER + " INTEGER");
             }
 
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_COIN_TYPE},
-                    null, null, null, null, COL_COIN_ID);
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_COIN_TYPE},
+                    null, null, null, null, COL_COIN_ID)) {
 
-            int i = 0;  // Used to set the display order
+                int i = 0;  // Used to set the display order
 
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
-                    String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
 
-                    ContentValues values = new ContentValues();
+                        ContentValues values = new ContentValues();
 
-                    // Since we added the displayOrder column, populate that.
-                    // In the import case this may get done twice (in the case of going from
-                    // an imported 7 DB to the latest version.
-                    values.put(COL_DISPLAY_ORDER, i);
+                        // Since we added the displayOrder column, populate that.
+                        // In the import case this may get done twice (in the case of going from
+                        // an imported 7 DB to the latest version.
+                        values.put(COL_DISPLAY_ORDER, i);
 
-                    runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=? AND " + COL_COIN_TYPE + "=?", new String[]{name, coinType});
-                    i++;
+                        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=? AND " + COL_COIN_TYPE + "=?", new String[]{name, coinType});
+                        i++;
 
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
+                        // Move to the next collection
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         if (oldVersion <= 9) {
@@ -183,34 +183,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Remove the space from mint marks so that this field's value is less confusing
 
             // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_COIN_ID)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
 
-                    values.put(COL_COIN_MINT, "P");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" P"});
-                    values.clear();
+                        values.put(COL_COIN_MINT, "P");
+                        runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" P"});
+                        values.clear();
 
-                    values.put(COL_COIN_MINT, "D");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" D"});
-                    values.clear();
+                        values.put(COL_COIN_MINT, "D");
+                        runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" D"});
+                        values.clear();
 
-                    values.put(COL_COIN_MINT, "S");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" S"});
-                    values.clear();
+                        values.put(COL_COIN_MINT, "S");
+                        runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" S"});
+                        values.clear();
 
-                    values.put(COL_COIN_MINT, "O");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" O"});
-                    values.clear();
+                        values.put(COL_COIN_MINT, "O");
+                        runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" O"});
+                        values.clear();
 
-                    values.put(COL_COIN_MINT, "CC");
-                    runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" CC"});
-                    values.clear();
+                        values.put(COL_COIN_MINT, "CC");
+                        runSqlUpdate(db, name, values, COL_COIN_MINT + "=?", new String[]{" CC"});
+                        values.clear();
 
-                } while (resultCursor.moveToNext());
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
 
             //TODO Change buffalo nickels mint marks to remove space
             //TODO Change indian head cent mint marks to remove space
@@ -239,21 +239,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion <= 16 && !fromImport) {
 
             // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
 
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_SORT_ORDER + " INTEGER DEFAULT 0");
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_CUSTOM_COIN + " INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_SORT_ORDER + " INTEGER DEFAULT 0");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_CUSTOM_COIN + " INTEGER DEFAULT 0");
 
-                    // Set the sort order to the IDs, as a starting point
-                    db.execSQL("UPDATE [" + name + "] SET " + COL_SORT_ORDER + " = " + COL_COIN_ID);
+                        // Set the sort order to the IDs, as a starting point
+                        db.execSQL("UPDATE [" + name + "] SET " + COL_SORT_ORDER + " = " + COL_COIN_ID);
 
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
+                        // Move to the next collection
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         // Add image id to coins in each collection
@@ -261,17 +261,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion <= 20 && !fromImport) {
 
             // Get all of the created tables
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME}, null, null, null, null, COL_DISPLAY_ORDER)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
 
-                    db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_IMAGE_ID + " INTEGER DEFAULT -1");
+                        db.execSQL("ALTER TABLE [" + name + "] ADD COLUMN " + COL_IMAGE_ID + " INTEGER DEFAULT -1");
 
-                    // Move to the next collection
-                } while (resultCursor.moveToNext());
+                        // Move to the next collection
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         // Add new mint mark/checkbox columns of string type to support any number of options
@@ -282,19 +282,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE [" + TBL_COLLECTION_INFO + "] ADD COLUMN " + COL_SHOW_CHECKBOXES + " TEXT NOT NULL DEFAULT ''");
 
             // Set the new columns to the value of the old columns
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_SHOW_MINT_MARKS_LEGACY, COL_SHOW_CHECKBOXES_LEGACY}, null, null, null, null, COL_DISPLAY_ORDER);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
-                    int mintMarks = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS_LEGACY));
-                    int checkboxes = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES_LEGACY));
-                    ContentValues values = new ContentValues();
-                    values.put(COL_SHOW_MINT_MARKS, Integer.toString(mintMarks));
-                    values.put(COL_SHOW_CHECKBOXES, Integer.toString(checkboxes));
-                    runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
-                } while (resultCursor.moveToNext());
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_SHOW_MINT_MARKS_LEGACY, COL_SHOW_CHECKBOXES_LEGACY}, null, null, null, null, COL_DISPLAY_ORDER)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                        int mintMarks = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS_LEGACY));
+                        int checkboxes = resultCursor.getInt(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES_LEGACY));
+                        ContentValues values = new ContentValues();
+                        values.put(COL_SHOW_MINT_MARKS, Integer.toString(mintMarks));
+                        values.put(COL_SHOW_CHECKBOXES, Integer.toString(checkboxes));
+                        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         // Set new SEMIQ checkbox flags for existing collections that gained a
@@ -315,24 +315,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     AllNickels.COLLECTION_TYPE
             ));
 
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
                     new String[]{COL_NAME, COL_COIN_TYPE, COL_SHOW_CHECKBOXES},
-                    null, null, null, null, COL_DISPLAY_ORDER);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
-                    if (semiqTypes.contains(coinType)) {
-                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
-                        String checkboxStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES));
-                        long checkboxFlags = CollectionListInfo.parseFlagString(checkboxStr);
-                        checkboxFlags |= CollectionListInfo.SEMIQ_COINS;
-                        ContentValues values = new ContentValues();
-                        values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
-                        runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
-                    }
-                } while (resultCursor.moveToNext());
+                    null, null, null, null, COL_DISPLAY_ORDER)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
+                        if (semiqTypes.contains(coinType)) {
+                            String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                            String checkboxStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_CHECKBOXES));
+                            long checkboxFlags = CollectionListInfo.parseFlagString(checkboxStr);
+                            checkboxFlags |= CollectionListInfo.SEMIQ_COINS;
+                            ContentValues values = new ContentValues();
+                            values.put(COL_SHOW_CHECKBOXES, Long.toString(checkboxFlags));
+                            runSqlUpdate(db, TBL_COLLECTION_INFO, values, COL_NAME + "=?", new String[]{name});
+                        }
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
 
         // Fix Philadelphia penny mint marks. Upgrades before V26 added them with a "P"
@@ -348,40 +348,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // uses a "P" again, changing a shared constant would silently alter this block.
             final String pMintMarkYear = "2017";
 
-            Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
+            try (Cursor resultCursor = db.query(TBL_COLLECTION_INFO,
                     new String[]{COL_NAME, COL_COIN_TYPE, COL_SHOW_MINT_MARKS},
-                    null, null, null, null, COL_DISPLAY_ORDER);
-            if (resultCursor.moveToFirst()) {
-                do {
-                    String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
-                    if (LincolnCents.COLLECTION_TYPE.equals(coinType)) {
-                        String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
-                        String mintMarkStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS));
-                        long mintMarkFlags = CollectionListInfo.parseFlagString(mintMarkStr);
+                    null, null, null, null, COL_DISPLAY_ORDER)) {
+                if (resultCursor.moveToFirst()) {
+                    do {
+                        String coinType = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_COIN_TYPE));
+                        if (LincolnCents.COLLECTION_TYPE.equals(coinType)) {
+                            String name = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_NAME));
+                            String mintMarkStr = resultCursor.getString(resultCursor.getColumnIndexOrThrow(COL_SHOW_MINT_MARKS));
+                            long mintMarkFlags = CollectionListInfo.parseFlagString(mintMarkStr);
 
-                        // Clear the "P" from every year except 2017. Custom coins are left
-                        // alone — the mint mark is user-entered, so it isn't ours to correct.
-                        ContentValues values = new ContentValues();
-                        values.put(COL_COIN_MINT, "");
-                        runSqlUpdate(db, name, values,
-                                COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?"
-                                        + " AND " + COL_CUSTOM_COIN + "=0",
-                                new String[]{"P", pMintMarkYear});
-
-                        // Give the 2017 cent the "P" it was actually struck with. Collections
-                        // without mint marks correctly use "" for every coin and are skipped.
-                        boolean hasPMintMarks = (mintMarkFlags & CollectionListInfo.SHOW_MINT_MARKS) != 0
-                                && (mintMarkFlags & CollectionListInfo.MINT_P) != 0;
-                        if (hasPMintMarks) {
-                            values.put(COL_COIN_MINT, "P");
+                            // Clear the "P" from every year except 2017. Custom coins are left
+                            // alone — the mint mark is user-entered, so it isn't ours to correct.
+                            ContentValues values = new ContentValues();
+                            values.put(COL_COIN_MINT, "");
                             runSqlUpdate(db, name, values,
-                                    COIN_SLOT_NAME_MINT_WHERE_CLAUSE + " AND " + COL_CUSTOM_COIN + "=0",
-                                    new String[]{pMintMarkYear, ""});
+                                    COL_COIN_MINT + "=? AND " + COL_COIN_IDENTIFIER + "!=?"
+                                            + " AND " + COL_CUSTOM_COIN + "=0",
+                                    new String[]{"P", pMintMarkYear});
+
+                            // Give the 2017 cent the "P" it was actually struck with. Collections
+                            // without mint marks correctly use "" for every coin and are skipped.
+                            boolean hasPMintMarks = (mintMarkFlags & CollectionListInfo.SHOW_MINT_MARKS) != 0
+                                    && (mintMarkFlags & CollectionListInfo.MINT_P) != 0;
+                            if (hasPMintMarks) {
+                                values.put(COL_COIN_MINT, "P");
+                                runSqlUpdate(db, name, values,
+                                        COIN_SLOT_NAME_MINT_WHERE_CLAUSE + " AND " + COL_CUSTOM_COIN + "=0",
+                                        new String[]{pMintMarkYear, ""});
+                            }
                         }
-                    }
-                } while (resultCursor.moveToNext());
+                    } while (resultCursor.moveToNext());
+                }
             }
-            resultCursor.close();
         }
     }
 
@@ -395,11 +395,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public static int getNextCoinSortOrder(SQLiteDatabase db, String tableName) throws SQLException {
         String sqlCmd = "SELECT MAX(" + COL_SORT_ORDER + ") FROM [" + DatabaseAdapter.removeBrackets(tableName) + "]";
-        SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
-        int result = simpleQueryForLong(compiledStatement);
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result + 1;
+        try (SQLiteStatement compiledStatement = db.compileStatement(sqlCmd)) {
+            return simpleQueryForLong(compiledStatement) + 1;
+        }
     }
 
     /**
@@ -422,26 +420,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                    String identifier, String mint, int imageId) {
         String table = DatabaseAdapter.removeBrackets(tableName);
         // Idempotent: if the coin is already present, do nothing.
-        SQLiteStatement exists = db.compileStatement("SELECT COUNT(*) FROM [" + table + "] WHERE "
-                + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?");
-        exists.bindString(1, identifier);
-        exists.bindString(2, mint);
-        long present = exists.simpleQueryForLong();
-        exists.close();
-        if (present > 0) {
-            return 0;
+        try (SQLiteStatement exists = db.compileStatement("SELECT COUNT(*) FROM [" + table + "] WHERE "
+                + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?")) {
+            exists.bindString(1, identifier);
+            exists.bindString(2, mint);
+            if (exists.simpleQueryForLong() > 0) {
+                return 0;
+            }
         }
-        SQLiteStatement query = db.compileStatement("SELECT " + COL_SORT_ORDER + " FROM ["
-                + table + "] WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?");
-        query.bindString(1, afterIdentifier);
-        query.bindString(2, afterMint);
         int anchor;
-        try {
+        try (SQLiteStatement query = db.compileStatement("SELECT " + COL_SORT_ORDER + " FROM ["
+                + table + "] WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?")) {
+            query.bindString(1, afterIdentifier);
+            query.bindString(2, afterMint);
             anchor = simpleQueryForLong(query);
         } catch (SQLException e) {
             return 0;   // the anchor coin is not in this collection; nothing to do
-        } finally {
-            query.close();
         }
         db.execSQL("UPDATE [" + table + "] SET " + COL_SORT_ORDER + "=" + COL_SORT_ORDER
                 + "+1 WHERE " + COL_SORT_ORDER + ">?", new Object[]{anchor});
@@ -794,9 +788,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param imageId    image ID to assign, or -1 for default
      * @param sortOrder  sort order for this coin
      * @return the next sort order value to use
+     * @throws SQLException if the insert fails, so callers don't count a coin that wasn't added
      */
     public static int addCoin(SQLiteDatabase db, String tableName, String identifier,
-                              String mint, int imageId, int sortOrder) {
+                              String mint, int imageId, int sortOrder) throws SQLException {
         ContentValues insertValues = new ContentValues();
         insertValues.put(COL_COIN_IDENTIFIER, identifier);
         insertValues.put(COL_IN_COLLECTION, 0);
@@ -805,7 +800,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (imageId >= 0) {
             insertValues.put(COL_IMAGE_ID, imageId);
         }
-        db.insert("[" + tableName + "]", null, insertValues);
+        runSqlInsert(db, tableName, insertValues);
         return sortOrder + 1;
     }
 
@@ -845,37 +840,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ArrayList<CoinSlot> coinList = new ArrayList<>();
         String sortColumn = useSortOrder ? COL_SORT_ORDER : COL_COIN_ID;
-        Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
-                null, null, null, null, sortColumn);
-        if (cursor.moveToFirst()) {
-            do {
-                int sortOrder = useSortOrder ? cursor.getInt(cursor.getColumnIndexOrThrow(COL_SORT_ORDER))
-                        : (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID));
-                if (populateAdvInfo) {
-                    coinList.add(new CoinSlot(
-                            cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_GRADE_INDEX)),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_QUANTITY_INDEX)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_ADV_NOTES)),
-                            sortOrder,
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
-                } else {
-                    coinList.add(new CoinSlot(
-                            cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
-                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
-                            sortOrder,
-                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
-                            cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
-                }
-            } while (cursor.moveToNext());
+        try (Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
+                null, null, null, null, sortColumn)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int sortOrder = useSortOrder ? cursor.getInt(cursor.getColumnIndexOrThrow(COL_SORT_ORDER))
+                            : (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID));
+                    if (populateAdvInfo) {
+                        coinList.add(new CoinSlot(
+                                cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                                (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
+                                cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_GRADE_INDEX)),
+                                cursor.getInt(cursor.getColumnIndexOrThrow(COL_ADV_QUANTITY_INDEX)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(COL_ADV_NOTES)),
+                                sortOrder,
+                                (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
+                                cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
+                    } else {
+                        coinList.add(new CoinSlot(
+                                cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                                cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                                (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) != 0),
+                                sortOrder,
+                                (cursor.getInt(cursor.getColumnIndexOrThrow(COL_CUSTOM_COIN)) != 0),
+                                cursor.getInt(cursor.getColumnIndexOrThrow(COL_IMAGE_ID))));
+                    }
+                } while (cursor.moveToNext());
+            }
         }
-        cursor.close();
         return coinList;
     }
 
@@ -893,21 +888,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Arrays.asList(COL_COIN_ID, COL_COIN_IDENTIFIER, COL_COIN_MINT, COL_IN_COLLECTION));
 
         ArrayList<CoinSlot> coinList = new ArrayList<>();
-        Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
-                null, null, null, null, COL_COIN_ID);
-        if (cursor.moveToFirst()) {
-            do {
-                coinList.add(new CoinSlot(
-                        cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
-                        cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
-                        (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) == 1),
-                        (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
-                        false,
-                        -1));
-            } while (cursor.moveToNext());
+        try (Cursor cursor = db.query("[" + tableName + "]", dbColumns.toArray(new String[0]),
+                null, null, null, null, COL_COIN_ID)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    coinList.add(new CoinSlot(
+                            cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_IDENTIFIER)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COL_COIN_MINT)),
+                            (cursor.getInt(cursor.getColumnIndexOrThrow(COL_IN_COLLECTION)) == 1),
+                            (int) cursor.getLong(cursor.getColumnIndexOrThrow(COL_COIN_ID)),
+                            false,
+                            -1));
+                } while (cursor.moveToNext());
+            }
         }
-        cursor.close();
         return coinList;
     }
 
@@ -921,11 +916,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public static int fetchTotalCollected(SQLiteDatabase db, String tableName) throws SQLException {
         String sqlCmd = "SELECT COUNT(" + COL_COIN_ID + ") FROM [" + DatabaseAdapter.removeBrackets(tableName) + "] WHERE " + COL_IN_COLLECTION + "=1 LIMIT 1";
-        SQLiteStatement compiledStatement = db.compileStatement(sqlCmd);
-        int result = simpleQueryForLong(compiledStatement);
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result;
+        try (SQLiteStatement compiledStatement = db.compileStatement(sqlCmd)) {
+            return simpleQueryForLong(compiledStatement);
+        }
     }
 
     /**
@@ -957,11 +950,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         collectionListEntries.clear();
         String colShowMintMarks = legacyOptions ? COL_SHOW_MINT_MARKS_LEGACY : COL_SHOW_MINT_MARKS;
         String colShowCheckboxes = legacyOptions ? COL_SHOW_CHECKBOXES_LEGACY : COL_SHOW_CHECKBOXES;
-        Cursor cursor = db.query(TBL_COLLECTION_INFO,
+        try (Cursor cursor = db.query(TBL_COLLECTION_INFO,
                 new String[]{COL_NAME, COL_COIN_TYPE, COL_TOTAL, COL_DISPLAY, COL_START_YEAR,
                         COL_END_YEAR, colShowMintMarks, colShowCheckboxes},
-                null, null, null, null, COL_DISPLAY_ORDER);
-        try {
+                null, null, null, null, COL_DISPLAY_ORDER)) {
             if (cursor.moveToFirst()) {
                 do {
                     String tableName = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
@@ -994,8 +986,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow(colShowCheckboxes))));
                 } while (cursor.moveToNext());
             }
-        } finally {
-            cursor.close();
         }
     }
 
@@ -1128,7 +1118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             return (int) compiledStatement.simpleQueryForLong();
         } catch (SQLiteDoneException e) {
-            throw new SQLException();
+            throw new SQLException("Query returned no rows: " + compiledStatement, e);
         }
     }
 
@@ -1191,55 +1181,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         runInTransaction(db, () -> {
             for (String identifier : identifiers) {
                 // Find all mint variants with duplicates for this identifier among non-custom coins
-                Cursor dupCursor = db.rawQuery(
+                try (Cursor dupCursor = db.rawQuery(
                         "SELECT " + COL_COIN_MINT
                                 + " FROM [" + safeTable + "]"
                                 + " WHERE " + COL_COIN_IDENTIFIER + "=?"
                                 + " AND " + COL_CUSTOM_COIN + " = 0"
                                 + " GROUP BY " + COL_COIN_MINT
                                 + " HAVING COUNT(*) > 1",
-                        new String[]{identifier});
+                        new String[]{identifier})) {
 
-                if (dupCursor.moveToFirst()) {
-                    do {
-                        String mint = dupCursor.getString(0);
+                    if (dupCursor.moveToFirst()) {
+                        do {
+                            String mint = dupCursor.getString(0);
 
-                        // Get non-custom rows for this group, ordered by _id so the original is first
-                        Cursor rowCursor = db.rawQuery(
-                                "SELECT " + COL_COIN_ID + ", " + COL_IN_COLLECTION
-                                        + " FROM [" + safeTable + "]"
-                                        + " WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?"
-                                        + " AND " + COL_CUSTOM_COIN + " = 0"
-                                        + " ORDER BY " + COL_COIN_ID + " ASC",
-                                new String[]{identifier, mint != null ? mint : ""});
+                            // Get non-custom rows for this group, ordered by _id so the original is first
+                            try (Cursor rowCursor = db.rawQuery(
+                                    "SELECT " + COL_COIN_ID + ", " + COL_IN_COLLECTION
+                                            + " FROM [" + safeTable + "]"
+                                            + " WHERE " + COL_COIN_IDENTIFIER + "=? AND " + COL_COIN_MINT + "=?"
+                                            + " AND " + COL_CUSTOM_COIN + " = 0"
+                                            + " ORDER BY " + COL_COIN_ID + " ASC",
+                                    new String[]{identifier, mint != null ? mint : ""})) {
 
-                        if (rowCursor.moveToFirst()) {
-                            int keepId = rowCursor.getInt(0);
-                            boolean anyCollected = rowCursor.getInt(1) == 1;
+                                if (rowCursor.moveToFirst()) {
+                                    int keepId = rowCursor.getInt(0);
+                                    boolean anyCollected = rowCursor.getInt(1) == 1;
 
-                            // Check remaining rows for collected status and delete them
-                            while (rowCursor.moveToNext()) {
-                                if (rowCursor.getInt(1) == 1) {
-                                    anyCollected = true;
+                                    // Check remaining rows for collected status and delete them
+                                    while (rowCursor.moveToNext()) {
+                                        if (rowCursor.getInt(1) == 1) {
+                                            anyCollected = true;
+                                        }
+                                        int idToDelete = rowCursor.getInt(0);
+                                        db.delete("[" + safeTable + "]", COL_COIN_ID + "=?",
+                                                new String[]{String.valueOf(idToDelete)});
+                                        totalRemoved[0]++;
+                                    }
+
+                                    // If any duplicate was collected, mark the kept row as collected
+                                    if (anyCollected) {
+                                        ContentValues values = new ContentValues();
+                                        values.put(COL_IN_COLLECTION, 1);
+                                        db.update("[" + safeTable + "]", values, COL_COIN_ID + "=?",
+                                                new String[]{String.valueOf(keepId)});
+                                    }
                                 }
-                                int idToDelete = rowCursor.getInt(0);
-                                db.delete("[" + safeTable + "]", COL_COIN_ID + "=?",
-                                        new String[]{String.valueOf(idToDelete)});
-                                totalRemoved[0]++;
                             }
-
-                            // If any duplicate was collected, mark the kept row as collected
-                            if (anyCollected) {
-                                ContentValues values = new ContentValues();
-                                values.put(COL_IN_COLLECTION, 1);
-                                db.update("[" + safeTable + "]", values, COL_COIN_ID + "=?",
-                                        new String[]{String.valueOf(keepId)});
-                            }
-                        }
-                        rowCursor.close();
-                    } while (dupCursor.moveToNext());
+                        } while (dupCursor.moveToNext());
+                    }
                 }
-                dupCursor.close();
             }
         });
 

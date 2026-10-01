@@ -89,6 +89,7 @@ import static com.coincollection.CollectionListInfo.WOMEN_QUARTERS_PROOF;
 import static com.spencerpages.MainApplication.getIndexFromCollectionClass;
 import static org.junit.Assert.assertEquals;
 
+import com.coincollection.CollectionListInfo;
 import com.spencerpages.collections.AllNickels;
 import com.spencerpages.collections.AmericanEagleSilverDollars;
 import com.spencerpages.collections.AmericanInnovationDollars;
@@ -143,6 +144,9 @@ import com.spencerpages.collections.WashingtonQuarters;
 import com.spencerpages.collections.WestPoint;
 
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainApplicationTests extends BaseTestCase {
     /**
@@ -203,6 +207,16 @@ public class MainApplicationTests extends BaseTestCase {
         assertEquals(49, getIndexFromCollectionClass(WashingtonQuarters.class));
         assertEquals(50, getIndexFromCollectionClass(AmericanInnovationDollars.class));
         assertEquals(51, getIndexFromCollectionClass(Semiquincentennials.class));
+    }
+
+    /**
+     * Ensure the mint mark iteration order does not change. Upgrades add coins in this
+     * order, so it sets their sort order, and every past upgrade used it
+     */
+    @Test
+    public void testMintStringToFlagsOrder() {
+        assertEquals(Arrays.asList("P", "CC", "S", "D", "O"),
+                new ArrayList<>(CollectionListInfo.MINT_STRING_TO_FLAGS.keySet()));
     }
 
     /**

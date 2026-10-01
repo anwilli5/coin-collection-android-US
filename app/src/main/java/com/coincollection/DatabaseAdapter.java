@@ -134,24 +134,19 @@ public class DatabaseAdapter {
     }
 
     /**
-     * Returns whether a coinIdentifier and coinMint has been marked as collected in a given
-     * collection.
+     * Returns whether a coin has been marked as collected in a given collection.
      *
      * @param tableName The collection of interest
      * @param coinSlot  The coin we want to retrieve data for
-     * @return 0 if item is in the collection, 1 otherwise
+     * @return 1 if the coin is in the collection, 0 otherwise
      * @throws SQLException if coin could not be found (shouldn't happen)
      */
-    // TODO Retrieving the coin information individually (and onScroll) is inefficient... We should
-    // instead have one query that returns all of the info.
     public int fetchIsInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
         String sqlCmd = "SELECT " + COL_IN_COLLECTION + " FROM [" + removeBrackets(tableName) + "] WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE + " LIMIT 1";
-        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
-        compiledStatement.bindString(1, String.valueOf(coinSlot.getDatabaseId()));
-        int result = simpleQueryForLong(compiledStatement);
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result;
+        try (SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd)) {
+            compiledStatement.bindLong(1, coinSlot.getDatabaseId());
+            return simpleQueryForLong(compiledStatement);
+        }
     }
 
     /**
@@ -162,12 +157,18 @@ public class DatabaseAdapter {
      * @throws SQLException if the database update was not successful
      */
     public void toggleInCollection(String tableName, CoinSlot coinSlot) throws SQLException {
-        int result = fetchIsInCollection(tableName, coinSlot);
-        int toggleResult = (result + 1) % 2;
-        ContentValues args = new ContentValues();
-        args.put(COL_IN_COLLECTION, toggleResult);
-        String[] whereValues = new String[]{String.valueOf(coinSlot.getDatabaseId())};
-        runSqlUpdateAndCheck(tableName, args, COIN_SLOT_COIN_ID_WHERE_CLAUSE, whereValues);
+        // A single statement, so the read and the write can't interleave with another update.
+        // Any non-zero value counts as collected, matching how the coin list is read
+        String sqlCmd = "UPDATE [" + removeBrackets(tableName) + "] SET " + COL_IN_COLLECTION
+                + " = CASE WHEN " + COL_IN_COLLECTION + " != 0 THEN 0 ELSE 1 END"
+                + " WHERE " + COIN_SLOT_COIN_ID_WHERE_CLAUSE;
+        try (SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd)) {
+            compiledStatement.bindLong(1, coinSlot.getDatabaseId());
+            if (compiledStatement.executeUpdateDelete() != 1) {
+                throw new SQLException("Failed to toggle coin " + coinSlot.getDatabaseId()
+                        + " in [" + tableName + "]: coin not found");
+            }
+        }
     }
 
     /**
@@ -180,12 +181,10 @@ public class DatabaseAdapter {
     public int fetchTableDisplay(String tableName) throws SQLException {
         // The database will only be set up this way in this case
         String sqlCmd = "SELECT " + COL_DISPLAY + " FROM " + TBL_COLLECTION_INFO + " WHERE " + COL_NAME + "=? LIMIT 1";
-        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
-        compiledStatement.bindString(1, tableName);
-        int result = simpleQueryForLong(compiledStatement);
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result;
+        try (SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd)) {
+            compiledStatement.bindString(1, tableName);
+            return simpleQueryForLong(compiledStatement);
+        }
     }
 
     /**
@@ -334,15 +333,12 @@ public class DatabaseAdapter {
      */
     public ArrayList<String> getAllCollectionNameList() {
         ArrayList<String> names = new ArrayList<>();
-        Cursor cursor = getAllCollectionNames();
-        try {
+        try (Cursor cursor = getAllCollectionNames()) {
             if (cursor.moveToFirst()) {
                 do {
                     names.add(cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
                 } while (cursor.moveToNext());
             }
-        } finally {
-            cursor.close();
         }
         return names;
     }
@@ -380,18 +376,17 @@ public class DatabaseAdapter {
         }
 
         // By the time the user is able to click this mDbAdapter should not be NULL anymore
-        Cursor cursor = this.getAllCollectionNames();
-        if (cursor.moveToFirst()) {
-            do {
-                Locale defaultLocale = Locale.getDefault();
-                if (cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))) {
-                    cursor.close();
-                    return R.string.collection_name_exists;
-                }
+        try (Cursor cursor = this.getAllCollectionNames()) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Locale defaultLocale = Locale.getDefault();
+                    if (cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)).toLowerCase(defaultLocale).equals(tableName.toLowerCase(defaultLocale))) {
+                        return R.string.collection_name_exists;
+                    }
 
-            } while (cursor.moveToNext());
+                } while (cursor.moveToNext());
+            }
         }
-        cursor.close();
         return -1;
     }
 
@@ -403,11 +398,9 @@ public class DatabaseAdapter {
      */
     public int getNextDisplayOrder() throws SQLException {
         String sqlCmd = "SELECT MAX(" + COL_DISPLAY_ORDER + ") FROM " + TBL_COLLECTION_INFO;
-        SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd);
-        int result = simpleQueryForLong(compiledStatement);
-        compiledStatement.clearBindings();
-        compiledStatement.close();
-        return result + 1;
+        try (SQLiteStatement compiledStatement = mDb.compileStatement(sqlCmd)) {
+            return simpleQueryForLong(compiledStatement) + 1;
+        }
     }
 
     /**
@@ -622,7 +615,7 @@ public class DatabaseAdapter {
      */
     void runSqlUpdateAndCheck(String tableName, ContentValues values, String whereClause, String[] whereArgs) throws SQLException {
         if (DatabaseHelper.runSqlUpdate(mDb, tableName, values, whereClause, whereArgs) <= 0) {
-            throw new SQLException();
+            throw new SQLException("Update of [" + tableName + "] matched no rows");
         }
     }
 
@@ -636,7 +629,7 @@ public class DatabaseAdapter {
      */
     void runSqlDeleteAndCheck(String table, String whereClause, String[] whereArgs) throws SQLException {
         if (DatabaseHelper.runSqlDelete(mDb, table, whereClause, whereArgs) <= 0) {
-            throw new SQLException();
+            throw new SQLException("Delete from [" + table + "] matched no rows");
         }
     }
 

@@ -28,6 +28,7 @@ import android.util.JsonWriter;
 import com.spencerpages.R;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Coin contained in a collection
@@ -583,7 +584,12 @@ public class CoinSlot implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CoinSlot coinSlot = (CoinSlot) o;
-        return mIdentifier.equals(coinSlot.mIdentifier) &&
-                mMint.equals(coinSlot.mMint);
+        return Objects.equals(mIdentifier, coinSlot.mIdentifier) &&
+                Objects.equals(mMint, coinSlot.mMint);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mIdentifier, mMint);
     }
 }
