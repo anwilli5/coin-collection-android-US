@@ -112,22 +112,23 @@ public class GenerateUpgradeFixtures {
     /**
      * Database versions 10-16 shipped before releases were tagged, so they use the last
      * commit before the next version bump. Later versions use the last release tag at that
-     * version. Versions 21 and 22 were never released.
+     * version. Versions 21 and 22 were never released. The full commit hashes pin the
+     * history exactly; DevSkim takes 40-character hex strings for secrets, hence the ignores.
      */
     static final Snapshot[] SNAPSHOTS = {
-            new Snapshot(10, "b5367edaea1150d35391efc929695a2bcff663ae", null),
-            new Snapshot(11, "1bfeb4f20570b749b23599e60cb0d8de8a7f371b", null),
-            new Snapshot(12, "1e59d82c11bd758220077dec478be9fca2864e6a", null),
-            new Snapshot(13, "8bc7124553cc20f32fac6a2e0dea33b466971b25", null),
-            new Snapshot(14, "e99f64a2d802eb5f70c35e669584f85733430b70", null),
-            new Snapshot(15, "8d9cdb45960c35176d236c58168d6b50ae447fe1", null),
-            new Snapshot(16, "aa5cc0aff897f994cc0400bcb9dc5024435033cd", null),
-            new Snapshot(17, "5680f18b44f064d138047daba06fe979de6827f4", "v3.3.1"),
-            new Snapshot(18, "ed94143707fbee5148c2ec88df2dd34b005a093e", "v3.4.0"),
-            new Snapshot(19, "9d90fb68f63e52982d931d16a41594c8cfd741e8", "v3.5.1"),
-            new Snapshot(20, "54559bf9afe08a87721e7e6f31319eb43fa1581d", "v3.6.0"),
-            new Snapshot(23, "39ae82de8f36971dc8cb331f19c995471f070244", "v3.7.4"),
-            new Snapshot(24, "ddb837a76c3b25e25d0ca26acbdbbac2d859ef84", "v3.8.4"),
+            new Snapshot(10, "b5367edaea1150d35391efc929695a2bcff663ae", null), // DevSkim: ignore DS173237
+            new Snapshot(11, "1bfeb4f20570b749b23599e60cb0d8de8a7f371b", null), // DevSkim: ignore DS173237
+            new Snapshot(12, "1e59d82c11bd758220077dec478be9fca2864e6a", null), // DevSkim: ignore DS173237
+            new Snapshot(13, "8bc7124553cc20f32fac6a2e0dea33b466971b25", null), // DevSkim: ignore DS173237
+            new Snapshot(14, "e99f64a2d802eb5f70c35e669584f85733430b70", null), // DevSkim: ignore DS173237
+            new Snapshot(15, "8d9cdb45960c35176d236c58168d6b50ae447fe1", null), // DevSkim: ignore DS173237
+            new Snapshot(16, "aa5cc0aff897f994cc0400bcb9dc5024435033cd", null), // DevSkim: ignore DS173237
+            new Snapshot(17, "5680f18b44f064d138047daba06fe979de6827f4", "v3.3.1"), // DevSkim: ignore DS173237
+            new Snapshot(18, "ed94143707fbee5148c2ec88df2dd34b005a093e", "v3.4.0"), // DevSkim: ignore DS173237
+            new Snapshot(19, "9d90fb68f63e52982d931d16a41594c8cfd741e8", "v3.5.1"), // DevSkim: ignore DS173237
+            new Snapshot(20, "54559bf9afe08a87721e7e6f31319eb43fa1581d", "v3.6.0"), // DevSkim: ignore DS173237
+            new Snapshot(23, "39ae82de8f36971dc8cb331f19c995471f070244", "v3.7.4"), // DevSkim: ignore DS173237
+            new Snapshot(24, "ddb837a76c3b25e25d0ca26acbdbbac2d859ef84", "v3.8.4"), // DevSkim: ignore DS173237
     };
 
     /** The first database version that stored the creation options in collection_info */
