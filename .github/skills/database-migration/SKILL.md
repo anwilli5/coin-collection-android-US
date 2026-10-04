@@ -399,9 +399,16 @@ The existing upgrade tests auto-validate against freshly created
 collections. They typically pass without changes when annual coins are
 added, since both the upgrade path and the fresh creation should
 produce the same result. The same holds for the fixture-based
-`CollectionUpgradeV1FixtureTests` and `CollectionUpgradeAllParamsTests`,
-whose fixtures are frozen old databases — fix the migration, never the
-fixtures.
+`CollectionUpgradeV1FixtureTests`, `CollectionUpgradeAllParamsTests` and
+`UpgradePathTests`, whose fixtures are frozen old databases — fix the
+migration, never the fixtures.
+
+`UpgradePathTests` upgrades every collection type, under many option sets,
+from every shipped database version since 10. A failure there names the
+starting version, the collection's options and the first difference. Fix the
+migration; add an entry to its `KNOWN` list only for a difference that is
+deliberate, with the reason. When a migration fixes a listed difference, the
+test reports the entry as no longer occurring — delete it in the same change.
 
 #### CollectionGoldenTests
 

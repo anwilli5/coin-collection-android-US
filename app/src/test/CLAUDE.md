@@ -56,7 +56,9 @@ These rules apply to test code (`app/src/test/`, `app/src/androidTest/`, and
 ## When to update tests
 
 - Adding coins to a collection → update expected counts in `CollectionCreationTests`
-- Database migration → add upgrade path test in `CollectionUpgradeTests`
+- Database migration → add upgrade path test in `CollectionUpgradeTests`.
+  `UpgradePathTests` must pass without new `KNOWN` entries; if it reports
+  one as no longer occurring, the migration fixed it — delete the entry
 - New collection type → add creation test + SharedTest scenario
 - Changed collection parameters → update `SharedTest.COLLECTION_LIST_INFO_SCENARIOS`
 - Any change to what a collection creates (coins, mints, images, image ids,
