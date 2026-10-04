@@ -74,7 +74,7 @@ import com.spencerpages.collections.WashingtonQuarters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Object used to represent each collection in the various list of collections
@@ -161,14 +161,18 @@ public class CollectionListInfo implements Parcelable {
     public final static long SILVER_PROOF_SETS = (1L << 48);
     public final static long SEMIQ_COINS = (1L << 49);
 
-    public final static HashMap<String, Long> MINT_STRING_TO_FLAGS = new HashMap<>();
+    // The iteration order is load-bearing: DatabaseHelper.addFromArrayList/addFromYear add
+    // upgrade coins in this order, so it sets their sort order. It was a HashMap, which
+    // iterates these keys as P, CC, S, D, O, and every past upgrade used that order. Don't
+    // reorder it - old migration blocks would silently start producing a different order.
+    public final static LinkedHashMap<String, Long> MINT_STRING_TO_FLAGS = new LinkedHashMap<>();
 
     static {
         MINT_STRING_TO_FLAGS.put("P", MINT_P);
-        MINT_STRING_TO_FLAGS.put("D", MINT_D);
-        MINT_STRING_TO_FLAGS.put("S", MINT_S);
-        MINT_STRING_TO_FLAGS.put("O", MINT_O);
         MINT_STRING_TO_FLAGS.put("CC", MINT_CC);
+        MINT_STRING_TO_FLAGS.put("S", MINT_S);
+        MINT_STRING_TO_FLAGS.put("D", MINT_D);
+        MINT_STRING_TO_FLAGS.put("O", MINT_O);
     }
 
     // Database tables and keys
@@ -806,6 +810,8 @@ public class CollectionListInfo implements Parcelable {
     private int parseDateString(String dateStr) throws NumberFormatException {
         if (dateStr.equals("1776-1976")) {
             return 1976;
+        } else if (dateStr.length() < 4) {
+            throw new NumberFormatException("Coin identifier '" + dateStr + "' is too short to hold a year");
         } else {
             return Integer.parseInt(dateStr.substring(0, 4));
         }
@@ -834,9 +840,15 @@ public class CollectionListInfo implements Parcelable {
      * @return true if the coin is a special case of no mint marks, false otherwise
      */
     private boolean isHideMintMarkSpecialCase(String coinType, String coinId, String mintMark) {
-        if (coinType.equals(WalkingLibertyHalfDollars.COLLECTION_TYPE) && mintMark.isEmpty()) {
-            int dateInt = Integer.parseInt(coinId.substring(0, 4));
-            return (dateInt >= 1923 && dateInt <= 1933);
+        if (coinType.equals(WalkingLibertyHalfDollars.COLLECTION_TYPE) && mintMark.isEmpty()
+                && coinId.length() >= 4) {
+            try {
+                int dateInt = Integer.parseInt(coinId.substring(0, 4));
+                return (dateInt >= 1923 && dateInt <= 1933);
+            } catch (NumberFormatException e) {
+                // Not a year (e.g. a custom coin), so it can't be one of the special cases
+                return false;
+            }
         }
         return false;
     }
