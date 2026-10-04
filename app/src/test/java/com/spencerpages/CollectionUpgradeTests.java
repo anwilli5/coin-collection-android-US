@@ -1452,6 +1452,122 @@ public class CollectionUpgradeTests extends BaseTestCase {
     }
 
     /**
+     * For AmericanWomenQuarters with D and S shown, the upgrades that added the 2023-2025
+     * quarters put them in P, S, D order (DatabaseHelper's mint iteration order) while new
+     * collections use P, D, S. The V27 upgrade swaps the D and S rows back, and each row
+     * keeps its collected status and details. A custom coin is left where the user put it.
+     */
+    @Test
+    public void test_AmericanWomenQuartersMintOrderRepair() {
+
+        CollectionInfo collection = new AmericanWomenQuarters();
+        String coinType = "American Women Quarters";
+        String collectionName = coinType + " Order Test";
+
+        ParcelableHashMap parameters = new ParcelableHashMap();
+        collection.getCreationParameters(parameters);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARKS, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_1, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_2, Boolean.TRUE);
+        parameters.put(CoinPageCreator.OPT_SHOW_MINT_MARK_3, Boolean.TRUE);
+        ArrayList<CoinSlot> fullCoinList = new ArrayList<>();
+        collection.populateCollectionLists(parameters, fullCoinList);
+        long mintMarkFlags = CoinPageCreator.getMintMarkFlagsFromParameters(parameters);
+        long checkboxFlags = CoinPageCreator.getCheckboxFlagsFromParameters(parameters);
+
+        // The V23 collection, as an upgrade from before 2023 left it: the 2022 quarters in
+        // creation order, the later ones with each S row before its D row
+        List<String> upgradeAdded = Arrays.asList(
+                "Bessie Coleman", "Edith Kanaka'ole", "Eleanor Roosevelt", "Jovita Idar",
+                "Maria Tallchief", "Rev. Dr. Pauli Murray", "Patsy Takemoto Mink",
+                "Dr. Mary Edwards Walker", "Celia Cruz", "Zitkala-Ša", "Ida B. Wells",
+                "Juliette Gordon Low", "Dr. Vera Rubin", "Stacey Park Milbern", "Althea Gibson");
+        ArrayList<Object[]> coinList = new ArrayList<>();
+        for (int i = 0; i < fullCoinList.size(); i++) {
+            CoinSlot coin = fullCoinList.get(i);
+            CoinSlot next = i + 1 < fullCoinList.size() ? fullCoinList.get(i + 1) : null;
+            if (upgradeAdded.contains(coin.getIdentifier()) && coin.getMint().equals("D")
+                    && next != null && next.getMint().equals("S")) {
+                coinList.add(new Object[]{next.getIdentifier(), "S", 0});
+                coinList.add(new Object[]{coin.getIdentifier(), "D", 0});
+                i++;
+            } else {
+                coinList.add(new Object[]{coin.getIdentifier(), coin.getMint(), 0});
+            }
+        }
+        assertEquals("S/D pairs reordered", upgradeAdded.size(), countOutOfOrderPairs(coinList));
+
+        TestDatabaseHelperV23 testDbHelper = new TestDatabaseHelperV23(ApplicationProvider.getApplicationContext());
+        SQLiteDatabase db = testDbHelper.getWritableDatabase();
+        createV23Collection(db, collectionName, coinType, coinList, 0, 0, mintMarkFlags, checkboxFlags);
+
+        // Celia Cruz D is collected and her S row has notes, so both must move with the rows
+        ContentValues collected = new ContentValues();
+        collected.put(CoinSlot.COL_IN_COLLECTION, 1);
+        db.update("[" + collectionName + "]", collected, CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE,
+                new String[]{"Celia Cruz", "D"});
+        ContentValues notes = new ContentValues();
+        notes.put(CoinSlot.COL_ADV_NOTES, "Proof-like");
+        db.update("[" + collectionName + "]", notes, CoinSlot.COIN_SLOT_NAME_MINT_WHERE_CLAUSE,
+                new String[]{"Celia Cruz", "S"});
+
+        // A custom coin the user added at the end, with a mint the repair looks at
+        ContentValues custom = new ContentValues();
+        custom.put(CoinSlot.COL_COIN_IDENTIFIER, "Althea Gibson");
+        custom.put(CoinSlot.COL_COIN_MINT, "S");
+        custom.put(CoinSlot.COL_IN_COLLECTION, 0);
+        custom.put(CoinSlot.COL_SORT_ORDER, coinList.size());
+        custom.put(CoinSlot.COL_CUSTOM_COIN, 1);
+        db.insert("[" + collectionName + "]", null, custom);
+        ContentValues totalUpdate = new ContentValues();
+        totalUpdate.put(CollectionListInfo.COL_TOTAL, coinList.size() + 1);
+        db.update(CollectionListInfo.TBL_COLLECTION_INFO, totalUpdate,
+                CollectionListInfo.COL_NAME + "=?", new String[]{collectionName});
+        db.close();
+        testDbHelper.close();
+
+        // Opening the database runs the upgrade
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                ArrayList<CoinSlot> dbCoins = activity.mDbAdapter.getCoinList(collectionName, true);
+                assertNotNull(dbCoins);
+
+                // A new collection's coins, in its order, then the custom coin
+                assertEquals("Coin count after upgrade", fullCoinList.size() + 1, dbCoins.size());
+                for (int i = 0; i < fullCoinList.size(); i++) {
+                    CoinSlot expected = fullCoinList.get(i);
+                    CoinSlot actual = dbCoins.get(i);
+                    assertEquals("Identifier at " + i, expected.getIdentifier(), actual.getIdentifier());
+                    assertEquals("Mint at " + i, expected.getMint(), actual.getMint());
+                    assertFalse("Custom coin at " + i, actual.isCustomCoin());
+                    boolean isCruz = actual.getIdentifier().equals("Celia Cruz");
+                    assertEquals("Collected status of " + actual.getIdentifier() + " " + actual.getMint(),
+                            isCruz && actual.getMint().equals("D"), actual.isInCollection());
+                    assertEquals("Notes of " + actual.getIdentifier() + " " + actual.getMint(),
+                            isCruz && actual.getMint().equals("S") ? "Proof-like" : "",
+                            actual.getAdvancedNotes());
+                }
+                CoinSlot last = dbCoins.get(fullCoinList.size());
+                assertTrue(last.isCustomCoin());
+                assertEquals("Althea Gibson", last.getIdentifier());
+                assertEquals("S", last.getMint());
+            });
+        }
+    }
+
+    private static int countOutOfOrderPairs(ArrayList<Object[]> coinList) {
+        int count = 0;
+        for (int i = 0; i + 1 < coinList.size(); i++) {
+            if (coinList.get(i)[1].equals("S") && coinList.get(i + 1)[1].equals("D")
+                    && coinList.get(i)[0].equals(coinList.get(i + 1)[0])) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Innovation Dollar collections can hold the duplicates reported in issue #340.
      * Before PR #280 each of BasicInnovationDollars' 2020-2024 upgrade blocks ran one
      * database version too late, so a database at version 16, 18, 19 or 20 got that

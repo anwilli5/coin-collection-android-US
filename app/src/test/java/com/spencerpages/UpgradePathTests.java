@@ -121,11 +121,6 @@ public class UpgradePathTests extends BaseTestCase {
      * entry must match a collection that differs in every version it covers.
      */
     private static final List<KnownDifference> KNOWN = Arrays.asList(
-            new KnownDifference(18, 20,
-                    "BUG: upgrades add the 2023-2025 quarters in MINT_STRING_TO_FLAGS order "
-                            + "(P, S, D) while new collections use P, D, S",
-                    c -> c.coinType.equals("American Women Quarters") && c.isOn("ShowMintMarks")
-                            && c.isOn("ShowMintMark2") && c.isOn("ShowMintMark3")),
             new KnownDifference(23, 24,
                     "Accepted (#441): before V27 clad-only collections wrongly held the "
                             + "1932-1964 silver quarters. The V27 upgrade deletes them, collected or not",
