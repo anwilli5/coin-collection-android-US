@@ -78,6 +78,8 @@ import java.util.concurrent.TimeUnit;
 public class DialogRestoreTests {
 
     private static final String COLLECTION_NAME = "Restore Test";
+    private static final String SECOND_COLLECTION_NAME = "Second Restore Test";
+    private static final String COPY_NAME = "Restore Test Copy";
     // LincolnCents is at index 0 in MainApplication.COLLECTION_TYPES
     private static final int COLLECTION_TYPE_INDEX = 0;
     private static final String FIRST_ALERT = "First alert text";
@@ -184,6 +186,58 @@ public class DialogRestoreTests {
         // Finishing the task takes the spinner down
         mGatedExecutor.release();
         UITestHelper.waitForDoesNotExist(withId(R.id.progress_message));
+        UITestHelper.assertNoLeakedWindows();
+    }
+
+    /**
+     * Test that a delete started before a rotation still completes, and that the
+     * recreated activity shows the list without the deleted collection. The
+     * delete runs on the background thread with the progress dialog up
+     */
+    @Test
+    public void test_deleteCompletesAcrossRotation() {
+        activityRule.getScenario().onActivity(activity -> {
+            attachGatedTaskRunner(activity);
+            activity.startDeleteCollectionTask(COLLECTION_NAME);
+        });
+        UITestHelper.waitForDisplayed(withText(R.string.deleting_collection));
+
+        UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.deleting_collection));
+
+        mGatedExecutor.release();
+        UITestHelper.waitForDoesNotExist(withId(R.id.progress_message));
+        UITestHelper.waitForDoesNotExist(withText(COLLECTION_NAME));
+        activityRule.getScenario().onActivity(activity ->
+                assertEquals(0, activity.mNumberOfCollections));
+        UITestHelper.assertNoLeakedWindows();
+    }
+
+    /**
+     * Test that a copy started before a rotation still completes, and that the
+     * copy shows up right after its source in the recreated activity's list
+     */
+    @Test
+    public void test_copyCompletesAcrossRotation() {
+        UITestHelper.createLincolnCentsCollection(SECOND_COLLECTION_NAME, 1);
+
+        activityRule.getScenario().onActivity(activity -> {
+            activity.updateCollectionListFromDatabaseAndUpdateViewForUIThread();
+            attachGatedTaskRunner(activity);
+            activity.startCopyCollectionTask(COLLECTION_NAME);
+        });
+        UITestHelper.waitForDisplayed(withText(R.string.copying_collection));
+
+        UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.copying_collection));
+
+        mGatedExecutor.release();
+        UITestHelper.waitForDoesNotExist(withId(R.id.progress_message));
+        UITestHelper.waitForDisplayed(withText(COPY_NAME));
+        activityRule.getScenario().onActivity(activity -> {
+            assertEquals(3, activity.mNumberOfCollections);
+            assertEquals(COLLECTION_NAME, activity.mCollectionListEntries.get(0).getName());
+            assertEquals(COPY_NAME, activity.mCollectionListEntries.get(1).getName());
+            assertEquals(SECOND_COLLECTION_NAME, activity.mCollectionListEntries.get(2).getName());
+        });
         UITestHelper.assertNoLeakedWindows();
     }
 

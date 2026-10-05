@@ -58,7 +58,7 @@ public class ImportRaceTests extends BaseTestCase {
             scenario.onActivity(activity -> {
                 activity.updateCollectionListFromDatabase();
                 assertEquals(0, activity.mNumberOfCollections);
-                assertFalse(activity.isImportInProgress());
+                assertFalse(activity.isDatabaseWriteInProgress());
 
                 // Use the real (asynchronous) task path so the import is only queued
                 // here. The synchronous unit-test seam would run the import to
@@ -74,7 +74,7 @@ public class ImportRaceTests extends BaseTestCase {
                     BaseActivity.sRunTasksInline = true;
                 }
 
-                assertTrue(activity.isImportInProgress());
+                assertTrue(activity.isDatabaseWriteInProgress());
 
                 // Returning from the file picker gives the collection list focus again.
                 // The list must be left alone while the import rewrites the database.
@@ -104,7 +104,7 @@ public class ImportRaceTests extends BaseTestCase {
                 CollectionListInfo info = COLLECTION_LIST_INFO_SCENARIOS[0];
                 activity.mDbAdapter.createAndPopulateNewTable(info, 0, null);
                 activity.onWindowFocusChanged(true);
-                assertFalse(activity.isImportInProgress());
+                assertFalse(activity.isDatabaseWriteInProgress());
                 assertEquals(1, activity.mNumberOfCollections);
 
                 // Clean up
