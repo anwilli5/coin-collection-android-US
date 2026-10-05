@@ -20,18 +20,25 @@
 
 package com.spencerpages;
 
+import static com.coincollection.CollectionListInfo.COL_DISPLAY_ORDER;
+import static com.coincollection.CollectionListInfo.COL_NAME;
+import static com.coincollection.CollectionListInfo.TBL_COLLECTION_INFO;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.coincollection.CollectionInfo;
 import com.coincollection.CollectionListInfo;
+import com.coincollection.DatabaseHelper;
 import com.coincollection.MainActivity;
 import com.coincollection.ReorderAdapter;
 import com.coincollection.ReorderCollections;
@@ -41,7 +48,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 public class MainActivityTests extends BaseTestCase {
@@ -77,7 +86,7 @@ public class MainActivityTests extends BaseTestCase {
 
                         // Make a copy
                         String newDbName = collectionName + " Copy";
-                        activity.copyCollection(collectionName);
+                        activity.startCopyCollectionTask(collectionName);
                         CollectionListInfo copiedCollectionListInfo = collection.mCollectionListInfo.copy(newDbName);
 
                         // Drop the original
@@ -93,6 +102,90 @@ public class MainActivityTests extends BaseTestCase {
                 }
             });
         }
+    }
+
+    /**
+     * Test that a copy is placed right after its source, that a copy of the copy is named
+     * from the base name and placed after it, and that the display orders are renumbered
+     */
+    @Test
+    public void test_copyCollectionPlacedAfterSource() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupCollectionsWithNames(activity, new ArrayList<>(Arrays.asList("A", "B", "C")));
+
+                activity.startCopyCollectionTask("A");
+                assertEquals(Arrays.asList("A", "A Copy", "B", "C"), getCheckedDisplayOrder(activity));
+
+                activity.startCopyCollectionTask("A Copy");
+                assertEquals(Arrays.asList("A", "A Copy", "A Copy1", "B", "C"),
+                        getCheckedDisplayOrder(activity));
+
+                // The list shown to the user was refreshed once the task finished
+                assertFalse(activity.isDatabaseWriteInProgress());
+                assertEquals(5, activity.mNumberOfCollections);
+                assertEquals("A Copy1", activity.mCollectionListEntries.get(2).getName());
+            });
+        }
+    }
+
+    /**
+     * Test that deleting a collection drops it and renumbers the ones after it
+     */
+    @Test
+    public void test_deleteCollectionRenumbersTheRest() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupCollectionsWithNames(activity, new ArrayList<>(Arrays.asList("A", "B", "C")));
+
+                activity.startDeleteCollectionTask("B");
+                assertEquals(Arrays.asList("A", "C"), getCheckedDisplayOrder(activity));
+                assertEquals(-1, activity.mDbAdapter.checkCollectionName("B"));
+
+                assertFalse(activity.isDatabaseWriteInProgress());
+                assertEquals(2, activity.mNumberOfCollections);
+            });
+        }
+    }
+
+    /**
+     * Test that a delete that fails changes nothing, and that the list can be read
+     * again afterward
+     */
+    @Test
+    public void test_failedDeleteLeavesCollectionsUnchanged() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> {
+                setupCollectionsWithNames(activity, new ArrayList<>(Arrays.asList("A", "B")));
+
+                activity.startDeleteCollectionTask("Missing");
+                assertEquals(Arrays.asList("A", "B"), getCheckedDisplayOrder(activity));
+                assertFalse(activity.isDatabaseWriteInProgress());
+            });
+        }
+    }
+
+    /**
+     * Gets the collection names in display order, checking that the display orders run
+     * from 0 with no gaps or repeats
+     *
+     * @param activity activity that can be used to access the database
+     * @return collection names in display order
+     */
+    private List<String> getCheckedDisplayOrder(MainActivity activity) {
+        ArrayList<String> names = new ArrayList<>();
+        try (SQLiteDatabase db = new DatabaseHelper(activity).getReadableDatabase();
+             Cursor cursor = db.query(TBL_COLLECTION_INFO, new String[]{COL_NAME, COL_DISPLAY_ORDER},
+                     null, null, null, null, COL_DISPLAY_ORDER)) {
+            while (cursor.moveToNext()) {
+                assertEquals("Display order of " + cursor.getString(0), names.size(), cursor.getInt(1));
+                names.add(cursor.getString(0));
+            }
+        }
+        return names;
     }
 
     /**

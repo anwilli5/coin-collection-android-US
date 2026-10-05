@@ -20,7 +20,6 @@
 
 package com.coincollection;
 
-import static com.coincollection.CollectionListInfo.COL_NAME;
 import static com.coincollection.ExportImportHelper.LEGACY_EXPORT_FOLDER_NAME;
 import static com.coincollection.ReorderCollections.REORDER_COLLECTION;
 import static com.coincollection.dialog.DialogRequests.KEY_PAYLOAD;
@@ -309,6 +308,12 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             }
+            case TASK_DELETE_COLLECTION: {
+                return deleteCollection(mActivityViewModel.mTaskRequest.collectionName);
+            }
+            case TASK_COPY_COLLECTION: {
+                return copyCollection(mActivityViewModel.mTaskRequest.collectionName);
+            }
         }
         return "";
     }
@@ -316,8 +321,9 @@ public class MainActivity extends BaseActivity {
     @Override
     public void asyncProgressOnPostExecute(int taskId, String resultStr) {
         super.asyncProgressOnPostExecute(taskId, resultStr);
-        if (taskId == TASK_IMPORT_COLLECTIONS) {
-            mActivityViewModel.mTaskRequest.isImportingCollection = false;
+        if (taskId == TASK_IMPORT_COLLECTIONS || taskId == TASK_DELETE_COLLECTION
+                || taskId == TASK_COPY_COLLECTION) {
+            mActivityViewModel.mTaskRequest.isWritingDatabase = false;
         }
         updateCollectionListFromDatabaseAndUpdateViewForUIThread();
     }
@@ -417,22 +423,51 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Starts the import task, flagging that the database is being rewritten so that the
-     * collection list isn't read back mid-import (see onWindowFocusChanged). All import
-     * entry points must go through this method.
+     * Starts a task that writes the database, flagging it so that the collection list
+     * isn't read back until the task is done (see onWindowFocusChanged). All import,
+     * delete and copy entry points must go through this method.
+     *
+     * @param taskId type of task
      */
-    private void startImportTask() {
-        mActivityViewModel.mTaskRequest.isImportingCollection = true;
-        kickOffAsyncTaskRunner(TASK_IMPORT_COLLECTIONS);
+    private void startDatabaseWriteTask(int taskId) {
+        mActivityViewModel.mTaskRequest.isWritingDatabase = true;
+        kickOffAsyncTaskRunner(taskId);
     }
 
     /**
-     * Indicates whether an import task is currently rewriting the database
-     *
-     * @return true while an import is in progress
+     * Starts the import task
      */
-    public boolean isImportInProgress() {
-        return mActivityViewModel.mTaskRequest.isImportingCollection;
+    private void startImportTask() {
+        startDatabaseWriteTask(TASK_IMPORT_COLLECTIONS);
+    }
+
+    /**
+     * Starts a task to delete a collection
+     *
+     * @param name collection name
+     */
+    public void startDeleteCollectionTask(String name) {
+        mActivityViewModel.mTaskRequest.collectionName = name;
+        startDatabaseWriteTask(TASK_DELETE_COLLECTION);
+    }
+
+    /**
+     * Starts a task to make a copy of a collection
+     *
+     * @param name collection name
+     */
+    public void startCopyCollectionTask(String name) {
+        mActivityViewModel.mTaskRequest.collectionName = name;
+        startDatabaseWriteTask(TASK_COPY_COLLECTION);
+    }
+
+    /**
+     * Indicates whether an import, delete or copy task is currently writing the database
+     *
+     * @return true while such a task is in progress
+     */
+    public boolean isDatabaseWriteInProgress() {
+        return mActivityViewModel.mTaskRequest.isWritingDatabase;
     }
 
     /**
@@ -673,9 +708,9 @@ public class MainActivity extends BaseActivity {
         // We use this function as a convenience for updating the database once the list gets focus
         // after returning from the add/delete/reorder views.
 
-        if (hasFocus && !isImportInProgress()) {
+        if (hasFocus && !isDatabaseWriteInProgress()) {
             // Only do this if the database has been opened with AsyncTaskRunner first
-            // and we aren't modifying the database like crazy (importing)
+            // and we aren't modifying the database (importing, deleting or copying)
             // We need this so that new collections that are added/removed get shown
 
             updateCollectionListFromDatabaseAndUpdateViewForUIThread();
@@ -838,90 +873,94 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Deletes a collection and fixes up the display order of the remaining ones
+     * - Runs on the async task's background thread
      *
      * @param name collection name
+     * @return an error message if the delete failed, otherwise ""
      */
-    private void deleteCollection(final String name) {
-        Cursor cursor = null;
+    private String deleteCollection(final String name) {
         try {
-            mDbAdapter.dropCollectionTable(name);
-            //Get a list of all the database tables
-            cursor = mDbAdapter.getAllCollectionNames();
-            int i = 0;
-            if (cursor.moveToFirst()) {
-                do {
-                    String name1 = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
-                    // Fix up the displayOrder
-                    mDbAdapter.updateDisplayOrder(name1, i);
-                    i++;
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
+            mDbAdapter.runInTransaction(() -> {
+                mDbAdapter.dropCollectionTable(name);
+                renumberCollections(mDbAdapter.getAllCollectionNameList());
+            });
         } catch (SQLException e) {
-            showCancelableAlert(mRes.getString(R.string.error_delete_database));
-            if (cursor != null) {
-                cursor.close();
-            }
+            return mRes.getString(R.string.error_delete_database);
         }
+        return "";
     }
 
     /**
-     * Makes a copy of the collection specified by tableName
+     * Makes a copy of the collection specified by tableName, placed right after it
+     * - Runs on the async task's background thread
      *
      * @param tableName The collection name to make a copy of
+     * @return an error message if the copy failed, otherwise ""
      */
-    public void copyCollection(String tableName) {
-
-        // Get the source collection details
-        CollectionListInfo sourceCollectionListInfo = null;
-        int insertIndex = 0;
-        for (int i = 0; i < mNumberOfCollections; i++) {
-            if (mCollectionListEntries.get(i).getName().equals(tableName)) {
-                sourceCollectionListInfo = mCollectionListEntries.get(i);
-                insertIndex = i + 1;
-                break;
-            }
-        }
-        if (sourceCollectionListInfo == null) {
-            showCancelableAlert(mRes.getString(R.string.error_copying_database));
-            return;
-        }
-
-        // If this is a copy of a copy, reduce down to the base name
-        String baseNewTableName = tableName;
-        String suffixBase = mRes.getString(R.string.copy_name_suffix);
-        int copySuffixMatch = tableName.lastIndexOf(suffixBase);
-        if (copySuffixMatch != -1) {
-            String remainingChars = tableName.substring(copySuffixMatch + suffixBase.length());
-            if (remainingChars.matches("^\\d*$")) {
-                baseNewTableName = tableName.substring(0, copySuffixMatch);
-            }
-        }
-
-        // Pick a new table name
-        String newTableName;
-        int checkNameResult;
-        int attemptNumber = 0;
-        do {
-            String suffixIndex = (attemptNumber == 0) ? "" : Integer.toString(attemptNumber);
-            newTableName = baseNewTableName + mRes.getString(R.string.copy_name_suffix) + suffixIndex;
-            checkNameResult = mDbAdapter.checkCollectionName(newTableName);
-            attemptNumber++;
-        } while (checkNameResult != -1);
-
-        // Create the new table
-        CollectionListInfo newCollectionListInfo;
+    private String copyCollection(String tableName) {
         try {
-            newCollectionListInfo = mDbAdapter.createCollectionCopy(sourceCollectionListInfo, newTableName, insertIndex);
-        } catch (SQLException e) {
-            showCancelableAlert(mRes.getString(R.string.error_copying_database));
-            return;
-        }
+            // Get the source collection details
+            ArrayList<CollectionListInfo> collections = new ArrayList<>();
+            mDbAdapter.getAllTables(collections);
+            CollectionListInfo sourceCollectionListInfo = null;
+            for (CollectionListInfo collection : collections) {
+                if (collection.getName().equals(tableName)) {
+                    sourceCollectionListInfo = collection;
+                    break;
+                }
+            }
+            if (sourceCollectionListInfo == null) {
+                return mRes.getString(R.string.error_copying_database);
+            }
 
-        // Insert into the collection list and update the database sort order
-        mCollectionListEntries.add(insertIndex, newCollectionListInfo);
-        mNumberOfCollections += 1;
-        handleCollectionsReordered(new ArrayList<>(mCollectionListEntries.subList(0, mNumberOfCollections)));
+            // If this is a copy of a copy, reduce down to the base name
+            String baseNewTableName = tableName;
+            String suffixBase = mRes.getString(R.string.copy_name_suffix);
+            int copySuffixMatch = tableName.lastIndexOf(suffixBase);
+            if (copySuffixMatch != -1) {
+                String remainingChars = tableName.substring(copySuffixMatch + suffixBase.length());
+                if (remainingChars.matches("^\\d*$")) {
+                    baseNewTableName = tableName.substring(0, copySuffixMatch);
+                }
+            }
+
+            // Pick a new table name
+            String newTableName;
+            int checkNameResult;
+            int attemptNumber = 0;
+            do {
+                String suffixIndex = (attemptNumber == 0) ? "" : Integer.toString(attemptNumber);
+                newTableName = baseNewTableName + suffixBase + suffixIndex;
+                checkNameResult = mDbAdapter.checkCollectionName(newTableName);
+                attemptNumber++;
+            } while (checkNameResult != -1);
+
+            // Create the new table right after the source and update the sort order to match
+            final CollectionListInfo source = sourceCollectionListInfo;
+            final String copyName = newTableName;
+            mDbAdapter.runInTransaction(() -> {
+                ArrayList<String> names = mDbAdapter.getAllCollectionNameList();
+                int insertIndex = names.indexOf(tableName) + 1;
+                mDbAdapter.createCollectionCopy(source, copyName, insertIndex);
+                names.add(insertIndex, copyName);
+                renumberCollections(names);
+            });
+        } catch (SQLException e) {
+            return mRes.getString(R.string.error_copying_database);
+        }
+        return "";
+    }
+
+    /**
+     * Stores each collection's position in the given list as its display order
+     *
+     * @param names collection names, in display order
+     * @throws SQLException if a database update fails
+     */
+    private void renumberCollections(List<String> names) throws SQLException {
+        for (int i = 0; i < names.size(); i++) {
+            mDbAdapter.updateDisplayOrder(names.get(i), i);
+        }
     }
 
     /**
@@ -1119,7 +1158,7 @@ public class MainActivity extends BaseActivity {
         // doesn't regain window focus while one is up, so the collection list it
         // was rebuilt with is still empty. Refresh it before acting on the answer,
         // but only in that case - the list is already up to date otherwise
-        if (mNumberOfCollections == 0 && mDbAdapter.isOpen() && !isImportInProgress()) {
+        if (mNumberOfCollections == 0 && mDbAdapter.isOpen() && !isDatabaseWriteInProgress()) {
             updateCollectionListFromDatabaseAndUpdateViewForUIThread();
         }
         Bundle payload = result.getBundle(KEY_PAYLOAD);
@@ -1136,7 +1175,7 @@ public class MainActivity extends BaseActivity {
             }
             case REQUEST_DELETE_COLLECTION: {
                 if (payload != null) {
-                    deleteCollection(payload.getString(PAYLOAD_COLLECTION_NAME, ""));
+                    startDeleteCollectionTask(payload.getString(PAYLOAD_COLLECTION_NAME, ""));
                 }
                 break;
             }
@@ -1166,7 +1205,7 @@ public class MainActivity extends BaseActivity {
                         launchCoinPageCreatorActivity(listEntry);
                         break;
                     case ACTIONS_COPY:
-                        copyCollection(name);
+                        startCopyCollectionTask(name);
                         break;
                     case ACTIONS_DELETE:
                         showDeleteConfirmation(name);

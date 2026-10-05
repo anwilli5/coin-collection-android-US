@@ -233,6 +233,8 @@
     <string name="enter_start_year">Starting Year: </string>
     <string name="enter_stop_year">Ending Year: </string>
     <string name="creating_collection">Creating Collection…</string>
+    <string name="deleting_collection">Deleting Collection…</string>
+    <string name="copying_collection">Copying Collection…</string>
     <string name="error_missing_name">Please enter a name for the collection</string>
     <string name="error_missing_type">Please select a collection type from the dropdown menu</string>
     <string name="error_no_mint_selected">Please select at least one mint to collect coins from</string>

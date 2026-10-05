@@ -95,15 +95,17 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      * of running the task on the background thread.
      */
     public static class TaskRequest {
-        // Collection name for a create/update collection task
+        // Collection name for a create/update, delete or copy collection task
         public String collectionName;
         // Import/export task inputs - file to read/write and format flags
         public Uri importExportFileUri;
         public boolean importExportLegacyCsv;
         public boolean exportSingleFileCsv;
-        // True while an import task is rewriting the database, so recreated
-        // activities know not to read the database mid-import
-        public boolean isImportingCollection;
+        // True while an import, delete or copy task is writing the database, so
+        // the UI thread knows not to read the collection list until it's done.
+        // A read would either see a half-imported database or block behind the
+        // task's transaction
+        public boolean isWritingDatabase;
     }
 
     // Test seams, turned on by the Robolectric unit tests. There is no window
@@ -121,6 +123,8 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
     public static final int TASK_IMPORT_COLLECTIONS = 1;
     public static final int TASK_CREATE_UPDATE_COLLECTION = 2;
     public static final int TASK_EXPORT_COLLECTIONS = 3;
+    public static final int TASK_DELETE_COLLECTION = 4;
+    public static final int TASK_COPY_COLLECTION = 5;
 
     // The dialog last shown under each tag, so an in-flight show or dismiss is
     // taken into account without executing pending fragment transactions
@@ -257,6 +261,14 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
             }
             case TASK_CREATE_UPDATE_COLLECTION: {
                 createProgressDialog(mRes.getString(R.string.creating_collection));
+                break;
+            }
+            case TASK_DELETE_COLLECTION: {
+                createProgressDialog(mRes.getString(R.string.deleting_collection));
+                break;
+            }
+            case TASK_COPY_COLLECTION: {
+                createProgressDialog(mRes.getString(R.string.copying_collection));
                 break;
             }
         }
