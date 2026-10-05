@@ -95,6 +95,9 @@ public class DialogRestoreTests {
     public void setUp() {
         UITestHelper.ensureDbOpen();
         UITestHelper.suppressAllTutorials();
+        // The rule launched the activity before the tutorials were suppressed, so
+        // on a fresh install the intro tip is already up and would cover the list
+        UITestHelper.dismissTutorialDialogs();
         UITestHelper.deleteAllCollections();
         UITestHelper.createLincolnCentsCollection(COLLECTION_NAME, 0);
         UITestHelper.unlockCollection(COLLECTION_NAME);
