@@ -123,6 +123,9 @@ android {
             // Runtime used in CI), which caused Mockito to break for the rest of
             // the forked JVM once another test polluted its state.
             jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", '-XX:+EnableDynamicAgentLoading'
+            // Robolectric 4.17 sets raw FileDescriptor fields through
+            // jdk.internal.access.SharedSecrets, which java.base doesn't export
+            jvmArgs '--add-opens=java.base/jdk.internal.access=ALL-UNNAMED'
             // -PupdateGoldens rewrites the CollectionGoldenTests fixtures
             systemProperty 'updateGoldens', project.hasProperty('updateGoldens')
             // Where that and the fixture generators write back to; tests read
@@ -219,7 +222,7 @@ dependencies {
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
     testImplementation(project(":shared-test"))
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.16.1'
+    testImplementation 'org.robolectric:robolectric:4.17'
     testImplementation 'androidx.test:core:1.7.0'
     testImplementation 'org.mockito:mockito-core:5.23.0'
     mockitoAgent('org.mockito:mockito-core:5.23.0') { transitive = false }
