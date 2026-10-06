@@ -3,6 +3,10 @@
 
 name: Android CI
 
+# paths-ignore skips this workflow entirely for docs/image/metadata-only
+# changes, so its "test" check never reports on such PRs. If "test" is ever made
+# a required check, those PRs will wait on it forever: drop the paths-ignore
+# lists then, or add a job that reports success when nothing relevant changed.
 on:
   push:
     branches: [ main ]
@@ -19,7 +23,7 @@ on:
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
     - name: Java Setup
@@ -28,10 +32,15 @@ jobs:
         # JDK version is single-sourced from the repo-root .java-version file.
         java-version-file: .java-version
         distribution: 'temurin'
+    - name: Gradle Setup
+      # Caches the Gradle wrapper and dependencies; only main writes the cache
+      uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Unit Test
-      run: ./gradlew testAndroidDebugUnitTest --rerun-tasks
+      # No --rerun-tasks: each run starts from a clean checkout with no build
+      # cache, so the tests always execute
+      run: ./gradlew testAndroidDebugUnitTest
     - name: Lint
       run: ./gradlew lintAndroidDebug
     - name: Compile Amazon flavor
