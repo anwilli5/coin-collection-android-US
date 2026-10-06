@@ -9,7 +9,6 @@ android {
         minSdk = 21
     }
     buildFeatures {
-        resValues = false
         buildConfig = false
     }
     flavorDimensions = ["version"]
