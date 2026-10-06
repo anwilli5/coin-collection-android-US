@@ -16,8 +16,11 @@ def appVersionName = versionProps.getProperty('versionName').trim()
 android {
     signingConfigs {
         Android {
-            // Local development: read from signing.properties (gitignored) when present.
-            def signingPropsFile = new File('../signing.properties')
+            // Local development: read from signing.properties (gitignored) at the
+            // repo root when present. Read it through providers.fileContents so
+            // adding or editing it invalidates the configuration cache.
+            def signingPropsText = providers.fileContents(
+                    rootProject.layout.projectDirectory.file('signing.properties')).asText.orNull
             // CI: when SIGNING_* env vars are set (see .github/workflows/release.yml),
             // use them instead. Env vars take precedence over signing.properties.
             def envKeystorePath = System.getenv('SIGNING_KEYSTORE_PATH')
@@ -29,11 +32,9 @@ android {
                 storePassword = envKeystorePassword
                 keyAlias = envKeyAlias
                 keyPassword = envKeyPassword
-            } else if (signingPropsFile.canRead()) {
+            } else if (signingPropsText != null) {
                 def props = new Properties()
-                def fileInputStream = new FileInputStream(signingPropsFile)
-                props.load(fileInputStream)
-                fileInputStream.close()
+                props.load(new StringReader(signingPropsText))
                 storeFile = file(props['storeFilePath'])
                 storePassword = props['storePassword']
                 keyAlias = props['keyAlias']
@@ -71,6 +72,9 @@ android {
             // produces an unsigned release APK (CI always provides the keystore).
             if (signingConfigs.Android.storeFile != null) {
                 signingConfig = signingConfigs.Android
+            } else if (gradle.startParameter.taskNames.any { it.toLowerCase(Locale.ROOT).contains('release') }) {
+                logger.warn('Release signing is not configured (no SIGNING_* environment ' +
+                        'variables or signing.properties), so release APKs will be unsigned.')
             }
         }
         debug {

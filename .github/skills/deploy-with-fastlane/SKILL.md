@@ -90,7 +90,8 @@ bundle exec fastlane run validate_play_store_json_key json_key:/path/to/key.json
 Release signing is configured in
 [app/build.gradle](../../../app/build.gradle). The `signingConfigs.Android`
 block prefers the four `SIGNING_*` environment variables (CI); if they are
-absent it falls back to a gitignored `signing.properties`. When neither is
+absent it falls back to a gitignored `signing.properties` at the repo root
+(a release build warns when it finds neither). When neither is
 present `storeFile` is null and the `release` build type stays unsigned — so a
 release APK built on a plain dev box is **not** uploadable.
 
