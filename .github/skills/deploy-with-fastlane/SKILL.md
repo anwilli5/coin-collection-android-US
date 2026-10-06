@@ -41,9 +41,13 @@ folder); use it for both `metadata_path` and any changelog writes. The shared
 | --- | --- | --- |
 | `test_and_lint` | Run unit tests + lint (`testAndroidDebugUnitTest`, `lintAndroidDebug`) | none |
 | `build_and_screengrab` | Build debug + androidTest APKs and capture screenshots via Screengrab | none (see capture-store-screenshots skill) |
-| `deploy_playstore_test` | Upload a pre-built APK to a Play **tester** track | `apk_path` (required), `track` (default `internal`; one of `internal`/`alpha`/`beta`), `release_notes`, `version_code` |
-| `deploy_playstore_production` | Release to Play **production**: promotes an already-uploaded release by versionCode (default), or uploads a pre-built APK when `apk_path` is given | `version_code` (required to promote), `apk_path` (upload mode), `from_track` (default `internal`), `release_notes` |
-| `deploy_amazon_appstore` | Upload a pre-built APK to the Amazon Appstore | `apk_path` (required), `release_notes`, `version_code` |
+| `deploy_playstore_test` | Upload a pre-built APK to a Play **tester** track | `apk_path` (required), `track` (default `internal`; one of `internal`/`alpha`/`beta`), `version_code`, `prerelease_notice`, `release_notes`, `mapping_path` |
+| `deploy_playstore_production` | Release to Play **production**: promotes an already-uploaded release by versionCode (default), or uploads a pre-built APK when `apk_path` is given | `version_code` (required to promote), `apk_path` (upload mode), `from_track` (default `internal`), `release_notes`, `mapping_path` (upload mode) |
+| `deploy_amazon_appstore` | Upload a pre-built APK to the Amazon Appstore | `apk_path` (required), `version_code`, `release_notes`, `package_name` (default `com.spencerpages.amazon`) |
+
+`apk_path` must be **absolute**: the lane checks it with `File.exist?` from
+inside `fastlane/`, so a repo-relative path fails. CI passes
+`${{ github.workspace }}/...`; locally, prefix `$PWD/`.
 
 List lanes at any time:
 
@@ -63,8 +67,11 @@ bundle exec fastlane lanes
 | `SIGNING_KEY_ALIAS` | release build (CI) | Key alias. |
 | `SIGNING_KEY_PASSWORD` | release build (CI) | Key password. |
 
-The package name is pinned to `com.spencerpages` in
-[fastlane/Appfile](../../../fastlane/Appfile).
+The Appfile sets `package_name("com.spencerpages")`, which the Play lanes use.
+The **Amazon lane overrides it** with `com.spencerpages.amazon`: the Amazon
+listing is registered under the `amazon` flavor's applicationId, and the plugin
+sends `package_name` as the App Submission API's applicationId. Never point the
+Amazon lane at the Play package name.
 
 ### First-time supply setup
 
@@ -94,21 +101,35 @@ Two product flavors share the `version` dimension:
 | `android` | `com.spencerpages` | Google Play |
 | `amazon` | `com.spencerpages.amazon` (`applicationIdSuffix .amazon`) | Amazon Appstore |
 
-Release APKs are named `app-{flavor}-{buildType}-v{versionName}.apk`, e.g.
-`app-android-release-v3.7.4.apk`. The deploy commands below depend on this name.
+Release APKs are named `app-{flavor}-{buildType}-v{versionName}.apk`, where
+`versionName` comes from the repo-root
+[version.properties](../../../version.properties) (the single source of truth
+for `versionCode` and `versionName`). The deploy commands below depend on this
+name.
 
 ## Changelog ("What's new") handling
 
 `supply` (and the Amazon plugin) have **no inline `changelogs` option** — passing
 one raises `Could not find option changelogs`. Instead the release notes are read
-from a versionCode-named file. Each deploy lane therefore:
+from a versionCode-named file that is **checked in** at
+[fastlane/metadata/android/en-US/changelogs/](../../../fastlane/metadata/android/en-US/changelogs)`<versionCode>.txt`.
+`release.yml` and `promote.yml` fail fast if it is missing or empty, so add it
+before cutting a release. Each deploy lane then:
 
-1. Calls `write_changelog_file(version_code, release_notes)`, which writes
-   `release_notes` to `<android_metadata_path>/en-US/changelogs/<version_code>.txt`
-   only when `release_notes` is set **and** `version_code > 0`. A `version_code`
-   of `0` is the [deploy.yml](../../../.github/workflows/deploy.yml) sentinel that
-   skips the changelog write. The path is **absolute** (anchored to `fastlane/`)
-   so it always matches where `supply` later reads the changelog from.
+1. Calls `prepare_changelog(options)`:
+   - `release_notes`, if given, **overwrites** the checked-in file (a legacy
+     inline override; CI doesn't pass it).
+   - `prerelease_notice`, if given, is prepended to it. `release.yml` passes
+     `[PRE-RELEASE vX.Y.Z-rc.N - ...]` so internal-track testers can tell an RC
+     from the final release. It edits the file in place, so pass it only from
+     a throwaway checkout like CI's (or revert the file afterwards).
+   - Changelog upload is enabled only when a non-empty file exists. A
+     `version_code` of `0` or less (the
+     [deploy.yml](../../../.github/workflows/deploy.yml) sentinel) skips both
+     the writes and the upload.
+
+   All paths go through the absolute `android_metadata_path` helper (anchored
+   to `fastlane/`), so they always match where `supply` reads them from.
 2. Sets `skip_upload_metadata`, `skip_upload_images`, and
    `skip_upload_screenshots` to `true` on the Play lanes, so a build/track deploy
    uploads only the APK + changelog and can **never** overwrite the live store
@@ -120,18 +141,24 @@ them deliberately — they are intentionally excluded from the deploy lanes.
 
 ## Running a deploy
 
-Build a signed release APK first (CI does this in a separate job), then call the
-lane with the matching APK path. Examples mirror the CI invocations:
+Build a signed release APK first (CI does this in a separate job) and check in
+the `changelogs/<versionCode>.txt` release notes, then call the lane from the
+repo root with the matching APK path. Examples mirror the CI invocations and
+read the version from `version.properties` the same way the workflows do:
+
+```bash
+VERSION_CODE=$(grep -E '^versionCode=' version.properties | cut -d= -f2- | tr -d '[:space:]')
+VERSION_NAME=$(grep -E '^versionName=' version.properties | cut -d= -f2- | tr -d '[:space:]')
+```
 
 Play tester track (internal testing by default):
 
 ```bash
 bundle exec fastlane deploy_playstore_test \
-  apk_path:"app/build/outputs/apk/android/release/app-android-release-v3.7.4.apk" \
-  version_name:"3.7.4" \
-  version_code:"88" \
-  track:"internal" \
-  release_notes:"Added 2026 coins and bug fixes."
+  apk_path:"$PWD/app/build/outputs/apk/android/release/app-android-release-v${VERSION_NAME}.apk" \
+  version_name:"${VERSION_NAME}" \
+  version_code:"${VERSION_CODE}" \
+  track:"internal"
 ```
 
 Play production:
@@ -141,26 +168,24 @@ Play production:
 # pre-release workflow uploaded it there, and Play forbids re-uploading a
 # published APK. This is what promote.yml uses.
 bundle exec fastlane deploy_playstore_production \
-  version_name:"3.7.4" \
-  version_code:"88" \
-  release_notes:"Added 2026 coins and bug fixes."
+  version_name:"${VERSION_NAME}" \
+  version_code:"${VERSION_CODE}"
 
 # Upload mode (fresh versionCode never sent to any track): pass apk_path.
 bundle exec fastlane deploy_playstore_production \
-  apk_path:"downloaded_apks/app-android-release-v3.7.4.apk" \
-  version_name:"3.7.4" \
-  version_code:"88" \
-  release_notes:"Added 2026 coins and bug fixes."
+  apk_path:"$PWD/downloaded_apks/app-android-release-v${VERSION_NAME}.apk" \
+  version_name:"${VERSION_NAME}" \
+  version_code:"${VERSION_CODE}"
 ```
 
-Amazon Appstore:
+Amazon Appstore (uploads to `com.spencerpages.amazon`, not the Appfile's
+package — see [Authentication & secrets](#authentication--secrets)):
 
 ```bash
 bundle exec fastlane deploy_amazon_appstore \
-  apk_path:"downloaded_apks/app-amazon-release-v3.7.4.apk" \
-  version_name:"3.7.4" \
-  version_code:"88" \
-  release_notes:"Added 2026 coins and bug fixes."
+  apk_path:"$PWD/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
+  version_name:"${VERSION_NAME}" \
+  version_code:"${VERSION_CODE}"
 ```
 
 > Run these only when you intend to publish. They push to live store tracks.
@@ -172,8 +197,10 @@ Deployment is normally driven by GitHub Actions, not run by hand. See
 [DEPLOYMENT.md](../../../DEPLOYMENT.md) for the full process. In short:
 
 1. **Pre-release** — [.github/workflows/release.yml](../../../.github/workflows/release.yml)
-   builds the `android` + `amazon` release APKs, creates a GitHub pre-release
-   tagged `vX.Y.Z-rc.N`, and calls `deploy_playstore_test track:"internal"`.
+   builds the `android` + `amazon` release APKs, calls
+   `deploy_playstore_test track:"internal"` with a `prerelease_notice`, and
+   only then creates the GitHub pre-release tagged `vX.Y.Z-rc.N`. Deploying
+   first is deliberate: a store failure must not use up an RC number.
 2. **Promote** — [.github/workflows/promote.yml](../../../.github/workflows/promote.yml)
    downloads the *same* APKs from the pre-release, creates the final `vX.Y.Z`
    release, then calls `deploy_playstore_production` and `deploy_amazon_appstore`.

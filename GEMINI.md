@@ -1,17 +1,10 @@
 # Gemini Project Information
 
-This file contains project-specific information and instructions for the Gemini AI model.
+The project guidance for AI assistants lives in [CLAUDE.md](CLAUDE.md), shared
+by every assistant so it can't drift. Gemini CLI imports it below. The nested
+`CLAUDE.md` files it lists hold the rules for the collection classes, the
+database layer and the tests; read the matching one before editing in those
+directories. Task workflows are skills in
+[.github/skills/](.github/skills/) (`<name>/SKILL.md`).
 
-## Project Overview
-
-This is an Android application for managing coin collections.
-
-## Technology Stack
-
-- **Language:** Java
-- **Automation:** Fastlane for screenshots and other tasks.
-
-## Build & Test Commands
-
-- **Run unit tests:** `./gradlew testAndroidDebugUnitTest --rerun-tasks`
-- **Run linter:** `./gradlew lintAndroidDebug`
+@./CLAUDE.md
