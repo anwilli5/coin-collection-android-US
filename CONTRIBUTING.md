@@ -57,4 +57,24 @@ Please follow the [Code of Conduct](https://github.com/anwilli5/coin-collection-
 
 **That's it! You have successfully made your contribution.**
 
+## AI coding assistants
+
+The repo carries guidance for AI coding assistants. If you use one, it picks
+these up automatically; if you edit them, keep the copies in sync:
+
+- **Project instructions**: [CLAUDE.md](CLAUDE.md) at the root, plus nested
+  `CLAUDE.md` files for the collection classes, the database layer and the
+  tests. [GEMINI.md](GEMINI.md) imports the root file.
+  [.github/copilot-instructions.md](.github/copilot-instructions.md) and
+  [.github/instructions/](.github/instructions/) carry the same rules for
+  GitHub Copilot.
+- **Skills** (step-by-step workflows such as adding a collection or a database
+  migration): [.github/skills/](.github/skills/) is the canonical location,
+  one `<name>/SKILL.md` per skill, shared with GitHub Copilot.
+  `.claude/skills` is a symlink to it so Claude Code finds the same files.
+  Edit skills only under `.github/skills/`. On Windows, git checks the symlink
+  out as a plain text file unless symlinks are enabled
+  (`git config core.symlinks true` with Developer Mode on); without them,
+  point your assistant at `.github/skills/` directly.
+
 If you want to request a new feature or report a bug, feel free to [report an issue](https://github.com/anwilli5/coin-collection-android-US/issues/new/choose).
