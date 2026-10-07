@@ -124,7 +124,7 @@ android {
             // Load Mockito as an explicit Java agent instead of relying on its
             // inline mock maker self-attaching at runtime. Self-attach is fragile
             // on JDK 21+ (and fails outright on some JVMs, e.g. the JetBrains
-            // Runtime used in CI), which caused Mockito to break for the rest of
+            // Runtime), which caused Mockito to break for the rest of
             // the forked JVM once another test polluted its state.
             jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}", '-XX:+EnableDynamicAgentLoading'
             // Robolectric 4.17 sets raw FileDescriptor fields through
