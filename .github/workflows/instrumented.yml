@@ -47,7 +47,7 @@ jobs:
         java-version-file: .java-version
         distribution: 'temurin'
     - name: Gradle Setup
-      uses: gradle/actions/setup-gradle@v6
+      uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     # Hardware acceleration for the x86_64 emulator on Linux runners.
@@ -69,7 +69,7 @@ jobs:
     # window-focus timeouts. The build covers that settling time. If the build
     # gets much faster (e.g. a warm Gradle cache), add an explicit settle wait.
     - name: Instrumented Test
-      uses: reactivecircus/android-emulator-runner@v2
+      uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
       with:
         api-level: 36
         profile: pixel_6
