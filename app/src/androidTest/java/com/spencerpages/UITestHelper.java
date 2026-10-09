@@ -393,7 +393,7 @@ public class UITestHelper {
 
     /**
      * Recreate the activity and force a synchronous DB reload.
-     * After recreate(), the adapter is empty until onWindowFocusChanged(true) fires.
+     * After recreate(), the adapter only fills once onResume() finds the database open.
      * This method forces an immediate reload so tests can interact with the list.
      * Also dismisses any tutorial dialogs that appear from the initial launch or recreate.
      * Waits until the main activity ListView is fully visible before returning.

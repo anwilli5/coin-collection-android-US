@@ -37,7 +37,6 @@ import static com.coincollection.dialog.DialogRequests.REQUEST_SELECT_COLLECTION
 import static com.coincollection.dialog.DialogRequests.TAG_ABOUT;
 import static com.coincollection.dialog.DialogRequests.TAG_CONFIRMATION;
 import static com.coincollection.dialog.DialogRequests.TAG_LIST_CHOICE;
-import static com.spencerpages.MainApplication.APP_NAME;
 
 import android.Manifest;
 import android.app.Activity;
@@ -55,7 +54,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,7 +71,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.coincollection.dialog.AboutDialogFragment;
 import com.coincollection.dialog.ConfirmationDialogFragment;
 import com.coincollection.dialog.ListChoiceDialogFragment;
-import com.spencerpages.BuildConfig;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 
@@ -243,9 +240,18 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        // If the collection has coins then show the more options help (if not yet shown)
+        // If the collection has coins then show the more options help (if not yet shown).
+        // This checks the list from before the reload below, so the tip waits for a
+        // return visit rather than appearing as soon as the first collection is created
         if (mNumberOfCollections > 0) {
             createAndShowHelpDialog(MainApplication.HELP_TIP_MORE_OPTIONS, R.string.tutorial_more_options);
+        }
+
+        // Pick up collections added, edited or collected in the other activities. A
+        // task writing the database reloads the list itself once it's done, and
+        // reading it before then would see a half-written database
+        if (!isDatabaseWriteInProgress()) {
+            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
         }
     }
 
@@ -424,7 +430,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Starts a task that writes the database, flagging it so that the collection list
-     * isn't read back until the task is done (see onWindowFocusChanged). All import,
+     * isn't read back until the task is done (see onResume). All import,
      * delete and copy entry points must go through this method.
      *
      * @param taskId type of task
@@ -695,28 +701,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        // Note that this provides information about global focus state, which is managed
-        // independently of activity lifecycle. As such, while focus changes will generally have
-        // some relation to lifecycle changes (an activity that is stopped will not generally get
-        // window focus), you should not rely on any particular order between the callbacks here
-        // and those in the other lifecycle methods such as onResume().
-
-        // We use this function as a convenience for updating the database once the list gets focus
-        // after returning from the add/delete/reorder views.
-
-        if (hasFocus && !isDatabaseWriteInProgress()) {
-            // Only do this if the database has been opened with AsyncTaskRunner first
-            // and we aren't modifying the database (importing, deleting or copying)
-            // We need this so that new collections that are added/removed get shown
-
-            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
-        }
-    }
-
     /**
      * Reloads the collection list from the database.  This is useful after changes have been made
      * (collections reordered, deleted, etc.)
@@ -724,12 +708,18 @@ public class MainActivity extends BaseActivity {
     public void updateCollectionListFromDatabase() {
 
         //Get a list of all the database tables
+        ArrayList<CollectionListInfo> collections = new ArrayList<>();
         ArrayList<String> skippedCollections = new ArrayList<>();
         try {
-            mDbAdapter.getAllTables(mCollectionListEntries, skippedCollections);
+            mDbAdapter.getAllTables(collections, skippedCollections);
         } catch (SQLException e) {
+            // Keep showing the list from the last successful read rather than an
+            // empty or partial one
             showCancelableAlert(mRes.getString(R.string.error_reading_database));
+            return;
         }
+        mCollectionListEntries.clear();
+        mCollectionListEntries.addAll(collections);
 
         // Let the user know once if any collections couldn't be loaded, instead of
         // silently dropping them from the list
@@ -759,18 +749,14 @@ public class MainActivity extends BaseActivity {
      */
     public void updateCollectionListFromDatabaseAndUpdateViewForUIThread() {
 
-        // mDbAdapter may be null in some corner cases where this method gets called
-        // before the DB has been opened or after it has closed - ignore the update
-        // in that case
-        try {
-            // Refresh mCollectionListEntries and mNumberOfCollections from the database
-            updateCollectionListFromDatabase();
-        } catch (NullPointerException e) {
-            if (BuildConfig.DEBUG) {
-                Log.e(APP_NAME, "Called updateCollectionListFromDatabaseAndUpdateViewForUIThread() before mDbAdapter initialized ");
-            }
+        // Until the open task finishes there is nothing to read, and that task
+        // reloads the list itself when it's done
+        if (!mDbAdapter.isOpen()) {
             return;
         }
+
+        // Refresh mCollectionListEntries and mNumberOfCollections from the database
+        updateCollectionListFromDatabase();
 
         // Update the list view adapter
         if (mListAdapter != null) {
@@ -1154,13 +1140,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDialogResult(int requestId, Bundle result) {
-        // Dialogs survive a configuration change, and the recreated activity
-        // doesn't regain window focus while one is up, so the collection list it
-        // was rebuilt with is still empty. Refresh it before acting on the answer,
-        // but only in that case - the list is already up to date otherwise
-        if (mNumberOfCollections == 0 && mDbAdapter.isOpen() && !isDatabaseWriteInProgress()) {
-            updateCollectionListFromDatabaseAndUpdateViewForUIThread();
-        }
         Bundle payload = result.getBundle(KEY_PAYLOAD);
         switch (requestId) {
             case REQUEST_EXPORT_COLLECTIONS: {
