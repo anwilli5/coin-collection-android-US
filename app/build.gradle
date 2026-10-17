@@ -226,7 +226,7 @@ dependencies {
     // version (added in #180 for duplicate stdlib-jdk7/jdk8 classes). It also
     // sets the stdlib that ships: without it, built-in Kotlin's own, older
     // stdlib wins. Dependabot keeps it current.
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.4.20"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.4.21"))
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
     testImplementation(project(":shared-test"))
     testImplementation 'junit:junit:4.13.2'
