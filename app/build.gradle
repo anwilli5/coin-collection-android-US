@@ -39,6 +39,9 @@ android {
                 storePassword = props['storePassword']
                 keyAlias = props['keyAlias']
                 keyPassword = props['keyPassword']
+            } else if (gradle.startParameter.taskNames.any { it.toLowerCase(Locale.ROOT).contains('release') }) {
+                logger.warn('Release signing is not configured (no SIGNING_* environment ' +
+                        'variables or signing.properties), so release APKs will be unsigned.')
             }
         }
     }
@@ -70,11 +73,11 @@ android {
             // guard, Gradle would fail evaluating a signingConfig with a null
             // storeFile. With it, a local build with no keystore configured simply
             // produces an unsigned release APK (CI always provides the keystore).
+            // Keep the closing brace alone on the line after the assignment, with no
+            // else branch: F-Droid strips the assignment, then its recipe's prebuild
+            // deletes the if line and the line after it.
             if (signingConfigs.Android.storeFile != null) {
                 signingConfig = signingConfigs.Android
-            } else if (gradle.startParameter.taskNames.any { it.toLowerCase(Locale.ROOT).contains('release') }) {
-                logger.warn('Release signing is not configured (no SIGNING_* environment ' +
-                        'variables or signing.properties), so release APKs will be unsigned.')
             }
         }
         debug {
