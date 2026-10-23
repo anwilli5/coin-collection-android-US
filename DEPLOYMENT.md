@@ -24,10 +24,10 @@ everywhere.
   to the Google Play **internal** testing track. It deliberately does
   **not** touch Play production, Amazon, or F-Droid.
 - **Promote Pre-release to Release** ([`.github/workflows/promote.yml`](.github/workflows/promote.yml))
-  takes a verified pre-release, re-attaches its exact APKs to a final
-  GitHub Release tagged `vX.Y.Z`, and deploys to Google Play **production**
-  and the **Amazon Appstore**. Creating the bare `vX.Y.Z` tag is what
-  releases the build to **F-Droid**.
+  takes a verified pre-release, deploys it to Google Play **production** and
+  the **Amazon Appstore**, and only then re-attaches its exact APKs to a
+  final GitHub Release tagged `vX.Y.Z`. Creating the bare `vX.Y.Z` tag is
+  what releases the build to **F-Droid**.
 - **Deploy Release to App Stores** ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml))
   is an optional manual fallback for ad-hoc deploys of an existing GitHub
   Release to a chosen track. The standard flow uses the two workflows above.
@@ -52,16 +52,18 @@ The pipeline has two operator-driven stages.
   bare `vX.Y.Z` tag is *not* created, so F-Droid, Play production, and Amazon
   are untouched. Internal testers verify ([Step 1.2](#12-verify-on-the-internal-track)).
 - **Stage 2 — Promote** ([Step 1.3](#13-promote-the-pre-release-to-a-release))
-  re-attaches the *exact same* APKs to a final GitHub Release tagged
-  `vX.Y.Z` and ships to Google Play **production** and **Amazon**. Creating
-  the `vX.Y.Z` tag releases the build to **F-Droid** automatically.
+  ships the *exact same* APKs to Google Play **production** and **Amazon**,
+  then re-attaches them to a final GitHub Release tagged `vX.Y.Z`. Creating
+  the `vX.Y.Z` tag releases the build to **F-Droid** automatically, so it
+  happens last: a store failure never leaves F-Droid and GitHub announcing a
+  release the stores did not get.
 
 ```text
   bump version in          release.yml                    promote.yml
   version.properties  ─►   (Stage 1, Step 1.1)       ─►   (Stage 2, Step 1.3)
-  + merge to main          tag vX.Y.Z-rc.N                tag vX.Y.Z
-                           GitHub pre-release             final GitHub Release
-                           + Play internal                + Play production + Amazon
+  + merge to main          tag vX.Y.Z-rc.N                Play production + Amazon,
+                           GitHub pre-release             then tag vX.Y.Z +
+                           + Play internal                final GitHub Release
                                   │                               │
                                   └─► Internal testers verify     ├─► Google Play production
                                       (Step 1.2)                  ├─► Amazon Appstore
@@ -137,18 +139,26 @@ Once internal testing is green:
 1. **Actions → Promote Pre-release to Release → Run workflow**.
 2. Inputs:
    - `rc_tag`: the pre-release tag you verified, e.g. `v3.8.1-rc.1`.
-3. The workflow:
-   - Verifies the pre-release exists and the final `vX.Y.Z` release does not.
-   - Reads the production "what's new" text from the checked-in
-     `changelogs/<versionCode>.txt` file (as of the RC tag commit) — the same
-     notes internal testers saw, minus the `[PRE-RELEASE …]` prefix — and
-     fails fast if that file is missing or empty.
-   - Downloads the exact APKs from the pre-release (no rebuild — guaranteeing
-     production gets the same bytes internal testers verified).
-   - Creates the final GitHub Release tagged `vX.Y.Z`, pointing at the same
-     commit as the RC tag, with both APKs re-attached.
-   - Uploads the `android` APK to Google Play **production** and the
-     `amazon` APK to the **Amazon Appstore**.
+3. The workflow runs four jobs in order, each starting only if the one
+   before it succeeded:
+   1. **Validate pre-release** — checks that the pre-release exists with both
+      APKs and both R8 mapping files, that any existing `vX.Y.Z` tag points
+      at the RC commit, and that the checked-in
+      `changelogs/<versionCode>.txt` (as of the RC tag commit) exists and is
+      not empty. That file is the production "what's new" text — the same
+      notes internal testers saw, minus the `[PRE-RELEASE …]` prefix. If the
+      final `vX.Y.Z` release already exists, the version was fully promoted
+      and every later job is skipped.
+   2. **Google Play production** — promotes the release already on the
+      internal track to production (no re-upload).
+   3. **Amazon Appstore** — uploads the `amazon` APK downloaded from the
+      pre-release.
+   4. **Final GitHub Release** — creates the release tagged `vX.Y.Z`,
+      pointing at the same commit as the RC tag, with both APKs and both
+      mapping files re-attached. This is the tag F-Droid builds from.
+
+   No APK is rebuilt: production gets the same bytes internal testers
+   verified.
 4. Both stores review independently. Google Play production reviews
    typically take a few hours to a couple of days; Amazon Appstore reviews
    take longer.
@@ -244,9 +254,26 @@ The pre-release workflow has not been run for that `rc_tag`, or the tag is
 mistyped. Run **Build and Publish Pre-release** first, then promote the
 `vX.Y.Z-rc.N` tag it created.
 
-**Promote workflow fails with `final release vX.Y.Z already exists`.**
-This pre-release was already promoted. If you need to re-ship, bump the
-version and start a new pre-release.
+**Promote workflow: a store job (Google Play production or Amazon Appstore)
+fails.**
+Nothing was tagged: the final release is created only after both stores
+succeed. Fix the cause (credentials, store-side rejection), then open the
+failed run and use **Re-run jobs → Re-run failed jobs**. That re-runs only
+the failed job and the jobs after it. Do **not** dispatch the workflow again
+instead: a new run repeats the Play promotion even if it already succeeded.
+GitHub allows re-runs for 30 days; after that, finish the remaining store
+with **Deploy Release to App Stores** and create the `vX.Y.Z` release by
+hand.
+
+**Promote workflow skips everything with `Final release vX.Y.Z already
+exists`.**
+This pre-release was already promoted; the run is a no-op. If you need to
+re-ship, bump the version and start a new pre-release.
+
+**Promote workflow fails with `tag vX.Y.Z already exists at …`.**
+A `vX.Y.Z` tag points at a different commit than the pre-release. Nothing
+was deployed. Find out where the tag came from before deleting it — F-Droid
+may already have built from it.
 
 **Deploy fails: `Google Api Error: ... versionCode N has already been used`.**
 The `versionCode` in the APK has been uploaded to Play before. You cannot

@@ -203,8 +203,10 @@ Deployment is normally driven by GitHub Actions, not run by hand. See
    only then creates the GitHub pre-release tagged `vX.Y.Z-rc.N`. Deploying
    first is deliberate: a store failure must not use up an RC number.
 2. **Promote** — [.github/workflows/promote.yml](../../../.github/workflows/promote.yml)
-   downloads the *same* APKs from the pre-release, creates the final `vX.Y.Z`
-   release, then calls `deploy_playstore_production` and `deploy_amazon_appstore`.
+   calls `deploy_playstore_production` and then `deploy_amazon_appstore` with
+   the *same* APKs as the pre-release, and only then creates the final
+   `vX.Y.Z` release. Each stage is a separate job, so a store failure is
+   recovered with "Re-run failed jobs", not a new dispatch.
 3. **F-Droid** watches git tags and builds automatically from the final `vX.Y.Z`
    tag (it ignores `-rc.N` tags).
 
