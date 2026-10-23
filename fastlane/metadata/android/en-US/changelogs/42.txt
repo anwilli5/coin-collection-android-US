@@ -1,0 +1,5 @@
+Bug fixes and stability improvements:
+- Fixed crashes and lost dialogs when rotating or switching apps
+- Importing is now all-or-nothing: a damaged file leaves your collections untouched
+- Corrected coins in several collections, including Lincoln cents, Roosevelt dimes, Washington and American Women quarters, and Kennedy halves. Existing collections update automatically
+- Feedback and contributions welcome on GitHub!
