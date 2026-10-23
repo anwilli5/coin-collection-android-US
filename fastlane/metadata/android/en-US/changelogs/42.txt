@@ -1,0 +1,6 @@
+Bug fixes and stability improvements:
+- Fixed crashes and improved reliability
+- Corrected coins in several collections, including Lincoln cents, Roosevelt dimes, American Women quarters and Kennedy halves. Existing collections update automatically
+- Washington Clad no longer includes pre-1965 silver quarters
+- Thanks to Danny Matthew for the Roosevelt dime fix!
+- Feedback and contributions welcome on GitHub!
