@@ -32,6 +32,8 @@ generation.
 ./gradlew checkAndroidDebugUnitTestCoverage   # Unit-test coverage report + floor check
 ./gradlew connectedAndroidDebugAndroidTest    # Instrumented tests (needs emulator/device)
 bundle exec ruby fastlane/test/fastfile_test.rb  # Fastfile deploy-lane tests
+python3 scripts/api-matrix/api_matrix.py upgrade --old <apk> --new <apk>  # Upgrade + screens across API levels
+python3 scripts/api-matrix/api_matrix.py instrumented                     # Instrumented tests across API levels
 ```
 
 - Run a single test class:
@@ -114,6 +116,7 @@ bundle exec ruby fastlane/test/fastfile_test.rb  # Fastfile deploy-lane tests
 | Regenerate the 18 store screenshots | `capture-store-screenshots` |
 | Deploy to Play / Amazon via Fastlane | `deploy-with-fastlane` |
 | Emulator UI sanity + export/import test | `ui-regression-test` |
+| Test across Android API levels (upgrade, insets, instrumented) | `api-matrix-test` |
 
 Skills are single-sourced in `.github/skills/<name>/SKILL.md` (shared with
 GitHub Copilot). `.claude/skills` is a symlink to `.github/skills` so Claude
@@ -148,3 +151,6 @@ Directory-specific rules live in nested `CLAUDE.md` files:
   header documents how to promote it.
 - **fastlane-bundle-check.yml**: verifies the bundle installs and the
   Fastfile loads when Fastfile changes.
+- **api-matrix.yml** (manual, not a PR gate): runs the `api-matrix-test`
+  upgrade and instrumented suites on emulators from `minSdk` to `targetSdk`,
+  one job per level. Run it on a pre-release before promoting it.

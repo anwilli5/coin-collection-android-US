@@ -120,80 +120,26 @@ No unmerged upstream changes should exist.
 Unit and instrumented tests run on one recent API level, so a change that
 behaves differently across Android releases (system-bar insets, back handling,
 SQLite versions, the system file picker) can pass them and still break on a
-user's device. Run this check last, because it takes the longest. Run it on an
-emulator at each level below; each one is a point where one of those
-behaviors changes:
+user's device. Run this check last, against the pre-release, because it takes
+the longest.
 
-| API | Android | Why this level |
-| --- | --- | --- |
-| `minSdk` (21) | 5.0 | Oldest SQLite (3.8) for migrations; androidx reports no navigation bar inset; oldest file picker |
-| 23 | 6.0 | First release with root window insets, so inset handling changes here |
-| 26 | 8.0 | Older file picker, with no MIME type for `.json` files |
-| 29 | 10 | Gesture navigation arrives |
-| 33 | 13 | System back callbacks: Back goes to the most recently registered handler, which may be the app instead of the keyboard |
-| 35 | 15 | Edge-to-edge enforced; the `amazon` flavor's `targetSdk` |
-| `targetSdk` | newest | Edge-to-edge with no opt-out; predictive back |
+Use the `api-matrix-test` skill. It runs both of its suites on headless
+emulators at every level from `minSdk` to `targetSdk` where one of those
+behaviors changes. Either run the **API Matrix** workflow on the pre-release
+(`gh workflow run api-matrix.yml --ref <tag> -f new_tag=<tag>`) or run the
+script locally:
 
-If `minSdk` or `targetSdk` in `app/build.gradle` has changed, move the ends of
-the matrix to match. The levels in between behave like their neighbors, so
-testing every supported level costs hours without catching more.
+- `upgrade`: upgrades from the previous release's APK to the pre-release's.
+  It compares the database across levels, checks every main screen for
+  content under the system bars, imports a JSON backup, and checks the crash
+  log.
+- `instrumented`: runs the Espresso suite at each level, including the
+  gesture Back test on API 33+.
 
-**Emulators** (one-time setup). Use `google_apis` images, since they allow
-`adb root` for pulling the database, and give each AVD an SD card, which the
-API 21–23 file pickers need:
-
-```bash
-"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-<api>;google_apis;<abi>"
-"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n cc-api<api> \
-    -k "system-images;android-<api>;google_apis;<abi>" -d pixel_6 -c 512M
-```
-
-`<abi>` is `arm64-v8a` on Apple silicon and `x86_64` elsewhere. Emulators can
-run headless (`emulator -avd cc-api<api> -no-window -wipe-data`), since
-screenshots work without a window.
-
-**At each level:**
-
-1. Install the previous release's APK
-   (`gh release download v<previous> -p 'app-android-release-*.apk'`) and give
-   it data: import a backup with collections that this release's database
-   upgrades change.
-2. Install the new release APK over it with `adb install -r`: the
-   pre-release's APK, or the APK from check 3 if it was signed with the
-   release key. Either way it must install as an update, not a fresh install,
-   so the database upgrade runs.
-3. Check that:
-   - The app launches, and every collection's name and progress match the
-     newest level's result. If the database changed, pull it
-     (`adb root`, then
-     `adb pull /data/data/com.spencerpages/databases/CoinCollection`) and
-     compare the coins.
-   - Nothing is drawn under the status or navigation bar, in portrait and
-     landscape. Take screenshots (the `capture-debug-screenshot` skill) of:
-     - the main list scrolled to App Info
-     - a collection's grid scrolled to the last row
-     - the coin-actions dialog
-     - the advanced view with an unsaved edit, so the "Unsaved Changes" bar
-       shows
-     - Reorder Collections
-     - New Collection
-   - Back behaves correctly in the advanced view after typing the page's
-     first note. The first Back closes only the keyboard; the second shows
-     the "Leaving this page" dialog. From API 29, test with gesture
-     navigation:
-     - Turn it on with
-       `adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural`.
-     - Swipe in from the left edge with `adb shell input swipe`, rather than
-       sending `KEYCODE_BACK`. On API 33+, an injected `KEYCODE_BACK` doesn't
-       behave like a user's Back.
-   - A JSON backup and a CSV backup can both be selected in the import picker
-     and imported. Older pickers hide device storage: use ⋮ → **Show SD card**
-     (or **Show internal storage**).
-   - `adb logcat -d -b crash` shows nothing from the app.
-
-Report any level that differs from the newest one. If a difference also shows
-up with the previous release's APK alone, it's an older bug; file it, but it
-doesn't block the release.
+Look through each level's screenshots as well as the report. If a level
+fails, rerun it with `--new` set to the previous release's APK. A failure
+that shows up then too is an older bug: file it, but it doesn't block the
+release.
 
 ## Output
 
