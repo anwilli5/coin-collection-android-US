@@ -241,6 +241,14 @@ public class CollectionPage extends BaseActivity {
         // Determine whether we should show the advanced view or the basic view
         mDisplayType = mDbAdapter.fetchTableDisplay(mCollectionName);
 
+        // Unsaved changes are only possible in the unlocked advanced view, and
+        // locking or switching views restarts the activity, so enable the back
+        // callback for this whole page rather than at the first edit. Enabling
+        // it re-registers it with the system, which on Android 13+ gives back
+        // to the most recently registered handler: enabled while the keyboard
+        // is open, it would take back ahead of the keyboard.
+        mBackPressedCallback.setEnabled(mDisplayType == ADVANCED_DISPLAY && !isCollectionLocked(false));
+
         // Update the icon
         if (mActionBar != null) {
             mActionBar.setIcon(collectionTypeObj.getCoinImageIdentifier());
@@ -444,7 +452,6 @@ public class CollectionPage extends BaseActivity {
 
         TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.VISIBLE);
-        mBackPressedCallback.setEnabled(true);
     }
 
     /**
@@ -454,7 +461,6 @@ public class CollectionPage extends BaseActivity {
 
         TextView unsavedMessageView = findViewById(R.id.unsaved_message_textview);
         unsavedMessageView.setVisibility(View.GONE);
-        mBackPressedCallback.setEnabled(false);
     }
 
     @Override

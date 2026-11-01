@@ -21,9 +21,7 @@ package com.coincollection;
 
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -31,6 +29,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
 import android.widget.GridView;
@@ -204,18 +203,39 @@ public class CollectionPageRobustnessTests extends BaseTestCase {
     }
 
     /**
-     * The back callback is only enabled while there are unsaved changes, so the
-     * system can handle back (and animate predictive back) the rest of the time
+     * In the unlocked advanced view, the back callback is enabled before the
+     * first edit. Enabling it at the first edit, while the keyboard is open,
+     * would let it take back ahead of the keyboard on Android 13+.
      */
     @Test
-    public void test_backCallbackEnabledOnlyWithUnsavedChanges() {
+    public void test_backCallbackEnabledBeforeFirstEdit() {
         createCollection(CollectionPage.ADVANCED_DISPLAY);
+        assertBackCallbackEnabled(true);
+    }
+
+    /**
+     * Pages that can't have unsaved changes leave back to the system, so it
+     * can animate predictive back
+     */
+    @Test
+    public void test_backCallbackDisabledInSimpleView() {
+        createCollection(CollectionPage.SIMPLE_DISPLAY);
+        assertBackCallbackEnabled(false);
+    }
+
+    @Test
+    public void test_backCallbackDisabledInLockedAdvancedView() {
+        createCollection(CollectionPage.ADVANCED_DISPLAY);
+        ApplicationProvider.getApplicationContext()
+                .getSharedPreferences(MainApplication.PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(INFO.getName() + CollectionPage.IS_LOCKED, true).commit();
+        assertBackCallbackEnabled(false);
+    }
+
+    private static void assertBackCallbackEnabled(boolean expected) {
         try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(collectionPageIntent())) {
-            scenario.onActivity(activity -> {
-                assertFalse(activity.getOnBackPressedDispatcher().hasEnabledCallbacks());
-                activity.showUnsavedTextView();
-                assertTrue(activity.getOnBackPressedDispatcher().hasEnabledCallbacks());
-            });
+            scenario.onActivity(activity -> assertEquals(expected,
+                    activity.getOnBackPressedDispatcher().hasEnabledCallbacks()));
         }
     }
 }
