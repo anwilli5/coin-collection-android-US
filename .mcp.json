@@ -1,5 +1,5 @@
 {
-  "servers": {
+  "mcpServers": {
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp"
@@ -8,7 +8,8 @@
       "type": "stdio",
       "command": "npx",
       "args": [
-        "@mobilenext/mobile-mcp@latest"
+        "-y",
+        "@mobilenext/mobile-mcp@1.0.15"
       ]
     }
   }
