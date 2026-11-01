@@ -36,6 +36,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.SQLException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -631,7 +632,12 @@ public class BaseActivity extends AppCompatActivity implements AsyncProgressInte
      */
     void applyWindowInsets(View view) {
         ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // On API 21-22 androidx reports a zero navigation bar inset: it caps
+            // that inset at the root stable insets, which those releases report
+            // as zero. The raw system window insets are correct there.
+            Insets systemBars = Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                    ? insets.getSystemWindowInsets()
+                    : insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(
                     systemBars.left,
                     systemBars.top,
