@@ -738,6 +738,34 @@ public class UITestHelper {
     }
 
     /**
+     * ViewAction that clicks a view through View.performClick() instead of a
+     * touch at its position on screen. On API 21-23, when the keyboard opens
+     * after a rotation it moves a dialog without resizing it, and the dialog
+     * keeps reporting where it was before the move, so a touch-based click()
+     * lands where the dialog used to be. Use this for a dialog button on a
+     * page with a text field, after a rotation
+     */
+    public static ViewAction performClick() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return ViewMatchers.isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Click through View.performClick()";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                view.performClick();
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
      * ViewAction that clicks a child view with the given ID inside a parent view.
      * Useful for clicking buttons inside RecyclerView items.
      */

@@ -40,10 +40,14 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertTrue;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.Until;
 
 import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
@@ -224,7 +228,8 @@ public class DialogRotationTests {
 
         // The typed text survived, and confirming renames the tapped coin
         onView(withId(R.id.coin_name_edittext)).check(matches(withText(RENAMED_COIN)));
-        onView(withText(R.string.okay)).perform(click());
+        // Not click(): on API 21-23 the dialog can report a stale position
+        onView(withText(R.string.okay)).perform(UITestHelper.performClick());
         UITestHelper.waitForDisplayed(withText(RENAMED_COIN));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -285,6 +290,10 @@ public class DialogRotationTests {
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
         onView(withText(R.string.filter_coins)).perform(click());
         UITestHelper.waitForDisplayed(withText(R.string.filter_dialog_title));
+        // The overflow menu can still be closing when the dialog shows, and
+        // rotating before its window is gone leaks it (seen on API 23)
+        assertTrue("The overflow menu should close", UiDevice.getInstance(getInstrumentation())
+                .wait(Until.gone(By.text(UITestHelper.getString(R.string.filter_coins))), 5_000));
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.filter_dialog_title));
 
@@ -342,7 +351,8 @@ public class DialogRotationTests {
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.warning_collection_type_change));
 
-        onView(withText(R.string.no)).perform(click());
+        // Not click(): on API 21-23 the dialog can report a stale position
+        onView(withText(R.string.no)).perform(UITestHelper.performClick());
         UITestHelper.waitForDoesNotExist(withText(R.string.warning_collection_type_change));
         onView(withId(R.id.create_page)).check(matches(isDisplayed()));
         UITestHelper.assertNoLeakedWindows();
