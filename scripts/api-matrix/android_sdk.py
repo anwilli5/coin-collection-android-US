@@ -91,7 +91,14 @@ def create_avd(name, api, abi):
     match = re.search(rf"Name:\s*{re.escape(name)}\s*\n(?:.*\n)*?\s*Path:\s*(.+?)\s*\n", listing)
     if not match:
         raise SdkError(f"avdmanager created {name} but doesn't list it:\n{listing}")
-    os.environ["ANDROID_AVD_HOME"] = str(Path(match.group(1)).parent)
+    avd_dir = Path(match.group(1))
+    os.environ["ANDROID_AVD_HOME"] = str(avd_dir.parent)
+    # The default data partition depends on the avdmanager version, and on
+    # GitHub's runners it is too small for API 37 to install the test APKs
+    config = avd_dir / "config.ini"
+    lines = [line for line in config.read_text(encoding="utf-8").splitlines()
+             if not line.startswith("disk.dataPartition.size=")]
+    config.write_text("\n".join(lines + ["disk.dataPartition.size=6G"]) + "\n", encoding="utf-8")
 
 
 # --- Emulators and devices ----------------------------------------------------
