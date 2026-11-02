@@ -13,7 +13,7 @@ Run a navigation sanity check, an export/import test, and a release-build smoke 
 
 - An Android emulator is running or a physical device is connected (verify with `adb devices`)
 - The workspace root is the `coin-collection-android-US` repository
-- The mobile-mcp MCP server is available
+- The mobile-mcp MCP server is available (configured for GitHub Copilot and Claude Code in the repo's `.mcp.json`)
 - Tool names in this skill are the mobile-mcp server's bare names. Your
   client prefixes them (GitHub Copilot: `mcp_mobile-mcp_mobile_*`;
   Claude Code: `mcp__mobile-mcp__mobile_*`) and may require loading them

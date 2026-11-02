@@ -23,7 +23,9 @@ with the emulator and capture what is currently on screen.
 ## Prerequisites
 
 - An Android emulator must be running with the app installed and launched.
-- The **mobile-mcp** MCP server must be configured and available.
+- The **mobile-mcp** MCP server must be configured and available. The repo's
+  `.mcp.json` configures it for both GitHub Copilot and Claude Code; each asks
+  you to approve a project server the first time it starts it.
 
 ## Procedure
 
