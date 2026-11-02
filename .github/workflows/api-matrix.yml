@@ -1,0 +1,147 @@
+# Runs the app on emulators across Android API levels, from minSdk to
+# targetSdk, one job per level (scripts/api-matrix/api_matrix.py; see the
+# api-matrix-test skill):
+#
+# - Upgrade: installs the previous release, imports a seed backup, installs the
+#   release under test over it, then checks the database, every main screen and
+#   JSON import. Uses the APKs attached to the two GitHub releases.
+# - Instrumented: runs the Espresso suite against the code at the ref this
+#   workflow runs on, so dispatch it on the release's tag or branch.
+#
+# Manual only: start it before promoting a pre-release, e.g.
+#   gh workflow run api-matrix.yml -f new_tag=v3.9.0-rc.2
+
+name: API Matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      new_tag:
+        description: 'Release or pre-release to test, e.g. v3.9.0-rc.2 (for the upgrade jobs)'
+        required: true
+      old_tag:
+        description: 'Release to upgrade from (default: the latest full release)'
+        required: false
+      suites:
+        description: 'Which jobs to run'
+        type: choice
+        options: [ both, upgrade, instrumented ]
+        default: both
+
+permissions:
+  contents: read
+
+jobs:
+  levels:
+    name: API levels
+    runs-on: ubuntu-latest
+    outputs:
+      levels: ${{ steps.levels.outputs.levels }}
+    steps:
+    - uses: actions/checkout@v7
+    # The script owns the level list (minSdk and targetSdk from app/build.gradle)
+    - id: levels
+      run: |
+        levels=$(python3 -c "import json, sys; sys.path.insert(0, 'scripts/api-matrix'); \
+          from api_matrix import default_levels; print(json.dumps(default_levels()))")
+        echo "levels=$levels" >> "$GITHUB_OUTPUT"
+
+  upgrade:
+    name: Upgrade (API ${{ matrix.level }})
+    needs: levels
+    if: inputs.suites != 'instrumented'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        level: ${{ fromJSON(needs.levels.outputs.levels) }}
+    steps:
+    - uses: actions/checkout@v7
+    - name: Java Setup
+      uses: actions/setup-java@v6.1.0
+      with:
+        java-version-file: .java-version
+        distribution: 'temurin'
+    # Hardware acceleration for the x86_64 emulator on Linux runners.
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    - name: Install the emulator
+      run: |
+        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" emulator platform-tools > /dev/null
+    - name: Download the release APKs
+      env:
+        GH_TOKEN: ${{ github.token }}
+        NEW_TAG: ${{ inputs.new_tag }}
+        OLD_TAG: ${{ inputs.old_tag }}
+      run: |
+        old="${OLD_TAG:-$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)}"
+        echo "Upgrading from $old to $NEW_TAG"
+        gh release download "$old" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/old
+        gh release download "$NEW_TAG" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/new
+    - name: Upgrade test
+      run: |
+        python3 scripts/api-matrix/api_matrix.py upgrade --create-avds --levels ${{ matrix.level }} \
+          --abi x86_64 --emulator-arg=-gpu --emulator-arg=swiftshader_indirect \
+          --old apks/old/app-android-release-*.apk --new apks/new/app-android-release-*.apk \
+          --out build/api-matrix/upgrade
+    - name: Job summary
+      if: always()
+      run: cat build/api-matrix/upgrade/report.md >> "$GITHUB_STEP_SUMMARY" || true
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: api-matrix-upgrade-api${{ matrix.level }}
+        path: build/api-matrix/upgrade/
+        if-no-files-found: ignore
+
+  instrumented:
+    name: Instrumented (API ${{ matrix.level }})
+    needs: levels
+    if: inputs.suites != 'upgrade'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        level: ${{ fromJSON(needs.levels.outputs.levels) }}
+    steps:
+    - uses: actions/checkout@v7
+    - name: Java Setup
+      uses: actions/setup-java@v6.1.0
+      with:
+        java-version-file: .java-version
+        distribution: 'temurin'
+    - name: Gradle Setup
+      uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    - name: Install the emulator
+      run: |
+        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" emulator platform-tools > /dev/null
+    - name: Instrumented tests
+      run: |
+        python3 scripts/api-matrix/api_matrix.py instrumented --create-avds --levels ${{ matrix.level }} \
+          --abi x86_64 --emulator-arg=-gpu --emulator-arg=swiftshader_indirect \
+          --out build/api-matrix/instrumented
+    - name: Job summary
+      if: always()
+      run: cat build/api-matrix/instrumented/report.md >> "$GITHUB_STEP_SUMMARY" || true
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: api-matrix-instrumented-api${{ matrix.level }}
+        path: build/api-matrix/instrumented/
+        if-no-files-found: ignore
