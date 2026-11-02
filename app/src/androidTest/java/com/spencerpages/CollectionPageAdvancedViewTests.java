@@ -25,6 +25,8 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -35,10 +37,17 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
+import android.os.Build;
+
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+import androidx.test.uiautomator.UiDevice;
 
 import com.coincollection.CollectionPage;
 import com.coincollection.MainActivity;
@@ -49,6 +58,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+
 /**
  * Tests for the collection page in advanced (list) view:
  * grade editing, unsaved changes, view switching, unsaved blocks view switch.
@@ -58,6 +69,8 @@ import org.junit.runner.RunWith;
 public class CollectionPageAdvancedViewTests {
 
     private static final String COLLECTION_NAME = "Lincoln Cents Test";
+    private static final String NAV_OVERLAY_PREFIX = "com.android.internal.systemui.navbar.";
+    private static final String NAV_MODE_GESTURAL = "2";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
@@ -255,5 +268,96 @@ public class CollectionPageAdvancedViewTests {
 
         pressBack();
         onView(withId(R.id.main_activity_listview)).check(matches(isDisplayed()));
+    }
+    /**
+     * Verify that with gesture navigation, Back after the page's first edit
+     * closes the keyboard and only a second Back shows the leave dialog.
+     * Android 13+ gives Back to the most recently registered handler, so a back
+     * callback enabled at the first edit, while the keyboard is open, takes
+     * Back ahead of the keyboard. An injected KEYCODE_BACK doesn't go through
+     * that dispatch, so this swipes in from the screen edge like a user.
+     */
+    @Test
+    public void test_backGestureClosesKeyboardBeforeLeaveDialog() throws Exception {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+        UiDevice device = UiDevice.getInstance(getInstrumentation());
+        String navMode = device.executeShellCommand("settings get secure navigation_mode").trim();
+        String showIme = device.executeShellCommand("settings get secure show_ime_with_hard_keyboard").trim();
+        try {
+            // Gesture navigation, and the soft keyboard even if the emulator
+            // reports a hardware one
+            device.executeShellCommand("cmd overlay enable " + NAV_OVERLAY_PREFIX + "gestural");
+            device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 1");
+            UITestHelper.waitForAssertion(() -> {
+                try {
+                    assertEquals(NAV_MODE_GESTURAL,
+                            device.executeShellCommand("settings get secure navigation_mode").trim());
+                } catch (IOException e) {
+                    throw new AssertionError(e);
+                }
+            });
+
+            UITestHelper.recreateActivity(activityRule);
+            onView(withText(COLLECTION_NAME)).perform(click());
+            UITestHelper.dismissTutorialDialogs();
+            UITestHelper.waitForDisplayed(withId(R.id.advanced_collection_page));
+
+            // Tap the first coin's notes and wait for the keyboard, then make the
+            // page's first unsaved change, as a user typing would
+            onData(anything())
+                    .inAdapterView(withId(R.id.advanced_collection_page))
+                    .atPosition(0)
+                    .onChildView(withId(R.id.notes_edit_text))
+                    .perform(click());
+            waitForKeyboard(true);
+            onData(anything())
+                    .inAdapterView(withId(R.id.advanced_collection_page))
+                    .atPosition(0)
+                    .onChildView(withId(R.id.notes_edit_text))
+                    .perform(replaceText("Note"));
+            onView(withId(R.id.unsaved_message_textview)).check(matches(isDisplayed()));
+
+            // The first Back closes only the keyboard
+            swipeBackFromEdge(device);
+            waitForKeyboard(false);
+            onView(withText(R.string.dialog_unsaved_changes_exit)).check(doesNotExist());
+
+            // The second Back asks before discarding the edit
+            swipeBackFromEdge(device);
+            UITestHelper.waitForDisplayed(withText(R.string.dialog_unsaved_changes_exit));
+            onView(withText(R.string.cancel)).perform(click());
+            onView(withId(R.id.advanced_collection_page)).check(matches(isDisplayed()));
+        } finally {
+            if (!NAV_MODE_GESTURAL.equals(navMode)) {
+                device.executeShellCommand("cmd overlay enable " + NAV_OVERLAY_PREFIX
+                        + ("1".equals(navMode) ? "twobutton" : "threebutton"));
+            }
+            device.executeShellCommand("settings put secure show_ime_with_hard_keyboard "
+                    + ("null".equals(showIme) ? "0" : showIme));
+        }
+    }
+
+    /**
+     * Swipe in from the left edge of the screen: the back gesture under
+     * gesture navigation
+     */
+    private static void swipeBackFromEdge(UiDevice device) {
+        int y = device.getDisplayHeight() / 2;
+        device.swipe(1, y, device.getDisplayWidth() * 2 / 5, y, 50);
+    }
+
+    /**
+     * Wait until the soft keyboard is shown or hidden
+     */
+    private static void waitForKeyboard(boolean shown) {
+        UITestHelper.waitForAssertion(() -> onView(withId(R.id.advanced_collection_page))
+                .check((view, noViewFoundException) -> {
+                    if (noViewFoundException != null) {
+                        throw noViewFoundException;
+                    }
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(view);
+                    assertEquals("keyboard shown", shown,
+                            insets != null && insets.isVisible(WindowInsetsCompat.Type.ime()));
+                }));
     }
 }
