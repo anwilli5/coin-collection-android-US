@@ -146,7 +146,7 @@ public class DialogRotationTests {
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.delete));
 
         // Viewing after the rotation must still open the collection
-        onView(withText(R.string.view)).perform(click());
+        onView(withText(R.string.view)).perform(UITestHelper.clickInWindow());
         UITestHelper.dismissTutorialDialogs();
         UITestHelper.waitForDisplayed(withId(R.id.standard_collection_page));
         UITestHelper.assertNoLeakedWindows();
@@ -165,7 +165,7 @@ public class DialogRotationTests {
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.warning));
 
         // Confirming after the rotation must still act on the right collection
-        onView(withText(R.string.yes)).perform(click());
+        onView(withText(R.string.yes)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDoesNotExist(withText(COLLECTION_NAME));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -182,7 +182,7 @@ public class DialogRotationTests {
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.warning));
 
-        onView(withText(R.string.no)).perform(click());
+        onView(withText(R.string.no)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withText(COLLECTION_NAME));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -199,7 +199,7 @@ public class DialogRotationTests {
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.toggle_collected));
 
         // Toggling after the rotation must still reach the tapped coin
-        onView(withText(R.string.toggle_collected)).perform(click());
+        onView(withText(R.string.toggle_collected)).perform(UITestHelper.clickInWindow());
         onData(anything())
                 .inAdapterView(withId(R.id.standard_collection_page))
                 .atPosition(0)
@@ -228,8 +228,7 @@ public class DialogRotationTests {
 
         // The typed text survived, and confirming renames the tapped coin
         onView(withId(R.id.coin_name_edittext)).check(matches(withText(RENAMED_COIN)));
-        // Not click(): on API 21-23 the dialog can report a stale position
-        onView(withText(R.string.okay)).perform(UITestHelper.performClick());
+        onView(withText(R.string.okay)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withText(RENAMED_COIN));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -272,7 +271,7 @@ public class DialogRotationTests {
 
         // The typed text survived, and confirming renames the collection
         onView(withId(R.id.dialog_text_input)).check(matches(withText(RENAMED_COLLECTION)));
-        onView(withText(R.string.okay)).perform(click());
+        onView(withText(R.string.okay)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withText(RENAMED_COLLECTION));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -297,7 +296,7 @@ public class DialogRotationTests {
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.filter_dialog_title));
 
-        onView(withText(R.string.show_collected_coins)).perform(click());
+        onView(withText(R.string.show_collected_coins)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withId(R.id.filter_status_indicator));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -329,7 +328,7 @@ public class DialogRotationTests {
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.dialog_unsaved_changes_exit));
 
-        onView(withText(R.string.okay)).perform(click());
+        onView(withText(R.string.okay)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withId(R.id.main_activity_listview));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -351,8 +350,7 @@ public class DialogRotationTests {
 
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.warning_collection_type_change));
 
-        // Not click(): on API 21-23 the dialog can report a stale position
-        onView(withText(R.string.no)).perform(UITestHelper.performClick());
+        onView(withText(R.string.no)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDoesNotExist(withText(R.string.warning_collection_type_change));
         onView(withId(R.id.create_page)).check(matches(isDisplayed()));
         UITestHelper.assertNoLeakedWindows();
