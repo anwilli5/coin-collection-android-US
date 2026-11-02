@@ -57,6 +57,7 @@ import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -80,6 +81,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -397,8 +399,14 @@ public class MainActivity extends BaseActivity {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
-            String[] mimeTypes = {"text/comma-separated-values", "text/csv", "application/json"};
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            ArrayList<String> mimeTypes = new ArrayList<>(Arrays.asList(
+                    "text/comma-separated-values", "text/csv", "application/json"));
+            // Releases whose MIME table doesn't know .json report JSON files as
+            // application/octet-stream, so the picker would grey them out
+            if (!"application/json".equals(MimeTypeMap.getSingleton().getMimeTypeFromExtension("json"))) {
+                mimeTypes.add("application/octet-stream");
+            }
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toArray(new String[0]));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // The files should preferably be placed in the downloads folder
                 Uri pickerInitialUri = Uri.parse(Environment.DIRECTORY_DOWNLOADS);
