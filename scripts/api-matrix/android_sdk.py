@@ -60,6 +60,14 @@ def run(cmd, check=True, timeout=600, **kwargs):
 
 # --- AVDs ---------------------------------------------------------------------
 
+def pin_avd_home():
+    """Point avdmanager and the emulator at the same AVD directory. When
+    XDG_CONFIG_HOME is set (as on GitHub's Linux runners), recent avdmanager
+    versions create AVDs under it, where the emulator doesn't look"""
+    if not os.environ.get("ANDROID_AVD_HOME"):
+        os.environ["ANDROID_AVD_HOME"] = str(Path.home() / ".android" / "avd")
+
+
 def system_image_package(api, abi):
     """The google_apis system image for an API level. Newer levels are published
     as android-<api>.0, older ones as android-<api>"""
@@ -72,6 +80,7 @@ def system_image_package(api, abi):
 
 
 def avd_exists(name):
+    pin_avd_home()
     avds = run([tool("emulator", "emulator"), "-list-avds"]).stdout.split()
     return name in avds
 
@@ -80,6 +89,7 @@ def create_avd(name, api, abi):
     """Install the system image and create a Pixel 6 AVD with an SD card, which
     the API 21-23 file pickers need. google_apis images allow adb root, which
     pulling the app's database needs"""
+    pin_avd_home()
     package = system_image_package(api, abi)
     run([tool("cmdline-tools", "latest", "bin", "sdkmanager"), package], input="y\n" * 10, timeout=1800)
     run([tool("cmdline-tools", "latest", "bin", "avdmanager"), "create", "avd", "-n", name, "-k", package,
@@ -98,6 +108,7 @@ class Device:
 
     @classmethod
     def boot(cls, avd, port, extra_args=(), log_path=None):
+        pin_avd_home()
         args = [tool("emulator", "emulator"), "-avd", avd, "-port", str(port), "-no-window", "-no-audio",
                 "-no-boot-anim", "-no-snapshot", "-wipe-data", *extra_args]
         log = open(log_path, "w", encoding="utf-8") if log_path else subprocess.DEVNULL
