@@ -93,12 +93,15 @@ def create_avd(name, api, abi):
         raise SdkError(f"avdmanager created {name} but doesn't list it:\n{listing}")
     avd_dir = Path(match.group(1))
     os.environ["ANDROID_AVD_HOME"] = str(avd_dir.parent)
-    # The default data partition depends on the avdmanager version, and on
-    # GitHub's runners it is too small for API 37 to install the test APKs
+    # The defaults depend on the avdmanager version. On GitHub's runners the
+    # data partition was too small for API 37 to install the test APKs, and
+    # with 2 GB of RAM its storage service and then the system crashed
+    settings = {"disk.dataPartition.size": "6G", "hw.ramSize": "4G"}
     config = avd_dir / "config.ini"
     lines = [line for line in config.read_text(encoding="utf-8").splitlines()
-             if not line.startswith("disk.dataPartition.size=")]
-    config.write_text("\n".join(lines + ["disk.dataPartition.size=6G"]) + "\n", encoding="utf-8")
+             if line.split("=", 1)[0] not in settings]
+    lines += [f"{key}={value}" for key, value in settings.items()]
+    config.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 # --- Emulators and devices ----------------------------------------------------
