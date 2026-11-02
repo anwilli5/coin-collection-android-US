@@ -123,18 +123,18 @@ SQLite versions, the system file picker) can pass them and still break on a
 user's device. Run this check last, against the pre-release, because it takes
 the longest.
 
-Use the `api-matrix-test` skill. It runs both of its suites on headless
-emulators at every level from `minSdk` to `targetSdk` where one of those
-behaviors changes. Either run the **API Matrix** workflow on the pre-release
-(`gh workflow run api-matrix.yml --ref <tag> -f new_tag=<tag>`) or run the
-script locally:
+Use the `api-matrix-test` skill. Its two suites run on headless emulators at
+every level from `minSdk` to `targetSdk` where one of those behaviors changes:
 
 - `upgrade`: upgrades from the previous release's APK to the pre-release's.
   It compares the database across levels, checks every main screen for
   content under the system bars, imports a JSON backup, and checks the crash
-  log.
+  log. Run it with the **API Matrix** workflow
+  (`gh workflow run api-matrix.yml -f new_tag=<tag>`), or locally.
 - `instrumented`: runs the Espresso suite at each level, including the
-  gesture Back test on API 33+.
+  gesture Back test on API 33+. Run it locally
+  (`python3 scripts/api-matrix/api_matrix.py instrumented`) on the
+  pre-release's commit: it's too timing-sensitive for GitHub's emulators.
 
 Look through each level's screenshots as well as the report. If a level
 fails, rerun it with `--new` set to the previous release's APK. A failure

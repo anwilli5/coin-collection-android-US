@@ -152,5 +152,6 @@ Directory-specific rules live in nested `CLAUDE.md` files:
 - **fastlane-bundle-check.yml**: verifies the bundle installs and the
   Fastfile loads when Fastfile changes.
 - **api-matrix.yml** (manual, not a PR gate): runs the `api-matrix-test`
-  upgrade and instrumented suites on emulators from `minSdk` to `targetSdk`,
-  one job per level. Run it on a pre-release before promoting it.
+  upgrade check on emulators from `minSdk` to `targetSdk`, one job per level.
+  Run it on a pre-release before promoting it. The skill's instrumented suite
+  runs locally only: GitHub's emulators make it flaky.

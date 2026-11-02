@@ -100,21 +100,24 @@ each level, one emulator at a time. A test that runs longer than
 level doesn't stall the run. Tests that need a newer release skip themselves
 on older ones; for example, the gesture Back test only runs on API 33+.
 
+Run this suite locally, not in CI. Its UI tests are timing-sensitive, and
+GitHub's software-rendered emulators are slow enough to make them flaky; on a
+hardware-accelerated emulator the full suite passes at every level.
+
 ## In CI
 
-The **API Matrix** workflow (`.github/workflows/api-matrix.yml`) runs both
-subcommands on GitHub's Linux runners, one job per level. It only runs when
+The **API Matrix** workflow (`.github/workflows/api-matrix.yml`) runs the
+upgrade check on GitHub's Linux runners, one job per level. It only runs when
 started by hand, from the Actions tab or with:
 
 ```bash
-gh workflow run api-matrix.yml --ref v<new>-rc.<n> -f new_tag=v<new>-rc.<n>
+gh workflow run api-matrix.yml -f new_tag=v<new>-rc.<n>
 ```
 
-The upgrade jobs use the APKs attached to the `new_tag` and `old_tag`
-releases. `old_tag` defaults to the latest full release. The instrumented jobs
-test the code at `--ref`. `-f suites=upgrade` or `-f suites=instrumented` runs
-only one kind. Each job adds its report to the run summary and uploads its
-results directory as an artifact.
+The jobs use the APKs attached to the `new_tag` and `old_tag` releases.
+`old_tag` defaults to the latest full release. Each job adds its report to the
+run summary and uploads its results directory as an artifact. The instrumented
+suite isn't part of the workflow; run it locally.
 
 ## Reading the results
 
