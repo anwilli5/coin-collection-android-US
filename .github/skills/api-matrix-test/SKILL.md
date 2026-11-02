@@ -48,10 +48,10 @@ subset.
   `screens.png` that tiles its screenshots.
 - On the first run, pass `--create-avds`. It installs each level's
   `google_apis` system image (about 1.5 GB each) and creates a Pixel 6 AVD
-  with an SD card, a 6 GB data partition and 4 GB of RAM. `google_apis`
-  images allow `adb root`, which pulling the database needs, and the API
-  21–23 file pickers need the SD card. API 37 needs the larger partition and
-  RAM on GitHub's runners. The ABI
+  with a 6 GB data partition, plus an SD card up to API 23, whose file
+  pickers need it. `google_apis` images allow `adb root`, which pulling the
+  database needs. API 37 needs the larger partition on GitHub's runners. The
+  ABI
   follows the host: `arm64-v8a` on Apple silicon and ARM Linux, `x86_64`
   elsewhere.
 

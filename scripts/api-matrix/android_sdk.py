@@ -77,13 +77,14 @@ def avd_exists(name):
 
 
 def create_avd(name, api, abi):
-    """Install the system image and create a Pixel 6 AVD with an SD card, which
-    the API 21-23 file pickers need. google_apis images allow adb root, which
-    pulling the app's database needs"""
+    """Install the system image and create a Pixel 6 AVD. Up to API 23 it gets
+    an SD card, which those releases' file pickers need. google_apis images
+    allow adb root, which pulling the app's database needs"""
     package = system_image_package(api, abi)
     run([tool("cmdline-tools", "latest", "bin", "sdkmanager"), package], input="y\n" * 10, timeout=1800)
+    sd_card = ["-c", "512M"] if api <= 23 else []
     run([tool("cmdline-tools", "latest", "bin", "avdmanager"), "create", "avd", "-n", name, "-k", package,
-         "-d", "pixel_6", "-c", "512M", "--force"], input="no\n")
+         "-d", "pixel_6", *sd_card, "--force"], input="no\n")
     # avdmanager doesn't always put AVDs where the emulator looks: with
     # XDG_CONFIG_HOME set (as on GitHub's Linux runners) it uses a directory
     # under it. Ask where it went and point the emulator there
@@ -93,10 +94,9 @@ def create_avd(name, api, abi):
         raise SdkError(f"avdmanager created {name} but doesn't list it:\n{listing}")
     avd_dir = Path(match.group(1))
     os.environ["ANDROID_AVD_HOME"] = str(avd_dir.parent)
-    # The defaults depend on the avdmanager version. On GitHub's runners the
-    # data partition was too small for API 37 to install the test APKs, and
-    # with 2 GB of RAM its storage service and then the system crashed
-    settings = {"disk.dataPartition.size": "6G", "hw.ramSize": "4G"}
+    # The default depends on the avdmanager version, and on GitHub's runners
+    # it was too small for API 37 to install the test APKs
+    settings = {"disk.dataPartition.size": "6G"}
     config = avd_dir / "config.ini"
     lines = [line for line in config.read_text(encoding="utf-8").splitlines()
              if line.split("=", 1)[0] not in settings]
@@ -129,12 +129,25 @@ class Device:
         while time.time() < deadline:
             if self.process is not None and self.process.poll() is not None:
                 raise SdkError(f"Emulator for {self.serial} exited with code {self.process.returncode}")
-            result = self.adb("shell", "getprop", "sys.boot_completed", check=False, timeout=30)
-            if result.stdout.strip() == "1":
-                break
+            try:
+                result = self.adb("shell", "getprop", "sys.boot_completed", check=False, timeout=30)
+                if result.stdout.strip() == "1":
+                    break
+            except subprocess.TimeoutExpired:
+                pass  # adb can hang while the emulator is still starting
             time.sleep(5)
         else:
             raise SdkError(f"{self.serial} did not boot within {timeout}s")
+        # Shared storage can come up after boot completes
+        while time.time() < deadline:
+            try:
+                if self.adb("shell", "ls", "/sdcard/Download", check=False, timeout=30).returncode == 0:
+                    break
+            except subprocess.TimeoutExpired:
+                pass
+            time.sleep(5)
+        else:
+            raise SdkError(f"{self.serial}'s shared storage wasn't ready within {timeout}s")
         # A freshly booted system stays busy for a while; UI steps run then time out
         time.sleep(settle)
         self.sdk = int(self.getprop("ro.build.version.sdk"))
