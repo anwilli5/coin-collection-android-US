@@ -33,7 +33,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -64,9 +64,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsAnything;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,12 +82,14 @@ public class UITestHelper {
     private static final long SYSTEM_DIALOG_DISMISS_INTERVAL_MS = 5_000;
     private static final int MAX_LOGCAT_ERROR_CHARS = 2_000;
 
+    private static final String LEAK_CHECK_TAG = "UITestHelper";
+
     /**
-     * Why the last clearLogcat() call failed, or null if it succeeded. Starts
-     * out set so that a leak assertion made without clearing logcat first
+     * The line the last clearLogcat() call logged, or null if it was never
+     * called, so that a leak assertion made without clearing logcat first
      * fails instead of quietly inspecting another test's output
      */
-    private static String sLogcatClearError = "logcat was never cleared";
+    private static String sLeakCheckMarker = null;
 
     public static String getString(@StringRes int resId) {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -762,13 +762,22 @@ public class UITestHelper {
     }
 
     /**
-     * Clears the app's logcat buffer so a later leak check only inspects
-     * output produced by the current test. Records why the clear failed (if
-     * it did) so that assertNoLeakedWindows() can tell "no leak was found"
-     * apart from "the leak check never ran"
+     * Clears logcat so a later leak check only inspects output produced by
+     * the current test, then logs a marker that assertNoLeakedWindows() looks
+     * for. Finding the marker proves the log it read covers this test, so it
+     * can tell "no leak was found" apart from "the leak check never ran".
+     * logcat runs as the shell user: on older releases the app can't run it
+     * itself (API 21 refuses the exec and API 26 refuses the clear)
      */
     public static void clearLogcat() {
-        sLogcatClearError = runLogcat(new String[]{"logcat", "-c"}, null);
+        try {
+            UiDevice.getInstance(getInstrumentation()).executeShellCommand("logcat -c");
+        } catch (IOException ignored) {
+            // If the clear fails, a leak an earlier test left in the log is
+            // still ignored, since only lines after the marker are checked
+        }
+        sLeakCheckMarker = "Leak check start " + SystemClock.elapsedRealtimeNanos();
+        Log.i(LEAK_CHECK_TAG, sLeakCheckMarker);
     }
 
     /**
@@ -779,61 +788,38 @@ public class UITestHelper {
      * dialog open used to produce. This app's activities live in the
      * com.coincollection package, so match on that rather than the application
      * id (com.spencerpages), which never appears in the leak line.
-     * Also fails when logcat could not be cleared or read, since a check that
-     * never inspected any logs must not be reported as a passing one
+     * Also fails when logcat could not be read, or didn't contain
+     * clearLogcat()'s marker, since a check that never inspected this test's
+     * logs must not be reported as a passing one
      */
     public static void assertNoLeakedWindows() {
-        if (sLogcatClearError != null) {
-            throw new AssertionError("Window leak check did not run: " + sLogcatClearError);
+        if (sLeakCheckMarker == null) {
+            throw new AssertionError("Window leak check did not run: clearLogcat() was never called");
+        }
+        // Only print the marker and WindowManager errors (where WindowLeaked is
+        // logged). On API 21 the shell command must finish before its output
+        // is read, so output larger than the pipe's buffer would hang it
+        String log;
+        try {
+            log = UiDevice.getInstance(getInstrumentation()).executeShellCommand(
+                    "logcat -d -b main -s " + LEAK_CHECK_TAG + ":I WindowManager:E");
+        } catch (IOException e) {
+            throw new AssertionError("Window leak check did not run: logcat could not be read", e);
+        }
+        int markerIndex = log.indexOf(sLeakCheckMarker);
+        if (markerIndex < 0) {
+            throw new AssertionError("Window leak check did not run: logcat doesn't contain the marker '"
+                    + sLeakCheckMarker + "'. It printed:\n"
+                    + log.substring(0, Math.min(log.length(), MAX_LOGCAT_ERROR_CHARS)));
         }
         StringBuilder leaks = new StringBuilder();
-        String readError = runLogcat(new String[]{"logcat", "-d", "-b", "main"}, leaks);
-        if (readError != null) {
-            throw new AssertionError("Window leak check did not run: " + readError);
+        for (String line : log.substring(markerIndex).split("\n")) {
+            if (line.contains("WindowLeaked") && line.contains("com.coincollection.")) {
+                leaks.append(line).append('\n');
+            }
         }
         if (leaks.length() != 0) {
             throw new AssertionError("Leaked dialog window(s):\n" + leaks);
-        }
-    }
-
-    /**
-     * Runs a logcat command to completion, collecting any WindowLeaked lines
-     * that name this app's activities. stderr is merged into stdout so that a
-     * failing command's diagnostics show up in the returned message
-     *
-     * @param command logcat command to run
-     * @param leaks   collects matching leak lines, or null to only drain output
-     * @return null if the command succeeded, otherwise why it did not
-     */
-    private static String runLogcat(String[] command, StringBuilder leaks) {
-        String description = "'" + TextUtils.join(" ", command) + "'";
-        StringBuilder output = new StringBuilder();
-        try {
-            Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (leaks != null && line.contains("WindowLeaked")
-                            && line.contains("com.coincollection.")) {
-                        leaks.append(line).append('\n');
-                    }
-                    if (output.length() < MAX_LOGCAT_ERROR_CHARS) {
-                        output.append(line).append('\n');
-                    }
-                }
-            }
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                return description + " exited with " + exitCode + ":\n" + output;
-            }
-            return null;
-        } catch (IOException e) {
-            return description + " could not be run: " + e;
-        } catch (InterruptedException e) {
-            // Restore the interrupt flag so later blocking calls see it
-            Thread.currentThread().interrupt();
-            return description + " was interrupted";
         }
     }
 
