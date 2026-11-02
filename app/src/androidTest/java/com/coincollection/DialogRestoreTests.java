@@ -30,21 +30,32 @@ import static com.coincollection.dialog.DialogRequests.KEY_SELECTED_INDEX;
 import static com.coincollection.dialog.DialogRequests.PAYLOAD_COIN_DATABASE_ID;
 import static com.coincollection.dialog.DialogRequests.REQUEST_COIN_ACTIONS;
 import static com.coincollection.dialog.DialogRequests.TAG_ALERT_PREFIX;
+import static com.coincollection.dialog.DialogRequests.TAG_PROGRESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import android.app.Activity;
+import android.app.Application;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
+import com.coincollection.dialog.ProgressDialogFragment;
 import com.spencerpages.MainApplication;
 import com.spencerpages.R;
 import com.spencerpages.UITestHelper;
@@ -86,6 +97,7 @@ public class DialogRestoreTests {
     private static final String SECOND_ALERT = "Second alert text";
 
     private final GatedExecutor mGatedExecutor = new GatedExecutor();
+    private final SpinnerHider mSpinnerHider = new SpinnerHider();
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
@@ -93,6 +105,7 @@ public class DialogRestoreTests {
 
     @Before
     public void setUp() {
+        mSpinnerHider.register(activityRule);
         UITestHelper.ensureDbOpen();
         UITestHelper.suppressAllTutorials();
         // The rule launched the activity before the tutorials were suppressed, so
@@ -109,6 +122,7 @@ public class DialogRestoreTests {
         // Let any held task finish so its thread isn't left parked
         mGatedExecutor.release();
         mGatedExecutor.shutdown();
+        mSpinnerHider.unregister();
         UITestHelper.setOrientationNatural();
         UITestHelper.ensureDbOpen();
         UITestHelper.deleteAllCollections();
@@ -143,6 +157,81 @@ public class DialogRestoreTests {
 
         void shutdown() {
             mDelegate.shutdown();
+        }
+    }
+
+    /**
+     * Hides the spinner in every progress dialog, including one restored in a
+     * recreated activity, before it starts animating. These tests keep a
+     * progress dialog up while they rotate and check it. Before API 25 the
+     * spinner animates on the main thread rather than the render thread, so
+     * the main thread never goes idle while it shows, and Espresso (and
+     * ActivityScenario.onActivity()) would wait until the held task timed out.
+     * The tests check the dialog's message, which stays visible
+     */
+    private static class SpinnerHider extends FragmentManager.FragmentLifecycleCallbacks
+            implements Application.ActivityLifecycleCallbacks {
+
+        private final Application mApplication = (Application)
+                getInstrumentation().getTargetContext().getApplicationContext();
+
+        void register(ActivityScenarioRule<MainActivity> rule) {
+            mApplication.registerActivityLifecycleCallbacks(this);
+            // The rule launched its activity before this was registered
+            rule.getScenario().onActivity(this::watchFragments);
+        }
+
+        void unregister() {
+            mApplication.unregisterActivityLifecycleCallbacks(this);
+        }
+
+        private void watchFragments(Activity activity) {
+            if (activity instanceof FragmentActivity) {
+                ((FragmentActivity) activity).getSupportFragmentManager()
+                        .registerFragmentLifecycleCallbacks(this, false);
+            }
+        }
+
+        @Override
+        public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            // The dialog is shown in onStart(), but its views aren't attached to
+            // the window (which starts the spinner) until the next frame
+            if (f instanceof ProgressDialogFragment) {
+                Dialog dialog = ((ProgressDialogFragment) f).getDialog();
+                View spinner = (dialog != null) ? dialog.findViewById(R.id.progress_spinner) : null;
+                if (spinner != null) {
+                    spinner.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        @Override
+        public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            watchFragments(activity);
+        }
+
+        @Override
+        public void onActivityStarted(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityResumed(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityPaused(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityStopped(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+        }
+
+        @Override
+        public void onActivityDestroyed(@NonNull Activity activity) {
         }
     }
 
@@ -260,8 +349,17 @@ public class DialogRestoreTests {
 
         activityRule.getScenario().recreate();
 
-        UITestHelper.waitForDoesNotExist(withId(R.id.progress_message));
-        UITestHelper.waitForDisplayed(withId(R.id.main_activity_listview));
+        // Checked through the FragmentManager rather than the view hierarchy.
+        // On API 26 and 33, recreate() with a dialog focused can leave window
+        // focus with the destroyed activity's window, and Espresso won't look
+        // at a view hierarchy until a window has focus. A real relaunch, such
+        // as switching to dark mode, moves focus as usual
+        UITestHelper.waitForAssertion(() -> activityRule.getScenario().onActivity(activity -> {
+            assertNull("The stale progress dialog should be dismissed",
+                    activity.getSupportFragmentManager().findFragmentByTag(TAG_PROGRESS));
+            assertEquals(View.VISIBLE,
+                    activity.findViewById(R.id.main_activity_listview).getVisibility());
+        }));
         UITestHelper.assertNoLeakedWindows();
     }
 
