@@ -137,7 +137,10 @@ if any level failed.
   depends on the SQLite version.
 - **`ERROR` rows** mean the level couldn't run: the AVD couldn't boot, or a
   step couldn't find its UI. Each level's directory has `emulator.log` and
-  the screens it captured. Rerun just that level with `--levels`.
+  the screens it captured. `emulator.log` only covers the emulator program,
+  so a level that fails after booting also saves Android's side:
+  `logcat.txt` (all buffers), `processes.txt`, `mounts.txt` and
+  `storage.txt`. Rerun just that level with `--levels`.
 
 ## Seed backup
 
