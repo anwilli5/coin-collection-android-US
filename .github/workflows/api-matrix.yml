@@ -79,10 +79,14 @@ jobs:
         echo "Upgrading from $old to $NEW_TAG"
         gh release download "$old" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/old
         gh release download "$NEW_TAG" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/new
+    # The runners have no GPU, so render in software with ANGLE on SwiftShader.
+    # Plain SwiftShader (swiftshader_indirect) crashes API 37's SurfaceFlinger
+    # every ~40 s (GoldfishMapper asserts !hasReadColorBufferDma), and each
+    # crash restarts the framework and takes /sdcard down with it.
     - name: Upgrade test
       run: |
         python3 scripts/api-matrix/api_matrix.py upgrade --create-avds --levels ${{ matrix.level }} \
-          --abi x86_64 --emulator-arg=-gpu --emulator-arg=swiftshader_indirect \
+          --abi x86_64 --emulator-arg=-gpu --emulator-arg=swangle \
           --old apks/old/app-android-release-*.apk --new apks/new/app-android-release-*.apk \
           --out build/api-matrix/upgrade
     - name: Job summary
