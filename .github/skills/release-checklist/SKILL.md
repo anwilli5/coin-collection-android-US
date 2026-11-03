@@ -130,7 +130,9 @@ every level from `minSdk` to `targetSdk` where one of those behaviors changes:
   It compares the database across levels, checks every main screen for
   content under the system bars, imports a JSON backup, and checks the crash
   log. Run it with the **API Matrix** workflow
-  (`gh workflow run api-matrix.yml -f new_tag=<tag>`), or locally.
+  (`gh workflow run api-matrix.yml -f new_tag=<tag>`), or locally. The
+  workflow skips the levels in its `SKIP_LEVELS`; run those locally with
+  `--levels`.
 - `instrumented`: runs the Espresso suite at each level, including the
   gesture Back test on API 33+. Run it locally
   (`python3 scripts/api-matrix/api_matrix.py instrumented`) on the

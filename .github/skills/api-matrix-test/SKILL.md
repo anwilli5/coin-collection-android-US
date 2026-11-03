@@ -119,6 +119,12 @@ The jobs use the APKs attached to the `new_tag` and `old_tag` releases.
 run summary and uploads its results directory as an artifact. The instrumented
 suite isn't part of the workflow; run it locally.
 
+Levels whose system image doesn't work on GitHub's runners are listed in
+`SKIP_LEVELS` in the workflow, with the reason. Run the upgrade check for
+those locally (`--levels`). API 37 is there now: its x86_64 image's
+SurfaceFlinger keeps crashing on the runners' software renderer, which
+restarts Android and breaks `/sdcard`.
+
 ## Reading the results
 
 Results go to `build/api-matrix/<command>/`, or to `--out`. `report.md` is a
