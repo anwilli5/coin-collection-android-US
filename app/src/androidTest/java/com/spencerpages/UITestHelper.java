@@ -34,7 +34,9 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import androidx.annotation.ArrayRes;
@@ -738,14 +740,14 @@ public class UITestHelper {
     }
 
     /**
-     * ViewAction that clicks a view through View.performClick() instead of a
-     * touch at its position on screen. On API 21-23, when the keyboard opens
-     * after a rotation it moves a dialog without resizing it, and the dialog
-     * keeps reporting where it was before the move, so a touch-based click()
-     * lands where the dialog used to be. Use this for a dialog button on a
-     * page with a text field, after a rotation
+     * ViewAction that taps a view by sending the touch straight to its window,
+     * at its position within that window. On API 21-23 a dialog can keep
+     * reporting its position on screen from before a rotation (or from before
+     * the keyboard moved it), so click(), which taps the screen, lands where
+     * the dialog used to be, even off screen. Use this for a dialog's buttons
+     * and list items after a rotation
      */
-    public static ViewAction performClick() {
+    public static ViewAction clickInWindow() {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
@@ -754,13 +756,29 @@ public class UITestHelper {
 
             @Override
             public String getDescription() {
-                return "Click through View.performClick()";
+                return "Tap within the view's window";
             }
 
             @Override
             public void perform(UiController uiController, View view) {
-                view.performClick();
-                uiController.loopMainThreadUntilIdle();
+                int[] location = new int[2];
+                view.getLocationInWindow(location);
+                float x = location[0] + view.getWidth() / 2f;
+                float y = location[1] + view.getHeight() / 2f;
+                View root = view.getRootView();
+                long downTime = SystemClock.uptimeMillis();
+                MotionEvent down = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0);
+                root.dispatchTouchEvent(down);
+                down.recycle();
+                uiController.loopMainThreadForAtLeast(50);
+                MotionEvent up = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_UP, x, y, 0);
+                root.dispatchTouchEvent(up);
+                up.recycle();
+                // A list runs a quick tap's click after the pressed state has
+                // shown, as a delayed task, so keep the main thread running
+                // through it (as click() does)
+                uiController.loopMainThreadForAtLeast(ViewConfiguration.getPressedStateDuration() + 50);
             }
         };
     }

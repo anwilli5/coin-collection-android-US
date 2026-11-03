@@ -157,7 +157,7 @@ public class HelpDialogTests {
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.tutorial_reorder_collections));
         assertEquals("Only one reorder tip should be showing", 1, countHelpDialogs());
 
-        onView(withText(R.string.okay_exp)).perform(click());
+        onView(withText(R.string.okay_exp)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDisplayed(withId(R.id.reorder_collections_recycler_view));
         UITestHelper.assertNoLeakedWindows();
     }
@@ -176,7 +176,7 @@ public class HelpDialogTests {
         UITestHelper.rotateAndAssertStillDisplayed(withText(R.string.intro_message));
         assertEquals("Only one intro tip should be showing", 1, countHelpDialogs());
 
-        onView(withText(R.string.okay_exp)).perform(click());
+        onView(withText(R.string.okay_exp)).perform(UITestHelper.clickInWindow());
         UITestHelper.waitForDoesNotExist(withText(R.string.intro_message));
         UITestHelper.assertNoLeakedWindows();
     }
