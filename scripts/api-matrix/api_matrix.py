@@ -83,10 +83,30 @@ def for_each_level(args, run_level):
         except Exception as e:  # report the level as failed and carry on with the next
             log(level, f"ERROR: {e}")
             results[level] = {"error": str(e)}
+            if device is not None:
+                save_diagnostics(device, outdir)
         finally:
             if device is not None:
                 device.kill()
     return results
+
+
+def save_diagnostics(device, outdir):
+    """Save what was happening inside Android when a level failed: all logcat
+    buffers, running processes and the storage mounts. emulator.log only covers
+    the host side"""
+    commands = {
+        "logcat.txt": ["logcat", "-d", "-b", "all", "-v", "threadtime"],
+        "processes.txt": ["shell", "ps", "-A"],
+        "mounts.txt": ["shell", "cat", "/proc/mounts"],
+        "storage.txt": ["shell", "dumpsys", "mount"],
+    }
+    for name, command in commands.items():
+        try:
+            out = device.adb(*command, check=False, timeout=120)
+            (outdir / name).write_text(out.stdout + out.stderr, encoding="utf-8", errors="replace")
+        except Exception as e:  # keep the level's own error; this is best effort
+            (outdir / name).write_text(f"couldn't run {' '.join(command)}: {e}\n", encoding="utf-8")
 
 
 # --- App helpers ------------------------------------------------------------------

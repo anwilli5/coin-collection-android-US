@@ -1,12 +1,15 @@
-# Runs the app on emulators across Android API levels, from minSdk to
-# targetSdk, one job per level (scripts/api-matrix/api_matrix.py; see the
-# api-matrix-test skill):
+# Runs the upgrade check on emulators across Android API levels, from minSdk
+# to targetSdk, one job per level (scripts/api-matrix/api_matrix.py; see the
+# api-matrix-test skill). Each job installs the previous release, imports a
+# seed backup, installs the release under test over it, then checks the
+# database, every main screen and JSON import. It uses the APKs attached to
+# the two GitHub releases, so it can run from any branch. Levels in
+# SKIP_LEVELS (the levels job) don't run here; test those locally.
 #
-# - Upgrade: installs the previous release, imports a seed backup, installs the
-#   release under test over it, then checks the database, every main screen and
-#   JSON import. Uses the APKs attached to the two GitHub releases.
-# - Instrumented: runs the Espresso suite against the code at the ref this
-#   workflow runs on, so dispatch it on the release's tag or branch.
+# The script's instrumented suite isn't run here: GitHub's software-rendered
+# emulators are slow enough to make its timing-sensitive UI tests flaky, so
+# run it locally (see the skill). CI already runs that suite on every PR, on
+# one API level (instrumented.yml).
 #
 # Manual only: start it before promoting a pre-release, e.g.
 #   gh workflow run api-matrix.yml -f new_tag=v3.9.0-rc.2
@@ -17,16 +20,11 @@ on:
   workflow_dispatch:
     inputs:
       new_tag:
-        description: 'Release or pre-release to test, e.g. v3.9.0-rc.2 (for the upgrade jobs)'
+        description: 'Release or pre-release to test, e.g. v3.9.0-rc.2'
         required: true
       old_tag:
         description: 'Release to upgrade from (default: the latest full release)'
         required: false
-      suites:
-        description: 'Which jobs to run'
-        type: choice
-        options: [ both, upgrade, instrumented ]
-        default: both
 
 permissions:
   contents: read
@@ -39,17 +37,25 @@ jobs:
       levels: ${{ steps.levels.outputs.levels }}
     steps:
     - uses: actions/checkout@v7
-    # The script owns the level list (minSdk and targetSdk from app/build.gradle)
+    # The script owns the level list (minSdk and targetSdk from app/build.gradle).
+    # SKIP_LEVELS are levels whose system image is broken on these runners; test
+    # them locally. API 37's x86_64 image crash-loops SurfaceFlinger here: its
+    # gralloc mapper asserts !hasReadColorBufferDma about once a minute or more
+    # often, under SwiftShader or ANGLE and with GLAsyncSwap off, and each
+    # abort restarts the framework and takes /sdcard down. The arm64 image runs
+    # cleanly. Drop a level from the list when a newer image fixes it.
     - id: levels
+      env:
+        SKIP_LEVELS: '[37]'
       run: |
-        levels=$(python3 -c "import json, sys; sys.path.insert(0, 'scripts/api-matrix'); \
-          from api_matrix import default_levels; print(json.dumps(default_levels()))")
+        levels=$(python3 -c "import json, os, sys; sys.path.insert(0, 'scripts/api-matrix'); \
+          from api_matrix import default_levels; skip = json.loads(os.environ['SKIP_LEVELS']); \
+          print(json.dumps([level for level in default_levels() if level not in skip]))")
         echo "levels=$levels" >> "$GITHUB_OUTPUT"
 
   upgrade:
     name: Upgrade (API ${{ matrix.level }})
     needs: levels
-    if: inputs.suites != 'instrumented'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -98,50 +104,4 @@ jobs:
       with:
         name: api-matrix-upgrade-api${{ matrix.level }}
         path: build/api-matrix/upgrade/
-        if-no-files-found: ignore
-
-  instrumented:
-    name: Instrumented (API ${{ matrix.level }})
-    needs: levels
-    if: inputs.suites != 'upgrade'
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        level: ${{ fromJSON(needs.levels.outputs.levels) }}
-    steps:
-    - uses: actions/checkout@v7
-    - name: Java Setup
-      uses: actions/setup-java@v6.1.0
-      with:
-        java-version-file: .java-version
-        distribution: 'temurin'
-    - name: Gradle Setup
-      uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Enable KVM
-      run: |
-        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-        sudo udevadm control --reload-rules
-        sudo udevadm trigger --name-match=kvm
-    - name: Install the emulator
-      run: |
-        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
-        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" emulator platform-tools > /dev/null
-    - name: Instrumented tests
-      run: |
-        python3 scripts/api-matrix/api_matrix.py instrumented --create-avds --levels ${{ matrix.level }} \
-          --abi x86_64 --emulator-arg=-gpu --emulator-arg=swiftshader_indirect \
-          --out build/api-matrix/instrumented
-    - name: Job summary
-      if: always()
-      run: cat build/api-matrix/instrumented/report.md >> "$GITHUB_STEP_SUMMARY" || true
-    - name: Upload results
-      if: always()
-      uses: actions/upload-artifact@v7
-      with:
-        name: api-matrix-instrumented-api${{ matrix.level }}
-        path: build/api-matrix/instrumented/
         if-no-files-found: ignore

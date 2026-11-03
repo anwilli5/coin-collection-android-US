@@ -48,8 +48,10 @@ subset.
   `screens.png` that tiles its screenshots.
 - On the first run, pass `--create-avds`. It installs each level's
   `google_apis` system image (about 1.5 GB each) and creates a Pixel 6 AVD
-  with an SD card. `google_apis` images allow `adb root`, which pulling the
-  database needs, and the API 21–23 file pickers need the SD card. The ABI
+  with a 6 GB data partition, plus an SD card up to API 23, whose file
+  pickers need it. `google_apis` images allow `adb root`, which pulling the
+  database needs. API 37 needs the larger partition on GitHub's runners. The
+  ABI
   follows the host: `arm64-v8a` on Apple silicon and ARM Linux, `x86_64`
   elsewhere.
 
@@ -98,21 +100,30 @@ each level, one emulator at a time. A test that runs longer than
 level doesn't stall the run. Tests that need a newer release skip themselves
 on older ones; for example, the gesture Back test only runs on API 33+.
 
+Run this suite locally, not in CI. Its UI tests are timing-sensitive, and
+GitHub's software-rendered emulators are slow enough to make them flaky; on a
+hardware-accelerated emulator the full suite passes at every level.
+
 ## In CI
 
-The **API Matrix** workflow (`.github/workflows/api-matrix.yml`) runs both
-subcommands on GitHub's Linux runners, one job per level. It only runs when
+The **API Matrix** workflow (`.github/workflows/api-matrix.yml`) runs the
+upgrade check on GitHub's Linux runners, one job per level. It only runs when
 started by hand, from the Actions tab or with:
 
 ```bash
-gh workflow run api-matrix.yml --ref v<new>-rc.<n> -f new_tag=v<new>-rc.<n>
+gh workflow run api-matrix.yml -f new_tag=v<new>-rc.<n>
 ```
 
-The upgrade jobs use the APKs attached to the `new_tag` and `old_tag`
-releases. `old_tag` defaults to the latest full release. The instrumented jobs
-test the code at `--ref`. `-f suites=upgrade` or `-f suites=instrumented` runs
-only one kind. Each job adds its report to the run summary and uploads its
-results directory as an artifact.
+The jobs use the APKs attached to the `new_tag` and `old_tag` releases.
+`old_tag` defaults to the latest full release. Each job adds its report to the
+run summary and uploads its results directory as an artifact. The instrumented
+suite isn't part of the workflow; run it locally.
+
+Levels whose system image doesn't work on GitHub's runners are listed in
+`SKIP_LEVELS` in the workflow, with the reason. Run the upgrade check for
+those locally (`--levels`). API 37 is there now: its x86_64 image's
+SurfaceFlinger keeps crashing on the runners' software renderer, which
+restarts Android and breaks `/sdcard`.
 
 ## Reading the results
 
@@ -132,7 +143,10 @@ if any level failed.
   depends on the SQLite version.
 - **`ERROR` rows** mean the level couldn't run: the AVD couldn't boot, or a
   step couldn't find its UI. Each level's directory has `emulator.log` and
-  the screens it captured. Rerun just that level with `--levels`.
+  the screens it captured. `emulator.log` only covers the emulator program,
+  so a level that fails after booting also saves Android's side:
+  `logcat.txt` (all buffers), `processes.txt`, `mounts.txt` and
+  `storage.txt`. Rerun just that level with `--levels`.
 
 ## Seed backup
 
