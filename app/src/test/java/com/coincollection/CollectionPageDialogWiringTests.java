@@ -19,6 +19,7 @@
  */
 package com.coincollection;
 
+import static com.coincollection.dialog.DialogRequests.TAG_COIN_EDIT;
 import static com.coincollection.dialog.DialogRequests.TAG_LIST_CHOICE;
 import static com.spencerpages.SharedTest.COLLECTION_LIST_INFO_SCENARIOS;
 import static org.junit.Assert.assertEquals;
@@ -35,9 +36,11 @@ import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.coincollection.dialog.CoinEditDialogFragment;
 import com.coincollection.dialog.ListChoiceDialogFragment;
 import com.coincollection.helper.ParcelableHashMap;
 import com.spencerpages.BaseTestCase;
+import com.spencerpages.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -163,6 +166,43 @@ public class CollectionPageDialogWiringTests extends BaseTestCase {
                         containsDatabaseId(activity.mCoinList, tappedDatabaseId[0]));
                 assertFalse("The tapped coin should have been deleted from the full list",
                         containsDatabaseId(activity.mOriginalCoinList, tappedDatabaseId[0]));
+            });
+        }
+    }
+
+    /**
+     * Add Coin must title the shared create/edit dialog "Add Coin"; Edit must
+     * keep "Edit coin details" (#516).
+     */
+    @Test
+    public void test_coinEditDialogTitleDependsOnCreateVsEdit() {
+        Intent intent = createCollectionAndGetLaunchIntent();
+        try (ActivityScenario<CollectionPage> scenario = ActivityScenario.launch(intent)) {
+            scenario.onActivity(activity -> withDialogsEnabled(() ->
+                    activity.showCoinCreateOrRenamePrompt(0, true)));
+            shadowOf(Looper.getMainLooper()).idle();
+            scenario.onActivity(activity -> {
+                activity.getSupportFragmentManager().executePendingTransactions();
+                Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(TAG_COIN_EDIT);
+                assertNotNull(fragment);
+                assertTrue(fragment instanceof CoinEditDialogFragment);
+                assertNotNull(((CoinEditDialogFragment) fragment).getArguments());
+                assertEquals(activity.getString(R.string.add_coin),
+                        ((CoinEditDialogFragment) fragment).getArguments().getString("title"));
+                ((CoinEditDialogFragment) fragment).dismissAllowingStateLoss();
+            });
+            shadowOf(Looper.getMainLooper()).idle();
+
+            scenario.onActivity(activity -> withDialogsEnabled(() ->
+                    activity.showCoinCreateOrRenamePrompt(TAP_POSITION, false)));
+            shadowOf(Looper.getMainLooper()).idle();
+            scenario.onActivity(activity -> {
+                activity.getSupportFragmentManager().executePendingTransactions();
+                Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(TAG_COIN_EDIT);
+                assertNotNull(fragment);
+                assertNotNull(((CoinEditDialogFragment) fragment).getArguments());
+                assertEquals(activity.getString(R.string.edit_coin_info),
+                        ((CoinEditDialogFragment) fragment).getArguments().getString("title"));
             });
         }
     }
