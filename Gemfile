@@ -8,6 +8,6 @@ gem 'fastlane-plugin-amazon_appstore', '~> 1.7.1'
 # under `bundle exec`, so it has to be declared here. minitest 6 moved
 # Object#stub out into the separate minitest-mock gem.
 group :test do
-  gem "minitest", "~> 6.0"
+  gem "minitest", "~> 6.1"
   gem "minitest-mock", "~> 5.27"
 end

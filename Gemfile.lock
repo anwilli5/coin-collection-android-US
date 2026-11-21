@@ -181,9 +181,9 @@ GEM
     logger (1.7.0)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
-    minitest (6.0.6)
+    minitest (6.1.0)
       drb (~> 2.0)
-      prism (~> 1.5)
+      prism (>= 1.5, < 3)
     minitest-mock (5.27.0)
     multi_json (1.21.2)
     multipart-post (2.4.1)
@@ -203,7 +203,10 @@ GEM
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.1)
-    prism (1.9.0)
+    prism (2.1.0-aarch64-linux-gnu)
+    prism (2.1.0-arm64-darwin)
+    prism (2.1.0-x86_64-darwin)
+    prism (2.1.0-x86_64-linux-gnu)
     pstore (0.3.0)
     public_suffix (7.0.5)
     rake (13.4.2)
@@ -273,7 +276,7 @@ PLATFORMS
 DEPENDENCIES
   fastlane (~> 2.241.2)
   fastlane-plugin-amazon_appstore (~> 1.7.1)
-  minitest (~> 6.0)
+  minitest (~> 6.1)
   minitest-mock (~> 5.27)
 
 BUNDLED WITH
