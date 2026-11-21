@@ -1087,7 +1087,8 @@ public class CollectionPage extends BaseActivity {
      * @param position      the CoinSlot index to update
      * @param createNewCoin if true, creates a new coin at the end of the list
      */
-    private void showCoinCreateOrRenamePrompt(int position, boolean createNewCoin) {
+    // Package-visible so unit tests can open create vs edit and assert the title (#516).
+    void showCoinCreateOrRenamePrompt(int position, boolean createNewCoin) {
         if (isCollectionLocked(true)) {
             return;
         }
@@ -1099,9 +1100,12 @@ public class CollectionPage extends BaseActivity {
         payload.putBoolean(PAYLOAD_CREATE_NEW_COIN, createNewCoin);
         payload.putLong(PAYLOAD_COIN_DATABASE_ID,
                 (editCoinSlot != null) ? editCoinSlot.getDatabaseId() : 0);
+        // Add Coin and Edit share this dialog; use the matching title so a
+        // blank create form is not labelled "Edit coin details" (#516).
+        String title = mRes.getString(createNewCoin ? R.string.add_coin : R.string.edit_coin_info);
         showDialogFragment(CoinEditDialogFragment.newInstance(
                 REQUEST_KEY_COLLECTION_PAGE, REQUEST_EDIT_COIN,
-                mRes.getString(R.string.edit_coin_info), editCoinSlot,
+                title, editCoinSlot,
                 mCollectionTypeIndex, payload), TAG_COIN_EDIT);
     }
 

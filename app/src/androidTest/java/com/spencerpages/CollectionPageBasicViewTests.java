@@ -241,8 +241,8 @@ public class CollectionPageBasicViewTests {
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
         onView(withText(R.string.add_coin)).perform(click());
 
-        // Verify dialog
-        onView(withText(R.string.edit_coin_info)).check(matches(isDisplayed()));
+        // Verify dialog — create must use the Add Coin title, not Edit (#516)
+        onView(withText(R.string.add_coin)).check(matches(isDisplayed()));
         onView(withId(R.id.coin_name_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.coin_mint_edittext)).check(matches(isDisplayed()));
 
@@ -256,7 +256,7 @@ public class CollectionPageBasicViewTests {
         onView(withText(R.string.okay)).perform(click());
 
         // Wait for dialog to close
-        UITestHelper.waitForDoesNotExist(withText(R.string.edit_coin_info));
+        UITestHelper.waitForDoesNotExist(withText(R.string.add_coin));
 
         // Verify grid is still displayed
         onView(withId(R.id.standard_collection_page)).check(matches(isDisplayed()));
