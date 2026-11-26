@@ -24,15 +24,20 @@ on:
       - 'fastlane/**'
       - '.github/workflows/**'
 
+permissions:
+  contents: read
+
 jobs:
   bundle-check:
     name: Bundle install & Fastlane load
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
         with:
           # Ruby version defined in .ruby-version
           bundler-cache: true

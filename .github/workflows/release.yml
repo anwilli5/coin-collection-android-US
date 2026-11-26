@@ -18,6 +18,9 @@ concurrency:
   group: store-release-pipeline
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   build_and_prerelease:
     name: 'Build APKs, Publish Pre-release, Deploy to Play internal'
@@ -34,8 +37,9 @@ jobs:
           exit 1
 
       - name: Checkout code (full history for release notes)
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0 # Needed for changelog generation between tags
 
       - name: Extract versionName and versionCode from version.properties
@@ -66,9 +70,10 @@ jobs:
         # the Amazon plugin read them from there). Fail fast with a clear message
         # if the operator forgot to add/update them for this versionCode.
         id: release_notes
+        env:
+          VC: ${{ steps.extract_versions.outputs.version_code }}
         run: |
           set -euo pipefail
-          VC="${{ steps.extract_versions.outputs.version_code }}"
           NOTES_FILE="fastlane/metadata/android/en-US/changelogs/${VC}.txt"
           if [ ! -s "$NOTES_FILE" ]; then
             echo "::error::Release notes file $NOTES_FILE is missing or empty. Add it (checked in) before running this workflow."
@@ -90,9 +95,9 @@ jobs:
         id: check_tag
         env:
           INPUT_RC_NUMBER: ${{ github.event.inputs.rc_number }}
+          VERSION_NAME: ${{ steps.extract_versions.outputs.version_name }}
         run: |
           set -euo pipefail
-          VERSION_NAME="${{ steps.extract_versions.outputs.version_name }}"
           # Sanitize the RC number to digits only, then strip leading zeros so
           # e.g. "007" -> "7" (and "0" / "000" -> ""). This rejects 0, which would
           # otherwise produce a meaningless "-rc.0" tag.
@@ -120,7 +125,7 @@ jobs:
           echo "final_tag=$FINAL_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Java (for Gradle)
-        uses: actions/setup-java@v6.3.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: 'temurin'
           # AGP 9.x (com.android.tools.build:gradle 9.2.1) requires JDK 21 to
@@ -146,8 +151,8 @@ jobs:
           # Use printf + env-var (not direct GitHub Actions expression
           # interpolation) so the value never
           # has to survive shell-quoting at the YAML expansion layer.
-          printf '%s' "$SIGNING_KEYSTORE_DATA" | base64 --decode > "${{ github.workspace }}/app/release.keystore"
-          if [ ! -s "${{ github.workspace }}/app/release.keystore" ]; then
+          printf '%s' "$SIGNING_KEYSTORE_DATA" | base64 --decode > "$GITHUB_WORKSPACE/app/release.keystore"
+          if [ ! -s "$GITHUB_WORKSPACE/app/release.keystore" ]; then
             echo "Error: decoded keystore is empty. SIGNING_KEYSTORE_DATA may be malformed."
             exit 1
           fi
@@ -164,8 +169,9 @@ jobs:
           ./gradlew :app:assembleAndroidRelease :app:assembleAmazonRelease 
 
       - name: Verify Versioned APKs Exist
+        env:
+          MVN: ${{ steps.extract_versions.outputs.version_name }} # Version Name
         run: |
-          MVN="${{ steps.extract_versions.outputs.version_name }}" # Version Name
           echo "Checking for app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
           test -f "app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk"
           echo "Checking for app/build/outputs/apk/amazon/release/app-amazon-release-v${MVN}.apk"
@@ -177,8 +183,9 @@ jobs:
         # or signingConfig not applied to the release buildType). Without this check,
         # an unsigned/debug-signed APK could be uploaded to a GitHub Release and only
         # rejected later by the Play/Amazon stores.
+        env:
+          MVN: ${{ steps.extract_versions.outputs.version_name }}
         run: |
-          MVN="${{ steps.extract_versions.outputs.version_name }}"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
           if [ -z "$APKSIGNER" ]; then
             echo "apksigner not found in \$ANDROID_HOME/build-tools"
@@ -206,9 +213,10 @@ jobs:
         # the only record. Fastlane uploads the android mapping to Play
         # separately (see fastlane/Fastfile); these copies cover traces reported
         # outside Play, such as GitHub issues and F-Droid builds.
+        env:
+          MVN: ${{ steps.extract_versions.outputs.version_name }}
         run: |
           set -euo pipefail
-          MVN="${{ steps.extract_versions.outputs.version_name }}"
           mkdir -p release-artifacts
           for FLAVOR in android amazon; do
             SRC="app/build/outputs/mapping/${FLAVOR}Release/mapping.txt"
@@ -221,10 +229,17 @@ jobs:
           ls -l release-artifacts
 
       - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
         with:
-          # Ruby version defined in .ruby-version
-          bundler-cache: true
+          # Ruby version defined in .ruby-version. No bundler-cache: this job
+          # holds store credentials, so gems are installed fresh from
+          # Gemfile.lock rather than restored from a cache.
+          bundler-cache: false
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: 'true'
+        run: bundle install --jobs 4
 
       - name: Create Google Play Key File
         env:
@@ -243,22 +258,23 @@ jobs:
       - name: Deploy to Google Play (internal testing)
         env:
           RC_TAG: ${{ steps.check_tag.outputs.rc_tag }}
+          MVN: ${{ steps.extract_versions.outputs.version_name }}
+          VERSION_CODE: ${{ steps.extract_versions.outputs.version_code }}
         run: |
-          MVN="${{ steps.extract_versions.outputs.version_name }}"
           # Prepend a pre-release notice to the checked-in release notes so
           # internal testers can tell this is a release candidate, not the final
           # build. The Fastfile prepends this to the ephemeral CI copy of
           # <versionCode>.txt before uploading (never committed).
           PRERELEASE_NOTICE="[PRE-RELEASE ${RC_TAG} - internal testing build, not the final release]"
           bundle exec fastlane deploy_playstore_test \
-            apk_path:"${{ github.workspace }}/app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
+            apk_path:"$GITHUB_WORKSPACE/app/build/outputs/apk/android/release/app-android-release-v${MVN}.apk" \
             version_name:"${MVN}" \
-            version_code:"${{ steps.extract_versions.outputs.version_code }}" \
+            version_code:"${VERSION_CODE}" \
             track:"internal" \
             prerelease_notice:"$PRERELEASE_NOTICE"
 
       - name: Create GitHub Pre-release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           tag_name: ${{ steps.check_tag.outputs.rc_tag }}
           name: Pre-release ${{ steps.check_tag.outputs.rc_tag }}

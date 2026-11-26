@@ -39,6 +39,9 @@ concurrency:
   group: store-release-pipeline
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   download_and_deploy:
     name: 'Download Release APKs and Deploy'
@@ -58,8 +61,9 @@ jobs:
           exit 1
 
       - name: Checkout main branch
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: 'main' # main carries the latest version.properties; used as default version source.
 
       - name: Resolve target version and tag
@@ -132,10 +136,17 @@ jobs:
           echo "Release $TAG found."
 
       - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
         with:
-          # Ruby version defined in .ruby-version
-          bundler-cache: true
+          # Ruby version defined in .ruby-version. No bundler-cache: this job
+          # holds store credentials, so gems are installed fresh from
+          # Gemfile.lock rather than restored from a cache.
+          bundler-cache: false
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: 'true'
+        run: bundle install --jobs 4
 
       - name: Download Release APKs from GitHub Release
         id: download_apks
