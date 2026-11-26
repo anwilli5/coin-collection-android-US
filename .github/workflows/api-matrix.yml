@@ -36,7 +36,9 @@ jobs:
     outputs:
       levels: ${{ steps.levels.outputs.levels }}
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     # The script owns the level list (minSdk and targetSdk from app/build.gradle).
     # SKIP_LEVELS are levels whose system image is broken on these runners; test
     # them locally. API 37's x86_64 image crash-loops SurfaceFlinger here: its
@@ -63,9 +65,11 @@ jobs:
       matrix:
         level: ${{ fromJSON(needs.levels.outputs.levels) }}
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Java Setup
-      uses: actions/setup-java@v6.3.0
+      uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
       with:
         java-version-file: .java-version
         distribution: 'temurin'
@@ -90,8 +94,10 @@ jobs:
         gh release download "$old" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/old
         gh release download "$NEW_TAG" --repo "$GITHUB_REPOSITORY" -p 'app-android-release-*.apk' -D apks/new
     - name: Upgrade test
+      env:
+        LEVEL: ${{ matrix.level }}
       run: |
-        python3 scripts/api-matrix/api_matrix.py upgrade --create-avds --levels ${{ matrix.level }} \
+        python3 scripts/api-matrix/api_matrix.py upgrade --create-avds --levels "$LEVEL" \
           --abi x86_64 --emulator-arg=-gpu --emulator-arg=swiftshader_indirect \
           --old apks/old/app-android-release-*.apk --new apks/new/app-android-release-*.apk \
           --out build/api-matrix/upgrade
@@ -100,7 +106,7 @@ jobs:
       run: cat build/api-matrix/upgrade/report.md >> "$GITHUB_STEP_SUMMARY" || true
     - name: Upload results
       if: always()
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: api-matrix-upgrade-api${{ matrix.level }}
         path: build/api-matrix/upgrade/

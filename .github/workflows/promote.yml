@@ -59,24 +59,27 @@ jobs:
           echo "Parsed: rc_tag=$RC_TAG versionName=$VERSION_NAME final_tag=$FINAL_TAG"
 
       - name: Checkout RC tag commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ steps.parse.outputs.rc_tag }}
           fetch-depth: 0 # All tags, to check where an existing final tag points
 
       - name: Resolve commit and versionCode
         id: resolve
+        env:
+          RC_TAG: ${{ steps.parse.outputs.rc_tag }}
         run: |
           set -euo pipefail
           COMMIT_SHA="$(git rev-parse HEAD)"
           VERSION_PROPS_PATH="version.properties"
           if [ ! -f "$VERSION_PROPS_PATH" ]; then
-            echo "$VERSION_PROPS_PATH not found at ${{ steps.parse.outputs.rc_tag }}. Pre-release tags cut before the version moved out of AndroidManifest.xml cannot be promoted by this workflow."
+            echo "$VERSION_PROPS_PATH not found at ${RC_TAG}. Pre-release tags cut before the version moved out of AndroidManifest.xml cannot be promoted by this workflow."
             exit 1
           fi
           VERSION_CODE=$(grep -E '^versionCode=' "$VERSION_PROPS_PATH" | cut -d= -f2- | tr -d '[:space:]')
           if [ -z "$VERSION_CODE" ]; then
-            echo "Could not extract versionCode from $VERSION_PROPS_PATH at ${{ steps.parse.outputs.rc_tag }}"
+            echo "Could not extract versionCode from $VERSION_PROPS_PATH at ${RC_TAG}"
             exit 1
           fi
           echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
@@ -88,12 +91,14 @@ jobs:
         # into the repo at fastlane/metadata/android/en-US/changelogs/<versionCode>.txt
         # (as of the RC tag commit checked out above). No pre-release notice is
         # prepended for the production release.
+        env:
+          VC: ${{ steps.resolve.outputs.version_code }}
+          RC_TAG: ${{ steps.parse.outputs.rc_tag }}
         run: |
           set -euo pipefail
-          VC="${{ steps.resolve.outputs.version_code }}"
           NOTES_FILE="fastlane/metadata/android/en-US/changelogs/${VC}.txt"
           if [ ! -s "$NOTES_FILE" ]; then
-            echo "::error::Release notes file $NOTES_FILE is missing or empty at ${{ steps.parse.outputs.rc_tag }}. Add it (checked in) before promoting."
+            echo "::error::Release notes file $NOTES_FILE is missing or empty at ${RC_TAG}. Add it (checked in) before promoting."
             exit 1
           fi
           echo "Using release notes from $NOTES_FILE:"
@@ -113,12 +118,12 @@ jobs:
         id: state
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RC_TAG: ${{ steps.parse.outputs.rc_tag }}
+          FINAL_TAG: ${{ steps.parse.outputs.final_tag }}
+          VERSION_NAME: ${{ steps.parse.outputs.version_name }}
+          COMMIT_SHA: ${{ steps.resolve.outputs.commit_sha }}
         run: |
           set -euo pipefail
-          RC_TAG="${{ steps.parse.outputs.rc_tag }}"
-          FINAL_TAG="${{ steps.parse.outputs.final_tag }}"
-          VERSION_NAME="${{ steps.parse.outputs.version_name }}"
-          COMMIT_SHA="${{ steps.resolve.outputs.commit_sha }}"
 
           if ! ASSETS="$(gh release view "$RC_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"; then
             echo "Error: pre-release $RC_TAG not found. Run the 'Build and Publish Pre-release' workflow first."
@@ -162,15 +167,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout RC tag commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.commit_sha }}
 
       - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
         with:
-          # Ruby version defined in .ruby-version
-          bundler-cache: true
+          # Ruby version defined in .ruby-version. No bundler-cache: this job
+          # holds store credentials, so gems are installed fresh from
+          # Gemfile.lock rather than restored from a cache.
+          bundler-cache: false
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: 'true'
+        run: bundle install --jobs 4
 
       - name: Create Google Play Key File
         env:
@@ -187,8 +200,10 @@ jobs:
           }
 
       - name: Deploy to Google Play (Production)
+        env:
+          VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
         run: |
-          VERSION_NAME="${{ needs.prepare.outputs.version_name }}"
           # Promote the release already uploaded to the internal track by the
           # pre-release workflow (keyed off versionCode) — Google Play forbids
           # re-uploading an already-published APK, so no apk_path is passed.
@@ -196,7 +211,7 @@ jobs:
           # versionCode.
           bundle exec fastlane deploy_playstore_production \
             version_name:"${VERSION_NAME}" \
-            version_code:"${{ needs.prepare.outputs.version_code }}"
+            version_code:"${VERSION_CODE}"
 
   amazon:
     name: 'Amazon Appstore'
@@ -205,17 +220,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout RC tag commit
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.commit_sha }}
 
       - name: Download Amazon APK from pre-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
         run: |
           set -euo pipefail
-          AMAZON_APK_NAME="app-amazon-release-v${{ needs.prepare.outputs.version_name }}.apk"
-          gh release download "${{ needs.prepare.outputs.rc_tag }}" \
+          AMAZON_APK_NAME="app-amazon-release-v${VERSION_NAME}.apk"
+          gh release download "$RC_TAG" \
             --pattern "$AMAZON_APK_NAME" \
             --dir downloaded_apks \
             --repo "$GITHUB_REPOSITORY"
@@ -225,21 +243,29 @@ jobs:
           fi
 
       - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
         with:
-          # Ruby version defined in .ruby-version
-          bundler-cache: true
+          # Ruby version defined in .ruby-version. No bundler-cache: this job
+          # holds store credentials, so gems are installed fresh from
+          # Gemfile.lock rather than restored from a cache.
+          bundler-cache: false
+
+      - name: Install gems
+        env:
+          BUNDLE_FROZEN: 'true'
+        run: bundle install --jobs 4
 
       - name: Deploy to Amazon Appstore
         env:
           AMAZON_CLIENT_ID: ${{ secrets.AMAZON_CLIENT_ID }}
           AMAZON_CLIENT_SECRET: ${{ secrets.AMAZON_CLIENT_SECRET }}
+          VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
         run: |
-          VERSION_NAME="${{ needs.prepare.outputs.version_name }}"
           bundle exec fastlane deploy_amazon_appstore \
-            apk_path:"${{ github.workspace }}/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
+            apk_path:"$GITHUB_WORKSPACE/downloaded_apks/app-amazon-release-v${VERSION_NAME}.apk" \
             version_name:"${VERSION_NAME}" \
-            version_code:"${{ needs.prepare.outputs.version_code }}"
+            version_code:"${VERSION_CODE}"
 
   release:
     name: 'Final GitHub Release (F-Droid tag)'
@@ -257,10 +283,10 @@ jobs:
         # deobfuscated. See release.yml for where they are produced.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RC_TAG: ${{ needs.prepare.outputs.rc_tag }}
+          VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
         run: |
           set -euo pipefail
-          RC_TAG="${{ needs.prepare.outputs.rc_tag }}"
-          VERSION_NAME="${{ needs.prepare.outputs.version_name }}"
           mkdir -p downloaded_assets
           for NAME in \
             "app-android-release-v${VERSION_NAME}.apk" \
@@ -279,7 +305,7 @@ jobs:
           ls -la downloaded_assets/
 
       - name: Create final GitHub Release (F-Droid picks up this tag)
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           # The bare vX.Y.Z tag is what F-Droid's UpdateCheckMode watches. It is
           # created here, after both stores accepted the build, and points at

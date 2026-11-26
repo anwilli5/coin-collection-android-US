@@ -1,7 +1,10 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# Minor and patch updates are grouped into one PR per ecosystem. Major updates
+# stay as individual PRs: an AGP, Gradle wrapper or action major version can
+# need code or workflow changes and should be reviewed on its own.
+#
+# The cooldown holds a new release back for a few days before Dependabot
+# proposes it, so a compromised or broken release is likely to be yanked
+# before it reaches a PR. Security updates are not delayed by the cooldown.
 
 version: 2
 updates:
@@ -9,11 +12,32 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      gradle-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      github-actions-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      bundler-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
