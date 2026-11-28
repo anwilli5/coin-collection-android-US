@@ -19,6 +19,11 @@ updates:
       gradle-minor-and-patch:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+    ignore:
+      # appcompat 1.8.0+ requires minSdk 23; the app supports minSdk 21.
+      # Remove this rule if minSdk is raised to 23 or higher.
+      - dependency-name: "androidx.appcompat:appcompat"
+        versions: [">= 1.8.0"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
