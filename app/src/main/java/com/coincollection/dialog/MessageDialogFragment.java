@@ -29,8 +29,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+import com.spencerpages.R;
+
 /**
- * A simple informational dialog showing a message, optionally with a single
+ * A simple informational dialog showing a message with a single
  * acknowledgement button. Used for error messages, warnings that need no
  * decision, and the one-time help dialogs (which need the acknowledgement
  * reported back so the "don't show again" preference can be written).
@@ -40,7 +42,9 @@ public class MessageDialogFragment extends BaseDialogFragment {
     private static final String ARG_BUTTON_TEXT = "buttonText";
 
     /**
-     * Creates a dismissible message dialog with no buttons
+     * Creates a dismissible message dialog with an Okay button. Back and taps
+     * outside the dialog also close it, but the button makes that obvious, so a
+     * result or error message isn't left sitting over the screen
      *
      * @param message the message to show
      * @return the new dialog fragment
@@ -49,7 +53,7 @@ public class MessageDialogFragment extends BaseDialogFragment {
         Bundle args = baseArgs(DialogRequests.REQUEST_KEY_BASE_ACTIVITY, REQUEST_NONE, null);
         args.putString(ARG_MESSAGE, message);
         args.putBoolean(ARG_CANCELABLE, true);
-        args.putInt(ARG_BUTTON_TEXT, 0);
+        args.putInt(ARG_BUTTON_TEXT, R.string.okay);
         return newInstance(args);
     }
 

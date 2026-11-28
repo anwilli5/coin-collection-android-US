@@ -35,11 +35,15 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -157,6 +161,36 @@ public class BaseActivityDialogTests extends BaseTestCase {
                 assertTrue(findAlertDialogs(activity).isEmpty());
                 activity.showCancelableAlert("Test alert");
                 assertEquals(1, findAlertDialogs(activity).size());
+            }));
+        }
+    }
+
+    /**
+     * Test that an alert has an Okay button that closes it, and that it can
+     * still be closed with Back or a tap outside it. Without a button, closing
+     * a result or error message wasn't obvious
+     */
+    @Test
+    public void test_alertHasOkayButtonThatClosesIt() {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class))) {
+            scenario.onActivity(activity -> withDialogsEnabled(() -> {
+                activity.showCancelableAlert("Test alert");
+                List<Fragment> alerts = findAlertDialogs(activity);
+                assertEquals(1, alerts.size());
+                DialogFragment alertFragment = (DialogFragment) alerts.get(0);
+                assertTrue("Back and outside taps should still close the alert",
+                        alertFragment.isCancelable());
+
+                AlertDialog dialog = (AlertDialog) alertFragment.requireDialog();
+                Button okayButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                assertNotNull(okayButton);
+                assertEquals(View.VISIBLE, okayButton.getVisibility());
+                assertEquals(activity.getString(R.string.okay), okayButton.getText().toString());
+
+                okayButton.performClick();
+                shadowOf(Looper.getMainLooper()).idle();
+                assertTrue(findAlertDialogs(activity).isEmpty());
             }));
         }
     }
