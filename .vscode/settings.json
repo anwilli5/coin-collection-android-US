@@ -1,5 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic",
     "chat.tools.terminal.autoApprove": {
         "adb": true,
         "seq": true,
@@ -7,14 +6,12 @@
         "emulator": true,
         "bundle": true,
         "mkdir": true,
-        "mv": true,
         "./gradlew": true,
         "./fastlane/avd-screenshot-boot.sh": true,
         "./fastlane/avd-screenshot-create.sh": true,
         "./fastlane/avd-screenshot-kill.sh": true,
         "./fastlane/avd-screenshot-setup.sh": true,
         "./fastlane/capture-screenshots.sh": true,
-        "tee": true,
         "npx markdownlint-cli2": true
     },
     "chat.agent.maxRequests": 500,
