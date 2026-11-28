@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CoinCollection" parent="Theme.AppCompat">
+        <!-- Pin the navigation bar to the window background. Edge to edge,
+             the system draws the bar from this colour, and stock Android
+             falls back to the window background when the theme doesn't set
+             it. One UI's device theme sets a light grey here instead, so
+             3-button navigation showed a light bar with dark buttons (#514) -->
+        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
+    </style>
+</resources>
