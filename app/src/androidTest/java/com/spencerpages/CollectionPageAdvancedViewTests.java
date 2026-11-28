@@ -254,6 +254,13 @@ public class CollectionPageAdvancedViewTests {
         // Tap "Okay" to dismiss — should stay on advanced view
         onView(withText(R.string.okay)).perform(click());
 
+        // Wait for the dialog to close and the activity to get focus back
+        // before tapping Save. CI emulators can take seconds to hand focus
+        // back, and a tap sent before then is dropped, leaving the collection
+        // unsaved and the test waiting for an "Edit" button that never comes
+        UITestHelper.waitForDoesNotExist(withText(R.string.dialog_unsaved_changes_change_views));
+        UITestHelper.waitForWindowFocus();
+
         // Still on advanced view
         onView(withId(R.id.advanced_collection_page)).check(matches(isDisplayed()));
 
